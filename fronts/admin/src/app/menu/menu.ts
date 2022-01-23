@@ -4,15 +4,15 @@ export const menu: CoreMenu[] = [
   {
     id: 'home',
     title: 'Dashboard',
-    translate: 'MENU.HOME',
+    // translate: 'MENU.HOME',
     type: 'item',
     icon: 'home',
-    url: 'home'
+    url: 'dashboard'
   },
   {
     id: 'admin',
     title: 'Administrativo',
-    translate: 'MENU.ADMIN',
+    // translate: 'MENU.ADMIN',
     type: 'item',
     icon: 'file',
     url: 'administrative'
@@ -20,7 +20,7 @@ export const menu: CoreMenu[] = [
   {
     id: 'academic',
     title: 'Academico',
-    translate: 'MENU.ACADEMIC',
+    // translate: 'MENU.ACADEMIC',
     type: 'item',
     icon: 'file',
     url: 'academic'
@@ -28,23 +28,30 @@ export const menu: CoreMenu[] = [
   {
     id: 'promotion',
     title: 'Promoción',
-    translate: 'MENU.PROMOTION',
+    // translate: 'MENU.PROMOTION',
     type: 'item',
     icon: 'file',
     url: 'promotion'
   },
   {
-    id: 'vote',
-    title: 'Elecciones escolares',
-    translate: 'MENU.VOTE',
+    id: 'reports',
+    title: 'Informes académicos',
     type: 'item',
     icon: 'file',
-    url: 'vote'
+    url: 'reports'
+  },
+  {
+    id: 'vote',
+    title: 'Elecciones escolares',
+    // translate: 'MENU.VOTE',
+    type: 'item',
+    icon: 'file',
+    url: 'elections'
   },
   {
     id: 'setting',
     title: 'Configuración',
-    translate: 'MENU.SETTING',
+    // translate: 'MENU.SETTING',
     type: 'item',
     icon: 'file',
     url: 'settings'

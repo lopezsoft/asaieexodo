@@ -1,7 +1,9 @@
+//ng-select
+@import "~@ng-select/ng-select/themes/default.theme.css";
+//Toast
 // Perfect scrollbar
 @import '~perfect-scrollbar/css/perfect-scrollbar';
 @import '~node-waves/src/scss/waves.scss';
-
 // Core styles
 @import './base/bootstrap';
 @import './base/bootstrap-extended';
@@ -12,6 +14,5 @@
 @import './base/themes/semi-dark-layout';
 @import './base/core/colors/palette-gradient';
 @import './base/plugins/forms/form-validation'; // Added for form validation style support
-
 // Vue Specific
 @import './angular/index';

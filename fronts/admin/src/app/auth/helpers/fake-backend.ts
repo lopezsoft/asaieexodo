@@ -58,10 +58,7 @@ export class FakeBackendInterceptor implements HttpInterceptor {
 
     // wrap in delayed observable to simulate server api call
     return of(null).pipe(mergeMap(handleRoute));
-    // .pipe(materialize()) // call materialize and dematerialize to ensure delay even if an error is thrown (https://github.com/Reactive-Extensions/RxJS/issues/648)
-    // .pipe(delay(500))
-    // .pipe(dematerialize());
-
+   
     function handleRoute() {
       switch (true) {
         case url.endsWith('/users/authenticate') && method === 'POST':

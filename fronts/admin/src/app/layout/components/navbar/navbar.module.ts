@@ -17,6 +17,8 @@ import { NavbarSearchComponent } from 'app/layout/components/navbar/navbar-searc
 
 import { NavbarNotificationComponent } from 'app/layout/components/navbar/navbar-notification/navbar-notification.component';
 
+import CoreModule from 'app/core/core-app.module';
+
 const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
   suppressScrollX: true,
   wheelPropagation: false
@@ -24,7 +26,7 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
 
 @NgModule({
   declarations: [NavbarComponent, NavbarSearchComponent, NavbarBookmarkComponent, NavbarNotificationComponent],
-  imports: [RouterModule, NgbModule, CoreCommonModule, PerfectScrollbarModule, CoreTouchspinModule],
+  imports: [RouterModule, NgbModule, CoreCommonModule, PerfectScrollbarModule, CoreTouchspinModule, CoreModule],
   providers: [
     {
       provide: PERFECT_SCROLLBAR_CONFIG,
@@ -33,4 +35,4 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
   ],
   exports: [NavbarComponent]
 })
-export class NavbarModule {}
+export class NavbarModule { }

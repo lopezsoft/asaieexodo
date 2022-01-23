@@ -16,6 +16,11 @@ import { User } from 'app/auth/models';
 import { coreConfig } from 'app/app-config';
 import { Router } from '@angular/router';
 
+import { AccessToken, ErrorResponse } from './../../../interfaces';
+
+import Swal from 'sweetalert2';
+import { HttpServerService, MessagesService } from 'app/utils';
+
 @Component({
   selector: 'app-navbar',
   templateUrl: './navbar.component.html',
@@ -31,6 +36,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   public prevSkin: string;
 
   public currentUser: User;
+  public token: AccessToken;
 
   public languageOptions: any;
   public navigation: any;
@@ -67,7 +73,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
    * Constructor
    *
    * @param {Router} _router
-   * @param {AuthenticationService} _authenticationService
+  //  * @param {AuthenticationService} _authenticationService
    * @param {CoreConfigService} _coreConfigService
    * @param {CoreSidebarService} _coreSidebarService
    * @param {CoreMediaService} _coreMediaService
@@ -76,16 +82,21 @@ export class NavbarComponent implements OnInit, OnDestroy {
    */
   constructor(
     private _router: Router,
-    private _authenticationService: AuthenticationService,
+    // private _authenticationService: AuthenticationService,
     private _coreConfigService: CoreConfigService,
     private _coreMediaService: CoreMediaService,
     private _coreSidebarService: CoreSidebarService,
     private _mediaObserver: MediaObserver,
-    public _translateService: TranslateService
+    public _translateService: TranslateService,
+    public _http : HttpServerService,
+    private msg: MessagesService,
   ) {
-    this._authenticationService.currentUser.subscribe(x => (this.currentUser = x));
 
     this.languageOptions = {
+      es: {
+        title: 'Spanish',
+        flag: 'es'
+      },
       en: {
         title: 'English',
         flag: 'us'
@@ -161,13 +172,37 @@ export class NavbarComponent implements OnInit, OnDestroy {
     }
   }
 
-  /**
+    /**
    * Logout method
    */
-  logout() {
-    this._authenticationService.logout();
-    this._router.navigate(['/pages/authentication/login-v2']);
-  }
+    logout() {
+      const ts    = this;
+      const lang  = ts._translateService;
+      Swal.fire({
+        title : lang.instant('titleMessages.logout'),
+        text  : lang.instant('bodyMessages.logout'),
+        icon  : 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: lang.instant('buttons.yes'),
+        cancelButtonText: lang.instant('buttons.not')
+      }).then((result) => {
+        if (result.value) {
+          ts._http.get('/admin/auth/logout', {})
+          .subscribe(() => {
+            ts._router.navigate(['/auth/login']);
+            localStorage.removeItem(ts._http.getApiJwt());
+            ts._http.onClearCurrentUser();
+            setTimeout(() => {
+              window.location.reload();
+            }, 1000);
+          }, (err: ErrorResponse) => {
+            ts.msg.toastMessage(lang.instant('general.error'), err.error.message, 4);
+          });
+          }
+      });
+    }
 
   // Lifecycle Hooks
   // -----------------------------------------------------------------------------------------------------
@@ -177,7 +212,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
    */
   ngOnInit(): void {
     // get the currentUser details from localStorage
-    this.currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    this.token  = this._http.getToken();
 
     // Subscribe to the config changes
     this._coreConfigService.config.pipe(takeUntil(this._unsubscribeAll)).subscribe(config => {

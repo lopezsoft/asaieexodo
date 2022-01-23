@@ -19,6 +19,7 @@ import { locale as menuFrench } from 'app/menu/i18n/fr';
 import { locale as menuGerman } from 'app/menu/i18n/de';
 import { locale as menuSpanish } from 'app/menu/i18n/es';
 import { locale as menuPortuguese } from 'app/menu/i18n/pt';
+import { LocationService } from './services/location/location.service';
 
 @Component({
   selector: 'app-root',
@@ -58,7 +59,8 @@ export class AppComponent implements OnInit, OnDestroy {
     private _coreLoadingScreenService: CoreLoadingScreenService,
     private _coreMenuService: CoreMenuService,
     private _coreTranslationService: CoreTranslationService,
-    private _translateService: TranslateService
+    private _translateService: TranslateService,
+    private _location: LocationService
   ) {
     // Get the application main menu
     this.menu = menu;
@@ -238,6 +240,10 @@ export class AppComponent implements OnInit, OnDestroy {
 
     // Set the application page title
     this._title.setTitle(this.coreConfig.app.appTitle);
+
+    this._location.getCities();
+    this._location.getCountries();
+
   }
 
   /**

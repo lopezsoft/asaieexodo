@@ -4,6 +4,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 import { CoreConfigService } from '@core/services/config.service';
+import { environment } from 'environments/environment';
 
 @Component({
   selector: 'footer',
@@ -15,6 +16,8 @@ export class FooterComponent implements OnInit, OnDestroy {
 
   // Private
   private _unsubscribeAll: Subject<any>;
+
+  public version: string;
 
   /**
    * Constructor
@@ -37,6 +40,8 @@ export class FooterComponent implements OnInit, OnDestroy {
     this._coreConfigService.config.pipe(takeUntil(this._unsubscribeAll)).subscribe(config => {
       this.coreConfig = config;
     });
+
+    this.version  = environment.VERSION;
   }
 
   /**

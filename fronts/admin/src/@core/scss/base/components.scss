@@ -6,12 +6,9 @@
 //  Author: PIXINVENT
 //  Author URL: http://www.themeforest.net/user/pixinvent
 // ================================================================================================
-
 @import 'bootstrap-extended/include'; // Bootstrap includes
 @import 'components/include'; // Components includes
-
 @import 'core/mixins/transitions'; // Template custom mixins
-
 // Core
 // ------------------------------
 // layouts
@@ -20,7 +17,6 @@
 @import 'core/layouts/footer';
 // menu
 @import 'core/menu/navigation';
-
 // Components
 // ------------------------------
 @import 'components/avatar';
@@ -31,10 +27,12 @@
 @import 'components/customizer'; //! Customizer demo, remove in real project
 @import 'components/divider';
 @import 'components/timeline';
-
+@import 'components/buttons';
 // Plugins
 // ------------------------------
 @import 'plugins/ui/breakpoints';
 @import 'plugins/forms/select2/select2';
 @import 'plugins/tables/datatables';
 @import 'plugins/forms/form-number-input'; // ? globally required for cart dropdown
+@import 'plugins/extensions/ext-component-toastr.scss';
+@import 'plugins/extensions/ext-ng-select.scss';

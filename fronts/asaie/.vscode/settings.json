@@ -1,0 +1,27 @@
+// Coloque su configuración en este archivo para sobrescribir la configuración predeterminada y de usuario.
+{
+    "php.validate.executablePath": "D:\\wamp64\\bin\\php\\php7.3.21\\php.exe",
+    "php.executablePath" : "D:\\wamp64\\bin\\php\\php7.3.21\\php.exe",
+    "php-docblocker.qualifyClassNames": true,
+    "php-docblocker.useShortNames": true,
+    "html-css-class-completion.enableEmmetSupport": true,
+    "html-css-class-completion.enableScssFindUsage": true,
+    "emmet.triggerExpansionOnTab": true,
+    "emmet.showSuggestionsAsSnippets": true,
+    "html.format.endWithNewline": true,
+    "html.format.indentInnerHtml": true,
+    "git.ignoreLimitWarning": true,
+    "sqltools.connections": [
+        {
+            "askForPassword": false,
+            "connectionTimeout": 30,
+            "database": "asaie",
+            "dialect": "MySQL",
+            "name": "asaie",
+            "port": 3307,
+            "server": "127.0.0.1",
+            "username": "root"
+        }
+    ],
+    "files.autoSave": "afterDelay"
+}

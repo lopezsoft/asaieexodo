@@ -1,0 +1,233 @@
+[
+  {
+    "section"   : "menudocentes",
+    "children"  :
+    [
+        {
+          "id"          : 1,
+          "itemId"      : "btnCarga",
+          "description" : "Notas académicas",
+          "children"    : null
+        },
+        {
+          "id"          : 2,
+          "itemId"      : "btnPlanAnual",
+          "description" : "Plan de formación",
+          "children"    : null
+        },
+        {
+          "id"          : 3,
+          "itemId"      : "btnLogros",
+          "description" : "Logros e indicadores",
+          "children"    : null
+        },
+        {
+          "id"          : 4,
+          "itemId"      : "btnSugerencias",
+          "description" : "Sugerencias - Observaciones",
+          "children"    : null
+        },
+        {
+          "id"          : 5,
+          "itemId"      : "btnMejoramiento",
+          "description" : "Plan de mejoramiento",
+          "children"  :
+          [
+              {
+                "id"          : 51,
+                "itemId"      : "btnRecPeriodica",
+                "description" : "Plan periódico"
+              },
+              {
+                "id"          : 52,
+                "itemId"      : "btnRecFinal",
+                "description" : "Plan de fin de año"
+              },
+              {
+                "id"          : 53,
+                "itemId"      : "btnPlanAcademico",
+                "description" : "Académico y socio-afectivo"
+              }
+          ]
+        },
+        {
+          "id"          : 6,
+          "itemId"      : "btnSeguimiento",
+          "description" : "Seguimiento académico",
+          "children"    :
+          [
+              {
+                "id"          : 61,
+                "itemId"      : "btnObservador",
+                "description" : "Observador académico"
+              },
+              {
+                "id"          : 62,
+                "itemId"      : "btnAccionesSeguimiento",
+                "description" : "Acciones de seguimiento"
+              },
+              {
+                "id"          : 63,
+                "itemId"      : "btnReporteDisciplinario",
+                "description" : "Reporte disciplinario"
+              }
+          ]
+        },
+        {
+          "id"          : 7,
+          "itemId"      : "btnReportes",
+          "description" : "Reportes",
+          "children"    : null
+        },
+        {
+          "id"          : 8,
+          "itemId"      : "btnActividades",
+          "description" : "Actividades académicas",
+          "children"    :
+          [
+              {
+                "id"          : 81,
+                "itemId"      : "btnEvaluaciones",
+                "description" : "Evaluaciones"
+              },
+              {
+                "id"          : 82,
+                "itemId"      : "btnActividadesClase",
+                "description" : "Actividades en clase"
+              },
+              {
+                "id"          : 83,
+                "itemId"      : "btnDiarioCampo",
+                "description" : "Diario de campo"
+              },
+              {
+                "id"          : 84,
+                "itemId"      : "btnGuiaTaller",
+                "description" : "Formato guía o taller"
+              },
+              {
+                "id"          : 85,
+                "itemId"      : "btnSolicitudPermiso",
+                "description" : "Solicitud de permisos"
+              },
+              {
+                "id"          : 86,
+                "itemId"      : "btnInasistencias",
+                "description" : "Ausencias diarias"
+              },
+              {
+                "id"          : 87,
+                "itemId"      : "btnImportar",
+                "description" : "Importar excel"
+              }
+          ]
+        }
+    ]
+  },
+  {
+    "section"   : "logros_indicadores",
+    "children"  :
+    [
+        {
+          "id"          : 1,
+          "itemId"      : "",
+          "description" : "Botones",
+          "children"    :
+          [
+            {
+              "id"          : 1,
+              "itemId"      : "btnLogros",
+              "description" : "Logros",
+              "tooltips"    : "Permite digitar los logros académicos."
+            },
+            {
+              "id"          : 2,
+              "itemId"      : "btnIndicadores",
+              "description" : "Indicadores",
+              "tooltips"    : "Permite digitar los indicadores o estandares de desempeño."
+            },
+            {
+              "id"          : 3,
+              "itemId"      : "btnImport",
+              "description" : "Importar - Parcelador",
+              "tooltips"    : ""
+            },
+            {
+              "id"          : 4,
+              "itemId"      : "btnImportBanco",
+              "description" : "Importar - Banco",
+              "tooltips"    : ""
+            },
+            {
+              "id"          : 5,
+              "itemId"      : "btnImportYear",
+              "description" : "Importar - año anterior",
+              "tooltips"    : ""
+            }
+          ]
+        },
+        {
+          "id"          : 2,
+          "itemId"      : "",
+          "description" : "Ventanas",
+          "children"    :
+          [
+            {
+              "id"          : 1,
+              "itemId"      : "LogrosView",
+              "description" : "Logros académicos: ",
+              "tooltips"    : ""
+            },
+            {
+              "id"          : 2,
+              "itemId"      : "LogrosView",
+              "description" : "Indicadores de desempeño: ",
+              "tooltips"    : ""
+            },
+            {
+              "id"          : 3,
+              "itemId"      : "ImportarLogrosIndView",
+              "description" : "Importar logros de parcelador",
+              "tooltips"    : ""
+            },
+            {
+              "id"          : 4,
+              "itemId"      : "ImportarLogrosIndView",
+              "description" : "Importar indicadores de desempeño de parcelador",
+              "tooltips"    : ""
+            },
+            {
+              "id"          : 5,
+              "itemId"      : "LogrosNewView",
+              "description" : "Agregar/Editar Logros",
+              "tooltips"    : ""
+            },
+            {
+              "id"          : 6,
+              "itemId"      : "LogrosNewView",
+              "description" : "Agregar/Editar Indicadores de desempeño",
+              "tooltips"    : ""
+            },
+            {
+              "id"          : 7,
+              "itemId"      : "Msg",
+              "description" : "Desea importar los logros o indicadores desde el parcelador de clases?",
+              "tooltips"    : "Importar logros e indicadores de desempeño"
+            },
+            {
+              "id"          : 8,
+              "itemId"      : "ImportarLogrosIndYearView",
+              "description" : "Importar logros ano anterior",
+              "tooltips"    : ""
+            },
+            {
+              "id"          : 9,
+              "itemId"      : "ImportarLogrosIndYearView",
+              "description" : "Importar indicadores de desempeño año anterior",
+              "tooltips"    : ""
+            }
+          ]
+        }
+    ]
+  }
+]

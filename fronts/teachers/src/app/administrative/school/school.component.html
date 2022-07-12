@@ -1,0 +1,136 @@
+<div class="card">
+    <div class="card">
+        <div class="card-header">
+
+        </div>
+        <div class="card-body">
+            <form [formGroup]="customForm">
+                <h6 class="mb-1">Información general</h6>
+                <hr>
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            <label>
+                                <span class="asterisk">{{ 'general.asterisk' | translate }}</span>
+                                Nombre de la escuela
+                            </label>
+                            <textarea formControlName="school_name" type="text" class="form-control" autofocus required #focusElement [class.is-invalid]="isInvalid('school_name')"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>
+                                <span class="asterisk">{{ 'general.asterisk' | translate }}</span>
+                                Código de la escuela
+                            </label>
+                            <input class="form-control" type="text" formControlName="school_id" required [class.is-invalid]="isInvalid('school_id')">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>
+                                <span class="asterisk">{{ 'general.asterisk' | translate }}</span>
+                                DNI
+                            </label>
+                            <input class="form-control" type="text" formControlName="dni" required [class.is-invalid]="isInvalid('dni')">
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="form-group">
+                            <label>
+                                <span class="asterisk">{{ 'general.asterisk' | translate }}</span>
+                                Nombre del rector(a)/director(a)
+                            </label>
+                            <input class="form-control" type="text" formControlName="director_name" [class.is-invalid]="isInvalid('director_name')">
+                        </div>
+                    </div>
+                </div>
+                <h6>Información geográfica</h6>
+                <hr>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="">
+                                <span class="asterisk">{{ 'general.asterisk' | translate }}</span>
+                                Pais
+                            </label>
+                            <ng-select formControlName="country_id" required [class.is-invalid]="isInvalidNumber('country_id')" [virtualScroll]="true">
+                                <ng-option *ngFor="let Country of Countries" [value]="Country.id">
+                                    <img height="15" width="15" [src]="'assets/flags/' + Country.image"> {{ Country.country_name }} - {{ Country.abbreviation_A3 }}
+                                </ng-option>
+                            </ng-select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>
+                                <span class="asterisk">{{ 'general.asterisk' | translate }}</span>
+                                Ciudad
+                            </label>
+                            <ng-select formControlName="city_id" required [class.is-invalid]="isInvalidNumber('city_id')" [virtualScroll]="true">
+                                <ng-option *ngFor="let city of Cities" [value]="city.id">
+                                    {{ city.name_city }} ({{ city.name_department }})
+                                </ng-option>
+                            </ng-select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            <label>
+                                <span class="asterisk">{{ 'general.asterisk' | translate }}</span>
+                                Dirección
+                            </label>
+                            <textarea class="form-control" formControlName="address" [class.is-invalid]="isInvalid('address')" required></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>
+                                <span class="asterisk">{{ 'general.asterisk' | translate }}</span>
+                                Barrio
+                            </label>
+                            <input class="form-control" type="text" formControlName="suburb" required [class.is-invalid]="isInvalid('suburb')">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>
+                                Localidad
+                            </label>
+                            <input class="form-control" type="text" formControlName="location">
+                        </div>
+                    </div>
+                </div>
+                <h6>Información de contacto</h6>
+                <hr>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label>Teléfonos</label>
+                        <input class="form-control" type="text" formControlName="phones">
+                    </div>
+                    <div class="col-md-6">
+                        <label>Email</label>
+                        <input class="form-control" type="email" formControlName="email" [class.is-invalid]="isInvalid('email')">
+                    </div>
+                    <div class="col-md-6">
+                        <label>Web</label>
+                        <input class="form-control" type="text" formControlName="web">
+                    </div>
+                    <div class="col-md-6">
+                        <label>Número de sedes</label>
+                        <input class="form-control" type="text" formControlName="number_locations">
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="card-footer">
+            <app-footer-form [showAaveACreate]="false" [saveAClose]="saveAClose" [saveAClose]="saveAClose" (closeEvent)="cancel()" (saveAndCreateEvent)="saveAndCreate()" (saveAndCloseEvent)="saveAndClose()">
+            </app-footer-form>
+        </div>
+    </div>

@@ -1,0 +1,40 @@
+Ext.define('Admin.store.general.ColumnasNotasStore', {
+    extend: 'Ext.data.Store',
+    storeId : 'ColumnasNotasStore',
+  	fields: [
+		{ name: 'numero_column' },
+		{ name: 'name' }
+   	],
+    data 	: [
+    	{numero_column : 1, name : '#1'},
+		{numero_column : 2, name : '#2'},
+		{numero_column : 3, name : '#3'},
+		{numero_column : 4, name : '#4'},
+		{numero_column : 5, name : '#5'},
+		{numero_column : 6, name : '#6'},
+		{numero_column : 7, name : '#7'},
+		{numero_column : 8, name : '#8'},
+		{numero_column : 9, name : '#9'},
+		{numero_column : 10, name : '#10'},
+		{numero_column : 11, name : '#11'},
+		{numero_column : 12, name : '#12'},
+		{numero_column : 13, name : '#13'},
+		{numero_column : 14, name : '#14'},
+		{numero_column : 15, name : '#15'},
+		{numero_column : 16, name : '#16'},
+		{numero_column : 17, name : '#17'},
+		{numero_column : 18, name : '#18'},
+		{numero_column : 19, name : '#19'},
+		{numero_column : 20, name : '#20'},
+		{numero_column : 21, name : '#21'},
+		{numero_column : 22, name : '#22'},
+		{numero_column : 23, name : '#23'},
+		{numero_column : 24, name : '#24'},
+		{numero_column : 25, name : '#25'},
+		{numero_column : 26, name : '#26'},
+		{numero_column : 27, name : '#27'},
+		{numero_column : 28, name : '#28'},
+		{numero_column : 29, name : '#29'},
+		{numero_column : 30, name : '#30'}
+    ]
+});

@@ -13,33 +13,40 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
 
 Route::prefix('v1')->group(function () {
 
-    Route::group(['middleware' => 'auth:sanctum'], function () {
+    Route::prefix('auth')->group(function () {
+        Route::controller('Auth\AuthController')->group(function () {
+            Route::post('signup',                   'signup');
+            Route::get('signup/activate/{token}',   'signupActivate');
+            Route::post('login',                    'login');
+            Route::group(['middleware' => 'auth:api'], function () {
+                Route::get('logout',            'logout');
+            });
+        });
+    });
+
+    Route::group(['middleware' => 'auth:api'], function () {
         Route::get('cities',                'Location\LocationController@getCities');
         Route::get('countries',             'Location\LocationController@getCountries');
     });
 
     Route::prefix('admin')->group(function () {
-        Route::prefix('auth')->group(function () {
-            Route::post('login',            'Auth\AuthController@userLogin');
-        });
 
-        Route::group(['middleware' => 'auth:sanctum'], function () {
-
-            Route::prefix('auth')->group(function () {
-                Route::get('logout',            'Auth\AuthController@userLogout');
-            });
+        Route::group(['middleware' => 'auth:api'], function () {
 
             Route::prefix('school')->group(function () {
                 Route::get('read',          'Administrative\SchoolsController@read');
                 Route::put('update/{id}',   'Administrative\SchoolsController@update');
             });
+
+            Route::resource('headquarters',  Administrative\HeadQuartersController::class);
+            Route::resource('master',       MasterController::class);
         });
     });
 

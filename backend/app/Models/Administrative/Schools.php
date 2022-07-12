@@ -21,7 +21,7 @@ class Schools Implements CrudInterface
     static function read(Request $request, $id){
         $db     = self::getDatabase();
         $table  = "$db.school";
-        return self::getTable($table);
+        return self::getTable($request, $table);
     }
 
     static function update(Request $request, $id){
@@ -32,7 +32,7 @@ class Schools Implements CrudInterface
 
             $data       = (object)[
                 'id'                => $id,
-                'country_id'        => $records->country_id,
+                'country_id'        => $records->country_id ?? 45,
                 'city_id'           => $records->city_id,
                 'school_id'         => $records->school_id,
                 'school_name'       => $records->school_name,

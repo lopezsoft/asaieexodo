@@ -1,26 +1,33 @@
 <?php
 namespace App\Http\Controllers\Auth;
 
-use Illuminate\Http\Request;
-use App\Contracts\Auth\AuthUser;
-use App\Contracts\Auth\AuthClass;
+use App\Contracts\Auth\Authentication;
+use App\Contracts\Auth\ProcessAuthorization;
 use App\Http\Controllers\Controller;
+use App\Modules\Auth\UsersAccess;
+use Illuminate\Http\Request;
 
-class AuthController extends Controller
+class AuthController extends Controller implements Authentication
 {
-    public function userLogin(Request $request)
+    public function signup(Request $request)
     {
-        return AuthClass::login($request, new AuthUser());
+        return ProcessAuthorization::signup($request, new UsersAccess());
     }
 
-    public function userLogout(Request $request)
+    public function signupActivate($token)
     {
-        return AuthClass::logout($request, new AuthUser());
+        return ProcessAuthorization::signupActivate($token, new UsersAccess());
+    }
+
+    public function login(Request $request)
+    {
+        return ProcessAuthorization::login($request, new UsersAccess());
+    }
+
+    public function logout(Request $request)
+    {
+        return ProcessAuthorization::logout($request, new UsersAccess());
     }
 
 
-    public function username()
-    {
-        return 'user_name';
-    }
 }

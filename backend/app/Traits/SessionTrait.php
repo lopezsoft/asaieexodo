@@ -5,11 +5,13 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 
 trait SessionTrait {
-    static function sessionDelete(){
+    static function sessionDelete(): void
+    {
         session()->invalidate();
     }
 
-    static function sessionCreate($data = [] ){
+    static function sessionCreate($data = [] ): void
+    {
         foreach ($data as $key => $value){
             Session::put($key, $value);
         }

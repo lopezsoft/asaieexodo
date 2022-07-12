@@ -10,7 +10,7 @@ use PhpOffice\PhpSpreadsheet\Shared\Date;
 trait MessagesTrait
 {
 
-    static function getRealTimeXls($date = null)
+    static function getRealTimeXls($date = null): string
     {
         $tz         = new \DateTimeZone('America/Bogota');
 
@@ -25,7 +25,7 @@ trait MessagesTrait
         return $localDate;
     }
 
-    static function getRealDateXls($date = null)
+    static function getRealDateXls($date = null): string
     {
         $tz         = new \DateTimeZone('America/Bogota');
         $localDate  = new \DateTime(now(), $tz);
@@ -39,7 +39,7 @@ trait MessagesTrait
         return $localDate;
     }
 
-    static function getRealDate($date = null, $validateYear = false)
+    static function getRealDate($date = null, $validateYear = false): string
     {
         if ($validateYear) {
             $date            = date('Y-m-d', strtotime(str_replace('/', '-', $date ?? date('Y-m-d'))));
@@ -54,38 +54,28 @@ trait MessagesTrait
         }
     }
 
-    /**
-     * 200 Created
-     *
-     * @param  mixed $data []
-     * @return JSON
-     */
-    static function getResponse($data = [])
+    static function getResponse($data = []): \Illuminate\Http\JsonResponse
     {
         $data['success']    = true;
         return response()->json($data);
     }
 
-    /**
-     * 201 Created
-     *
-     * @param  mixed $data []
-     * @return JSON
-     */
-    static function getResponse201($data = [])
+    static function getResponse201($data = []): \Illuminate\Http\JsonResponse
     {
         $data['success']    = true;
         $data['message']    = 'Recurso creado exitosamente.';
         return response()->json($data, 201);
     }
 
-    /**
-     * 400 Bad Request
-     *
-     * @param  mixed $msg
-     * @return void
-     */
-    static function getResponse400($data = [])
+    /** 302 Found */
+    static function getResponse302($data = []): \Illuminate\Http\JsonResponse
+    {
+        $data['success']    = true;
+        return response()->json($data, 302);
+    }
+
+
+    static function getResponse400($data = []): \Illuminate\Http\JsonResponse
     {
         $data['success']    = false;
         return response()->json($data, 400);
@@ -105,13 +95,6 @@ trait MessagesTrait
         return response()->json($data, 422);
     }
 
-        /**
-     * 500 Internal Server Error
-     * getErrorResponse: Retorna una respuesta de error 500
-     *
-     * @param  mixed $msg
-     * @return JSON
-     */
     public static function getResponse500($data  = [])
     {
         $data['success']    = false;

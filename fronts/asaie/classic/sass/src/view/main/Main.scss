@@ -1,0 +1,1959 @@
+@include treelist-ui(
+    $ui: 'navigation',
+    $padding: 0 10px,
+
+    // Black-ish background color
+    $background-color: $panel-navigation-background-color,
+    $toolstrip-background-color: #32404e,
+
+    $tool-float-indicator-color: $panel-header-background-color,
+    $tool-float-indicator-width: 5px,
+
+    $tool-indicator-selected-color: $panel-header-background-color,
+    $tool-indicator-selected-width: 5px,
+    $tool-selected-background-color: mix(white, $panel-navigation-background-color, 10%),
+    //$tool-selected-color: #fff,
+    //$tool-selected-background-color: $panel-header-background-color,
+
+    // Darker background for expanded subtrees
+    $item-expanded-background-color: #2c3845,
+
+    // Taller line height
+    $item-line-height : $panel-navigation-item-line-height,
+
+    $row-over-background-color: mix(white, $panel-navigation-background-color, 5%),
+    $row-selected-background-color: mix(white, $panel-navigation-background-color, 10%),
+
+    // Off-white text
+    $item-icon-color: $panel-navigation-item-text-color,
+    $item-expander-color: #fff,
+    $item-text-color: #ADB3B8,
+
+    // Brighter when hovered
+    $item-icon-over-color: #fff,
+    $item-expander-over-color: #fff,
+    $item-text-over-color: mix(white, $panel-navigation-item-text-color, 50%),
+    $item-text-font-size: 14px,
+
+    // Various sizes for the pieces:
+    $item-icon-font-size: 18px,
+    $item-icon-width: 44px,
+    $item-expander-font-size: 16px,
+    $item-expander-width: 24px,
+
+    // Style the "row indicator" (the vertical stripe on the left edge):
+    $row-indicator-width: 5px,
+    $row-indicator-selected-color: $panel-header-background-color,
+    $row-indicator-selected-over-color: lighten($panel-header-background-color, 7%),
+    $row-indicator-over-color: transparent
+);
+
+//--------------------------------------------------------
+// Create classes for full-size responsive items
+
+.big-100 {
+    @include responsivecolumn-item(100%);
+}
+
+.big-60 {
+    @include responsivecolumn-item(60%);
+}
+
+.big-50 {
+    @include responsivecolumn-item(50%);
+}
+
+.big-40 {
+    @include responsivecolumn-item(40%);
+}
+
+.big-33 {
+    @include responsivecolumn-item(33.33%);
+}
+
+.big-25 {
+    @include responsivecolumn-item(25%);
+}
+
+.big-20 {
+    @include responsivecolumn-item(20%);
+}
+
+//--------------------------------------------------------
+// And classes for small-size responsive items
+
+ .x-responsivecolumn-small {
+     > .small-100 {
+         @include responsivecolumn-item(100%);
+     }
+
+     > .small-50 {
+         @include responsivecolumn-item(50%);
+     }
+}
+
+//--------------------------------------------------------
+
+.sencha-logo {
+    background-color: $base-color;
+    height: 65px;
+
+    font-size: 16px;
+    color: $lightest-color;
+    margin-left: 12px;
+
+    .main-logo {
+        line-height: 65px;
+        img{
+            margin-left: 8px;
+            margin-right: 8px;
+            top: 8px;
+            position: relative;
+        }
+    }
+}
+
+.sencha-dash-dash-headerbar {
+    padding:0 30px 0 0;
+    position:fixed;
+    width:100%;
+    z-index:10;
+    border:none;
+    .header-right-profile-image {
+        border-radius: 20px;
+    }
+}
+
+.sencha-dash-dash-headerbar-blue {
+    background-color : $base-color;
+    padding:2px 15px 0px 5px;
+    position:fixed;
+    width:100%;
+    z-index:10;
+    border:none;
+    .header-right-profile-image {
+        border-radius: 20px;
+    }
+    .name-text {
+        color: #fff;
+        font-weight: bold;
+        font-size: 14px;
+    }
+}
+
+
+.top-english-button{
+    .x-btn-icon-el{
+        width:21px;
+        height:14px;
+    }
+}
+.collapsed{
+    .hot-icon,.new-icon{
+        &:after{
+            display:none;
+        }
+    }
+    .x-tree-elbow-img{
+        display:none;
+    }
+
+    .x-tree-node-text {
+        display:none;
+    }
+}
+.x-grid-cell{
+    position:relative;
+}
+.hot-icon,.new-icon{
+    &.hot-icon:after{
+        content: "HOT";
+        background:#e3495a;
+    }
+    &.new-icon:after{
+        content: "NEW";
+        background:$base-color;
+    }
+    &:after{
+        height: 18px;
+        width: 34px;
+        display: inline-block;
+        position: absolute;
+        top: 22px;
+        right: -180px;
+        text-align:center;
+        color: $lightest-color;
+        font-weight: bold;
+        font-size: 10px;
+        line-height: 18px;
+    }
+}
+
+.x-treelist-item-tool {
+    height: $panel-navigation-item-line-height;
+    &.hot-icon:after, &.new-icon:after{
+        background: $panel-header-background-color;
+        content: '';
+    }
+}
+
+//.toolbar-btn-shadow{
+//    @include box-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+//    .x-btn-over{
+//        background-color: $button-toolbar-hover-background-color;
+//    }
+//}
+
+//Add border around html editor field
+.x-html-editor-input{
+    border:1px solid #ccc;
+}
+
+//UI Styles for buttons
+@include extjs-button-small-ui(
+    $ui: 'soft-blue',
+    $background-color: $color-soft-blue,
+    $border-color: darken($color-soft-blue, 5%)
+);
+@include extjs-button-large-ui(
+    $ui: 'soft-blue',
+    $line-height: 34px,
+    $background-color: $color-soft-blue,
+    $border-color: darken($color-soft-blue, 5%)
+);
+@include extjs-button-toolbar-small-ui(
+    $ui: 'soft-blue',
+    $background-color: $color-soft-blue,
+    $border-color: darken($color-soft-blue, 5%)
+);
+
+@include extjs-button-small-ui(
+    $ui: 'facebook',
+    $background-color: $social-facebook-btn-background,
+    $border-color: darken($social-facebook-btn-background, 5%)
+);
+@include extjs-button-large-ui(
+    $ui: 'facebook',
+    $line-height: 34px,
+    $background-color: $social-facebook-btn-background,
+    $border-color: darken($social-facebook-btn-background, 5%)
+);
+
+
+@include extjs-button-small-ui(
+    $ui: 'soft-cyan',
+    $background-color: $color-soft-cyan,
+    $border-color: darken($color-soft-cyan, 5%)
+);
+@include extjs-button-toolbar-small-ui(
+    $ui: 'soft-cyan',
+    $background-color: $color-soft-cyan,
+    $border-color: darken($color-soft-cyan, 5%)
+);
+
+
+@include extjs-button-small-ui(
+    $ui: 'soft-green',
+    $background-color: $color-soft-green,
+    $border-color:darken($color-soft-green, 5%)
+);
+@include extjs-button-large-ui(
+    $ui: 'soft-green',
+    $line-height: 34px,
+    $background-color: $color-soft-green,
+    $border-color:darken($color-soft-green, 5%)
+);
+@include extjs-button-toolbar-small-ui(
+    $ui: 'soft-green',
+    $background-color: $color-soft-green,
+    $border-color:darken($color-soft-green, 5%)
+);
+
+@include extjs-button-small-ui(
+    $ui: 'soft-red',
+    $background-color: $color-soft-red,
+    $border-color:darken($color-soft-red, 5%)
+);
+@include extjs-button-toolbar-small-ui(
+    $ui: 'soft-red',
+    $background-color: $color-soft-red,
+    $border-color:darken($color-soft-red, 5%)
+);
+
+
+@include extjs-button-small-ui(
+    $ui: 'soft-purple',
+    $background-color: $color-soft-purple,
+    $border-color:darken($color-soft-purple, 5%)
+);
+@include extjs-button-toolbar-small-ui(
+    $ui: 'soft-purple',
+    $background-color: $color-soft-purple,
+    $border-color:darken($color-soft-purple, 5%)
+);
+
+
+@include extjs-button-small-ui(
+    $ui: 'gray',
+    $background-color: $color-gray,
+    $border-color:darken($color-gray, 5%)
+);
+@include extjs-button-large-ui(
+    $ui: 'gray',
+    $line-height: 34px,
+    $background-color: $color-gray,
+    $border-color:darken($color-gray, 5%)
+);
+@include extjs-button-toolbar-small-ui(
+    $ui: 'gray',
+    $background-color: $color-gray,
+    $border-color:darken($color-gray, 5%)
+);
+
+@include extjs-button-small-ui(
+    $ui: 'green',
+    $background-color: $color-green,
+    $border-color:darken($color-green, 5%)
+);
+@include extjs-button-toolbar-small-ui(
+    $ui: 'green',
+    $background-color: $color-green,
+    $border-color:darken($color-green, 5%)
+);
+
+
+@include extjs-button-small-ui(
+    $ui: 'blue',
+    $background-color: $color-blue,
+    $border-color:darken($color-blue, 5%)
+);
+@include extjs-button-toolbar-small-ui(
+    $ui: 'blue',
+    $background-color: $color-blue,
+    $border-color:darken($color-blue, 5%)
+);
+
+@include extjs-button-small-ui(
+        $ui: 'gray',
+        $background-color: $color-gray,
+        $border-color:darken($color-gray, 5%),
+        $font-weight :normal,
+        $font-size : 13px
+);
+
+@include extjs-button-large-ui(
+        $ui: 'gray',
+        $line-height: 22px,
+        $background-color: $color-gray,
+        $border-color:darken($color-gray, 5%),
+        $font-weight :normal,
+        $font-size : 13px
+);
+
+@include extjs-button-toolbar-small-ui(
+        $ui: 'gray',
+        $background-color: $color-gray,
+        $border-color:darken($color-gray, 5%),
+        $font-weight :normal,
+        $font-size : 13px
+);
+
+@include extjs-button-small-ui(
+        $ui: 'green',
+        $background-color: $color-green,
+        $border-color:darken($color-green, 5%),
+        $font-weight :normal,
+        $font-size : 13px
+);
+
+@include extjs-button-toolbar-small-ui(
+        $ui: 'green',
+        $background-color: $color-green,
+        $border-color:darken($color-green, 5%),
+        $font-weight :normal,
+        $font-size : 13px
+);
+
+
+@include extjs-button-small-ui(
+        $ui: 'blue',
+        $background-color: $color-blue,
+        $border-color:darken($color-blue, 5%),
+        $font-weight :normal,
+        $font-size : 13px
+);
+
+@include extjs-button-toolbar-small-ui(
+        $ui: 'blue',
+        $background-color: $color-blue,
+        $border-color:darken($color-blue, 5%),
+        $font-weight :normal,
+        $font-size : 13px
+);
+
+@include extjs-button-small-ui(
+        $ui: 'header',
+        $color: #999,
+        $glyph-color: #919191,
+        $background-color: transparent,
+        $border-width: 0
+);
+
+@include extjs-button-small-ui(
+        $ui: 'chat',
+        $color: #e3495a,
+        $glyph-color: #e3495a,
+        $background-color: transparent,
+        $border-width: 0
+);
+
+@include extjs-button-small-ui(
+        $ui: 'header-red',
+        $color: $color-soft-red,
+        $glyph-color: $color-soft-red,
+        $background-color: transparent,
+		// $border-width: 1,
+		$border-color		: transparent,
+		$border-color-over	: $color-soft-red
+);
+
+@include extjs-button-small-ui(
+        $ui: 'header-blue',
+        $color: $exec-blue-color,
+        $glyph-color: $exec-blue-color,
+        $background-color: transparent,
+		// $border-width: 0,
+		$border-color		: transparent,
+		$border-color-over	: $exec-blue-color
+);
+
+@include extjs-button-small-ui(
+        $ui: 'header-green',
+        $color: $color-soft-green,
+        $glyph-color: $color-soft-green,
+        $background-color: transparent,
+		// $border-width: 0
+		$border-color		: transparent,
+		$border-color-over	: $color-soft-green
+);
+
+@include extjs-button-small-ui(
+    $ui: 'facebook-header',
+    $background-color: transparent,
+    $color: $social-facebook-btn-background,
+    $glyph-color: $social-facebook-btn-background,
+    $border-color: darken($social-facebook-btn-background, 5%),
+    $border-width: 0
+);
+
+
+@include extjs-button-small-ui(
+    $ui: 'header-purple',
+    $background-color: transparent,
+    $glyph-color: $color-soft-purple,
+    $color: $color-soft-purple,
+    $border-color:darken($color-soft-purple, 5%),
+    $border-width: 0
+);
+
+
+//----- Format Panel ------
+
+.panel-body-ligh {
+    background: $exec-light-background !important;
+}
+
+.panel-body-color-white {
+    background: white !important;
+}
+
+
+
+@include extjs-panel-ui(
+    $ui     : 'header',
+    $ui-body-background-color   : dynamic($exec-light-background)
+);
+
+$panel-body-background-color: dynamic($exec-light-background);
+
+
+@include extjs-panel-ui(
+    $ui     : 'panel-white',
+    $ui-body-background-color   : white
+);
+
+@include extjs-panel-ui(
+    $ui     : 'blue',
+    $ui-header-color: #fff,
+    $ui-header-background-color: $color-soft-blue,
+    $ui-body-font-size: 14px,
+    $ui-header-font-size: 15px,
+    $ui-header-font-weight:bold
+);
+
+@include extjs-panel-ui(
+        $ui     : 'red',
+        $ui-header-color: #fff,
+        $ui-header-background-color: $color-soft-red,
+        $ui-body-font-size: 14px,
+        $ui-header-font-size: 15px,
+        $ui-header-font-weight:bold
+);
+
+@include extjs-panel-ui(
+        $ui     : 'green',
+        $ui-header-color: #fff,
+        $ui-header-background-color: $color-soft-green,
+        $ui-body-font-size: 14px,
+        $ui-header-font-size: 15px,
+        $ui-header-font-weight:bold
+);
+
+@include extjs-panel-ui(
+        $ui     : 'purple',
+        $ui-header-color: #fff,
+        $ui-header-background-color: $color-soft-purple,
+        $ui-body-font-size: 14px,
+        $ui-header-font-size: 15px,
+        $ui-header-font-weight:bold
+);
+
+.x-accordion-hd {
+    background: #7ABCFF  !important;
+    background-color : rgb(122,188,255);
+    background-color : @include filter-gradient(#7abcff, #4096ee, vertical);
+    background-color : @include background-image(linear-gradient(top, rgba(122,188,255,1) 0%,rgba(96,171,248,1) 44%,rgba(64,150,238,1) 100%));
+}
+
+.x-accordion-hd .x-panel-header-text {
+	color: white;
+	font-size:15 !important;
+}
+
+.x-accor {
+        // Needs latest Compass, add '@import "compass"' to your scss
+        // Permalink - use to edit and share this gradient:
+        // http://colorzilla.com/gradient-editor/#7abcff+0,60abf8+44,4096ee+100;Blue+3D+%2314
+        background: #7ABCFF  !important;
+        background-color : rgb(122,188,255); // Old browsers
+        background : @include filter-gradient(#7abcff, #4096ee, vertical); // IE6-9
+        background : @include background-image(linear-gradient(top, rgba(122,188,255,1) 0%,rgba(96,171,248,1) 44%,rgba(64,150,238,1) 100%));
+
+};
+
+
+//----- Format Panel End ------
+
+// @include extjs-tab-panel-ui(
+//         $ui     : 'tabblue',
+//         $ui-tab-background-color:  $color-soft-blue,
+//         $ui-tab-color : #fff,
+//         $ui-tab-font-size: 13px,
+//         $ui-tab-font-weight:bold
+// );
+
+@include  extjs-window-ui (
+        $ui     : 'win-blue',
+        $ui-header-color: #fff,
+        $ui-header-background-color: $color-soft-blue,
+        $ui-header-font-size: 15px,
+        $ui-header-font-weight:bold,
+        $ui-border-color:$color-soft-blue
+);
+
+@include  extjs-window-ui (
+        $ui     : 'win-menu',
+        $ui-header-color: #fff,
+        $ui-header-background-color: #dddddd,
+        $ui-header-font-size: 15px,
+        $ui-header-font-weight:bold,
+        $ui-border-color: #cccccc
+);
+
+
+.avatar-background {
+        background-color: $color-gray;
+        cursor: pointer;
+}
+
+.menu-win {
+        border-radius: 4px;
+        border: 1px solid #cccccc;
+}
+
+
+.color-tool {
+        border: 1px solid #CCCCCC;
+        background-color: #e8e8e8;
+        background-color: rgba(255,255,255,1);
+        background: @include filter-gradient(#ffffff, #ededed, vertical);
+        background: @include background-image(linear-gradient(top, rgba(255,255,255,1) 0%, rgba(246,246,246,1) 47%, rgba(237,237,237,1) 100%));
+}
+
+.a{
+        color: #010306;
+
+}
+
+.p {
+        color: #010306;
+        text-align: center;
+        cursor: pointer;
+}
+
+.p :hover {
+        color: #02065d;
+}
+
+.avatar-perfil{
+        display	: block;
+        margin	: 0 auto;
+        width   : auto;
+        height  : auto;
+        transition: width 2s, height 2s, transform 2s;
+
+        -moz-transition: width 2s, height 2s, -moz-transform 2s;
+
+        -webkit-transition: width 2s, height 2s, -webkit-transform 2s;
+
+        -o-transition: width 2s, height 2s,-o-transform 2s;
+}
+
+.avatar-perfil:hover{
+
+        /* tranformamos el elemento al pasar el mouse por encima al doble de
+
+           su tamaño con scale(2). */
+
+        transform : scale(2);
+
+        -moz-transform : scale(2);      /* Firefox */
+
+        -webkit-transform : scale(2);   /* Chrome - Safari */
+
+        -o-transform : scale(2);        /* Opera */
+
+}
+
+/* KPI*/
+
+$active : #12C897;
+$paused : #C8C8C8;
+$ended  : #F1485B;
+
+@include extjs-button-small-ui(
+    $ui: 'kpi',
+    $background-color: transparent,
+    $border-color: transparent,
+    $color: $exec-font-color,
+
+    $background-color-focus: transparent,
+    $border-color-focus: transparent,
+    $color-focus: $exec-font-color,
+
+    $background-color-over: mix($exec-light-background, $button-default-background-color),
+    $border-color-over: mix($exec-light-background, $button-default-background-color),
+    $color-over: #fff,
+
+    $background-color-pressed: $button-default-background-color,
+    $border-color-pressed: $button-default-background-color,
+    $color-pressed: #fff,
+
+    $inner-border-color-focus: $button-default-background-color,
+    $inner-border-color-focus-over: $button-default-background-color,
+    $inner-border-color-focus-pressed: mix($button-default-background-color, #fff, 20%)
+);
+
+.x-fieldset {
+    background: #ffffff !important;
+    position: static;
+    border-radius: 4px !important;
+}
+
+.fieldset-red {
+    background: rgba(241, 72, 92, 0.082) !important;
+    position: static;
+    border-radius: 4px !important;
+}
+
+.fieldset-green {
+    background: rgba(18, 200, 151, 0.082) !important;
+    position: static;
+    border-radius: 4px !important;
+}
+
+.fieldset-default {
+    background: #fff !important;
+    position: static;
+    border-radius: 4px !important;
+}
+
+.kpi-main {
+    margin: 5px 20px 0px 20px;
+
+    .kpi-meta {
+        width: 100%;
+        height: 100%;
+        background-color: $exec-tile-background;
+
+        -webkit-box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.25);
+        -moz-box-shadow:    0px 1px 1px 0px rgba(0, 0, 0, 0.25);
+        box-shadow:         0px 1px 1px 0px rgba(0, 0, 0, 0.25);
+
+        span {
+            border-right: 1px solid $exec-light-background;
+            display: inline-block;
+            text-align: center;
+            padding: 30px 0;
+            height: 100%;
+            width: 20%;
+            white-space: nowrap;
+            overflow: hide;
+            text-transform: uppercase;
+            color: $exec-font-light-color;
+            font-weight: $exec-font-bold;
+            font-size: $exec-font-size-small-content;
+
+            div {
+                font-size: $exec-font-size-xlarge-title;
+                color: $exec-font-color;
+                font-weight: $exec-font-semibold;
+                padding-bottom: 7px;
+            }
+        }
+
+        span:last-child {
+            border-right: none;
+        }
+    }
+
+    .kpi-toolbar {
+        padding: 0 0 10px 0 !important;
+    }
+
+    .kpi-chart-title {
+        margin-top: 3px !important;
+        color: $exec-font-color;
+        font-size: $exec-font-size-small-title;
+        font-weight: $exec-font-bold;
+    }
+
+    .kpi-meta-charts-body {
+        overflow: visible;
+        padding-bottom: 20px;
+
+        .x-box-inner {
+            overflow: visible;
+        }
+
+        .x-panel {
+            overflow: visible;
+        }
+    }
+
+    .kpi-tiles {
+        margin-bottom: 20px;
+    }
+
+    .kpi-main-chart {
+        margin-left: 20px;
+        margin-right: 20px;
+        margin-bottom: 10px;
+
+        overflow: visible;
+
+        .x-panel-body {
+            border-radius: 3px;
+
+            -webkit-box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.25);
+            -moz-box-shadow:    0px 1px 1px 0px rgba(0, 0, 0, 0.25);
+            box-shadow:         0px 1px 1px 0px rgba(0, 0, 0, 0.25);
+
+            z-index: 1000;
+        }
+    }
+
+    .kpi-meta-charts {
+        margin-bottom: 20px;
+        overflow: visible;
+
+        .x-panel-body, .x-panel, .x-box-inner {
+            overflow: visible;
+        }
+        .kpi-in-store, .kpi-online {
+            padding-left: 30px;
+            font-size: $exec-font-size-content;
+            font-weight: $exec-font-bold;
+            color: $exec-font-light-color;
+
+            span {
+                margin-right: 15px;
+            }
+            span:first-child {
+                float: left;
+            }
+            span:nth-child(2) {
+                float: right;
+            }
+        }
+
+        .kpi-online {
+            padding-bottom: 10px;
+        }
+        .kpi-in-store:before, .kpi-online:before {
+            content: '';
+            width: 12px;
+            height: 12px;
+            border-radius: 6px;
+            display: block;
+            position: absolute;
+            left: 10px;
+            margin-top: 2px;
+        }
+        .kpi-in-store:before {
+            background-color: #2ac8ef;
+        }
+        .kpi-online:before {
+            background-color: #11c897;
+        }
+        .x-panel-header {
+            background-color: $exec-light-background;
+            margin: 15px 0 10px 0;
+            padding: 0 !important;
+
+            .x-title {
+                line-height: $exec-font-size-small-title;
+            }
+
+            .x-title-text {
+                color: $exec-font-color;
+                font-size: $exec-font-size-small-title;
+                font-weight: $exec-font-bold;
+            }
+        }
+
+        .redemption-body, .statistics-body {
+            border-radius: 6px;
+
+            -webkit-box-shadow: 0px 2px 2px 0px rgba(0, 0, 0, 0.25);
+            -moz-box-shadow:    0px 2px 2px 0px rgba(0, 0, 0, 0.25);
+            box-shadow:         0px 2px 2px 0px rgba(0, 0, 0, 0.25);
+
+            background-color: $exec-tile-background;
+            border-color: blueviolet !important;
+            border-width: 1px;
+            border-style: solid;
+        }
+
+        .redemption-body {
+            margin-right: 10px;
+        }
+
+        .x-fieldset {
+            background: #ffffff !important;
+            position: static;
+            border-radius: 4px !important;
+        }
+
+        .statistics-body {
+            margin-right: 20px;
+            padding: 15px;
+        }
+
+        .statistic-header {
+            font-size: $exec-font-size-content;
+            font-weight: $exec-font-semibold;
+            text-transform: uppercase;
+            color: $exec-font-light-color;
+            margin-bottom: 10px;
+        }
+
+        .sparkline {
+            height: 7px;
+            margin-left: 85px;
+            background-color: #e6e7eb;
+            clear: both;
+            border-radius: 4px;
+            margin-bottom: 10px;
+
+            .sparkline-inner {
+                height: 100%;
+                border-radius: 4px;
+            }
+            .sparkline-inner-active {
+                background-color: $active;
+            }
+            .sparkline-inner-paused {
+                background-color: $paused;
+            }
+            .sparkline-inner-ended {
+                background-color: $ended;
+            }
+        }
+        .statistic-tag {
+            width: 70px;
+            padding: 5px 0 5px 0;
+            font-size: $exec-font-size-small-content;
+            font-weight: $exec-font-semibold;
+            color: white;
+            border-radius: 3px;
+            text-transform: uppercase;
+            text-align: center;
+            float: left;
+            &.active {
+                background-color: $active;
+            }
+            &.paused {
+                background-color: $paused;
+            }
+            &.ended {
+                background-color: $ended;
+            }
+        }
+        .statistic-description {
+            line-height: 27px;
+            font-size: $exec-font-size-small-content;
+            font-weight: $exec-font-bold;
+            float:left;
+            margin-left: 15px;
+            color: $exec-font-light-color;
+            text-transform: uppercase;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    }
+}
+
+/**
+ * Generates a set of style rules for the "navigation" tab UI.
+ */
+ @include extjs-tab-panel-ui(
+    $ui: 'navigation',
+    $ui-tab-background-color: transparent,
+    $ui-tab-background-color-over: transparent,
+    $ui-tab-background-color-active: transparent,
+    $ui-tab-color: #fff,
+    $ui-tab-color-over: #fff,
+    $ui-tab-color-active: #fff,
+    $ui-tab-glyph-color: #fff,
+    $ui-tab-glyph-color-over: #fff,
+    $ui-tab-glyph-color-active: #fff,
+    $ui-tab-glyph-opacity: 1,
+    $ui-tab-border-radius: 0,
+    $ui-tab-border-width: 0,
+    $ui-tab-padding: 24px 20px,
+    $ui-tab-margin: 0,
+    $ui-tab-font-size: 14px,
+    $ui-tab-font-size-over: 14px,
+    $ui-tab-font-size-active: 14px,
+    $ui-tab-line-height: 20px,
+    $ui-tab-font-weight: 600,
+    $ui-tab-font-weight-over: 600,
+    $ui-tab-font-weight-active: 600,
+    $ui-tab-icon-width: 20px,
+    $ui-tab-icon-height: 20px,
+    $ui-tab-icon-spacing: 15px,
+    $ui-bar-background-color: $exec-dark-background,
+    $ui-bar-background-gradient: 'none',
+    $ui-bar-padding: 0,
+    $ui-strip-height: 0
+);
+
+/**
+ * Generates a set of style rules for the "navigation" panel UI.
+ */
+@include extjs-panel-ui(
+    $ui: 'navigation',
+    $ui-header-color: #fff,
+    $ui-header-glyph-color: #fff,
+    $ui-header-glyph-opacity: 1,
+    $ui-header-font-size: 32px,
+    $ui-header-line-height: 48px,
+    $ui-header-font-weight: 600,
+    $ui-header-icon-height: 32px,
+    $ui-header-icon-width: 32px,
+    $ui-header-icon-spacing: 16px,
+    $ui-header-background-color: #f1495b,
+    $ui-header-padding: 0,
+    $ui-header-text-margin: 26px 36px,
+    $ui-header-noborder-adjust: false
+);
+
+.x-tab-navigation {
+    // TODO: add opacity support to extjs-tab-panel-ui mixin
+    @include opacity(0.5);
+
+    // Important added here to overcome background-color:transparent added by framing in IE8
+    // TODO: can we remove the !important rule from the framework?
+    &.x-tab-over {
+        background-color: mix(#000, $exec-dark-background, 10%) !important;
+        @include opacity(0.8);
+    }
+
+    &.x-tab-active {
+        background-color: mix(#000, $exec-dark-background, 20%) !important;
+        @include opacity(1);
+    }
+
+    &.x-tab-pressed {
+        background-color: mix(#000, $exec-dark-background, 20%) !important;
+        @include opacity(1);
+    }
+}
+
+.x-tab-inner-navigation {
+    white-space: normal;
+
+    .x-ie8 & {
+        font-size: 13px;
+    }
+}
+
+.x-panel-header-title-navigation {
+    text-align: left;
+}
+
+.exec-header-icon,
+.x-tab-icon-el-navigation {
+    background-size: contain;
+}
+
+.exec-header-icon {
+    background-image: url(icons/mybiz.png);
+
+    .x-ie8 & {
+        background-image: url(icons/mybiz-small.png);
+    }
+}
+
+.exec-kpi-icon {
+    background-image: url(icons/kpi.png);
+
+    .x-ie8 & {
+        background-image: url(icons/kpi-small.png);
+    }
+}
+
+.exec-quarterly-icon {
+    background-image: url(icons/quarterly.png);
+
+    .x-ie8 & {
+        background-image: url(icons/quarterly-small.png);
+    }
+}
+
+.exec-pl-icon {
+    background-image: url(icons/pl.png);
+
+    .x-ie8 & {
+        background-image: url(icons/pl-small.png);
+    }
+}
+
+.exec-news-icon {
+    background-image: url(icons/news.png);
+
+    .x-ie8 & {
+        background-image: url(icons/news-small.png);
+    }
+}
+
+.exec-menu-navigation {
+
+    // MENU DISCLOSURE
+
+    .x-menu {
+        border: none;
+    }
+
+    .x-css-shadow {
+        -webkit-box-shadow: 0px 0px 4px 3px rgba(0, 0, 0, 0.35) !important;
+        -moz-box-shadow:    0px 0px 4px 3px rgba(0, 0, 0, 0.35) !important;
+        box-shadow:         0px 0px 4px 3px rgba(0, 0, 0, 0.35) !important;
+    }
+
+    .x-tool-img {
+        background-color: transparent !important;
+        left: 44px;
+        width: 32px;
+        height: 32px;
+        position: relative;
+        top: 30px;
+    }
+
+    .x-tool-gear {
+        background-image: url(icons/menu-disclosure.png) !important;
+        background-size: 70%;
+        background-repeat: no-repeat;
+        background-position: center center !important;
+        @include opacity(0.5);
+    }
+
+    &.x-ie8 .x-tool-gear {
+        background-image: url(icons/menu-disclosure-small.png) !important;
+    }
+
+    .x-tool {
+        background-color: $exec-dark-background;
+    }
+
+    .x-tool:hover {
+        .x-tool-gear {
+            @include opacity(1);
+        }
+        background-color: darken($exec-dark-background, 10%) !important;
+    }
+
+    // MENU
+
+    .x-menu-body {
+        background-color: $exec-dark-background;
+        span {
+            color: white;
+            font-weight: $exec-font-semibold;
+            @include opacity(0.5);
+        }
+        a {
+            line-height: 50px;
+        }
+    }
+
+    .x-menu-item-icon {
+        width: 40px;
+        height: 40px;
+        margin: 5px;
+        top: 0;
+        left: 10px;
+        @include opacity(0.5);
+        background-size: 70%;
+    }
+
+    .x-menu-item-text {
+        margin-left: 65px;
+        margin-right: 15px;
+    }
+
+    .x-menu-item-active {
+        background-color: darken($exec-dark-background, 10%) !important;
+        span {
+            @include opacity(1);
+        }
+        .x-menu-item-icon {
+            @include opacity(1);
+        }
+    }
+}
+
+//Quarterly
+
+.quarterly-main {
+    background-color: $exec-light-background;
+
+    .quarterly-chart {
+        border-radius: 3px;
+        -webkit-box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.25);
+        -moz-box-shadow:    0px 1px 1px 0px rgba(0, 0, 0, 0.25);
+        box-shadow:         0px 1px 1px 0px rgba(0, 0, 0, 0.25);
+        margin: 20px 20px 0;
+
+        z-index: 1000;
+
+        .ql-percentage {
+            font-size: $exec-font-size-content;
+            margin-left: 5px;
+        }
+
+        .x-toolbar {
+            background-color: $exec-tile-background;
+            padding-top: 15px !important;
+            padding-bottom: 0px !important;
+            padding: 0;
+
+            .x-btn-arrow-right:after {
+                background-image: url(images/button/default-toolbar-small-arrow.png) !important;
+            }
+
+            .x-btn-default-toolbar-small {
+                background-color: $exec-tile-background;
+                border-color: $exec-tile-background;
+
+                .small-sub-text {
+                    font-size: $exec-font-size-small-content;
+                }
+            }
+
+            .x-form-item-label-inner {
+                color: $exec-font-light-color;
+                font-size: $exec-font-size-small-content;
+                font-weight: $exec-font-bold;
+                padding: 0;
+                margin: 0;
+            }
+
+            .x-form-display-field {
+                font-size: $exec-font-size-medium-title;
+                margin: 0;
+                padding: 0;
+            }
+        }
+    }
+
+    .stock-picker-small {
+        text-align: right;
+        padding-right: 7px;
+
+        .x-form-display-field {
+            color: $exec-font-light-color !important;
+            font-size: $exec-font-size-content !important;
+            font-weight: $exec-font-bold !important;
+        }
+    }
+
+    .x-btn.quarterly-cycle {
+
+        background: none;
+        border: none;
+
+        span {
+            color: $exec-font-dark-color !important;
+            font-size: $exec-font-size-xlarge-title !important;
+            line-height: $exec-font-size-xlarge-title;
+            font-weight: $exec-font-semibold;
+        }
+
+        &.x-btn-focus {
+            @include inner-border(1px, mix($exec-blue-color, #fff, 40%));
+        }
+
+        .x-btn-split-right:after {
+            background-image: url(icons/switch-icon.png) !important;
+            background-position: center !important;
+            width: 24px !important;
+            padding-right: 0 !important;
+            padding-top: 5px !important;
+
+            .x-ie8 & {
+                background-image: url(icons/switch-icon-small.png) !important;
+            }
+        }
+
+        .x-btn-tl,
+        .x-btn-tc,
+        .x-btn-tr,
+        .x-btn-ml,
+        .x-btn-mc,
+        .x-btn-mr,
+        .x-btn-bl,
+        .x-btn-bc,
+        .x-btn-br {
+            background: none
+        }
+    }
+
+    .quarterly-dataview {
+        padding: 10px 15px 15px;
+    }
+
+    .statement-type {
+        width: 100%;
+        float: left;
+        color: $exec-font-color;
+        font-weight: bold;
+        font-size: $exec-font-size-small-title;
+        margin: 20px 5px 0;
+    }
+
+    .statement-header {
+        width: 100%;
+        color: white;
+        font-weight: bold;
+        font-size: $exec-font-size-small-title;
+        text-decoration: none;
+        background-color: rgb(133, 22, 236) !important;
+        border-radius: 2px;
+        margin: 5px 5px 0;
+        padding: 5px;
+    }
+
+    .thumb-title-container {
+        float: left;
+        padding-top: 4px;
+    }
+
+    .thumb-title {
+        color: $exec-font-dark-color;
+        font-weight: $exec-font-bold;
+    }
+
+    .thumb-title-small {
+        color: $exec-font-color;
+        font-size: $exec-font-size-small-content;
+        font-weight: $exec-font-semibold;
+    }
+
+    .thumb-icon {
+        background-image: url(images/Classroom_48px.png);
+        height: 40px;
+        width: 40px;
+        background-size: contain;
+        background-repeat: no-repeat;
+        float: left;
+        margin-right: 5px;
+
+        .x-ie8 & {
+            background-image: url(images/Classroom_24px.png);
+        }
+    }
+
+    .thumb-icon-student {
+        background-image: url(images/Student_Male_48px.png);
+        height: 40px;
+        width: 40px;
+        background-size: contain;
+        background-repeat: no-repeat;
+        float: left;
+        margin-right: 5px;
+
+        .x-ie8 & {
+            background-image: url(images/Student_Male_24px.png);
+        }
+    }
+
+    .thumb-download {
+        height: 40px;
+        width: 40px;
+
+        background-image: url(icons/download-small.png);
+        background-position: right center;
+        background-repeat: no-repeat;
+        background-size: 50%;
+
+        opacity: 0.5;
+
+        float: right;
+    }
+
+    .thumb-return {
+        height: 40px;
+        width: 40px;
+
+        background-image: url(images/logout_32.png);
+        background-position: right center;
+        background-repeat: no-repeat;
+        background-size: 50%;
+
+        opacity: 0.5;
+
+        float: right;
+    }
+
+    .thumb {
+        display: table-cell;
+        background-color: $exec-tile-background;
+        padding: 16px;
+        border-radius: 3px;
+        text-decoration: none;
+        -webkit-box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.25);
+        -moz-box-shadow:    0px 1px 1px 0px rgba(0, 0, 0, 0.25);
+        box-shadow:         0px 1px 1px 0px rgba(0, 0, 0, 0.25);
+    }
+
+    .thumb:hover {
+        .thumb-download {
+            opacity: 1;
+        }
+        .thumb-return {
+            opacity: 1;
+        }
+    }
+
+    .thumb-wrap{
+        display: table;
+        float: left;
+        width: 50%;
+        padding: 5px;
+    }
+}
+
+@media screen and (max-width: 980px) and (orientation: landscape), screen and (max-width: 760px) and (orientation: portrait) {
+    .quarterly-main .thumb-wrap {
+        float: none;
+        width: 100%;
+        padding: 5px 0;
+    }
+}
+
+#quarterly-menu {
+    .x-menu-body {
+        background-color: white;
+        span {
+            color: black;
+        }
+    }
+    .x-menu-item-active {
+        background-color: darken(white, 10%) !important;
+    }
+    .x-menu-item-checked .x-menu-item-checkbox {
+        background-image: url("icons/group-checked-black-small.png") !important;
+    }
+}
+
+.ext-strict .ext-ie .x-tree .x-panel-bwrap{
+    position:relative;
+    overflow:hidden;
+}
+
+
+// WIDGETS
+
+.widget-top-first-container{
+    background-color: $widget-first-container-background;
+  }
+  .widget-bottom-first-container{
+    background-color: $lightest-color;
+  }
+  .postion-class{
+    position:relative;
+  }
+  .widget-name-text{
+    font-family: "Open Sans";
+    font-weight: Bold;
+    font-size: 16px ;
+    line-height:16px;
+  }
+  .widget-tool-button{
+    .widget-follow-button, .widget-follow-button .x-frame-mc{
+        @include btn-border($follow-button-color);
+    }
+    .widget-message-button, .widget-message-button .x-frame-mc{
+        @include btn-border($base-color);
+    }
+    .x-btn-inner-default-toolbar-small{
+        color: $lightest-color;
+    }
+  }
+  .widget-top-container-first-img{
+    position: absolute;
+    z-index: 200;
+    margin-top:94px;
+    border: 3px solid $lightest-color;
+    @include border-radius(36px);
+    left: 50%;
+    margin-left: -33px;
+  }
+  .widget-top-second-container{
+    background-color: $widget-second-container-background;
+  }
+  .widget-top-first-third-container {
+    background-color: $widget-third-container-background;
+  }
+  
+  .widget-top-first-fourth-container {
+    background:url('images/img2.jpg');
+    background-size:100% auto;
+  }
+  .widget-top-second-panel .x-fa{
+    color: $lightest-color;
+  }
+  
+  .widget-follower-toolbar{
+    background-color: $follower-toolbar-background;
+    font-size:12px;
+    padding:0 ;
+    text-align:center;
+    border-top:1px solid $base-border-color;
+    border-bottom:1px solid $base-border-color;
+    .x-form-display-field{
+        font-size:13px;
+        color: $FAQ-sub-header-color;
+        font-family: "Open Sans";
+    }
+    .x-form-display-field .label{
+        color: $color;
+        font-size: 12px;
+  
+    }
+    .widget-follower-tool-label{
+        border-left:1px solid $base-border-color;
+        border-right:1px solid $base-border-color;
+    }
+  }
+  
+  .info-card-item{
+    text-align: center;
+    background: $lightest-color ;
+    padding:45px 10px !important;
+    font-size: 24px;
+    border-radius: 4px;
+  
+     &.info-card-large-wrap{
+        h2{
+            font-size: 48px;
+            line-height: 48px;
+        }
+        span.x-fa {
+            height: 75px;
+            width: 75px;
+            border-radius: 38px;
+            color: $lightest-color;
+            font-size: 30px;
+            line-height: 75px;
+            margin: 15px 0;
+  
+            &.fa-shopping-cart {
+                background-color: $sale-container-color;
+            }
+            &.fa-envelope {
+                background-color: $message-container-color;
+            }
+            &.fa-code {
+                background-color: $code-container-color;
+            }
+            &.fa-file-text {
+                background-color: $user-container-color;
+            }
+        }
+        .infodiv{
+            font-size: 14px;
+            line-height: 16px;
+        }
+    }
+    &.info-card-small-wrap{
+        span.fas {
+            &.fa-user-graduate {
+                color: $sale-container-color;
+            }
+            &.fa-graduation-cap {
+                color: $message-container-color;
+            }
+            &.fa-chalkboard-teacher {
+                color: $code-container-color;
+            }
+            &.fa-file-text {
+                color: $user-container-color;
+            }
+        }
+    }
+    &.cornflower-blue:before {
+        background: $sale-container-color;
+    }
+    &.green:before {
+        background: $message-container-color;
+    }
+    &.magenta:before {
+        background: $code-container-color;
+    }
+    &.pink:before {
+        background: $user-container-color;
+    }
+    &.orange:before {
+        background: $server-container-color;
+    }
+    &.blue:before {
+        background: $file-container-color;
+    }
+    h2{
+        font-size: 30px;
+        font-weight: normal;
+        margin: 0;
+        margin:0;
+        line-height: 32px;
+    }
+    div{
+        line-height: 24px;
+    }
+    span{
+        font-size: 24px;
+        line-height: 24px;
+    }
+  
+  }
+  .info-card-item:before{
+    width   :100%;
+    position:absolute;
+    height  :12px;
+    content :"";
+    top     :0;
+    left    :0
+  }
+  
+
+  // News
+
+  .news {
+    background-image: url("icons/news-icon.png") !important;
+
+    .x-ie8 & {
+        background-image: url("icons/news-icon-small.png") !important;
+    }
+}
+
+.forum {
+    background-image: url("icons/forum-icon.png") !important;
+
+    .x-ie8 & {
+        background-image: url("icons/forum-icon-small.png") !important;
+    }
+}
+
+.news-title {
+    font-size: $exec-font-size-large-title;
+    line-height: $exec-font-size-large-title;
+    color: $exec-font-dark-color;
+    margin-bottom: 5px;
+}
+
+.news-small {
+    font-size: $exec-font-size-small-content;
+    color: $exec-font-color;
+
+    img {
+        vertical-align: top;
+        margin: 0 5px 0 10px;
+        height: 12px;
+    }
+
+    a {
+        text-decoration: none;
+    }
+}
+
+.a-blank {
+    display         : none;
+}
+
+.text-wrapper {
+    position: relative;
+    overflow: visible;
+
+    word-wrap: break-word;
+    white-space: pre-wrap;      /* CSS3 */
+    /*white-space: -moz-pre-wrap; /* Firefox */
+    /*white-space: -pre-wrap;     /* Opera <7 */
+    /*white-space: -o-pre-wrap;   /* Opera 7 */
+    /*word-wrap: break-word;      /* IE */
+
+    .news-icon {
+        width: 35px;
+        height: 35px;
+        margin-top: 15px;
+        position: absolute;
+        top: 0;
+        left: 0;
+
+        background-repeat: no-repeat;
+        background-size: contain;
+    }
+
+    .news-data {
+        background-color: $exec-tile-background;
+        margin: 0 0 8px 55px;
+        padding: 15px;
+        border-radius: 3px;
+
+        -webkit-box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.25);
+        -moz-box-shadow:    0px 1px 1px 0px rgba(0, 0, 0, 0.25);
+        box-shadow:         0px 1px 1px 0px rgba(0, 0, 0, 0.25);
+    }
+
+    .news-content {
+        margin-left: 50px;
+    }
+
+    .news-author {
+        text-transform: uppercase;
+    }
+
+    .news-paragraph {
+        background-color: $exec-tile-background;
+        min-height: 20px;
+        overflow: hidden;
+        font-weight: $exec-font-regular;
+        margin-top: 20px;
+    }
+
+    .news-picture {
+        width: 35px;
+        height: 35px;
+        background-color: $exec-light-background;
+        float: left;
+        border-radius: 3px;
+        overflow: hidden;
+
+        img {
+            width: 35px;
+        }
+    }
+
+    .news-toggle {
+        text-align: right;
+        margin-top: 15px;
+
+        span {
+            color: $exec-blue-color;
+            font-size: $exec-font-size-small-title;
+            font-weight: $exec-font-semibold;
+            cursor: pointer;
+            width: 100px;
+            display: inline-block;
+            //text-align: left;
+        }
+
+        img {
+            height: 14px;
+            vertical-align: middle;
+            margin: 0 5px 0 5px;
+        }
+    }
+
+    .news-download {
+        height: 40px;
+        width: 40px;
+
+        background-image: url(icons/download-small.png);
+        background-position: right center;
+        background-repeat: no-repeat;
+        background-size: 50%;
+
+        opacity: 0.5;
+
+        float: right;
+    }
+
+    a {
+        text-decoration: none;
+    }
+}
+
+.company-news-grid {
+
+    margin: 20px 0 0 20px;
+
+    .x-grid-row-expanded .x-grid-row .news-data {
+        margin-bottom: 0;
+        border-bottom-right-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+
+    .x-grid-body {
+        text-transform: none;
+    }
+
+    .x-toolbar-default {
+        background-color: #fff;
+        padding-bottom: 5px;
+        margin-bottom: 5px;
+        border-radius: 6px;
+    }
+
+    .x-grid-item {
+        border: 0px !important;
+        border-bottom: 0px;
+        background-color: transparent;
+    }
+
+    .x-grid-item:last-child {
+        margin-bottom: 15px;
+    }
+
+    .x-grid-cell-inner {
+        margin-right: 20px;
+        padding: 0px;
+        overflow: visible;
+    }
+
+    .x-grid-view {
+        background-color: $exec-light-background;
+        background-image: url("icons/icon-line-bg.png");
+        background-size: 9px 9px;
+        background-repeat: repeat-y;
+        background-position: 13px 20px;
+    }
+
+    .x-grid-view:before {
+        content: '';
+        background-color: $exec-light-background;
+        width: 50px;
+        height: 20px;
+        position: absolute;
+    }
+
+    .x-grid-with-row-lines {
+        border-top: none;
+    }
+
+    .x-grid-row {
+        background-color: transparent;
+        outline: none;
+    }
+
+    .x-grid-item-selected > tbody > .x-grid-row, .x-grid-item-over > tbody > .x-grid-row {
+        outline: none;
+    }
+
+    .x-grid-item.x-grid-item-over {
+        background-color: none;
+        border: none;
+    }
+
+    .x-grid-item-container {
+         border-top: 0px;
+    }
+
+    .x-grid-rowbody {
+        padding-left: 0;
+        padding-top: 0;
+        margin-right: 5px;
+        .news-data {
+            padding-top: 5px;
+            margin-bottom: 3px;
+            border-bottom-right-radius: 3px;
+            border-bottom-left-radius: 3px;
+        }
+        .news-paragraph {
+            margin-left: 50px;
+            margin-top: 0;
+        }
+    }
+
+    .x-grid-item-focused {
+        .news-content {
+            z-index: 1;
+            position: relative;
+        }
+        .news-content:before {
+            content: "";
+            position: absolute;
+            z-index: -1;
+            top: -1px;
+            right: -1px;
+            bottom: -5px;
+            left: -5px;
+
+            border: $grid-row-cell-focus-border-width dotted $grid-row-cell-focus-border-color;
+        }
+        .x-grid-cell-inner:before {
+            display: none;
+        }
+    }
+}
+
+#news-menu {
+    .x-menu-body {
+        background-color: $exec-blue-color !important;
+        span {
+            opacity: 1 !important;
+        }
+    }
+    .x-menu-item-icon {
+        opacity: 1 !important;
+    }
+    .x-menu-item-active {
+        background-color: $exec-blue-color !important;
+    }
+}
+
+
+// wizards
+
+.wizards .x-panel{
+    background: #fff;
+}
+
+.wizardthree .wizardprogressbar {
+    background-color: $wizard-three-button-background-color;
+}
+
+@include extjs-button-small-ui(
+    $ui: 'wizard-blue',
+    $color: $button-toolbar-color,
+    $color-pressed: $wizard-primary-background-color,
+    $background-color: transparent,
+    $opacity-disabled: 1,
+    $glyph-color: $button-toolbar-glyph-color,
+    $border-width: 0
+);
+
+@include extjs-button-small-ui(
+    $ui: 'wizard-soft-purple',
+    $color: $button-toolbar-color,
+    $color-pressed: #fff,
+    $background-color: transparent,
+    $background-color-pressed: $wizard-two-button-background-color,
+    $opacity-disabled: 1,
+    $glyph-color: $button-toolbar-glyph-color,
+    $border-width: 0
+);
+
+@include extjs-button-small-ui(
+    $ui: 'wizard-soft-green',
+    $color: #fff,
+    $color-pressed: $color,
+    $background-color: transparent,
+    $opacity-disabled: 1,
+    $glyph-color: #fff,
+    $border-width: 0
+);
+
+// This rule is required because the button mixin does not currently support
+// separate icon colors for each state
+.x-btn-pressed {
+    .x-btn-icon-el-wizard-blue-small {
+        color: $wizard-primary-background-color;
+    }
+
+    &.x-btn-disabled {
+        &.x-btn-wizard-soft-purple-small,
+        .x-btn-wizard-soft-purple-small-mc {
+            background-color: $wizard-two-button-background-color;
+        }
+    }
+
+    .x-btn-icon-el-wizard-soft-purple-small {
+        color: #fff;
+    }
+
+    .x-btn-icon-el-wizard-soft-green-small {
+        color: $color;
+    }
+}
+
+
+// Mermebship 
+.membership-icon{
+	.fas {
+		height: 32px;
+		width: 32px;
+		border-radius: 38px;
+		color: #fff;
+		font-size: 24px;
+		line-height: 15px;
+		margin: 15px 0;
+		background-color: #458fd2;
+		padding: 8px 8px 2px 7px;
+	}
+}
+.membership-text-active {
+	color: #fff;
+    font-size: 12px;
+    font-weight: bold;
+    background-color: #0a0;
+    border-radius: 20px;
+	border: 2px solid #ffffff1f;
+    padding: 4px 10px 4px 10px;
+    height: 28px;
+    text-transform: uppercase;
+}
+
+.membership-text-inactive {
+	color: #fff;
+    font-size: 12px;
+    font-weight: bold;
+    background-color: #ff0000;
+    border-radius: 20px;
+    border: 2px solid #ffffff1f;
+    padding: 4px 10px 4px 10px;
+    height: 28px;
+    text-transform: uppercase;
+}

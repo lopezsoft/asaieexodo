@@ -56,9 +56,14 @@ trait CrudTrait
      *
     */
 
-    public static function getTable(String $table = null, $query = '', $start = 0, $limit = 30, $where = [], $order = [], $primaryKey = 'id')
+    public static function getTable(Request $request, String $table = null, $where = [], $order = [], $primaryKey = 'id')
     {
         try {
+
+            $query = $request->input('query') ?? '';
+            $start = $request->input('start') ?? 0;
+            $limit = $request->input('limit') ?? 30;
+
             if (strlen($query) > 0) {
                 $fiels      = self::getColumns($table);
                 $queryField = '';
@@ -121,8 +126,6 @@ trait CrudTrait
         }
     }
 
-
-
     /**
      * Inserta los datos en la tabla especificada.
      *
@@ -173,6 +176,75 @@ trait CrudTrait
             return  $result;
         } else {
             return self::Response400();
+        }
+    }
+
+    static function updateTable(Request $request, $fields = null, string $tb = null)
+    {
+        if ($fields) {
+            $ip     = $request->ip();
+            $data   = [];
+            try {
+                DB::beginTransaction();
+                $fieldstb   = self::getColumns($tb); // Listado de las columnas de la tabla
+                if (is_array($fields)) {
+                    foreach ($fields as $value) {
+                        foreach ($value as $key => $val) {
+                            foreach ($fieldstb as $field) {
+                                if($field->Field == $key ){
+                                    if($field->Type == 'date'){
+                                        $data[$key] = date('Y-m-d', strtotime(str_replace('/','-',$val)));
+                                    }else{
+                                        $data[$key] = $val;
+                                    }
+                                    break;
+                                }
+                            }
+                            if ($key == self::$primaryKey) {
+                                $pKey = $val;
+                            }
+                        }
+                        $result = DB::table($tb)
+                                ->where(self::$primaryKey, $pKey)
+                                ->limit(1)
+                                ->update($data);
+
+                        self::audit($ip,$tb,'UPDATE',$data);
+                    }
+                }else{
+                    foreach ($fields as $key => $value) {
+                        foreach ($fieldstb as $field) {
+                            if($field->Field == $key ){
+                                if($field->Type == 'date'){
+                                    $data[$key] = date('Y-m-d', strtotime(str_replace('/','-',$value)));
+                                }else{
+                                    $data[$key] = $value;
+                                }
+                                break;
+                            }
+                        }
+                        if ($key == self::$primaryKey) {
+                            $pKey = $value;
+                        }
+                    };
+                    $result = DB::table($tb)
+                        ->where(self::$primaryKey, $pKey)
+                        ->limit(1)
+                        ->update($data);
+                    self::audit($ip,$tb,'UPDATE',$data);
+                }
+                DB::commit();
+                $result = self::getResponse([
+                    'records'   => $result
+                ]);
+            } catch (Exception $e) {
+                DB::rollback();
+                $result = self::getResponse500([
+                    'message'   => 'Error la guardar los cambios',
+                    'payload'   => $e->getMessage()
+                ]);
+            }
+            return  $result;
         }
     }
 

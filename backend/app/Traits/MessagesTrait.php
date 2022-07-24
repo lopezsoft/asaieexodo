@@ -81,7 +81,7 @@ trait MessagesTrait
         return response()->json($data, 400);
     }
 
-    static function getResponse401()
+    static function getResponse401(): \Illuminate\Http\JsonResponse
     {
         return response()->json([
             'success'   => false,
@@ -89,13 +89,13 @@ trait MessagesTrait
         ], 401);
     }
 
-    static function getResponse422()
+    static function getResponse422(): \Illuminate\Http\JsonResponse
     {
         $data['success']    = false;
         return response()->json($data, 422);
     }
 
-    public static function getResponse500($data  = [])
+    public static function getResponse500($data  = []): \Illuminate\Http\JsonResponse
     {
         $data['success']    = false;
         return response()->json($data, 500);

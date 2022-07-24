@@ -60,7 +60,6 @@ export class AppComponent implements OnInit, OnDestroy {
     private _coreMenuService: CoreMenuService,
     private _coreTranslationService: CoreTranslationService,
     private _translateService: TranslateService,
-    private _location: LocationService
   ) {
     // Get the application main menu
     this.menu = menu;
@@ -105,28 +104,6 @@ export class AppComponent implements OnInit, OnDestroy {
       // ? Use app-config.ts file to set default language
       const appLanguage = this.coreConfig.app.appLanguage || 'en';
       this._translateService.use(appLanguage);
-
-      // ? OR
-      // ? User the current browser lang if available, if undefined use 'en'
-      // const browserLang = this._translateService.getBrowserLang();
-      // this._translateService.use(browserLang.match(/en|fr|de|pt/) ? browserLang : 'en');
-
-      /**
-       * ! Fix : ngxTranslate
-       * ----------------------------------------------------------------------------------------------------
-       */
-
-      /**
-       *
-       * Using different language than the default ('en') one i.e French?
-       * In this case, you may find the issue where application is not properly translated when your app is initialized.
-       *
-       * It's due to ngxTranslate module and below is a fix for that.
-       * Eventually we will move to the multi language implementation over to the Angular's core language service.
-       *
-       **/
-
-      // Set the default language to 'en' and then back to 'fr'.
 
       setTimeout(() => {
         this._translateService.setDefaultLang('es');
@@ -240,9 +217,6 @@ export class AppComponent implements OnInit, OnDestroy {
 
     // Set the application page title
     this._title.setTitle(this.coreConfig.app.appTitle);
-
-    this._location.getCities();
-    this._location.getCountries();
 
   }
 

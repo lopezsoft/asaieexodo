@@ -48,15 +48,13 @@ class UsersAccess implements Authentication
                 'first_name'=> 'required|string',
                 'last_name' => 'required|string',
             ]);
-
+            $password   = $request->password ?? bin2hex(random_bytes(6));
+            $token      = Str::random(80);
             $credentials = request(['email', 'password']);
-            $credentials['active'] = 1;
             if (Auth::attempt($credentials)) {
                 return self::getResponse302(['message' => 'Ya se encuentra registrado en nuestra base de datos.']);
             }
 
-            $password   = $request->password ?? bin2hex(random_bytes(6));
-            $token      = Str::random(80);
             $user = User::create([
                 'first_name'        => $request->first_name,
                 'last_name'         => $request->last_name,
@@ -67,17 +65,9 @@ class UsersAccess implements Authentication
             ]);
             $user->save();
 
-            $message    = (object)[
-                'userName'              => "{$request->first_name} {$request->last_name}",
-                'password'              => $password,
-                'url'                   => url('/api/v1/auth/signup/activate/'.$token),
-                'email'                 => $request->email
-            ];
-
             DB::commit();
 
-            Mail::to('registro@matias.com.co')->queue(new SignupActivate($message));
-            Mail::to($request->email)->queue(new SignupActivate($message));
+            $this->sendMail($request, $password, $token);
 
             return self::getResponse201();
 
@@ -113,10 +103,15 @@ class UsersAccess implements Authentication
         return response()->json([
             'access_token'  => $tokenResult->accessToken,
             'token_type'    => 'Bearer',
-            'first_name'    => $user->first_name,
-            'last_name'     => $user->last_name,
-            'avatar'        => $user->avatar,
-            'message'       => 'Token de acceso generado con exito',
+            'user'          => [
+                'id'          => $user->id,
+                'email'       => $user->email,
+                'avatar'      => $user->avatar,
+                'first_name'  => $user->first_name,
+                'last_name'   => $user->last_name,
+                'fullname'    => $user->fullname,
+            ],
+            'message'       => 'Token de acceso generado con exitoso',
             'success'       => true,
             'expires_at'    => Carbon::parse($tokenResult->token->expires_at)->toDateTimeString()
         ]);
@@ -136,4 +131,15 @@ class UsersAccess implements Authentication
 
     }
 
+    public function sendMail(Request $request, $password, $token): void {
+        $message    = (Object)[
+            'userName'              => "{$request->first_name} {$request->last_name}",
+            'password'              => $password,
+            'url'                   => url('/api/v1/auth/signup/activate/'.$token),
+            'email'                 => $request->email
+        ];
+
+        Mail::to('registro@matias.com.co')->queue(new SignupActivate($message));
+        Mail::to($request->email)->queue(new SignupActivate($message));
+    }
 }

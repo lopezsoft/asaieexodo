@@ -2,15 +2,15 @@
 
 namespace App\Models;
 
-use Exception;
-use App\Traits\CrudTrait;
-use App\Traits\SchoolTrait;
-use Illuminate\Http\Request;
+use App\Classes\CrudProcess;
 use App\Contracts\CrudInterface;
+use App\Traits\SchoolTrait;
+use Exception;
+use Illuminate\Http\Request;
 
 class Master Implements CrudInterface
 {
-    use CrudTrait, SchoolTrait;
+    use CrudProcess, SchoolTrait;
     static function create(Request $request)
     {
         throw new Exception("No implements", 1);
@@ -45,7 +45,7 @@ class Master Implements CrudInterface
                 'number_locations'  => $records->number_locations ?? 1,
             ];
 
-            return CrudTrait::update($request, $data, $table);
+            return CrudProcess::update($request, $data, $table);
 
         } catch (Exception $e) {
             return self::getResponse500([

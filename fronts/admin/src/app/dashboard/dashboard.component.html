@@ -1,1 +1,21 @@
-<p>dashboard works!</p>
+<section>
+    <div class="card">
+        <div class="card-header">ESTIMADO USUARIO USTED TIENE ACCESO A:</div>
+        <div class="card-body" *ngIf="!(schools.length > 0)">NO TIENE ACCESOS</div>
+    </div>
+</section>
+<section *ngFor="let school of schools">
+    <div class="row">
+        <div class="col-12 col-md-4" *ngFor="let role of school.school.roles">
+            <div class="card">
+                <div class="card-module" (click)="clickOnModule(role)">
+                    <div class="card-icon"><i [class]="role.profile.font"></i></div>
+                    <div class="card-content">
+                        <h5 class="small"><b>{{school.school.nameschool}}</b></h5>
+                        <span class="small">MODULO: <strong>{{role.profile.profile_name}}</strong></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

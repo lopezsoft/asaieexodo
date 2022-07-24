@@ -1,12 +1,3 @@
-
-export interface SearchParams {
-	search?: string;
-	searchType?: number;
-	start?: number;
-	limit?: number; 
-	isDocumentSupport : boolean;
-}
-
 export interface Report {
   pathFile: string;
   success: boolean;

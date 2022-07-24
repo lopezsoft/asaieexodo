@@ -2,10 +2,10 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { JsonResponse } from '../../interfaces/index';
-import { HttpServerService } from '../../utils/http-server.service';
+import { JsonResponse } from '../../interfaces';
+import { HttpServerService } from '../../utils';
 
-import { Users, UserTypes } from './../../models/users-model';
+import { Users, UserTypes } from '../../models/users-model';
 @Injectable({
   providedIn: 'root'
 })
@@ -24,7 +24,7 @@ export class UsersService {
 
   getProfile(): Observable<Users[]> {
     const ts  = this;
-    return ts.api.get(`/users/profile`)
+    return ts.api.get(`/user`)
       .pipe( map ( (resp: JsonResponse ) => {
         return resp.records;
       }));

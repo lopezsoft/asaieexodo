@@ -2,15 +2,15 @@
 
 namespace App\Models\Administrative;
 
-use App\Traits\CrudTrait;
+use App\Classes\CrudProcess;
+use App\Contracts\CrudInterface;
 use App\Traits\SchoolTrait;
 use Illuminate\Http\Request;
-use App\Contracts\CrudInterface;
 
 
 class HeadQuarters Implements CrudInterface
 {
-    use CrudTrait, SchoolTrait;
+    use CrudProcess, SchoolTrait;
     static function create(Request $request){
 
     }

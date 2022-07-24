@@ -2,19 +2,18 @@
 
 namespace App\Http\Controllers\Location;
 
-use Illuminate\Http\Request;
-use App\Models\Location\Location;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 
 class LocationController extends Controller
 {
-    public static function getCities(Request $request)
+    public static function getCities(Request $request): \Illuminate\Http\JsonResponse
     {
-        return Location::getCities($request);
+        return \App\Modules\Location\Location::getCities($request);
     }
 
-    public static function getCountries(Request $request)
+    public static function getCountries(Request $request): \Illuminate\Http\JsonResponse
     {
-        return Location::getCountries($request);
+        return \App\Modules\Location\Location::getCountries($request);
     }
 }

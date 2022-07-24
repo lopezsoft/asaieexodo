@@ -13,12 +13,13 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
-});
-
 
 Route::prefix('v1')->group(function () {
+    Route::middleware('auth:api')->get('/user', function (Request $request) {
+        return response()->json([
+            'records'   => $request->user()
+        ]);
+    });
 
     Route::prefix('auth')->group(function () {
         Route::controller('Auth\AuthController')->group(function () {
@@ -26,6 +27,7 @@ Route::prefix('v1')->group(function () {
             Route::get('signup/activate/{token}',   'signupActivate');
             Route::post('login',                    'login');
             Route::group(['middleware' => 'auth:api'], function () {
+                Route::put('user/update/{id}', 'updateAccount');
                 Route::get('logout',            'logout');
             });
         });
@@ -37,14 +39,11 @@ Route::prefix('v1')->group(function () {
     });
 
     Route::prefix('admin')->group(function () {
-
         Route::group(['middleware' => 'auth:api'], function () {
-
             Route::prefix('school')->group(function () {
                 Route::get('read',          'Administrative\SchoolsController@read');
                 Route::put('update/{id}',   'Administrative\SchoolsController@update');
             });
-
             Route::resource('headquarters',  Administrative\HeadQuartersController::class);
             Route::resource('master',       MasterController::class);
         });

@@ -7,12 +7,6 @@ Ext.define('Admin.store.admin.AdminStore',{
     proxy: {
         extraParams : {
             pdbTable : 'administrativos'
-        },
-        api: {
-            create  : 'master/insertData',
-            read    : 'master/getSelectAdmin',
-            update  : 'master/updateData',
-            destroy : 'master/deleteData'
         }
     },
     requires: [

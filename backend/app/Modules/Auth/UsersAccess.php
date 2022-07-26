@@ -6,8 +6,6 @@ use App\Contracts\Auth\Authentication;
 use App\Mail\SignupActivate;
 use App\Models\User;
 use App\Traits\MessagesTrait;
-use App\Traits\SchoolTrait;
-use App\Traits\SessionTrait;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
@@ -19,7 +17,7 @@ use Illuminate\Support\Str;
 class UsersAccess implements Authentication
 {
 
-    use SessionTrait, MessagesTrait, SchoolTrait;
+    use MessagesTrait;
 
     public function signupActivate($token)
     {

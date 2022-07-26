@@ -2,17 +2,16 @@ Ext.define('Admin.security.TokenStorage', {
     alternateClassName: ['TokenStorage', 'AuthToken'],
     singleton : true,
     constructor: function (cfg) {
-        var me = this;
-        me.initConfig(cfg);
+		const me = this;
+		me.initConfig(cfg);
     },
     config: {
-        storageKey  : 'JWT-ASAIE',
+        storageKey  : 'asaie-exodo-jwt',
         storageOut   : 'token-dashboard'
     },  
 
     redirectTo : function(){
-        var url = Global.getUrlBase() + 'dashboard/login';
-        window.location.href = url;
+		window.location.href = Global.getUrlBase() + 'auth/login';
     },
     
     clearOut : function () {
@@ -27,15 +26,14 @@ Ext.define('Admin.security.TokenStorage', {
     },
 
     recoverParams : function(){
-        var 
-            token   = this.recover();
+        let token   = this.recover();
         if (token){
             token = {
                 access_token: token.access_token,
 				school		: token.school,
                 token_type	: token.token_type,
                 user        : token.user,
-                membership	: token.membership
+                profile		: token.profile
             }
         }
         return token;
@@ -56,15 +54,14 @@ Ext.define('Admin.security.TokenStorage', {
 	},
 
 	isActive: function() {
-        const membership = this.recoverParams().membership;
-        return (membership.state == 1) ? true : false;
+        const membership = this.recoverParams().school;
+        return (membership.state === 1);
     },
 
     recoverOut: function() {
-        var 
-            valToken= localStorage.getItem(this.getStorageOut()),
-            token   = {};
-        if (valToken){
+		let valToken = localStorage.getItem(this.getStorageOut()),
+			token = {};
+		if (valToken){
             token   = Ext.decode(valToken)
         }else{
             token   = null 
@@ -73,10 +70,9 @@ Ext.define('Admin.security.TokenStorage', {
     },
 
     recover: function() {
-        var 
-            valToken= localStorage.getItem(this.getStorageKey()),
-            token   = {};
-        if (valToken){
+		let valToken = localStorage.getItem(this.getStorageKey()),
+			token = {};
+		if (valToken){
             token   = Ext.decode(valToken)
         }else{
             token   = null 
@@ -90,19 +86,19 @@ Ext.define('Admin.security.TokenStorage', {
     },
 
     isAuthenticated : function (){
-        var out = this.recoverOut();
-        if(out){
+		const out = this.recoverOut();
+		if(out){
             this.save(JSON.stringify(out));
         }
-        return this.recover() ? true : false;
+        return !!this.recover();
     },
 
     onLogout: function () {
-        var me      = this,
-            params  = me.recoverParams(),
-            app     = Admin.getApplication();
-        Ext.Ajax.request({
-            url     : Global.getApiUrl() + '/admin/auth/logout',
+		const me = this,
+			params = me.recoverParams(),
+			app = Admin.getApplication();
+		Ext.Ajax.request({
+            url     : Global.getApiUrl() + '/auth/logout',
             headers: {
                 'Authorization' : params.token_type +' ' + params.access_token
             },
@@ -131,7 +127,7 @@ Ext.define('Admin.security.TokenStorage', {
                var 
                     text    = response.responseText
                     obj     = Ext.decode(response.responseText);
-                if(obj.success == true){
+                if(obj.success === true){
                     me.save(text);
                     app.showResult('Bienvenido al sistema, te has autenticado correctamente.');
 					setTimeout(() => {

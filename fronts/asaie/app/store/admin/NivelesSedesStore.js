@@ -13,10 +13,10 @@ Ext.define('Admin.store.admin.NivelesSedesStore',{
             pdbTable : 'niveles_sedes'
         },
         api: {
-            create  : 'master/insertData',
-            read    : 'General/get_select_niveles_sedes',
-            update  : 'master/updateData',
-            destroy : 'master/deleteData'
+            create  : 'crud',
+            read    : 'headquarters/study-levels',
+            update  : 'crud',
+            destroy : 'crud'
         }
     }
 });

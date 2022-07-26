@@ -59,10 +59,6 @@ Ext.define('Admin.view.admin.controller.AdminController',{
     onCreateSchool : function (btn) {
        this.redirectTo('schoolinformation', true);
     },
-    /**
-     * Funcion para setear los datos que se enviar al servidor para lamar el reporte.
-     * @param btn
-     */
     onSetReport: function(btn){
         var url     = 'reports/report_dir_grupos',
             win     = btn.up('window'),

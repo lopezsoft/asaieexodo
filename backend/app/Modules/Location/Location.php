@@ -3,13 +3,10 @@
 namespace App\Modules\Location;
 
 use App\Models\Location\Cities;
-use App\Models\Location\Country;
 use App\Queries\QueryTable;
 use App\Traits\MessagesTrait;
-use App\Traits\SessionTrait;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class Location
 {
@@ -24,7 +21,7 @@ class Location
             }
             $where[] = ['active', '=', 1];
 
-            return QueryTable::query('countries', $where);
+            return QueryTable::table('countries', $where);
 
         } catch (Exception $e) {
             return self::getResponse500([
@@ -43,7 +40,7 @@ class Location
                 $query  = $query->orWhere('city_code', 'like', "%{$querySearch}%");
             }
             return self::getResponse([
-                'records'   => $query->paginate(),
+                'records'   => $query->paginate($request->input('limit') ?? 15),
             ]);
 
         } catch (Exception $e) {

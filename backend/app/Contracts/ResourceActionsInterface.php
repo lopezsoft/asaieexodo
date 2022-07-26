@@ -5,10 +5,9 @@ namespace App\Contracts;
 use Illuminate\Http\Request;
 
 interface ResourceActionsInterface{
-    function index(Request $request);
-    function store(Request $request);
-    function show(Request $request, $id);
-    function edit(Request $request, $id);
-    function update(Request $request, $id);
-    function destroy(Request $request, $id);
+    public function index(Request $request);
+    public function store(Request $request);
+    public function show(Request $request, $id);
+    public function update(Request $request, $id);
+    public function destroy(Request $request, $id);
 }

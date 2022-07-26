@@ -1,7 +1,7 @@
 Ext.define('Admin.store.base.StoreUrlSocket',{
 	extend		: 'Ext.data.Store',
     storeId		: 'StoreUrlSocket',
-    pageSize	: 60,
+    pageSize	: 15,
 	urlCrtl		: '', // Propiedad para controlar si la URL a sido cargada
     proxy: {
 		type	: 'socketio',

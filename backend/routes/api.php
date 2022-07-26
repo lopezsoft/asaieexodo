@@ -13,7 +13,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-
 Route::prefix('v1')->group(function () {
     Route::middleware('auth:api')->get('/user', function (Request $request) {
         return response()->json([
@@ -34,19 +33,25 @@ Route::prefix('v1')->group(function () {
     });
 
     Route::group(['middleware' => 'auth:api'], function () {
-        Route::get('cities',                'Location\LocationController@getCities');
-        Route::get('countries',             'Location\LocationController@getCountries');
-    });
-
-    Route::prefix('admin')->group(function () {
-        Route::group(['middleware' => 'auth:api'], function () {
-            Route::prefix('school')->group(function () {
-                Route::get('read',          'Administrative\SchoolsController@read');
-                Route::put('update/{id}',   'Administrative\SchoolsController@update');
-            });
-            Route::resource('headquarters',  Administrative\HeadQuartersController::class);
-            Route::resource('master',       MasterController::class);
+        Route::apiResource('crud', 'SchoolMasterController');
+        Route::resource('/index',       'MasterController');
+        Route::controller('Location\LocationController')->group(function () {
+            Route::get('cities',                'getCities');
+            Route::get('countries',             'getCountries');
         });
+        Route::prefix('school')->group(function () {
+            Route::controller('School\SchoolsController')->group(function () {
+                Route::get('read',          'read');
+                Route::put('update/{id}',   'update');
+            });
+        });
+        Route::prefix('headquarters')->group(function () {
+            Route::controller('School\HeadQuartersController')->group(function () {
+                Route::get('working-day',          'getWorkingDay');
+                Route::get('study-levels',          'getStudyLevels');
+            });
+        });
+        Route::apiResource('headquarters', 'School\HeadQuartersController');
     });
 
     Route::prefix('teachers')->group(function () {

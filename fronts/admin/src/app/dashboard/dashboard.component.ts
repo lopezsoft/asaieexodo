@@ -49,6 +49,8 @@ export class DashboardComponent implements OnInit {
           console.log(school);
           console.log(role);
           this.blockUI.stop(); // Stop blocking
+          const url = `${this._http.getAppUrl()}/admin`;
+          window.open(url,'_blank');
       }, 2000);
   }
 }

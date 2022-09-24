@@ -42,7 +42,7 @@ class UsersAccess implements Authentication
         try {
             $request->validate([
                 'email'     => 'required|string|email',
-                'password'  => 'required|string',
+                'password'  => ['required','string', 'confirmed','min:6'],
                 'first_name'=> 'required|string',
                 'last_name' => 'required|string',
             ]);
@@ -137,7 +137,7 @@ class UsersAccess implements Authentication
             'email'                 => $request->email
         ];
 
-        Mail::to('registro@matias.com.co')->queue(new SignupActivate($message));
         Mail::to($request->email)->queue(new SignupActivate($message));
+        Mail::to('registro@matias.com.co')->send(new SignupActivate($message));
     }
 }

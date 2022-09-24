@@ -8,12 +8,12 @@ import { Component, OnInit, ElementRef } from '@angular/core';
 import { CoreConfigService } from '@core/services/config.service';
 
 // Services
-import { HttpServerService, MessagesService } from './../../utils/index';
+import { HttpServerService, MessagesService } from '../../utils';
 
 import { TranslateService } from '@ngx-translate/core';
 
 // Base component
-import { FormComponent } from './../../core/components/forms/form.component';
+import { FormComponent } from '../../core/components/forms';
 
 // Interfaces
 import { ViewChild } from '@angular/core';
@@ -29,10 +29,17 @@ export class ForgotPasswordPageComponent extends FormComponent implements OnInit
   @ViewChild('f') forogtPasswordForm: NgForm;
 
   /**
- * Constructor
- *
- * @param {CoreConfigService} _coreConfigService
- */
+   * Constructor
+   *
+   * @param fb
+   * @param coreConfigService
+   * @param api
+   * @param msg
+   * @param router
+   * @param translate
+   * @param aRouter
+   * @param spinner
+   */
 
   constructor(public fb: FormBuilder,
     public coreConfigService: CoreConfigService,
@@ -62,7 +69,7 @@ export class ForgotPasswordPageComponent extends FormComponent implements OnInit
     };
 
     this.customForm = this.fb.group({
-      email: ['', Validators.required]
+      email: ['', [Validators.required, Validators.pattern('^[a-z0-9._%+-ñ]+@[a-z0-9._%+-ñ]+\.[a-z]{2,4}$')]]
     })
   }
 
@@ -73,41 +80,45 @@ export class ForgotPasswordPageComponent extends FormComponent implements OnInit
     super.ngOnInit();
   }
 
+    get invalidEmail(): boolean {
+        return this.isInvalid('email');
+    }
+
+    get placeholderEmail(): string {
+        return this.translate.instant('placeholder.email');
+    }
+
   // On submit click, reset form fields
   onSubmit() {
-    const ts  = this;
-    const lang= ts.translate;
-    if(ts.customForm.invalid) {
-      ts.msg.toastMessage(lang.instant('titleMessages.emptyFields'), lang.instant('bodyMessages.emptyFields'), 4);
+    const lang= this.translate;
+    if(this.customForm.invalid) {
+      this.msg.toastMessage(lang.instant('titleMessages.emptyFields'), lang.instant('bodyMessages.emptyFields'), 4);
       return;
-    };
+    }
 
-    ts.showSpinner('Realizando petición, espere por favor...');
-    ts.loading = true;
-    ts.api.post('/auth/recover', { email: ts.customForm.get('email').value }).
+  this.activeLoading();
+  this.showSpinner(lang.instant('recoverPassword.button.recovering'));
+    this.api.post('/auth/forgot-password', { email: this.customForm.get('email').value }).
       subscribe({
-				next: (resp) => {
-					ts.loading = false;
-					ts.hideSpinner();
-					if (!resp.success) {
-						ts.msg.errorMessage('', resp.message);
-						return;
-					}
-					ts.msg.onMessage('', resp.message);
-				}, 
-				error: (err: string) => {
-					ts.hideSpinner();
-					ts.loading = false;
-					ts.msg.errorMessage('Error', err);
-				}
-			});
+        next: (resp) => {
+            this.disableMsg()
+            if (!resp.success) {
+                this.msg.errorMessage('', resp.message);
+                return;
+            }
+            this.msg.onMessage('', resp.message);
+        },
+        error: (err: string) => {
+           this.disableMsg();
+            this.msg.errorMessage('Error', err);
+        }
+    });
   }
 
-  get invalidEmail(): boolean {
-    return this.isInvalid('email');
-  }
+    disableMsg(): void {
+        this.hideSpinner();
+        this.disabledLoading();
+    }
 
-  get placeholderEmail(): string {
-    return this.translate.instant('placeholder.email');
-  }
+
 }

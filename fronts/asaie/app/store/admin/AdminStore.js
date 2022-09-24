@@ -6,7 +6,8 @@ Ext.define('Admin.store.admin.AdminStore',{
     storeId : 'AdminStore',
     proxy: {
         extraParams : {
-            pdbTable : 'administrativos'
+            pdbTable : 'administrativos',
+			order    : '{"apellido1": "ASC", "nombre1": "ASC"}'
         }
     },
     requires: [

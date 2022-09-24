@@ -211,7 +211,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     // get the currentUser details from localStorage
     this.token  = this._http.getToken();
-    this.avatar = this._http.getAppUrl() + this.token.user.avatar;
+    if(this.token) {
+      this.avatar = this._http.getAppUrl() + this.token.user.avatar;
+    }
     // Subscribe to the config changes
     this._coreConfigService.config.pipe(takeUntil(this._unsubscribeAll)).subscribe(config => {
       this.coreConfig = config;

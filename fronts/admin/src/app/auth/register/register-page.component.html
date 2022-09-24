@@ -23,19 +23,19 @@
         <div class="col-12 col-sm-8 col-md-6 col-lg-12 px-xl-2 mx-auto">
           <h4 class="card-title mb-2 text-break text-center">
             <strong>{{ 'register.title' | translate }}</strong>
-					</h4>
+          </h4>
           <p>{{ 'register.description' | translate }}</p>
           <form class="auth-register-form mt-2" [formGroup]="customForm">
             <h1 class="text-break text-center" style="font-size: 24px;">
-							<strong>{{ 'register.headerForm' | translate }}</strong><br>
-						</h1>
+			  <strong>{{ 'register.headerForm' | translate }}</strong><br>
+            </h1>
             <h6 class="card-title mb-2 text-break text-center">
-							<strong>{{ 'register.userData' | translate | uppercase }}</strong>
-						</h6>
-						<hr>
+              <strong>{{ 'register.userData' | translate | uppercase }}</strong>
+            </h6>
+			<hr>
             <div class="form-group">
-              <input class="form-control" type="text" formControlName="first_name" placeholder="Nombre" autocomplete="off" 
-								[class.is-invalid]="invalidFirstName" autofocus   #focusElement>
+              <input class="form-control" type="text" formControlName="first_name" placeholder="Nombre" autocomplete="off"
+                     [class.is-invalid]="invalidFirstName" autofocus   #focusElement>
               <small class="text-danger" *ngIf="invalidFirstName">Nombre muy corto</small>
             </div>
             <div class="form-group">
@@ -43,35 +43,20 @@
                 placeholder="Apellidos" autocomplete="off" [class.is-invalid]="invalidLastName">
               <small class="text-danger" *ngIf="invalidLastName">Apellidos muy cortos</small>
             </div>
-						<div class="form-group">
+            <div class="form-group">
               <input class="form-control" type="email" formControlName="email"
-                placeholder="Correo electrónico" inputmode="email" autocomplete="off" [class.is-invalid]="invalidEmail">
+                [placeholder]="placeholderEmail" inputmode="email" autocomplete="off" [class.is-invalid]="invalidEmail">
               <small class="text-danger" *ngIf="invalidEmail">Correo electrónico incorrecto</small>
             </div>
-            <h6 class="card-title mb-2 text-break text-center">
-							<strong>{{ 'register.companyData' | translate | uppercase }}</strong>
-						</h6>
-						<hr>
             <div class="form-group">
-              <input class="form-control" type="text" formControlName="company_name"
-                placeholder="Nombre o razón social" autocomplete="on" [class.is-invalid]="invalidName">
-              <small class="text-danger" *ngIf="invalidName">Nombre o razón social muy corto</small>
+              <input class="form-control" type="password" formControlName="password"
+                [placeholder]="placeholderPassword" inputmode="password" autocomplete="off" [class.is-invalid]="isInvalid('password')">
+              <small class="text-danger" *ngIf="isInvalid('password')">Contraseña incorrecta</small>
             </div>
             <div class="form-group">
-              <input class="form-control" type="text" formControlName="dni"
-                placeholder="Documento sin digito de verificación" inputmode="numeric" autocomplete="on"
-                [class.is-invalid]="invalidDni">
-              <small class="text-danger" *ngIf="invalidDni">Número de documento incorrecto</small>
-            </div>
-            <div class="form-group">
-              <input class="form-control" type="text" formControlName="mobile"
-                placeholder="Telefono de contacto" autocomplete="on" inputmode="tel" [class.is-invalid]="invalidMobile">
-              <small class="text-danger" *ngIf="invalidMobile">Numero de teléfono muy corto</small>
-            </div>
-            <div class="form-group">
-              <input class="form-control" type="text" formControlName="address" placeholder="Dirección"
-                autocomplete="on" [class.is-invalid]="invalidAdress">
-              <small class="text-danger" *ngIf="invalidAdress">Dirección muy corta</small>
+              <input class="form-control" type="password" formControlName="password_confirmation"
+                [placeholder]="placeholderConfirmPassword" inputmode="password" autocomplete="off" [class.is-invalid]="isInvalid('password_confirmation')">
+              <small class="text-danger" *ngIf="isInvalid('password_confirmation')">Confirmación de contraseña incorrecta</small>
             </div>
             <button class="btn btn-info btn-block btn-lg" type="submit" (click)="onSave()" [disabled]="loading">
               <strong *ngIf="!loading">{{ 'register.button.registerNow' | translate }}</strong>

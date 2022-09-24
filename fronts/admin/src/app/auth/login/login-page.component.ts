@@ -26,7 +26,7 @@ import { CoreConfigService } from '@core/services/config.service';
 
 export class LoginPageComponent extends FormComponent implements OnInit {
   @ViewChild('focusElement') focusElement: ElementRef;
-
+    public forgotPassword: string = '';
   constructor(public fb: FormBuilder,
     public coreConfigService: CoreConfigService,
     public api: HttpServerService,
@@ -67,6 +67,7 @@ export class LoginPageComponent extends FormComponent implements OnInit {
   ngOnInit(): void {
     super.ngOnInit();
     this.goHome();
+    this.forgotPassword =  `${this.api.getAppUrl()}/forgot-password`;
   }
 
   get placeholderUserName(): string {

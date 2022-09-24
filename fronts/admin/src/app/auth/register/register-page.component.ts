@@ -8,11 +8,11 @@ import { TranslateService } from '@ngx-translate/core';
 import { CoreConfigService } from '@core/services/config.service';
 
 // Services
-import { HttpServerService, MessagesService } from './../../utils/index';
+import { HttpServerService, MessagesService } from '../../utils';
 
 
 // Base component
-import { FormComponent } from './../../core/components/forms/form.component';
+import { FormComponent } from '../../core/components/forms';
 
 @Component({
   selector: 'app-register-page',
@@ -22,9 +22,7 @@ import { FormComponent } from './../../core/components/forms/form.component';
 
 export class RegisterPageComponent extends FormComponent implements OnInit {
   @ViewChild('focusElement') focusElement: ElementRef;
-  registerFormSubmitted = false;
   customForm: FormGroup;
-
   constructor(
     public fb: FormBuilder,
     public api: HttpServerService,
@@ -53,100 +51,79 @@ export class RegisterPageComponent extends FormComponent implements OnInit {
       }
     };
     this.customForm = this.fb.group({
-      first_name						: ['', [Validators.required, Validators.minLength(3)]],
-      last_name							: ['', [Validators.required, Validators.minLength(3)]],
-      company_name					: ['', [Validators.required, Validators.minLength(5)]],
-      // identity_document_id	: [3, Validators.required],
-      dni										: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(12)]],
-      type_organization_id	: [1, Validators.required],
-      mobile								: ['', [Validators.required, Validators.minLength(7)]],
-      address								: ['', [Validators.required, Validators.minLength(10)]],
-      city_id								: [149, Validators.required],
-      email									: ['', [Validators.required, Validators.pattern('^[a-z0-9._%+-ñ]+@[a-z0-9._%+-ñ]+\.[a-z]{2,4}$')]]
+      first_name            : ['', [Validators.required, Validators.minLength(3)]],
+      last_name		        : ['', [Validators.required, Validators.minLength(3)]],
+      password	            : ['', [Validators.required, Validators.minLength(6)]],
+      password_confirmation : ['', [Validators.required, Validators.minLength(6)]],
+      email			        : ['', [Validators.required, Validators.pattern('^[a-z0-9._%+-ñ]+@[a-z0-9._%+-ñ]+\.[a-z]{2,4}$')]]
     });
   }
 
   ngOnInit() {
     super.ngOnInit();
-    const ts = this;
-    ts.showSpinner();
-
   }
 
   get rf() {
     return this.customForm.controls;
   }
 
-	get invalidFirstName() {
-    return this.isInvalid('first_name');
+  get invalidFirstName() {
+      return this.isInvalid('first_name');
   }
   get invalidLastName() {
     return this.isInvalid('last_name');
   }
 
-  get invalidName() {
-    return this.isInvalid('company_name');
-  }
-  get invalidDni() {
-		return this.isInvalid('dni');
-  }
-  get invalidMobile() {
-    return this.isInvalid('mobile');
-  }
-  get invalidAdress() {
-    return this.isInvalid('address');
-  }
   get invalidEmail() {
     return this.isInvalid('email');
   }
-
 
   // placeholder
 
   get placeholderEmail(): string {
     return this.translate.instant('placeholder.email');
   }
-  get placeholderPassw(): string {
+  get placeholderPassword(): string {
     return this.translate.instant('placeholder.password');
   }
 
-  get placeholderConfirmPassw(): string {
+  get placeholderConfirmPassword(): string {
     return this.translate.instant('placeholder.confirmPassword');
   }
-  get placeholderNameAndSurname(): string {
-    return this.translate.instant('register.placeholder.nameAndSurname');
-  }
-
-
-
   onSave(): void {
     const me = this.customForm;
-    const ts = this;
     const lang = this.translate;
-    ts.activeLoading();
-    ts.showSpinner(lang.instant('register.button.creatingAccount'));
+    this.activeLoading();
+    this.showSpinner(lang.instant('register.button.creatingAccount'));
     if (me.invalid) {
-      ts.onValidateForm(me);
-      ts.msg.toastMessage(lang.instant('titleMessages.emptyFields'), lang.instant('bodyMessages.emptyFields'), 4);
-      ts.disabledLoading();
-      ts.hideSpinner();
+      this.onValidateForm(me);
+      this.msg.toastMessage(lang.instant('titleMessages.emptyFields'), lang.instant('bodyMessages.emptyFields'), 4);
+      this.disableMsg();
       return;
-    };
-
-    ts.api.post('/signup', me.value)
+    }
+    const values  = this.customForm.getRawValue();
+    if(values.password !== values.password_confirmation) {
+      this.disableMsg();
+      this.msg.errorMessage('Registro de usuarios', 'Las contraseñas no coinciden.');
+      return;
+    }
+    this.api.post('/auth/signup', me.value)
       .subscribe({
-				next: (resp) => {
-					ts.onResetForm(me);
-					ts.hideSpinner();
-					ts.disabledLoading();
-					ts.msg.onMessage(lang.instant('register.messages.successfulRegistration'), resp.message);
-				}, 
-				error: (err: string) => {
-					ts.hideSpinner();
-					ts.disabledLoading();
-					ts.msg.errorMessage(lang.instant('general.error'), err);
-				}
-			});
+        next: (resp) => {
+            this.onResetForm(me);
+            this.disableMsg();
+            this.msg.onMessage(lang.instant('register.messages.successfulRegistration'), resp.message);
+        },
+        error: (err: string) => {
+            this.disableMsg();
+            this.msg.errorMessage(lang.instant('general.error'), err);
+        }
+    });
+
+  }
+  disableMsg(): void {
+    this.hideSpinner();
+    this.disabledLoading();
   }
 
 }

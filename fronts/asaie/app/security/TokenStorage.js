@@ -25,6 +25,15 @@ Ext.define('Admin.security.TokenStorage', {
         window.location.reload();
     },
 
+	profileSettings: function () {
+		const { profile } = this.recoverParams();
+		return {
+			isRector		: (profile.id === 2),
+			isCoordinador	: (profile.id === 6),
+			isSecretary		: (profile.id === 3),
+		}
+	},
+
     recoverParams : function(){
         let token   = this.recover();
         if (token){

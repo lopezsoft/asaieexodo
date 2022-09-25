@@ -14,6 +14,11 @@ Ext.define('Admin.store.base.StoreApi',{
 			type 			: 'json',
 			rootProperty	: 'records',
 			encode 			: true
+		},
+		reader	: {
+			type			: 'json',
+			rootProperty	: 'records.data',
+			totalProperty	: 'records.total'
 		}
 	}
 });

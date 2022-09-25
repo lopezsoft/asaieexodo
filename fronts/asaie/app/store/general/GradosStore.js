@@ -7,10 +7,10 @@ Ext.define('Admin.store.general.GradosStore',{
     model: 'Admin.model.general.GradosModel',
     proxy: {
 		api: {
-			create  : 'master/insertData',
-			read    : 'master/getGrades',
-			update  : 'master/updateData',
-			destroy : 'master/deleteData'
+			create  : 'crud',
+			read    : 'grades',
+			update  : 'crud',
+			destroy : 'crud'
 		},
 		extraParams	:  {
 			pdbTable	: 'grados',

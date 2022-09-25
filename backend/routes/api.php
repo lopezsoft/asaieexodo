@@ -52,11 +52,27 @@ Route::prefix('v1')->group(function () {
             });
         });
         Route::apiResource('headquarters', 'School\HeadQuartersController');
+
+        Route::prefix('group-director')->group(function () {
+            Route::controller('Administrative\GroupDirectorsController')->group(function () {
+               Route::get('getGroupDirectorByGrade', 'getGroupDirectorByGrade');
+            });
+        });
+
+        Route::prefix('grades')->group(function () {
+           Route::controller('GradesController')->group(function () {
+              Route::get('', 'getGrades');
+              Route::get('groups', 'getGroups');
+           });
+        });
+
+        Route::prefix('teachers')->group(function () {
+            Route::controller('Administrative\TeachersController')->group(function () {
+               Route::get('get-by-year', 'getByYear');
+            });
+        });
     });
 
-    Route::prefix('teachers')->group(function () {
-
-    });
 
     Route::prefix('students')->group(function () {
 

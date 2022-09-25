@@ -36,11 +36,11 @@ Ext.define('Admin.store.base.StoreUrl',{
 	},
 
 	listeners: {
-		beforesync : function (o , eOpts) {
+		beforesync : function () {
 			this.updateProperties(this);
 		},
 
-		beforeload: function (xStore, operation, eOpts ){
+		beforeload: function (){
 			this.updateProperties(this);
 		}
 	},
@@ -49,6 +49,13 @@ Ext.define('Admin.store.base.StoreUrl',{
 		const 	baseUrlSys 	= Global.getApiUrl() + '/'; // Obtenemos la URL base
 		const 	proxy 		= me.getProxy(); // Obtenemos el PROXY de Ajax
 		const 	proxApi		= proxy.getApi();
+		const extraParams 	= proxy.getExtraParams();
+		const {school, profile}	= AuthToken.recoverParams();
+		const dt				= new Date();
+		extraParams.schoolId  	= school.id ?? 0;
+		extraParams.profileId   = profile.id ?? 0;
+		extraParams.year        = school.year ?? dt.getFullYear();
+		proxy.setExtraParams(extraParams);
 		if(me.urlCrtl.length === 0) {
 			if (proxy.url.length > 0) {
 				proxy.setUrl(baseUrlSys + proxy.url);

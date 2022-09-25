@@ -195,12 +195,12 @@ Ext.define('Admin.view.academico.container.AcademicContainerView',{
 			},
 			{
 				xtype   : 'containerButton',
+				disabled: isSecretary,
+				hidden	: isSecretary,
 				items: [
 					{
 						xtype   : 'buttonPanel',
 						text    : 'Mayúsculas Logros Indicadores',
-						disabled: isSecretary,
-						hidden	: isSecretary,
 						handler : 'onMayus',
 						iconCls : 'x-fa fa-text-width'
 					}

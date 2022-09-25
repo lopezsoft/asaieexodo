@@ -8,7 +8,7 @@ Ext.define('Admin.view.admin.forms.SaveGroupManagers' ,{
 		'Admin.combo.CbGrupo',
 		'Admin.container.SedesJorn'
 	],
-	maxWidth	: 550,
+	maxWidth	: 750,
 	initComponent: function (cnf) {  
 		this.callParent(arguments);	
 		this.setTitle(AppLang.getSTitleViewAddGroupDirectors());
@@ -24,15 +24,17 @@ Ext.define('Admin.view.admin.forms.SaveGroupManagers' ,{
 			me 		= Admin.getApplication();
 
 		if (Ext.isEmpty(values)) {
-			me.onAler('No ha selecionado un docente.');
+			me.onAler('No ha seleccionado un docente.');
 		}else{
+			const { school } = AuthToken.recoverParams();
 			data = {
 				id_sede		: win.down('#comboSedes').getSelection().id,
 				id_docente	: values.get('id_docente'),
 				id_grado	: win.down('#comboGrados').getSelection().id,
 				grupo		: win.down('#comboGrupo').getSelection().data.grupo,
 				id_jorn		: win.down('#comboJornadas').getSelection().data.cod_jorn,
-				estado		: 1
+				estado		: 1,
+				year		: school.year ?? 0,
 			};
 			store.insert(0, data);
 			store.sync({
@@ -41,7 +43,7 @@ Ext.define('Admin.view.admin.forms.SaveGroupManagers' ,{
 					store.reload();
 				}
 			});
-		};
+		}
 	},
 	defaultFocus	: 'CbSedes',
     items : [
@@ -83,6 +85,10 @@ Ext.define('Admin.view.admin.forms.SaveGroupManagers' ,{
 							dataIndex   : 'nombres',
 							flex        : 1,
 							filter  	: 'string'
+						},
+						{
+							text        : 'Año',
+							dataIndex 	: 'year'
 						}
 					],
 					dockedItems : [

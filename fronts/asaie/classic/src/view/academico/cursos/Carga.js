@@ -136,9 +136,9 @@ Ext.define('Admin.view.academico.Carga',{
                                 },
                                 {
                                     xtype: 'checkcolumn',
-                                    text: 'Estado (Activo)',
+                                    text: 'Activo',
                                     dataIndex: 'estado',
-                                    width: 115,
+                                    width: 85,
                                     headerCheckbox: true,
                                     stopSelection: false,
                                     editor      : {
@@ -379,103 +379,23 @@ Ext.define('Admin.view.academico.Carga',{
 											record	: rec
 										}).show();
 									}
-								},
-								grado : {
-									tooltip: 'Cambiar grado',
-									iconCls: 'x-fa fa-pencil',
-									handler: function (grid, rowIndex, colIndex) {
-										var	win		= grid.up('window'),
-											rec 	= grid.getStore().getAt(rowIndex),
-											me		= Admin.getApplication(),
-											btn1	= win.down('#btnUndoCarga'),
-											btn2	= win.down('#btnSaveCarga');
-                                        me.onStore('general.GradosStore');
-                                        var
-                                            win2	= Ext.create('Admin.view.academico.GradosChangeView'),
-                                            form	= win2.down('form');
-                                        if (btn1.isDisabled()) {
-                                            btn1.setDisabled(false);
-                                        }
-                                        if (btn2.isDisabled()) {
-                                            btn2.setDisabled(false);
-                                        }
-                                        form.loadRecord(rec);
-                                        win2.show();
-                                }
-								},
-								grupo : {
-									tooltip: 'Cambiar grupo',
-									iconCls: 'x-fa fa-pencil',
-									handler: function (grid, rowIndex, colIndex) {
-										var	win		= grid.up('window'),
-											rec 	= grid.getStore().getAt(rowIndex),
-											me		= Admin.getApplication(),
-											btn1	= win.down('#btnUndoCarga'),
-											btn2	= win.down('#btnSaveCarga');
-                                        me.onStore('general.GrupoStore');
-                                        var
-                                            win2	= Ext.create('Admin.view.academico.GruposChangeView'),
-                                            form	= win2.down('form');
-                                        if (btn1.isDisabled()) {
-                                            btn1.setDisabled(false);
-                                        }
-                                        if (btn2.isDisabled()) {
-                                            btn2.setDisabled(false);
-                                        }
-                                        form.loadRecord(rec);
-                                        win2.show();
-									}
-								},
-								asignatura : {
-									tooltip: 'Cambiar asignatura',
-									iconCls: 'x-fa fa-pencil',
-									handler: function (grid, rowIndex, colIndex) {
-										var	win		= grid.up('window'),
-											rec 	= grid.getStore().getAt(rowIndex),
-											me		= Admin.getApplication(),
-											btn1	= win.down('#btnUndoCarga'),
-											btn2	= win.down('#btnSaveCarga');
-                                        me.onStore('general.AreasAsignaturaYearStore');
-                                        var
-                                            win2	= Ext.create('Admin.view.academico.AsignaturasChangeView');
-                                        if (btn1.isDisabled()) {
-                                            btn1.setDisabled(false);
-                                        }
-                                        if (btn2.isDisabled()) {
-                                            btn2.setDisabled(false);
-                                        }
-                                        win2.record	= rec;
-                                        win2.show();
-									}
-								},
-								jorn : {
-									tooltip: 'Cambiar jornada',
-									iconCls: 'x-fa fa-pencil',
-									handler: function (grid, rowIndex, colIndex) {
-										var	win		= grid.up('window'),
-											rec 	= grid.getStore().getAt(rowIndex),
-											me		= Admin.getApplication(),
-											btn1	= win.down('#btnUndoCarga'),
-											btn2	= win.down('#btnSaveCarga');
-                                        me.onStore('general.JornadasStore');
-                                        var
-                                            win2	= Ext.create('Admin.view.academico.JornadasChangeView'),
-                                            form	= win2.down('form');
-                                        if (btn1.isDisabled()) {
-                                            btn1.setDisabled(false);
-                                        }
-                                        if (btn2.isDisabled()) {
-                                            btn2.setDisabled(false);
-                                        }
-                                        form.loadRecord(rec);
-                                        win2.show();
-									}
 								}
 							},
                             columns: [
                                 {
                                     xtype: 'customrownumberer'
                                 },
+								{
+									xtype: 'checkcolumn',
+									text: 'Activo',
+									dataIndex: 'estado',
+									width: 85,
+									headerCheckbox: true,
+									stopSelection: false,
+									editor      : {
+										xtype: 'customcheckboxfield'
+									}
+								},
                                 {
                                     text        : 'Grado',
                                     dataIndex   : 'grado',
@@ -499,13 +419,6 @@ Ext.define('Admin.view.academico.Carga',{
                                     width: 300,
                                     filter: 'list'
                                 },
-								// {
-								// 	menuDisabled	: true,
-								// 	sortable		: false,
-								// 	xtype			: 'actioncolumn',
-								// 	width			: 30,
-								// 	items			: ['@asignatura']
-								// },
                                 {
                                     text: 'Docentes',
                                     dataIndex: 'docente',
@@ -633,7 +546,7 @@ Ext.define('Admin.view.academico.Carga',{
                                             tooltip: 'Haga Click para agregar la asignación académica',
                                             iconAlign: 'left',
                                             handler: function (btn) {
-                                                win = Ext.create('Admin.view.academico.AddCargaView');
+                                                const win = Ext.create('Admin.view.academico.AddCargaView');
                                                 win.on('closed',function(){
                                                     param = {
                                                         pdbTable    : 'grados',

@@ -1,9 +1,7 @@
-/**
- * Created by LOPEZSOFT on 5/12/2015.
- */
 Ext.define('Admin.store.general.AsignaturasStore', {
     extend: 'Admin.store.base.StoreUrl',
     storeId : 'AsignaturasStore',
+	pageSize: 60,
     requires: [
         'Admin.model.general.AsignaturasModel'
     ],

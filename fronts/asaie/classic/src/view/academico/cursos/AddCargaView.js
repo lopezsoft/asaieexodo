@@ -1,6 +1,3 @@
-/**
- * Created by LOPEZSOFT2 on 23/09/2016.
- */
 Ext.define('Admin.view.academico.AddCargaView',{
     extend  : 'Admin.base.WindowCrud',
     alias   : 'widget.AddCargaView',
@@ -50,12 +47,12 @@ Ext.define('Admin.view.academico.AddCargaView',{
                                 }
                             ],
                             listeners: {
-                                aftertRender: function (ed) {
-                                    extra = {
+								afterrender: function (ed) {
+                                   const extra = {
                                         pdbTable: 'matcurso',
                                         pdbGrado: 0
                                     };
-                                    me.setParamStore('MatCursoStore', extra, true);
+									Admin.getApplication().setParamStore('MatCursoStore', extra, true);
                                 }
                             },
                             columns: [
@@ -149,8 +146,7 @@ Ext.define('Admin.view.academico.AddCargaView',{
                                     ptype: 'gridSearch',
                                     readonlyIndexes: ['note'],
                                     disableIndexes: ['pctChange'],
-                                    minChars: 1,
-                                    mode: 'local',
+                                    minChars: 3,
                                     flex: 1,
                                     autoFocus: true,
                                     independent: true
@@ -162,11 +158,15 @@ Ext.define('Admin.view.academico.AddCargaView',{
                                     xtype: 'customrownumberer'
                                 },
                                 {
-                                    text: 'DOCENTES',
+                                    text: 'DOCENTE',
                                     dataIndex: 'nombres',
                                     flex: 1,
                                     filter: 'string'
-                                }
+                                },
+								{
+									text: 'AÑO',
+									dataIndex: 'year'
+								}
                             ],
                             dockedItems: [
                                 {
@@ -174,7 +174,7 @@ Ext.define('Admin.view.academico.AddCargaView',{
                                     dock        : 'top',
                                     showExport: false,
                                     drisplayInfo: false,
-                                    itemId: 'pToolbar'
+                                    itemId: 'pDocToolbar'
                                 }
                             ]
                         }

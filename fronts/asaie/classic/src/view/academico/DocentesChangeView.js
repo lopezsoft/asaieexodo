@@ -22,8 +22,7 @@ Ext.define('Admin.view.academico.DocentesChangeView',{
 					ptype			: 'gridSearch',
 					readonlyIndexes	: ['note'],
 					disableIndexes	: ['pctChange'],
-					minChars		: 1,
-					mode            : 'local',
+					minChars		: 3,
 					flex			: 1,
 					autoFocus		: true,
 					independent		: true
@@ -40,6 +39,14 @@ Ext.define('Admin.view.academico.DocentesChangeView',{
 					dataIndex   : 'nombres',
 					flex        : 1,
 					filter  	: 'string'
+				},
+				{
+					text		: 'Documento',
+					dataIndex	: 'documento'
+				},
+				{
+					text		: 'Año',
+					dataIndex	: 'year'
 				}
 			],
 			dockedItems: [
@@ -58,9 +65,9 @@ Ext.define('Admin.view.academico.DocentesChangeView',{
 			record	= me.getRecord(),
 			rec		= me.down('grid').getSelection()[0];
 
-		docente	= {
-			id_docente	: rec.id,
-			docente		: rec.get('nombres')
+		let docente = {
+			id_docente: rec.id,
+			docente: rec.get('nombres')
 		}
 		record.set(docente);
 		me.close();

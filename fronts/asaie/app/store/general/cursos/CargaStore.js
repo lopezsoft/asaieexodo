@@ -1,6 +1,3 @@
-/**
- * Created by LOPEZSOFT on 5/12/2015.
- */
 Ext.define('Admin.store.general.CargaStore', {
     extend: 'Admin.store.base.StoreApi',
     storeId : 'CargaStore',
@@ -14,10 +11,10 @@ Ext.define('Admin.store.general.CargaStore', {
             pdbTable : 'cursos'
         },
         api: {
-            create  : 'academic/insert_carga',
-            read    : 'academic/get_select_carga',
-            update  : 'General/update_data',
-            destroy : 'General/delete_data'
+            create  : 'crud',
+            read    : 'courses',
+            update  : 'crud',
+            destroy : 'crud'
         }
     }
 });

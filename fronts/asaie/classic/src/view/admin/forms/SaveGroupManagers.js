@@ -34,7 +34,7 @@ Ext.define('Admin.view.admin.forms.SaveGroupManagers' ,{
 				grupo		: win.down('#comboGrupo').getSelection().data.grupo,
 				id_jorn		: win.down('#comboJornadas').getSelection().data.cod_jorn,
 				estado		: 1,
-				year		: school.year ?? 0,
+				year		: school.year | 0,
 			};
 			store.insert(0, data);
 			store.sync({

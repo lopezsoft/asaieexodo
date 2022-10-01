@@ -71,6 +71,14 @@ Route::prefix('v1')->group(function () {
                Route::get('get-by-year', 'getByYear');
             });
         });
+
+        Route::prefix('courses')->group(function () {
+           Route::controller('CoursesController')->group(function () {
+               Route::get('/', 'getCourses');
+               Route::get('subjects-by-courses', 'getSubjectsByCourses');
+               Route::get('subjects-by-year', 'getSubjectsByYear');
+           });
+        });
     });
 
 

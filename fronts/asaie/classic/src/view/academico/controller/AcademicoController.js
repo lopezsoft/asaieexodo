@@ -32,7 +32,7 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
             }
         });
     },
-    onLoadExcelStudents : function(btn){        
+    onLoadExcelStudents : function(btn){
          Ext.create({
             xtype           : 'VideoView',
             alwaysOnTop     : true,
@@ -151,7 +151,7 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
         }).show();
     },
     onNovelty : function (btn) {
-        var 
+        var
             me      = Admin.getApplication(),
             eStore  = Ext.getStore('HistorialStore'),
             data    = btn.up('window').down('#gridMat').getSelection()[0],
@@ -353,7 +353,7 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
 	},
 
 	onUpdateDocentesChange : function (btn) {
-        var 
+        var
             win     = btn.up('window'),
 			grid    = win.down('grid'),
 			record  = grid.getSelection()[0],
@@ -488,7 +488,7 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
     },
 
     onMover : function (btn) {
-        var 
+        var
             win     = btn.up('form'),
             sel     = win.down('grid').getSelection(),
             me      = Admin.getApplication(),
@@ -504,7 +504,7 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
             cgrupo  = valForm.grupo,
             cjorn   = valForm.cod_jorn,
             csede   = valForm.id_sede;
-      
+
         if(sel.length > 0){
             try {
                 win.mask(AppLang.getSSavingChanges());
@@ -699,25 +699,27 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
     },
 
     onSaveCarga : function (btn) {
-        var win 	        = btn.up('window'),
-            selectAsig      = win.down('#gridMatCurso').getSelection(),
-            selectDocente   = win.down('#gridDocente').getSelection()[0],
-            me		        = Admin.getApplication(),
-            cCount	        = 0,
-            store           = Ext.getStore('CargaStore');
-        if (!Ext.isEmpty(selectAsig)) {
+		let win = btn.up('window'),
+			selectAsig = win.down('#gridMatCurso').getSelection(),
+			selectDocente = win.down('#gridDocente').getSelection()[0],
+			me = Admin.getApplication(),
+			cCount = 0,
+			store = Ext.getStore('CargaStore');
+		if (!Ext.isEmpty(selectAsig)) {
             if (!Ext.isEmpty(selectDocente)){
                 win.down('#gridDocente').el.mask('Guardando…', 'x-mask-loading');
+				const {school} 	= AuthToken.recoverParams();
+				const dt		= new Date();
                 for (cCount = 0; cCount < selectAsig.length; cCount++) {
-                    cCountLog = 0;
-                    data = {
+                    const data = {
                         id_grado   	: selectAsig[cCount].get('id_grado'),
                         id_asig     : selectAsig[cCount].get('id_asig'),
                         id_docente  : selectDocente.get('id_docente'),
-                        estado      : 1,
+                        estado      : true,
                         id_sede     : win.down('#comboSedes').getSelection().data.ID,
                         grupo       : win.down('#comboGrupo').getSelection().data.grupo,
-                        id_jorn     : win.down('#comboJornadas').getSelection().data.cod_jorn
+                        id_jorn     : win.down('#comboJornadas').getSelection().data.cod_jorn,
+						year		: school.year || dt.getFullYear()
                     };
                     store.insert(0, data);
                 }
@@ -728,7 +730,9 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
                         store.reload();
                     },
                     failure: function () {
+                        win.down('#gridDocente').el.unmask();
                         me.showResult('No se guardaron los datos correctamente')
+                        store.reload();
                     }
                 });
             }else {
@@ -992,7 +996,7 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
                     url     = 'reports/report_ficha_matricula',
                     values = win.down('#gridMat').getSelection()[0],
                     param   = {
-                        pdbId     : values.get('id'),           
+                        pdbId     : values.get('id'),
                         pdbYear   : values.get('year'),
                         pdbGrado  : values.get('id_grade'),
                         pdbType   : 1
@@ -1007,7 +1011,7 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
         Ext.create('Admin.view.academico.inscripciones.InscripcionesView').show();
     },
     onMatricula : function (btn) {
-        var 
+        var
             me  = Admin.getApplication(),
             ts  = btn.up('window');
         var

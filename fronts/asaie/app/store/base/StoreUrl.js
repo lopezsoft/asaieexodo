@@ -52,9 +52,9 @@ Ext.define('Admin.store.base.StoreUrl',{
 		const extraParams 	= proxy.getExtraParams();
 		const {school, profile}	= AuthToken.recoverParams();
 		const dt				= new Date();
-		extraParams.schoolId  	= school.id ?? 0;
-		extraParams.profileId   = profile.id ?? 0;
-		extraParams.year        = school.year ?? dt.getFullYear();
+		extraParams.schoolId  	= school.id || 0;
+		extraParams.profileId   = profile.id || 0;
+		extraParams.year        = school.year || dt.getFullYear();
 		proxy.setExtraParams(extraParams);
 		if(me.urlCrtl.length === 0) {
 			if (proxy.url.length > 0) {

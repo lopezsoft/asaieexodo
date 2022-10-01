@@ -18,18 +18,19 @@ Ext.define('Admin.container.SedesJorn',{
 						param = {
 							pdbTable: 'jornadas',
 							pdbSede: r.id,
-							schoolId: school.id ?? 0,
-							profileId: profile.id ?? 0,
-							year: school.year ?? 0,
+							schoolId: school.id || 0,
+							profileId: profile.id || 0,
+							year: school.year || 0,
 						};
+
 					me.setParamStore('JornadasStore', param, true);
 
                     param = {
                         pdbTable    : 'grados',
                         pdbSede     : r.id,
-						schoolId: school.id ?? 0,
-						profileId: profile.id ?? 0,
-						year: school.year ?? 0,
+						schoolId: school.id || 0,
+						profileId: profile.id || 0,
+						year: school.year || 0,
                     };
                     me.setParamStore('GradosStore', param, true);
                 }

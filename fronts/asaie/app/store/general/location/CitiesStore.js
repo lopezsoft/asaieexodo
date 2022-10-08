@@ -1,7 +1,7 @@
 Ext.define('Admin.store.general.CitiesStore',{
     extend  : 'Admin.store.base.StoreApi',
     storeId : 'CitiesStore',
-    pageSize: 1300,
+    pageSize: 0,
     requires    : [
         'Admin.model.general.CitiesModel'
     ],
@@ -11,10 +11,10 @@ Ext.define('Admin.store.general.CitiesStore',{
 			pdbTable    : 'cities'
 		},
 		api : {
-			create : 'store',
+			create : 'crud',
 			read : 'cities',
-			update : 'update',
-			destroy : 'destroy',
+			update : 'crud',
+			destroy : 'crud',
 		}
     }
 });

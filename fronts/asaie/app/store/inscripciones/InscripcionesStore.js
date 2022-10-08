@@ -3,13 +3,8 @@ Ext.define('Admin.store.inscripciones.InscripcionesStore',{
     storeId : 'InscripcionesStore',
     proxy: {
         extraParams : {
-            pdbTable : 'inscripciones'
-        },
-        api: {
-            create  : 'academic/insert_inscripciones',
-            read    : 'academic/get_select_inscripciones',
-            update  : 'master/updateData',
-            destroy : 'master/deleteData'
+            pdbTable 	: 'inscripciones',
+			order 		: '{"apellido1" : "ASC", "apellido2" : "ASC", "nombre1": "ASC"}'
         }
     },
     requires: [

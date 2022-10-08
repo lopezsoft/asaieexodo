@@ -79,12 +79,29 @@ Route::prefix('v1')->group(function () {
                Route::get('subjects-by-year', 'getSubjectsByYear');
            });
         });
+
+        Route::prefix('students')->group(function () {
+            Route::controller('Academic\StudentController')->group(function () {
+                Route::get('academic-history', 'getAcademicHistory');
+            });
+        });
+        Route::prefix('download')->group(function () {
+            Route::controller('DownloadController')->group(function () {
+                Route::prefix('excel')->group(function () {
+                    Route::post('template-enrollment', 'getTemplateEnrollment');
+                });
+            });
+        });
+        Route::prefix('upload')->group(function () {
+            Route::controller('UploadController')->group(function () {
+                Route::prefix('excel')->group(function () {
+                    Route::post('template-enrollment', 'setTemplateEnrollment');
+                });
+            });
+        });
     });
 
 
-    Route::prefix('students')->group(function () {
-
-    });
 
     Route::prefix('families')->group(function () {
 

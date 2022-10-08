@@ -1,24 +1,30 @@
-/**
- * Created by LOPEZSOFT2 on 10/12/2016.
- */
+
 Ext.define('Admin.view.academico.controller.AcademicoController',{
     extend  : 'Admin.base.BaseController',
     alias   : 'controller.academico',
     init: function () {
-        me = this;
-        me.setConfigVar();
+        this.setConfigVar();
     },
     onDownloadExcelStudents : function(btn){
         let me  = Admin.getApplication(),
             app = this,
             ts  = btn.up('window');
         ts.mask('Descargando archivo...');
+		const {school, profile}	= AuthToken.recoverParams();
         Ext.Ajax.request({
-            url     : Global.getUrlBase() + 'excel_manager/download_excel_students',
-            success : function (response, opts) {
+            url     : Global.getApiUrl() + '/download/excel/template-enrollment',
+			headers: {
+				'Authorization' : (AuthToken) ? AuthToken.authorization() : ''
+			},
+			params: {
+				schoolId  	: school.id || 0,
+				profileId   : profile.id || 0,
+				year        : school.year || dt.getFullYear(),
+			},
+            success : function (response) {
                 ts.unmask();
-                var obj = Ext.decode(response.responseText);
-                if(obj.success  == true){
+				const obj = JSON.parse(response.responseText);
+				if(obj.success  === true){
                     app.onOpenUrl(obj.pathFile);
                 }else{
                     me.showResult('No se pudo descargar el archivo','error');
@@ -51,7 +57,7 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
                         fieldLabel  : 'Archivo'
                     }],
                     buttons: [{
-                        text    : 'Imprtar',
+                        text    : 'Importar',
                         ui      : 'soft-green',
                         iconCls : 'x-fa fa-cloud-upload',
                         handler: function () {
@@ -119,14 +125,23 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
                             });
 
                             if (form.isValid()) {
+								const {school, profile}	= AuthToken.recoverParams();
                                 win.mask('Realizando petición');
                                 form.submit({
-                                    url     : Global.getUrlBase()   + 'excel_manager/load_excel_students',
+                                    url     : Global.getApiUrl() + '/upload/excel/template-enrollment',
                                     waitMsg : 'Cargando plantilla..',
+									headers: {
+										'Authorization' : (AuthToken) ? AuthToken.authorization() : ''
+									},
+									params: {
+										schoolId  	: school.id || 0,
+										profileId   : profile.id || 0,
+										year        : school.year || dt.getFullYear(),
+									},
                                     success: function (fp, o) {
-                                        var obj = Ext.decode(o.response.responseText);
-                                        win.unmask();
-                                        if (obj.success == true) {
+										const obj = Ext.decode(o.response.responseText);
+										win.unmask();
+                                        if (obj.success === true) {
                                             Ext.getStore('InscripcionesStore').reload();
                                             app.showResult('La plantilla se ha importado correctamente.');
                                             win.close();
@@ -140,7 +155,7 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
                                     },
                                     failure: function (f, e) {
                                         win.unmask();
-                                        app.showResult('La plantilla no se pudo importar, ocurrio un error','error');
+                                        app.showResult('La plantilla no se pudo importar, ocurrió un error','error');
                                     }
                                 });
                             }

@@ -13,9 +13,9 @@ class StudentEnrollment
     use MessagesTrait;
     public static function getEnrollmentList(Request $request): \Illuminate\Http\JsonResponse
     {
-        $school     = SchoolQueries::getSchool($request->input('schoolId') ?? 0);
-        $db	        = "{$school->database_name}.";
-        $year       = $request->input('year') ?? Date('Y');
+        $school     = SchoolQueries::getSchoolRequest($request);
+        $db	        = $school->db;
+        $year       = $school->year;
         $search     = $request->input('query') ?? null;
         $query = DB::table($db.'student_enrollment','tm')
             ->selectRaw("tm.*, CONCAT(rtrim(ti.apellido1),' ',rtrim(ti.apellido2),' ',

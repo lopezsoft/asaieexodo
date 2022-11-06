@@ -10,6 +10,47 @@ use Illuminate\Support\Facades\DB;
 
 class EnrollmentReports
 {
+    public static function getHonorFrame(Request $request): \Illuminate\Http\JsonResponse {
+        $school     = SchoolQueries::getSchoolRequest($request);
+        $db         = $school->db;
+        $ye         = $school->year;
+        $format		= $request->input('pFormat');
+        $Grado 	    = $request->input('pdbGrado');
+        $Grupo	    = $request->input('pdbGrupo');
+        $Photo 	    = $request->input('pdbPhoto');
+        $CkGrado	= $request->input('pdbCkGrado');
+        $Sede	    = $request->input('pdbSede');
+        $CkSede	    = $request->input('pdbCkSede');
+        $Nivel	    = $request->input('pdbCkNivel');
+        $per	    = $request->input('pdbPeriodo');
+        $lm			= $request->input('pdbLimit');
+        $niv		= $request->input('pdbNiv');
+        $ck			= $request->input('pdbCk');
+
+        $report     = 'cuadro_honor';
+        $query      = "";
+        if($CkGrado == 0 AND $CkSede == 0 AND $Nivel == 0 AND $Photo == 0){
+            $query  = "CALL `sp_select_cuadro_honor`(".$ye.",".$Sede.",'".$Grado."','".$Grupo."','".$per."',".$lm.",1,0,".$ck.")";
+        }else if ($Photo == 1){
+            $report	=	'cuadro_honor2';
+            $query  = "CALL `sp_select_cuadro_honor`(".$ye.",".$Sede.",'".$Grado."','".$Grupo."','".$per."',".$lm.",2,0,".$ck.")";
+        }else if($CkGrado == 1){
+            $report =	'cuadro_honor3';
+            $query  = "CALL `sp_select_cuadro_honor`(".$ye.",".$Sede.",'".$Grado."','".$Grupo."','".$per."',".$lm.",3,0,".$ck.")";
+        }else if($CkSede == 1){
+            $report = 'cuadro_honor4';
+            $query  = "CALL `sp_select_cuadro_honor`(".$ye.",".$Sede.",'".$Grado."','".$Grupo."','".$per."',".$lm.",4,0,".$ck.")";
+        }else if($Nivel == 1){
+            $report	= 'cuadro_honor5';
+            $query 	= "CALL `sp_select_cuadro_honor`(".$ye.",".$Sede.",'".$Grado."','".$Grupo."','".$per."',".$lm.",5,'".$niv."',".$ck.")";
+        }
+
+        // Nombre dado al informe de salida
+        $report_export	= 'Cuadro de honor ';
+        $path       = "{$school->school->folder_name}";
+        return (new JReportModel())->getReportExport($report,$report_export,$format,$query,$path, $school->school->database_name);
+    }
+
     public static function getCertificate(Request $request, Int $typeReport): \Illuminate\Http\JsonResponse{
         $school = SchoolQueries::getSchool($request->input('schoolId') ?? 0);
         $db     = "{$school->database_name}.";

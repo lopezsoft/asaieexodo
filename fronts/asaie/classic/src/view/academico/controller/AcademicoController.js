@@ -952,7 +952,7 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
                 break;
             case 'CuadroHonorView' :
                 var
-                    url     = 'reports/report_cuadro_honor',
+                    url     = 'reports/honor-frame',
                     param   = {
                         pdbGrado    : win.down('#comboGrados').getValue(),
                         pdbGrupo    : win.down('#comboGrupo').getValue(),

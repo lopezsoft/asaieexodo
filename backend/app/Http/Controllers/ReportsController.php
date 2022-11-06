@@ -7,6 +7,11 @@ use Illuminate\Http\Request;
 
 class ReportsController extends Controller
 {
+    public function getHonorFrame(Request $request): \Illuminate\Http\JsonResponse
+    {
+        return EnrollmentReports::getHonorFrame($request);
+    }
+
     public function getPeriodicCertificate(Request $request): \Illuminate\Http\JsonResponse
     {
         return EnrollmentReports::getCertificate($request,2);

@@ -73,6 +73,12 @@ Route::prefix('v1')->group(function () {
             });
         });
 
+        Route::prefix('academic')->group(function () {
+           Route::controller('Academic\AcademicController')->group(function () {
+              Route::post('honor-frame', 'honorFrame');
+           });
+        });
+
         Route::prefix('courses')->group(function () {
            Route::controller('CoursesController')->group(function () {
                Route::get('/', 'getCourses');
@@ -131,6 +137,7 @@ Route::prefix('v1')->group(function () {
                 Route::post('enrollment-sheet', 'getEnrollmentSheet');
                 Route::post('certificate', 'getCertificate');
                 Route::post('periodic-certificate', 'getPeriodicCertificate');
+                Route::post('honor-frame', 'getHonorFrame');
             });
         });
     });

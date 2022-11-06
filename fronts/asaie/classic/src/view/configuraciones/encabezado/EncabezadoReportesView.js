@@ -30,7 +30,7 @@ Ext.define('Admin.view.configuraciones.EncabezadoReportesView',{
                 },
                 {
                     xtype       : 'customtext',
-                    fieldLabel  : 'Escuado',
+                    fieldLabel  : 'Escudo',
                     name        : 'escudo',
                     readOnly    : true,
                     itemId      : 'escudo'
@@ -74,34 +74,35 @@ Ext.define('Admin.view.configuraciones.EncabezadoReportesView',{
 						text	: 'Escudo',
 						iconCls	:'x-fa fa-check',
 						handler	: function (btn) {
-                            var me  = Admin.getApplication(),
-                                ts  = btn.up('window');
+							const me = Admin.getApplication(),
+								ts = btn.up('window');
 							me.onStore('docs.ImageBrowserStore');
-							var winApp = Ext.create({
-								xtype           : 'FilesView',
-								title           : 'Seleccionar escudo',
-								pathReadFile    : 'general/readSchoolLogo',
-								pathUploadFile  : 'general/uploadSchoolLogo',
-								titlePanelLoad  : 'Subir imagen',
-								titlePanelView  : 'Mis imagenes',
-								textButtonLoad  : 'Seleccionar una imagen en el equipo',
-								textButtonApply : 'Establecer como  escudo',
-								listeners : {
-									afterselect : function (me, r) {
-										ts.down('#escudo').setValue(r.get('path_set'));
+							const winApp = Ext.create({
+								xtype: 'FilesView',
+								title: 'Seleccionar escudo',
+								pathReadFile	: 'download/settings/read-school-logo',
+								pathDeleteFile	: 'files/delete-school-logo',
+								pathUploadFile	: 'upload/settings/upload-school-logo',
+								titlePanelLoad	: 'Subir imagen',
+								titlePanelView	: 'Mis imágenes',
+								textButtonLoad	: 'Seleccionar una imagen en el equipo',
+								textButtonApply	: 'Establecer como  escudo',
+								listeners: {
+									afterselect: function (me, r) {
+										ts.down('#escudo').setValue(r.get('pathFile'));
 										ts.down('#mime_esc').setValue(r.get('mime'));
 									},
-									afterupload : function (me, r) {
+									afterupload: function (me, r) {
 										ts.down('#escudo').setValue(r.foto);
 										ts.down('#mime_esc').setValue(r.mime);
-									},                                    
-									cancel  : function (me) {
+									},
+									cancel: function (me) {
 										ts.down('#escudo').reset();
 										ts.down('#mime').reset();
 									}
 								}
-                            });
-                            winApp.on('apply', function(me){
+							});
+							winApp.on('apply', function(me){
                                 winApp.close();
                             });
 							winApp.show();
@@ -119,15 +120,16 @@ Ext.define('Admin.view.configuraciones.EncabezadoReportesView',{
 							var winApp = Ext.create({
 								xtype           : 'FilesView',
 								title           : 'Seleccionar logo',
-								pathReadFile    : 'general/readSchoolLogo',
-								pathUploadFile  : 'general/uploadSchoolLogo',
+								pathReadFile    : 'download/settings/read-school-logo',
+								pathUploadFile  : 'upload/settings/upload-school-logo',
+								pathDeleteFile	: 'files/delete-school-logo',
 								titlePanelLoad  : 'Subir imagen',
-								titlePanelView  : 'Mis imagenes',
+								titlePanelView  : 'Mis imágenes',
 								textButtonLoad  : 'Seleccionar una imagen en el equipo',
 								textButtonApply : 'Establecer como  logo escolar',
 								listeners : {
 									afterselect : function (me, r) {
-										ts.down('#logo').setValue(r.get('path_set'));
+										ts.down('#logo').setValue(r.get('pathFile'));
 										ts.down('#mime').setValue(r.get('mime'));
 									},
 									afterupload : function (me, r) {

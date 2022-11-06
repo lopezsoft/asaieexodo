@@ -236,19 +236,21 @@ Ext.define('Admin.view.configuraciones.controller.ConfiguracionesController',{
         var me  = this.app,
             ts  = this;
         me.onStore('general.EncabezadoReportesStore');
-        store = Ext.getStore('EncabezadoReportesStore');
+		let store = Ext.getStore('EncabezadoReportesStore');
         ts.mask();
         store.reload({
             callback : function (r, e) {
                 ts.unmask();
-                if (r.length > 0){
-                    win     = Ext.create('Admin.view.configuraciones.EncabezadoReportesView');
-                    form    = win.down('form');
-                    form.loadRecord(r[0]);
-                    win.show();
-                }else {
-                    me.onError('Ha ocurrido un error');
-                }
+				let win;
+				let form;
+				if (r.length > 0) {
+					win = Ext.create('Admin.view.configuraciones.EncabezadoReportesView');
+					form = win.down('form');
+					form.loadRecord(r[0]);
+					win.show();
+				} else {
+					me.onError('Ha ocurrido un error');
+				}
             }
         });
     },

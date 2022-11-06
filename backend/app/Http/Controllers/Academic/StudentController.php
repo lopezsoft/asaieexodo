@@ -8,6 +8,11 @@ use Illuminate\Http\Request;
 
 class StudentController extends Controller
 {
+    public function getEnrollmentList(Request $request): \Illuminate\Http\JsonResponse
+    {
+        return StudentEnrollment::getEnrollmentList($request);
+    }
+
     public function getAcademicHistory(Request $request): array
     {
         return StudentEnrollment::getAcademicHistory($request);

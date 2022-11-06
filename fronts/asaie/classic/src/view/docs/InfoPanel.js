@@ -1,12 +1,12 @@
 var imageTpl = new Ext.XTemplate(
     '<div class="details">',
         '<tpl for=".">',
-            '<img src="{[values.type == 1 ? values.path_download : "assets/img/files/128/"+values.format+".png" ]}"/>',
+            '<img src="{[values.type === 1 ? values.url : "assets/img/files/128/"+values.format+".png" ]}"/>',
             '<div class="details-info">',
                 '<b>Nombre del archivo:</b>',
                 '<span>{name}</span>',
                 '<b>URL Descarga:</b>',
-                '<span><a href="{path_download}" target="_blank">{path_download}</a></span>',
+                '<span><a href="{url}" target="_blank">{url}</a></span>',
                 '<b>Extensión:</b>',
                 '<span>{format}</span>',
                 '<b>Peso:</b>',
@@ -36,7 +36,7 @@ Ext.define('Admin.view.docs.InfoPanel',{
      */
     loadRecord: function(image) {
         this.body.hide();
-        this.tpl.overwrite(this.body, image.data);
+        this.tpl.overwrite(this.body, image.data, false);
         this.body.slideIn('l', {
             duration: 250
         });

@@ -5,7 +5,7 @@ var imageTpl = new Ext.XTemplate(
     '<tpl for=".">',
         '<div class="thumb-wrap-v">',
             '<div class="thumb-v">',
-                '<img src="{[values.type == 1 ? values.path_download : "assets/img/files/128/"+values.format+".png" ]}"/>',
+                '<img src="{[values.type == -1 ? values.url : "assets/img/files/128/"+values.format+".png" ]}"/>',
             '</div>',
             '<span>{name}</span>',
         '</div>',

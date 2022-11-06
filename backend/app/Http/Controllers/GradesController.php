@@ -7,6 +7,12 @@ use Illuminate\Http\Request;
 
 class GradesController extends Controller
 {
+
+    public function getPeriods(Request $request): \Illuminate\Http\JsonResponse
+    {
+        return GradesQuery::getPeriods($request);
+    }
+
     public function getGroups(Request $request): \Illuminate\Http\JsonResponse
     {
         return GradesQuery::getGroups($request);

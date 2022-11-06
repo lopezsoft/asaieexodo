@@ -1,11 +1,14 @@
 Ext.define('Admin.model.docs.ImageBrowserModel', {
     extend: 'Ext.data.Model',
-    idProperty : 'path_delete',
+    idProperty : 'pathFile',
     fields: [
     	{ name: 'name' },
         { name: 'format' },
-        { name: 'path_download'},
-        { name: 'path_delete'},
-        { name: 'fecha'}
+        { name: 'pathFile'},
+        { name: 'url'},
+        { name: 'type'},
+        { name: 'mime'},
+        { name: 'size'},
+        { name: 'lastModified'}
    	]
 });

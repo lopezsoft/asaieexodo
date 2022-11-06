@@ -1,12 +1,16 @@
 Ext.define('Admin.store.representative.CandidatesSearchStore',{
-    extend  : 'Admin.store.docentes.EstudiantesStore',
+    extend  : 'Admin.store.base.StoreApi',
     storeId : 'CandidatesSearchStore',
+	requires    : [
+		'Admin.model.docentes.EstudiantesModel'
+	],
+	model   : 'Admin.model.docentes.EstudiantesModel',
     proxy: {
 	    api: {
-			create  : 'master/insertData',
-			read    : 'representative/getStudents',
-			update  : 'master/updateData',
-			destroy : 'master/deleteData'
+			create  : 'crud',
+			read    : 'students/enrollment-list',
+			update  : 'crud',
+			destroy : 'crud'
 		}
 	}
 });

@@ -166,7 +166,7 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
         }).show();
     },
     onNovelty : function (btn) {
-        var
+        const
             me      = Admin.getApplication(),
             eStore  = Ext.getStore('HistorialStore'),
             data    = btn.up('window').down('#gridMat').getSelection()[0],
@@ -174,8 +174,9 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
                 pdbTable    : 'registration_novelties',
                 where       :  '{"id_register":"'+data.get('id')+'"}'
             };
-            me.setParamStore('NoveltyStore',xparam,false);
-            win = Ext.create('Admin.view.academico.inscripciones.NoveltyView');
+			me.onStore('inscripciones.NoveltyStore');
+            me.setParamStore('NoveltyStore',xparam, false);
+		let win = Ext.create('Admin.view.academico.inscripciones.NoveltyView');
             win.setRecord(data);
             win.on('cancel', function(me){
                 eStore.reload();
@@ -861,23 +862,24 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
         });
 	},
     onViewArchivos : function (btn) {
+		const 	baseUrlSys 	= Global.getApiUrl() + '/';
         var me  = Admin.getApplication(),
             rec = btn.up('window').down('grid').getSelection()[0];
         me.onStore('docs.ImageBrowserStore');
-        var win = Ext.create({
-            xtype       : 'FilesView',
-            title       : 'Seleccionar archivo',
-            pathReadFile    : 'academic/read_files_dig_est',
-            pathUploadFile  : 'academic/upload_files_dig_est',
-            titlePanelLoad  : 'Subir archivos',
-            titlePanelView  : 'Mis archivos',
-            textButtonLoad  : 'Seleccionar una archivo en el equipo',
-            textButtonApply : 'Aceptar',
-            extraParams     : {
-                pdbCodEst   : rec.get('id')
-            }
-        });
-        win.show();
+		const win = Ext.create({
+			xtype: 'FilesView',
+			title: 'Seleccionar archivo',
+			pathReadFile	: 'download/student/read-documents',
+			pathUploadFile	: 'upload/student/upload-documents',
+			titlePanelLoad	: 'Subir archivos',
+			titlePanelView	: 'Mis archivos',
+			textButtonLoad	: 'Seleccionar una archivo en el equipo',
+			textButtonApply	: 'Aceptar',
+			extraParams: {
+				pdbStudentId: rec.get('id')
+			}
+		});
+		win.show();
     },
     onFamilies : function (btn) {
         var me = Admin.getApplication(),
@@ -977,7 +979,7 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
                 break;
             case 'ConstanciasView' :
                 var
-                    url     = 'reports/report_constancias',
+                    url     = 'reports/certificate',
                     values  = win.down('grid').getSelection()[0],
                     rbVal   = win.down('#rdGroup').getValue(),
                     param   = {
@@ -992,7 +994,7 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
                 break;
             case 'CertificadosView' :
                 var
-                    url     = 'reports/report_certificados_per',
+                    url     = 'reports/periodic-certificate',
                     values  = win.down('grid').getSelection()[0],
                     rbVal   = win.down('#rdGroup').getValue(),
                     param   = {
@@ -1007,8 +1009,7 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
                     };
                 break;
             default :
-                var
-                    url     = 'reports/report_ficha_matricula',
+                   var url     = 'reports/enrollment-sheet',
                     values = win.down('#gridMat').getSelection()[0],
                     param   = {
                         pdbId     : values.get('id'),
@@ -1026,18 +1027,19 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
         Ext.create('Admin.view.academico.inscripciones.InscripcionesView').show();
     },
     onMatricula : function (btn) {
-        var
-            me  = Admin.getApplication(),
-            ts  = btn.up('window');
-        var
-            data    = ts.down('#gridMat').getSelection()[0],
-            xparam  = {
-                pdbTable    : 'student_enrollment',
-                id          : btn.itemId == 'btnNewMat' ? 0 :  data.get('id')
-            },
-            store   = Ext.getStore('MatriculasStore'),
-            record  = ts.down('#studentgrid').getSelection()[0];
-        me.setParamStore('MatriculasStore',xparam,false);
+		const
+			me = Admin.getApplication(),
+			ts = btn.up('window');
+		const
+			data = ts.down('#gridMat').getSelection()[0],
+			xparam = {
+				pdbTable: 'student_enrollment',
+				id: btn.itemId === 'btnNewMat' ? 0 : data.get('id'),
+				where: `{"id": ${btn.itemId === 'btnNewMat' ? 0 : data.get('id')}}`
+			},
+			store = Ext.getStore('MatriculasStore'),
+			record = ts.down('#studentgrid').getSelection()[0];
+		me.setParamStore('MatriculasStore',xparam,false);
         ts.mask(AppLang.getSMsgLoading());
         store.load({
             scope: this,
@@ -1047,7 +1049,7 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
                     win = Ext.create('Admin.view.academico.inscripciones.forms.MatriculasFormView');
                     var
                         form = win.down('form');
-                    if (records.length == 1) {
+                    if (records.length === 1) {
                         form.loadRecord(records[0]);
                         form.down('#CbEstado').setReadOnly(true);
                         form.down('#CbEstado').setDisabled(true);
@@ -1064,7 +1066,7 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
                     }
                     win.setRecord(record);
                     win.setAlwaysOnTop(true).show();
-                };
+                }
             }
         });
     }

@@ -32,6 +32,7 @@ Ext.define('Admin.view.main.Main', {
             user  		= params.user,
             schoolData  = params.school;
 			Global.setYear(schoolData.year);
+		const {profile}	= params;
         me.items = [
             {
                 xtype   : 'toolbar',
@@ -138,7 +139,7 @@ Ext.define('Admin.view.main.Main', {
                         xtype   : 'tbtext',
                         cls     : 'top-user-name',
                         itemId  :'btnUser',
-                        text    : (user) ? (user.fullname) : 'Demo'
+                        text    : (user) ? (user.fullname+' - ' + profile.profile_name.toUpperCase() || '') : 'Demo'
                     },
                     {
                         xtype   : 'image',

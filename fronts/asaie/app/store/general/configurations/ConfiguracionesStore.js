@@ -1,6 +1,3 @@
-/**
- * Created by LOPEZSOFT on 5/12/2015.
- */
 Ext.define('Admin.store.general.ConfiguracionesStore', {
     extend: 'Admin.store.base.StoreApi',
     storeId : 'ConfiguracionesStore',
@@ -12,12 +9,6 @@ Ext.define('Admin.store.general.ConfiguracionesStore', {
     proxy: {
         extraParams : {
             pdbTable : 'config001'
-        },
-        api: {
-            create  : 'master/insertData',
-            read    : 'master/getGeneralConfig',
-            update  : 'master/updateData',
-            destroy : 'master/deleteData'
         }
     }
 });

@@ -5,7 +5,7 @@ Ext.define('Admin.store.inscripciones.FamiliesStore',{
     proxy: {
         extraParams : {
             pdbTable    : 'families',
-            order       : '{"name1,name2,lastname1,lastname2":"ASC"}'
+            order       : '{"name1":"ASC", "name2":"ASC", "lastname1":"ASC"}'
         }
     },
     requires: [

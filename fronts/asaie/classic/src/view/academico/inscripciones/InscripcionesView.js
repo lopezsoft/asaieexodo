@@ -238,7 +238,7 @@ Ext.define('Admin.view.academico.inscripciones.InscripcionesView',{
                                             xtype       : 'customButton',
                                             tooltip     : 'Familiares asignados al estudiante',
                                             iconCls     : 'x-fa fa-users',
-                                            text        : 'Agregar',
+                                            text        : 'Familiares',
                                             itemId      : 'btnFamil',
                                             disabled  	: true,
                                             handler     : 'onFamiliesStudent'
@@ -246,7 +246,7 @@ Ext.define('Admin.view.academico.inscripciones.InscripcionesView',{
                                         {
                                             xtype       : 'customButton',
                                             tooltip     : 'Crear Familiares',
-                                            text        : 'Crear',
+                                            text        : 'Crear Familiares',
                                             iconCls     : 'x-fa fa-users',
                                             handler     : 'onFamilies'
                                         },
@@ -258,12 +258,12 @@ Ext.define('Admin.view.academico.inscripciones.InscripcionesView',{
                                             iconCls     : 'x-fa fa-book',
                                             handler     : 'onViewArchivos'
                                         },
-                                        {
+                                        /*{
 											xtype       : 'btnWebcam',
 											iconCls		: 'far fa-images',
 											tooltip		: 'Imágenes del estudiante',
                                             handler		: 'onViewWebcam'
-                                        },
+                                        },*/
                                         {
                                             xtype   : 'customButton',
                                             ui      : 'soft-green',
@@ -404,21 +404,19 @@ Ext.define('Admin.view.academico.inscripciones.InscripcionesView',{
                                                 var cbtn = btn,
                                                     me	 = Admin.getApplication();
                                                 Ext.Msg.show({
-                                                    title	: 'Elimiar matricula',
+                                                    title	: 'Eliminar matricula',
                                                     message	: 'Desea eliminar esta matricula?',
                                                     buttons	: Ext.Msg.YESNO,
                                                     icon	: Ext.Msg.QUESTION,
                                                     fn: function(btn) {
                                                         if (btn === 'yes') {
                                                             me.onMsgWait();
-                                                            var grid 	= cbtn.up('#gridMat'),
+                                                            const grid 	= cbtn.up('#gridMat'),
                                                                 records = grid.getSelectionModel().getSelection(),
-                                                                store 	= grid.getStore(),
-                                                                extra	= {};
-                                                            extra		= me.getParamStore('HistorialStore');
+                                                                store 	= grid.getStore();
+                                                            let extra		= me.getParamStore('HistorialStore');
                                                             extra.pdbForce = 0;
                                                             me.setParamStore('HistorialStore',extra);
-                                                            extra	= {};
                                                             store.remove(records);
                                                             store.sync({
                                                                 success : function (b, o) {
@@ -439,13 +437,14 @@ Ext.define('Admin.view.academico.inscripciones.InscripcionesView',{
                                         },'-',
                                         {
                                             xtype   : 'deletebutton',
+											hidden  : true,
                                             text	: 'Forzar borrado',
                                             itemId	: 'btnDeleteForce',
                                             handler : function (btn) {
                                                 var cbtn = btn,
                                                     me	 = Admin.getApplication();
                                                 Ext.Msg.show({
-                                                    title	: 'Elimiar matricula',
+                                                    title	: 'Eliminar matricula',
                                                     message	: 'Desea eliminar esta matricula y sus respectivas notas?',
                                                     buttons	: Ext.Msg.YESNO,
                                                     icon	: Ext.Msg.QUESTION,

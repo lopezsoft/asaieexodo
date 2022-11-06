@@ -54,7 +54,7 @@ class StudentDownloads
 
             $content        = Storage::disk('public')->get($fileExport);
             Storage::disk('public')->delete($fileExport);
-            $filePath	    = "{$aws_main_path}/schools/{$school->folder_name}/Plantilla Inscripciones y matriculas ASAIE {$date}.xlsx";
+            $filePath	    = "{$aws_main_path}/schools/{$school->folder_name}/excel/Plantilla Inscripciones y matriculas ASAIE {$date}.xlsx";
             Storage::put($filePath, $content, 'public');
             return self::getResponse([
                 'pathFile'		=> Storage::url($filePath)

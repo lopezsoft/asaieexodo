@@ -2,8 +2,8 @@ Ext.define('Admin.view.academico.ConstanciasView',{
     extend: 'Admin.forms.CustomForm',
     controller  : 'academico',
     initComponent: function () {
-        var me  = Admin.getApplication();
-        me.onStore('representative.CandidatesSearchStore');
+		const me = Admin.getApplication();
+		me.onStore('representative.CandidatesSearchStore');
         me.onStore('general.PeriodosStore');
         me.onStore('general.ConstanciasStore');
         this.callParent(arguments);
@@ -39,9 +39,6 @@ Ext.define('Admin.view.academico.ConstanciasView',{
             ],
             columns : [
                 {
-                    xtype       : 'customrownumberer'
-                },
-                {
                     text        : 'Apellidos y Nombres',
                     dataIndex   : 'nombres',
                     width       : 320,
@@ -76,7 +73,12 @@ Ext.define('Admin.view.academico.ConstanciasView',{
                     dataIndex   : 'sede',
                     width       : 320,
                     filter      : 'list'
-                }
+                },
+				{
+					text		: 'Año',
+					dataIndex 	: 'year',
+					width 		: 60
+				}
             ],
 			listeners: {
 				'selectionchange': function (grid, selected, eOpts) {
@@ -87,12 +89,13 @@ Ext.define('Admin.view.academico.ConstanciasView',{
 						this.down('#btnPrinter').setDisabled(!selected.length);
 					}
 					this.down('#periodo').setDisabled(!selected.length);
+					let gdo;
 					if (!Ext.isEmpty(selected)) {
 						gdo = selected[0].get('id_grade');
 						me.setParamStore('PeriodosStore', {
 							pdbTable: 'periodos_academicos',
 							pdbGrado: gdo,
-							pdbType	: 0
+							pdbType: 0
 						});
 					}
 
@@ -107,43 +110,46 @@ Ext.define('Admin.view.academico.ConstanciasView',{
                             text    : 'Editar encabezado',
                             iconCls : 'x-fa fa-pencil',
                             handler : function (btn) {
-                                var
-                                    me  = Admin.getApplication(),
-                                    win = null,
-                                    par = btn.up('form'),
-                                    grid= btn.up('form').down('grid'),
-                                    m   = btn.up('form').getItemId();
-                                grid.mask(AppLang.getSMsgLoading());
-                                store = Ext.getStore('ConstanciasStore');
-                                if (m == 'CertificadosView') {
-                                    param = {
-                                        pdbTable: 'config_const_cert',
-                                        pdbType: 2
-                                    };
-                                } else { 
-                                    param = {
-                                        pdbTable: 'config_const_cert',
-                                        pdbType: 1
-                                    };
-                                }
+								let me = Admin.getApplication(),
+									win = null,
+									par = btn.up('form'),
+									grid = btn.up('form').down('grid'),
+									m = btn.up('form').getItemId();
+								grid.mask(AppLang.getSMsgLoading());
+								let store = Ext.getStore('ConstanciasStore');
+								let param;
+								if (m === 'CertificadosView') {
+									param = {
+										pdbTable: 'config_const_cert',
+										pdbType: 2,
+										where: '{"type": "2"}'
+									};
+								} else {
+									param = {
+										pdbTable: 'config_const_cert',
+										pdbType: 1,
+										where: '{"type": "1"}'
+									};
+								}
                                 me.setParamStore(store, param, false);
                                 store.reload({
                                     callback: function (r, e) {
-                                        try {
-                                            if (r.length > 0) {
-                                                win     = Ext.create('Admin.view.academico.ConstanciasSaveView');
-                                                form    = win.down('form');
-                                                form.loadRecord(r[0]);
-                                                win.setTitle(par.getTitle());
-                                                win.show();
-                                            } else {
-                                                me.onError('Ha ocurrido un error');
-                                            }
-                                        } catch (e) {
-                                            me.onError('Error de aplicación.');
-                                        } finally {
-                                            grid.unmask();
-                                        }
+										let form;
+										try {
+											if (r.length > 0) {
+												win = Ext.create('Admin.view.academico.ConstanciasSaveView');
+												form = win.down('form');
+												form.loadRecord(r[0]);
+												win.setTitle(par.getTitle());
+												win.show();
+											} else {
+												me.onError('Ha ocurrido un error');
+											}
+										} catch (e) {
+											me.onError('Error de aplicación.');
+										} finally {
+											grid.unmask();
+										}
                                     }
                                 });
                             }

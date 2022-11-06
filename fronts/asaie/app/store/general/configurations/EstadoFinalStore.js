@@ -14,10 +14,10 @@ Ext.define('Admin.store.general.EstadoFinalStore', {
             pdbTable    : 'estado_estudiante'
         },
         api: {
-			create  : 'master/insertData',
+			create  : 'crud',
 			read    : 'master/getEstadoFinalEstudiante',
-			update  : 'master/updateData',
-			destroy : 'master/deleteData'
+			update  : 'crud',
+			destroy : 'crud'
 		}
     }
 });

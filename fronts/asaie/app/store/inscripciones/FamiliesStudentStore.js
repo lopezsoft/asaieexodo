@@ -6,10 +6,10 @@ Ext.define('Admin.store.inscripciones.FamiliesStudentStore',{
             pdbTable : 'aux_families_students'
         },
         api: {
-			create  : 'master/insertData',
-			read    : 'families/getFamiliesStudent',
-			update  : 'master/updateData',
-			destroy : 'master/deleteData'
+			create  : 'crud',
+			read    : 'families/families-student',
+			update  : 'crud',
+			destroy : 'crud'
 		}
     },
     requires: [

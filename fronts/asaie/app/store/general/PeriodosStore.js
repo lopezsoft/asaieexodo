@@ -7,10 +7,10 @@ Ext.define('Admin.store.general.PeriodosStore', {
     model		: 'Admin.model.general.PeriodosModel',
     proxy: {
 		api: {
-			create  : 'master/insertData',
-			read    : 'c_sql/get_periodos',
-			update  : 'master/updateData',
-			destroy : 'master/deleteData'
+			create  : 'crud',
+			read    : 'grades/periods',
+			update  : 'crud',
+			destroy : 'crud'
 		},
 		extraParams : {
 			pdbTable 	: 'periodos_academicos',

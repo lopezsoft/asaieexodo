@@ -63,6 +63,7 @@ Route::prefix('v1')->group(function () {
            Route::controller('GradesController')->group(function () {
               Route::get('', 'getGrades');
               Route::get('groups', 'getGroups');
+              Route::get('periods', 'getPeriods');
            });
         });
 
@@ -83,12 +84,20 @@ Route::prefix('v1')->group(function () {
         Route::prefix('students')->group(function () {
             Route::controller('Academic\StudentController')->group(function () {
                 Route::get('academic-history', 'getAcademicHistory');
+                Route::get('enrollment', 'getEnrollment');
+                Route::get('enrollment-list', 'getEnrollmentList');
             });
         });
         Route::prefix('download')->group(function () {
             Route::controller('DownloadController')->group(function () {
                 Route::prefix('excel')->group(function () {
                     Route::post('template-enrollment', 'getTemplateEnrollment');
+                });
+                Route::prefix('student')->group(function () {
+                    Route::get('read-documents', 'readStudentDocuments');
+                });
+                Route::prefix('settings')->group(function () {
+                    Route::get('read-school-logo', 'readSchoolLogo');
                 });
             });
         });
@@ -97,13 +106,35 @@ Route::prefix('v1')->group(function () {
                 Route::prefix('excel')->group(function () {
                     Route::post('template-enrollment', 'setTemplateEnrollment');
                 });
+                Route::prefix('student')->group(function () {
+                    Route::post('upload-documents', 'uploadStudentDocuments');
+                });
+                Route::prefix('settings')->group(function () {
+                    Route::post('upload-school-logo', 'uploadSchoolLogo');
+                });
+            });
+        });
+
+        Route::prefix('files')->group(function () {
+            Route::delete('delete/{path}', 'DownloadController@deleteFile');
+            Route::delete('delete-school-logo/{path}', 'DownloadController@deleteSchoolLogo');
+        });
+
+        Route::prefix('families')->group(function () {
+            Route::controller('Academic\FamiliesController')->group(function () {
+                Route::get('families-student', 'getFamiliesStudent');
+            });
+        });
+
+        Route::prefix('reports')->group(function () {
+            Route::controller('ReportsController')->group(function () {
+                Route::post('enrollment-sheet', 'getEnrollmentSheet');
+                Route::post('certificate', 'getCertificate');
+                Route::post('periodic-certificate', 'getPeriodicCertificate');
             });
         });
     });
 
 
 
-    Route::prefix('families')->group(function () {
-
-    });
 });

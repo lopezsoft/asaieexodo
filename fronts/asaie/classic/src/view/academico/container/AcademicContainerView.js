@@ -62,6 +62,8 @@ Ext.define('Admin.view.academico.container.AcademicContainerView',{
 			},
 			{
 				xtype   : 'containerButton',
+				disabled: isSecretary,
+				hidden	: isSecretary,
 				items   : [
 					{
 						xtype   : 'buttonPanel',

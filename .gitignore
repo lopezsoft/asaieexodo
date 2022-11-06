@@ -18,3 +18,7 @@ yarn-error.log
 /.idea
 /.vscode
 /backend/nbproject/private/
+/backend/public/
+/backend/public/*
+/backend/public/hot
+/backend/public/storage

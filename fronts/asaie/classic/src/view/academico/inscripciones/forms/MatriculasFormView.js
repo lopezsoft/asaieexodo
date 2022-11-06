@@ -26,7 +26,7 @@ Ext.define('Admin.view.academico.inscripciones.forms.MatriculasFormView' ,{
 				success : function(batch, o) {
 					me.showResult('Se han guardado los datos');
 					win.unmask();
-					if (reload == true){
+					if (reload === true){
 						store.reload();
 					}
 					win.close();

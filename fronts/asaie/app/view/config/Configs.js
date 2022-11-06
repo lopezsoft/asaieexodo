@@ -16,6 +16,7 @@ Ext.define('Admin.view.config.Configs', {
 		urlBase		: "http://asaie/",
 		urlLocation	: "http://asaie/",
 		apiUrl		: "http://asaie/api/v1",
+		reportUrl	: "http://asaie.rep",
     },
     constructor: function(config) {
         this.initConfig(this.config, config);

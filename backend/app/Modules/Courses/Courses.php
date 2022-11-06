@@ -24,8 +24,10 @@ class Courses
         $query->where('t1.year', $year);
 
         if($search) {
-            //$query->where('t3.asignatura', 'like', "%{$search}%");
-            $query->where('t2.area', 'like', "%{$search}%");
+            $query->where(function($row) use ($search) {
+                $row->where('t3.asignatura', 'like', "%{$search}%");
+                $row->orWhere('t2.area', 'like', "%{$search}%");
+            });
         }
         $query->orderBy('t2.area');
         $query->orderBy('t3.asignatura');

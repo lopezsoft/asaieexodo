@@ -74,13 +74,18 @@ trait MessagesTrait
         return response()->json($data, 302);
     }
 
-
+    /**
+     * 400 Bad Request
+     */
     static function getResponse400($data = []): \Illuminate\Http\JsonResponse
     {
         $data['success']    = false;
         return response()->json($data, 400);
     }
 
+    /**
+     * Unauthorized
+     */
     static function getResponse401(): \Illuminate\Http\JsonResponse
     {
         return response()->json([
@@ -89,6 +94,20 @@ trait MessagesTrait
         ], 401);
     }
 
+    /**
+     * Not found
+     */
+    static function getResponse404(): \Illuminate\Http\JsonResponse
+    {
+        return response()->json([
+            'success'   => false,
+            'message'   => 'Acceso No autorizado',
+        ], 401);
+    }
+
+    /**
+     *
+     */
     static function getResponse422(): \Illuminate\Http\JsonResponse
     {
         $data['success']    = false;

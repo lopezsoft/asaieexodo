@@ -10,12 +10,6 @@ Ext.define('Admin.store.general.EstadoStore',{
         {name : 'name_state'}
     ],
     proxy	: {
-		api: {
-			create  : 'General/insert_data',
-			read    : 'General/get_select_all',
-			update  : 'General/update_data',
-			destroy : 'General/delete_data'
-		},
 		extraParams	: {
 			pdbTable	: 'registration_status'
 		}

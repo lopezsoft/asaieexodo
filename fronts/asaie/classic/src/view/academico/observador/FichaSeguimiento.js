@@ -3,14 +3,12 @@ Ext.define('Admin.view.academico.FichaSeguimiento',{
     controller  : 'academico',
     alias       : 'widget.fichaseguimiento',
     initComponent: function () {
-        let me      = this,
-            zstore  = undefined;
-        zstore      = Ext.create('Admin.store.base.StoreUrl',{
+        let me      = this;
+        const zstore    = Ext.create('Admin.store.base.StoreUrl',{
             extend      : 'Admin.store.docentes.EstudiantesStore',
             model       : 'Admin.model.docentes.EstudiantesModel',
-            pageSize    : 0,
             proxy   : {
-                url : 'observer/getStudents'
+                url : 'students/enrollment-list'
             },
             autoLoad    : true
         });
@@ -20,12 +18,6 @@ Ext.define('Admin.view.academico.FichaSeguimiento',{
                 xtype   : 'customgrid',
                 store   : zstore,
                 plugins		: [
-                    {
-                        ptype: 'rowexpander',
-                        rowBodyTpl : new Ext.XTemplate(
-                            '<p><b>Apellidos y Nombres:</b> {nombres}</p>'
-                        )
-                    },
                     {
                         ptype : 'gridfilters'
                     },
@@ -91,7 +83,12 @@ Ext.define('Admin.view.academico.FichaSeguimiento',{
                         dataIndex   : 'sede',
                         width       : 320,
                         filter      : 'list'
-                    }
+                    },
+					{
+						text        : 'Año',
+						dataIndex   : 'year',
+						width       : 60,
+					}
                 ],
                 dockedItems : [
                     {

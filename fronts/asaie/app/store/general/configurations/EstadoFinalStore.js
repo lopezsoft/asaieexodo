@@ -15,7 +15,7 @@ Ext.define('Admin.store.general.EstadoFinalStore', {
         },
         api: {
 			create  : 'crud',
-			read    : 'master/getEstadoFinalEstudiante',
+			read    : 'settings/final-student-state',
 			update  : 'crud',
 			destroy : 'crud'
 		}

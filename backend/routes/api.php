@@ -92,6 +92,7 @@ Route::prefix('v1')->group(function () {
                 Route::get('academic-history', 'getAcademicHistory');
                 Route::get('enrollment', 'getEnrollment');
                 Route::get('enrollment-list', 'getEnrollmentList');
+                Route::post('move-students', 'moveStudents');
             });
         });
         Route::prefix('download')->group(function () {
@@ -138,7 +139,22 @@ Route::prefix('v1')->group(function () {
                 Route::post('certificate', 'getCertificate');
                 Route::post('periodic-certificate', 'getPeriodicCertificate');
                 Route::post('honor-frame', 'getHonorFrame');
+                Route::post('observer-sheet', 'getObserverSheet');
+                Route::post('final-report', 'getFinalReport');
             });
+        });
+
+        Route::prefix('settings')->group(function () {
+           Route::controller('SettingsController')->group(function () {
+                Route::get('final-student-state', 'getFinalStudentState');
+                Route::post('delete-notes-zero', 'deleteNotesZero');
+           });
+        });
+
+        Route::prefix('promotion')->group(function () {
+           Route::controller('PromotionController')->group(function () {
+              Route::post('generate-final-report', 'generateFinalReport');
+           });
         });
     });
 

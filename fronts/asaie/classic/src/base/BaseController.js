@@ -432,6 +432,10 @@ Ext.define('Admin.base.BaseController', {
             vMask;
         vMask = btn.up('window');
         if (Ext.isEmpty(vMask)){
+            vMask   = btn.up('form');
+        }
+
+		if (Ext.isEmpty(vMask)){
             vMask   = btn.up('grid');
         }
 		let xFormat = '';

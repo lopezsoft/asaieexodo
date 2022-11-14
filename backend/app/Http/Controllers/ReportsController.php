@@ -3,10 +3,22 @@
 namespace App\Http\Controllers;
 
 use App\Reports\EnrollmentReports;
+use App\Reports\FinalReport;
+use App\Reports\ObserverReports;
 use Illuminate\Http\Request;
 
 class ReportsController extends Controller
 {
+    public function getFinalReport(Request $request): \Illuminate\Http\JsonResponse
+    {
+        return FinalReport::getFinalReport($request);
+    }
+
+    public function getObserverSheet(Request $request): \Illuminate\Http\JsonResponse
+    {
+        return ObserverReports::getObserverSheet($request);
+    }
+
     public function getHonorFrame(Request $request): \Illuminate\Http\JsonResponse
     {
         return EnrollmentReports::getHonorFrame($request);

@@ -503,62 +503,65 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
         Ext.create('Admin.view.academico.NivelacionesPeriodicas').show();
     },
 
-    onMover : function (btn) {
-        var
-            win     = btn.up('form'),
-            sel     = win.down('grid').getSelection(),
-            me      = Admin.getApplication(),
-            cCount  = 0,
-            data    = {},
-            valForm = win.getValues(),
-            store   = Ext.getStore('MatriculadosStore'),
-            grado   = valForm.grados_id,
-            grupo   = valForm.grupo_id,
-            jorn    = valForm.jorn_id,
-            sede    = valForm.sedes_id,
-            cgrado  = valForm.id_grado,
-            cgrupo  = valForm.grupo,
-            cjorn   = valForm.cod_jorn,
-            csede   = valForm.id_sede;
+    onMoveStudents : function (btn) {
+		let win = btn.up('form'),
+			sel = win.down('grid').getSelection(),
+			me = Admin.getApplication(),
+			cCount = 0,
+			data = {},
+			valForm = win.getValues(),
+			store = Ext.getStore('MatriculadosStore'),
+			grado = valForm.grados_id,
+			grupo = valForm.grupo_id,
+			jorn = valForm.jorn_id,
+			sede = valForm.sedes_id,
+			cgrado = valForm.id_grado,
+			cgrupo = valForm.grupo,
+			cjorn = valForm.cod_jorn,
+			csede = valForm.id_sede;
 
-        if(sel.length > 0){
+		if(sel.length > 0){
             try {
                 win.mask(AppLang.getSSavingChanges());
-                if (grado == cgrado && grupo == cgrupo && jorn == cjorn && sede == csede) {
+                if (grado === cgrado && grupo === cgrupo && jorn === cjorn && sede === csede) {
                     win.unmask();
                     me.onAler('No se puede mover estudiantes al mismo, grado, grupo, sede y jornada.');
                 } else {
                     //Mover estudiantes con notas
                     if (win.down('#ckMoveNotes').getValue()) {
-                        var
-                            values = [],
-                            param = {
-                                pdbList: sel
-                            };
-                        for (cCount = 0; cCount < sel.length; cCount++) {
+						let values = [];
+						for (cCount = 0; cCount < sel.length; cCount++) {
                             data = {
                                 id_matric: sel[cCount].get('id')
                             };
                             Ext.Array.push(values, data);
                         }
-                        param = {
+						const dt	= new Date();
+						const {school, profile} = AuthToken.recoverParams();
+                        const param = {
                             pdbList     : Ext.encode(values),
                             pdbGrado    : grado,
                             pdbGrupo    : grupo,
                             pdbJorn     : jorn,
                             pdbSede     : sede,
-                            pdbGradoMove: cgrado
+                            pdbGradoMove: cgrado,
+							schoolId  	: school.id || 0,
+							profileId   : profile.id || 0,
+							year        : school.year || dt.getFullYear(),
                         };
                         Ext.Ajax.request({
-                            url: Global.getUrlBase() + 'academic/get_mover_estudiantes',
+                            url: Global.getApiUrl() + '/students/move-students',
                             params: param,
+							headers: {
+								'Authorization' : (AuthToken) ? AuthToken.authorization() : ''
+							},
                             success: function (response, opts) {
                                 store.reload();
                                 win.unmask();
                                 me.showResult(AppLang.getSChangesOk());
                             },
                             failure: function (response, opts) {
-                                me.onError('Error en el servidor, codigo del estado ' + response.status);
+                                me.onError('Error en el servidor, código del estado ' + response.status);
                             },
                             callback    : function (r, e) {
                                 win.unmask();
@@ -926,7 +929,7 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
                 break;
             case 'fichaseguimiento' :
                 var
-                    url     = 'reports/report_ficha_observador',
+                    url     = 'reports/observer-sheet',
                     values  = win.down('grid').getSelection()[0],
                     param   = {
                         pdbGrado    : values.get('id_grade'),

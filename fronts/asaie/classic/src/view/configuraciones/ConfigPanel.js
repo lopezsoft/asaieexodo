@@ -194,13 +194,22 @@ Ext.define('Admin.view.configuraciones.ConfigPanel',{
 						iconCls : 'x-fa fa-trash',
 						text    : 'Eliminar Notas en Cero',
 						handler : function (btn) {
-							var
-								gb  = Global,
-								ts  = btn.up('container').up('container');
-								me  = Admin.getApplication();
+							const gb = Global,
+								ts = btn.up('container').up('container');
+							let me = Admin.getApplication();
 							ts.mask('Procesando petición...');
+							const {school, profile}	= AuthToken.recoverParams();
+							const dt	= new Date();
+							let xParam	= {};
+							xParam.schoolId  	= school.id || 0;
+							xParam.profileId   	= profile.id || 0;
+							xParam.year        	= school.year || dt.getFullYear();
 							Ext.Ajax.request({
-								url: gb.getUrlBase() +'general/get_borrar_cerros',
+								url: gb.getApiUrl() +'/settings/delete-notes-zero',
+								params: xParam,
+								headers: {
+									'Authorization' : (AuthToken) ? AuthToken.authorization() : ''
+								},
 								success: function(response) {
 									me.showResult('Proceso terminado correctamente.');
 								},

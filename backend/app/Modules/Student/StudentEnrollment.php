@@ -11,6 +11,29 @@ use Illuminate\Support\Facades\DB;
 class StudentEnrollment
 {
     use MessagesTrait;
+    public static function getEnrollment(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $school     = SchoolQueries::getSchoolRequest($request);
+        $db	        = $school->db;
+        $year       = $school->year;
+        $grade	    = $request->input('pdbCodGrado');
+        $grupo		= $request->input('pdbGrupo');
+        $sede		= $request->input('pdbSede');
+        $jornada	= $request->input('pdbJorn');
+        $params     = [
+            $year,
+            $sede,
+            $grade,
+            $grupo,
+            $jornada,
+        ];
+        return self::getResponse([
+            'records' => [
+                'data' => CallExecute::execute("{$db}sp_select_matriculas(?, ?, ?, ?, ?)",$params)
+            ]
+        ]);
+    }
+
     public static function getEnrollmentList(Request $request): \Illuminate\Http\JsonResponse
     {
         $school     = SchoolQueries::getSchoolRequest($request);

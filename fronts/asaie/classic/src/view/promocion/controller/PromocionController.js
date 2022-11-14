@@ -296,7 +296,7 @@ Ext.define('Admin.view.promocion.controller.PromocionController', {
             case 'LibroFinalView':
                 var
                     values = win.getValues(),
-                    url = 'reports/report_libro_final',
+                    url = 'reports/final-report',
                     grid = win.down('grid');
 
                 param = {

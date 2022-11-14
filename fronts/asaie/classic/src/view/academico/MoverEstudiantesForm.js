@@ -43,29 +43,27 @@ Ext.define('Admin.view.academico.MoverEstudiantesForm',{
                         {
                             xtype       : 'customButton',
                             iconCls     : 'x-fa fa-search',
-                            text        : 'Búscar',
+                            text        : 'Buscar',
                             bind    : {
                                 visible : '{comboJornadas.value}'
                             },
                             handler     : function (btn) {
-                                var
-                                    win     = btn.up('form'),
-                                    me      = Admin.getApplication(),
-                                    store   = Ext.getStore('MatriculadosStore');
+								const win = btn.up('form'),
+									me = Admin.getApplication();
 
-                                extra   = {
-                                    pdbCodGrado : win.down('#comboGrados').getValue(),
-                                    pdbGrupo    : win.down('#comboGrupo').getValue(),
-                                    pdbSede     : win.down('#comboSedes').getValue(),
-                                    pdbJorn     : win.down('#comboJornadas').getValue(),
-                                    pdbTable    : 'student_enrollment'
-                                };
+								let extra = {
+									pdbCodGrado: win.down('#comboGrados').getValue(),
+									pdbGrupo: win.down('#comboGrupo').getValue(),
+									pdbSede: win.down('#comboSedes').getValue(),
+									pdbJorn: win.down('#comboJornadas').getValue(),
+									pdbTable: 'student_enrollment'
+								};
 
                                 me.setParamStore('MatriculadosStore',extra,true);
-                                param = {
-                                    pdbTable    : 'grados',
-                                    pdbSede     : 0
-                                };
+								let param = {
+									pdbTable: 'grados',
+									pdbSede: 0
+								};
                                 me.setParamStore('GradosStore', param, true);
 
                             }
@@ -129,7 +127,7 @@ Ext.define('Admin.view.academico.MoverEstudiantesForm',{
                             bind    : {
                                 visible : '{cbGrupos.value}'
                             },
-                            handler     : 'onMover'
+                            handler     : 'onMoveStudents'
                         }
                     ]	
                 }

@@ -12,7 +12,6 @@ class EnrollmentReports
 {
     public static function getHonorFrame(Request $request): \Illuminate\Http\JsonResponse {
         $school     = SchoolQueries::getSchoolRequest($request);
-        $db         = $school->db;
         $ye         = $school->year;
         $format		= $request->input('pFormat');
         $Grado 	    = $request->input('pdbGrado');

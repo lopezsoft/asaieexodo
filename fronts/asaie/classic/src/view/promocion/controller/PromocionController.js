@@ -224,7 +224,7 @@ Ext.define('Admin.view.promocion.controller.PromocionController', {
                 break;
             case 'SabanaFinalesView':
                 values = win.down('form').getValues(),
-                    url = 'reports/report_sabanas_finales',
+                    url = 'reports/final-savannas',
                     record = win.down('form').getValues(),
                     param = {
                         pdbSede: record.id_sede,
@@ -260,14 +260,14 @@ Ext.define('Admin.view.promocion.controller.PromocionController', {
                 break;
             case 'ActaPromocionEstaView':
                 var
-                    url = 'reports/report_actas_promocion_est',
+                    url = 'reports/minutes-promotion-statistics',
                     param = {
                         pdbType: win.down('#CkGrado').getValue() ? 1 : 0
                     };
                 break;
             case 'ActaPromocionView':
                 var
-                    url = 'reports/report_actas_promocion',
+                    url = 'reports/minutes-promotion',
                     param = {
                         pdbGrado: win.down('#comboGrados').getValue(),
                         pdbJorn: win.down('#comboJornadas').getValue(),

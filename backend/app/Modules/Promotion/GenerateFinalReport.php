@@ -20,6 +20,28 @@ class GenerateFinalReport
     private int $_t_año_lectivo = 0;
 
     use MessagesTrait, SystemTablesTrait;
+    public function generateFinalSavannas(Request $request): \Illuminate\Http\JsonResponse {
+        $all	= $request->input('pdbAll') ?? 0;
+        $school = SchoolQueries::getSchoolRequest($request);
+        $db	    = $school->db;
+        $year   = $school->year;
+
+        $query	= $this->getEnrollmentQuery($db, $school, $all);
+        try{
+            DB::beginTransaction();
+            foreach($query as $row){
+                $this->sp_generate_sabanas($row->id_matric,$school->grade, $year, $db);
+            }
+            DB::commit();
+            return self::getResponse();
+        }catch(\Exception $e){
+            DB::rollback();
+            return self::getResponse500([
+                'error'      => $e->getMessage(),
+            ]);
+        }
+    }
+
     public function generateReport(Request $request): \Illuminate\Http\JsonResponse
     {
         $Grado 	= $request->input('pdbGrado');
@@ -77,19 +99,7 @@ class GenerateFinalReport
                 }
                 break;
         }
-
-        $query	= DB::table($db."student_enrollment","tm")
-                    ->selectRaw("id_group grupo, tm.id id_matric")
-                    ->leftJoin($db."inscripciones AS ti", "tm.id_student", "=", "ti.id")
-                    ->where("tm.id_headquarters", $Sede)
-                    ->where("tm.year", $year)
-                    ->where("tm.id_grade", $Grado)
-                    ->where("tm.id_study_day", $Jorn)
-                    ->where("tm.id_state", 2);
-        if($all <= 0) {
-            $query->where('tm.id_group', '=', "{$Grupo}");
-        }
-        $query  = $query->get();
+        $query  = $this->getEnrollmentQuery($db, $school, $all);
         try{
             DB::beginTransaction();
             foreach($query as $row){
@@ -98,16 +108,30 @@ class GenerateFinalReport
                 $this->sp_generate_sabanas($row->id_matric,$Grado, $year, $db);
             }
             DB::commit();
-            return self::getResponse([
-                $this->_n_promocion,
-                $this->_n_per_div
-            ]);
+            return self::getResponse();
         }catch(\Exception $e){
             DB::rollback();
             return self::getResponse500([
                 'error'      => $e->getMessage(),
             ]);
         }
+    }
+
+    private function getEnrollmentQuery($db, $school, int $all): \Illuminate\Support\Collection
+    {
+
+        $query	= DB::table($db."student_enrollment","tm")
+            ->selectRaw("id_group grupo, tm.id id_matric")
+            ->leftJoin($db."inscripciones AS ti", "tm.id_student", "=", "ti.id")
+            ->where("tm.id_headquarters", $school->headquarter)
+            ->where("tm.year", $school->year)
+            ->where("tm.id_grade", $school->grade)
+            ->where("tm.id_study_day", $school->workingDay)
+            ->where("tm.id_state", 2);
+        if($all <= 0) {
+            $query->where('tm.id_group', '=', "{$school->group}");
+        }
+        return $query->get();
     }
 
     private function sp_generate_sabanas($id_matric, $grado, $year, $db): void {

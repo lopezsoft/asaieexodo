@@ -17,9 +17,18 @@ class SchoolQueries
             $year       = $request->input('year') ?? Date('Y');
 
             return (object) [
-                'school'  => $school,
-                'db'      => "{$school->database_name}.",
-                'year'  => $year
+                'school'            => $school,
+                'db'                => "{$school->database_name}.",
+                'database_name'     => $school->database_name,
+                'year'              => $year,
+                'grade' 	        => $request->input('pdbGrado'),
+                'group'	            => $request->input('pdbGrupo'),
+                'headquarter'	    => $request->input('pdbSede'),
+                'workingDay'        => $request->input('pdbJorn'),
+                'format'		    => $request->input('pFormat'),
+                'schoolId'		    => $request->input('schoolId') ?? 0,
+                'profileId'		    => $request->input('profileId') ?? 0,
+                'path'              => "{$school->folder_name}"
             ];
         }catch( \Exception $e) {
             return null;

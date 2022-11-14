@@ -141,6 +141,9 @@ Route::prefix('v1')->group(function () {
                 Route::post('honor-frame', 'getHonorFrame');
                 Route::post('observer-sheet', 'getObserverSheet');
                 Route::post('final-report', 'getFinalReport');
+                Route::post('minutes-promotion', 'getMinutesPromotion');
+                Route::post('minutes-promotion-statistics', 'getMinutesPromotionStatistics');
+                Route::post('final-savannas', 'getFinalSavannas');
             });
         });
 
@@ -154,6 +157,7 @@ Route::prefix('v1')->group(function () {
         Route::prefix('promotion')->group(function () {
            Route::controller('PromotionController')->group(function () {
               Route::post('generate-final-report', 'generateFinalReport');
+              Route::post('generate-final-savannas', 'generateFinalSavannas');
            });
         });
     });

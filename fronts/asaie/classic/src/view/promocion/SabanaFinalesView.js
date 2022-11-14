@@ -53,20 +53,27 @@ Ext.define('Admin.view.promocion.SabanaFinalesView',{
                               disabled  : '{!comboJornadas.value}'
                             },
                             handler : function (btn) {
-                                var
-                                    win     = btn.up('window'),
-                                    record  = win.down('form').getValues(),
-                                    me      = Admin.getApplication(),
-                                    gb      = Global;
-                                win.mask('Procesando petición...');
+								const win = btn.up('window'),
+									record = win.down('form').getValues(),
+									me = Admin.getApplication(),
+									gb = Global;
+								const dt	= new Date();
+								const {school, profile} = AuthToken.recoverParams();
+								win.mask('Procesando petición...');
                                 Ext.Ajax.request({
-                                    url     : gb.getUrlBase()+'General/get_generate_sabanas',
+                                    url     : gb.getApiUrl()+'/promotion/generate-final-savannas',
+									headers: {
+										'Authorization' : (AuthToken) ? AuthToken.authorization() : ''
+									},
                                     params  : {
-                                        pdbSede : record.id_sede,
-                                        pdbGrado: record.id_grado,
-                                        pdbJorn : record.cod_jorn,
-                                        pdbGrupo: record.grupo,
-                                        pdbAll  : record.generar
+                                        pdbSede 	: record.id_sede,
+                                        pdbGrado	: record.id_grado,
+                                        pdbJorn 	: record.cod_jorn,
+                                        pdbGrupo	: record.grupo,
+                                        pdbAll  	: record.generar,
+										schoolId  	: school.id || 0,
+										year  		: school.year || dt.getFullYear(),
+										profileId	: profile.id || 0
                                     },success: function(response, opts) {
                                         me.showResult('Proceso terminado correctamente.');
                                     },failure: function(response, opts) {

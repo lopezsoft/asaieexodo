@@ -53,13 +53,13 @@ Ext.define('Admin.view.config.Configs', {
      * @function getSocket
      */
     getSocket: function() {
-        var
+        /*var
             me = this;
         me.socket = io.connect(me.getHostSocket(), { 'forceNew': true });
         me.socket.on('connect_error', function(error) {
             console.log(error);
             Admin.getApplication().showResult('No hay conexión con el servidor de sockets, contante al administrador del sistema.', 'error');
-        });
+        });*/
         return me.socket;
     },
 
@@ -71,7 +71,8 @@ Ext.define('Admin.view.config.Configs', {
     getConnectionSocket: function() {
         var
             conn = this.getSocket();
-        return conn.connected;
+        //return conn.connected;
+        return true;
     },
 
     // Funcion que convierte en minuscula el primer carater de un String.

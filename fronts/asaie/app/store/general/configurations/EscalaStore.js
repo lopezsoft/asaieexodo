@@ -13,10 +13,10 @@ Ext.define('Admin.store.general.EscalaStore', {
             pdbTable : 'desempeños'
         },
 		api: {
-			create  : 'master/insertData',
-			read    : 'General/get_escala_notas',
-			update  : 'master/updateData',
-			destroy : 'master/deleteData'
+			create  : 'crud',
+			read    : 'settings/rating-scale',
+			update  : 'crud',
+			destroy : 'crud'
 		}
     }
 });

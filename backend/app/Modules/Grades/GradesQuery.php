@@ -11,19 +11,19 @@ class GradesQuery
 {
     use MessagesTrait;
     public static function getPeriods(Request $request): \Illuminate\Http\JsonResponse {
-        $school = SchoolQueries::getSchool($request->input('schoolId') ?? 0);
-        $db	    = $school->database_name.".";
-        $year   = $request->input('year') ?? Date('Y');
-        $type   = $request->input('pdbType') ?? 5;
+        $school = SchoolQueries::getSchoolRequest($request);
+        $db	    = $school->db;
+        $year   = $school->year;
+        $type   = $request->input('pdbType') ?? "5";
         $grado  = $request->input('pdbGrado');
         $query = match ($type) {
-            1 => DB::table($db . 'periodos_academicos', 't1')
+            "1" => DB::table($db . 'periodos_academicos', 't1')
                 ->selectRaw('t1.*, t2.nombre_grado_agrupado')
                 ->leftJoin($db . 'grados_agrupados AS t2', 't1.id_grado_agrupado', '=', 't2.id')
                 ->where('t1.year', $year)
                 ->orderBy('t2.nombre_grado_agrupado')
                 ->orderBy('t1.periodo'),
-            2 => DB::table($db . 'periodos_academicos', 't1')
+            "2" => DB::table($db . 'periodos_academicos', 't1')
                 ->select('t1.periodo')
                 ->where('t1.year', $year)
                 ->groupBy(['t1.periodo', 't1.year'])

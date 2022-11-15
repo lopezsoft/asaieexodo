@@ -10,7 +10,8 @@ Ext.define('Admin.view.configuraciones.GradosCompetenciasView',{
         this.callParent(arguments);
         this.setTitle('Grupo de grados académicos - '+ Global.getYear());
     },
-    store       : 'DimensionesStore',    
+    store       : 'DimensionesStore',
+	reloadStore	: true,
     maxHeight	: 200,
     items       : [
         {

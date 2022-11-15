@@ -12,6 +12,7 @@ Ext.define('Admin.view.configuraciones.EscalaNacionalInView',{
         this.setTitle('Escala nacional - '+ Global.getYear());
     },
     reloadStore : true,
+	autoSave	: false,
     items       : [
         {
             xtype   : 'customform',

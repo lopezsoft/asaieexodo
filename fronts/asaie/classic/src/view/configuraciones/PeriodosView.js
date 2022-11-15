@@ -341,10 +341,17 @@ Ext.define('Admin.view.configuraciones.PeriodosView',{
 							xtype		: 'addButton',
 							iconAlign	: 'left',
 							handler		: function (btn) {
-								var
-									win     = btn.up('window'),
-									store   = win.down('grid').getStore();
-									store.insert(0,{periodo : '1'});
+								const win = btn.up('window'),
+									store = win.down('grid').getStore();
+
+								const {school} 	= AuthToken.recoverParams();
+								const dt		= new Date();
+								const data		= {
+									descripcion_periodo	: "DESCRIPCIÓN",
+									periodo 			: '1',
+									year				: school.year || dt.getFullYear
+								};
+									store.insert(0,data);
 								win.down('grid').setSelection(0);
 							}
 						},'-',
@@ -353,11 +360,10 @@ Ext.define('Admin.view.configuraciones.PeriodosView',{
                             itemId	: 'btnSave',
                             iconAlign	: 'left',
                             handler : function (btn) {
-                                var
-                                    win     = btn.up('window'),
-                                    store   = win.down('grid').getStore(),
-                                    me      = Admin.getApplication();
-                                if (store.getModifiedRecords().length > 0) {
+								const win = btn.up('window'),
+									store = win.down('grid').getStore(),
+									me = Admin.getApplication();
+								if (store.getModifiedRecords().length > 0) {
                                     store.sync({
                                         success : function (res) {
 											win.down('#btnUndoAs').setDisabled(true);

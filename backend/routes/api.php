@@ -105,6 +105,7 @@ Route::prefix('v1')->group(function () {
                 });
                 Route::prefix('settings')->group(function () {
                     Route::get('read-school-logo', 'readSchoolLogo');
+                    Route::get('read-signature', 'readSignature');
                 });
             });
         });
@@ -118,13 +119,19 @@ Route::prefix('v1')->group(function () {
                 });
                 Route::prefix('settings')->group(function () {
                     Route::post('upload-school-logo', 'uploadSchoolLogo');
+                    Route::post('upload-signature', 'uploadSignature');
                 });
             });
         });
 
         Route::prefix('files')->group(function () {
-            Route::delete('delete/{path}', 'DownloadController@deleteFile');
-            Route::delete('delete-school-logo/{path}', 'DownloadController@deleteSchoolLogo');
+            Route::controller('DeletingController')->group(function () {
+                Route::delete('delete/{path}', 'deleteFile');
+                Route::delete('delete-school-logo/{path}', 'deleteSchoolLogo');
+                Route::prefix('settings')->group(function () {
+                    Route::delete('delete-signature/{path}', 'deleteSignature');
+                });
+            });
         });
 
         Route::prefix('families')->group(function () {
@@ -151,6 +158,13 @@ Route::prefix('v1')->group(function () {
         Route::prefix('settings')->group(function () {
            Route::controller('SettingsController')->group(function () {
                 Route::get('final-student-state', 'getFinalStudentState');
+                Route::get('general-setting', 'getGeneralSetting');
+                Route::get('rating-scale', 'getRatingScale');
+                Route::prefix('competencies')->group(function () {
+                    Route::get('/', 'getCompetencies');
+                    Route::get('columns-notes', 'getColumnsNotesCompetencies');
+                    Route::get('columns-notes-exists', 'getColumnsNotesCompetenciesExists');
+                });
                 Route::post('delete-notes-zero', 'deleteNotesZero');
            });
         });

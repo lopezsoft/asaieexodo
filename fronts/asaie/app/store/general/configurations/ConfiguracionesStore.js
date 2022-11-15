@@ -5,10 +5,15 @@ Ext.define('Admin.store.general.ConfiguracionesStore', {
         'Admin.model.general.ConfiguracionesModel'
     ],
     model		: 'Admin.model.general.ConfiguracionesModel',
-    pageSize    : 10,
     proxy: {
         extraParams : {
             pdbTable : 'config001'
-        }
+        },
+		api: {
+			create  : 'crud',
+			read    : 'settings/general-setting',
+			update  : 'crud',
+			destroy : 'crud'
+		}
     }
 });

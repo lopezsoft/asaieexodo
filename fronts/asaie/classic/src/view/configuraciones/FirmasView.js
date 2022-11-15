@@ -96,8 +96,9 @@ Ext.define('Admin.view.configuraciones.FirmasView',{
 							var win = Ext.create({
 								xtype       : 'FilesView',
 								title       : 'Seleccionar imagen para firma Escaneada',
-								pathReadFile    : 'General/read_images_signature',
-								pathUploadFile  : 'General/upload_foto_signature',
+								pathReadFile    : 'download/settings/read-signature',
+								pathUploadFile  : 'upload/settings/upload-signature',
+								pathDeleteFile  : 'files/settings/delete-signature',
 								titlePanelLoad  : 'Subir imagen',
 								titlePanelView  : 'Mis imagenes',
 								textButtonLoad  : 'Seleccionar una imagen en el equipo',

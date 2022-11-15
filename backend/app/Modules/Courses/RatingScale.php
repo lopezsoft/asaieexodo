@@ -3,11 +3,28 @@
 namespace App\Modules\Courses;
 
 use App\Modules\School\SchoolQueries;
+use App\Traits\MessagesTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class RatingScale
 {
+    use MessagesTrait;
+    public static function getRatingScale(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $school = SchoolQueries::getSchoolRequest($request);
+        $db     = $school->db;
+        $query  = DB::table($db."desempeños","td")
+            ->selectRaw('td.*, t1.nombre_grado_agrupado, t2.nombre_escala, t2.abrev')
+            ->leftJoin($db.'grados_agrupados AS t1', 'td.id_grado_agrupado','=','t1.id')
+            ->leftJoin($db.'escala_nacional AS t2', 'td.id_escala','=','t2.id')
+            ->where('td.year', $school->year)
+            ->orderByRaw("td.year, td.id_grado_agrupado, td.id");
+        return self::getResponse([
+            'records' => $query->paginate()
+        ]);
+    }
+
     public static function getScaleString($grade, $year, $db): string {
         $query  = DB::table($db."desempeños AS td")
             ->selectRaw('td.id_pk,td.desde,td.hasta, t2.nombre_escala, t2.abrev')

@@ -8,24 +8,17 @@ use Illuminate\Http\Request;
 
 class DownloadController extends Controller
 {
+
+    public function readSignature(Request $request): ?\Illuminate\Http\JsonResponse
+    {
+        $path   = "settings/signature";
+        return UploadFiles::read($request, $path, 'public');
+    }
     public function readSchoolLogo(Request $request): ?\Illuminate\Http\JsonResponse
     {
         $path   = "settings/reports/header";
         return UploadFiles::read($request, $path, 'public');
     }
-
-    public function deleteSchoolLogo(Request $request): \Illuminate\Http\JsonResponse
-    {
-        $path   = "settings/reports/header";
-        return UploadFiles::delete($request, $path, 'public');
-    }
-
-
-    public function deleteFile(Request $request, $path): \Illuminate\Http\JsonResponse
-    {
-        return UploadFiles::delete($request, $path);
-    }
-
 
     public function readStudentDocuments(Request $request): ?\Illuminate\Http\JsonResponse
     {

@@ -12,6 +12,7 @@ Ext.define('Admin.view.configuraciones.GradosEscalaView',{
         this.setTitle('Grupo de grados - '+ Global.getYear());
     },
     reloadStore : true,
+	autoSave	: false,
     items       : [
         {
             xtype   : 'customform',

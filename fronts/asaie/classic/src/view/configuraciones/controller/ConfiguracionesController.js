@@ -171,13 +171,13 @@ Ext.define('Admin.view.configuraciones.controller.ConfiguracionesController',{
 	},
 
 	onPeriodos : function (btn) {
-		var me  = this.app;
-			me.onStore('general.PeriodosStore');
+		const me = this.app;
+		me.onStore('general.PeriodosStore');
 			me.onStore('general.GradosAgrupadosStore');
-			extra = {
-				pdbTable: 'periodos_academicos',
-				pdbType	: 1
-			};
+		let extra = {
+			pdbTable: 'periodos_academicos',
+			pdbType: 1
+		};
 			me.setParamStore('PeriodosStore', extra, true);
 			Ext.create('Admin.view.configuraciones.PeriodosView').show();
 	},

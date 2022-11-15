@@ -8,6 +8,12 @@ use Illuminate\Http\Request;
 
 class UploadController extends Controller
 {
+
+    public function uploadSignature(Request $request): ?\Illuminate\Http\JsonResponse
+    {
+        $path   = "settings/signature";
+        return UploadFiles::upload($request, $path, 'public');
+    }
     public function uploadSchoolLogo(Request $request): ?\Illuminate\Http\JsonResponse
     {
         $path   = "settings/reports/header";

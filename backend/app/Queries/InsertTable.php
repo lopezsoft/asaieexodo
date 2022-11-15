@@ -18,19 +18,17 @@ class InsertTable
             $fieldsTb   = ShowColumns::getColumns($tb); // Listado de las columnas de la tabla
             $data       = [];
             foreach ($fields as $key => $value) {
-                if ($key !== $primaryKey) {
-                    foreach ($fieldsTb as $field) {
-                        if($field->Key === "PRI"){
-                            $primaryKey = $field->Field;
+                foreach ($fieldsTb as $field) {
+                    if($field->Key === "PRI"){
+                        $primaryKey = $field->Field;
+                    }
+                    if($field->Field == $key && $key !== $primaryKey ){
+                        if($field->Type == 'date'){
+                            $data[$key] = date('Y-m-d', strtotime(str_replace('/','-',$value)));
+                        }else{
+                            $data[$key] = $value;
                         }
-                        if($field->Field == $key ){
-                            if($field->Type == 'date'){
-                                $data[$key] = date('Y-m-d', strtotime(str_replace('/','-',$value)));
-                            }else{
-                                $data[$key] = $value;
-                            }
-                            break;
-                        }
+                        break;
                     }
                 }
             }

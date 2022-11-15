@@ -27,7 +27,6 @@ Ext.define('Admin.view.promocion.NivelacionesFinales',{
                     readonlyIndexes	: ['note'],
                     disableIndexes	: ['pctChange'],
                     minChars		: 1,
-                    mode            : 'local',
                     flex			: 1,
                     autoFocus		: true,
                     independent		: true
@@ -47,8 +46,8 @@ Ext.define('Admin.view.promocion.NivelacionesFinales',{
             ],
             listeners : {
                 'selectionchange': function(grid, selected, eOpts) {
-                    var me = this;
-                    if (me.up('window').down('#btnActa')) {
+					const me = this;
+					if (me.up('window').down('#btnActa')) {
                         me.up('window').down('#btnActa').setDisabled(!selected.length);
                     }
                     if (me.up('window').down('#btnNotas')) {

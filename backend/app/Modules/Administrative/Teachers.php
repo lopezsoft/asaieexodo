@@ -22,11 +22,13 @@ class Teachers
         $query->where('td.estado', 1);
         $query->where('t1.year', $year);
         if($search){
-            $query->where("td.apellido1",   'like', "%{$search}%");
-            $query->orWhere("td.apellido2", 'like', "%{$search}%");
-            $query->orWhere("td.nombre1",   'like', "%{$search}%");
-            $query->orWhere("td.nombre2",   'like', "%{$search}%");
-            $query->orWhere("td.documento",   'like', "%{$search}%");
+            $query->where(function ($row) use ($search) {
+                $row->where("td.apellido1",   'like', "%{$search}%");
+                $row->orWhere("td.apellido2", 'like', "%{$search}%");
+                $row->orWhere("td.nombre1",   'like', "%{$search}%");
+                $row->orWhere("td.nombre2",   'like', "%{$search}%");
+                $row->orWhere("td.documento",   'like', "%{$search}%");
+            });
         }
         $query->select("td.*","t1.year");
         $query->selectRaw("CONCAT(RTRIM(td.apellido1),' ',RTRIM(td.apellido2),' ',RTRIM(td.nombre1),' ',RTRIM(td.nombre2)) AS nombres");

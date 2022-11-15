@@ -144,6 +144,7 @@ Route::prefix('v1')->group(function () {
                 Route::post('minutes-promotion', 'getMinutesPromotion');
                 Route::post('minutes-promotion-statistics', 'getMinutesPromotionStatistics');
                 Route::post('final-savannas', 'getFinalSavannas');
+                Route::post('final-certificate', 'getFinalCertificate');
             });
         });
 

@@ -278,7 +278,7 @@ Ext.define('Admin.view.promocion.controller.PromocionController', {
             case 'certificadofinal':
                 var
                     values = win.getValues(),
-                    url = 'reports/report_certificado_final',
+                    url = 'reports/final-certificate',
                     grid = win.down('grid'),
                     param = {
                         pdbGrado: win.down('#comboGrados').getValue(),

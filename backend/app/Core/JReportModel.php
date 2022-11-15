@@ -138,7 +138,7 @@ class JReportModel  extends MasterModel {
 
             return response()->json([
                 'success'   => false,
-                'error'     => $output_error[0],
+                'error'     => $output_error[0] ?? "",
                 'message'   => $e->getMessage(),
                 'e'         => $e
             ], 500);

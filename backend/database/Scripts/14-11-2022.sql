@@ -12,3 +12,8 @@ ALTER TABLE `acta_promocion`
     CHANGE COLUMN `prom_comision` `prom_comision` SMALLINT NOT NULL DEFAULT 0 AFTER `estado`,
     CHANGE COLUMN `libro` `libro` SMALLINT NOT NULL DEFAULT 0 AFTER `prom_comision`,
     CHANGE COLUMN `folio` `folio` SMALLINT NOT NULL DEFAULT 0 AFTER `libro`;
+
+
+ALTER TABLE `config_const_cert_end`
+    ADD COLUMN `show_number_message` VARCHAR(120) NULL DEFAULT 'CONSTANCIA Nº' AFTER `show_number`;
+

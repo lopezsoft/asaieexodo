@@ -184,7 +184,7 @@ Ext.define('Admin.view.promocion.CertificadoFinal',{
                 {
                     xtype       : 'customButton',
                     iconCls     : 'x-fa fa-search',
-                    text        : 'Búscar',
+                    text        : 'Buscar',
                     bind    : {
                         disabled : '{!comboJornadas.value}'
                     },
@@ -216,23 +216,30 @@ Ext.define('Admin.view.promocion.CertificadoFinal',{
                     text    : 'Generar',
                     iconCls : 'x-fa fa-spinner',
                     handler : function (btn) {
-                        var
-                            me  = Admin.getApplication(),
-                            ts  = btn.up('form'),
-                            values  = ts.getValues(),
-                            param   = {
-                                pdbGrado    : ts.down('#comboGrados').getValue(),
-                                pdbJorn     : ts.down('#comboJornadas').getValue(),
-                                pdbGrupo    : ts.down('#comboGrupo').getValue(),
-                                pdbSede     : ts.down('#comboSedes').getValue(),
-                                pdbAll      : 0,
-                                pdbPer      : values.periodo
-                            };
-                        ts.mask();
+						const me = Admin.getApplication(),
+							ts = btn.up('form'),
+							values = ts.getValues(),
+							param = {
+								pdbGrado: ts.down('#comboGrados').getValue(),
+								pdbJorn: ts.down('#comboJornadas').getValue(),
+								pdbGrupo: ts.down('#comboGrupo').getValue(),
+								pdbSede: ts.down('#comboSedes').getValue(),
+								pdbAll: 0,
+								pdbPer: values.periodo
+							};
+						const {school, profile} = AuthToken.recoverParams();
+						const dt	= new Date();
+						param.schoolId	= school.id || 0;
+						param.profileId	= profile.id || 0;
+						param.year     	= school.year || dt.getFullYear();
+						ts.mask('Procesando petición...');
                         Ext.Ajax.request({
-                            url     : Global.getUrlBase() + 'reports/get_generate_libro',
+                            url     : Global.getApiUrl() + '/promotion/generate-final-report',
                             params  : param,
                             timeout : 0,
+							headers : {
+								'Authorization' : (AuthToken) ? AuthToken.authorization() : ''
+							},
                             success: function(response, opts) {
                                 me.showResult('Se ha generado el libro.');
                             },

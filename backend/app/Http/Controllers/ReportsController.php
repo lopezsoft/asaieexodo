@@ -10,6 +10,12 @@ use Illuminate\Http\Request;
 
 class ReportsController extends Controller
 {
+
+    public function getFinalCertificate(Request $request): \Illuminate\Http\JsonResponse
+    {
+        return FinalReport::getFinalCertificate($request);
+    }
+
     public function getFinalSavannas(Request $request): \Illuminate\Http\JsonResponse
     {
         return MinutesPromotion::getFinalSavannas($request);

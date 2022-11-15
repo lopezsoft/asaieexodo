@@ -16,6 +16,7 @@ Ext.define('Admin.model.general.ConstanciasModel',{
         { name: 'year_from',   type : 'int'},
         { name: 'year_until',   type : 'int'},
         { name: 'show_number',   type : 'int'},
+        { name: 'show_number_message'},
         { name: 'type',   type : 'int'}
     ]
 });

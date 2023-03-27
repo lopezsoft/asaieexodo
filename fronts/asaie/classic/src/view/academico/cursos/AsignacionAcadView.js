@@ -46,7 +46,7 @@ Ext.define('Admin.view.academico.AsignacionAcadView',{
                                     readonlyIndexes	: ['note'],
                                     disableIndexes	: ['pctChange'],
                                     minChars		: 1,
-                                    mode            : 'local',
+                                    mode            : 'remote',
                                     flex			: 1,
                                     autoFocus		: true,
                                     independent		: true
@@ -76,14 +76,6 @@ Ext.define('Admin.view.academico.AsignacionAcadView',{
                                 }
                             },
                             dockedItems : [
-                                {
-                                    xtype   : 'customToolbar',
-                                    items   :[
-                                        {
-                                            xtype   : 'ContainerListData'
-                                        }
-                                    ]
-                                },
                                 {
                                     xtype 		: 'pagination',
                                     itemId		: 'pToolbar',

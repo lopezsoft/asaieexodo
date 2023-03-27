@@ -7,10 +7,10 @@ Ext.define('Admin.store.admin.DirGrupoStore',{
             pdbGrado    : 0
         },
         api: {
-            create  : 'master/insertData',
-            read    : 'master/getGroupDirectorByGrade',
-            update  : 'master/updateData',
-            destroy : 'master/deleteData'
+            create  : 'crud',
+            read    : 'group-director/getGroupDirectorByGrade',
+            update  : 'update',
+            destroy : 'crud'
         }
     },
     requires: [

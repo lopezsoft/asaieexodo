@@ -1,7 +1,20 @@
 export interface  School {
-  statecode: string;
-  nameschool: string;
-  lockdate: string;
+  id: number;
+  school_id: number;
+  state: number;
+  user_id: number;
+  active: boolean;
+  school: {
+    id: number;
+    country_id: number;
+    database_name: string;
+    folder_name: string;
+    lockdate: string;
+    nameschool: string;
+    state: number;
+    statecode: string;
+    active: boolean;
+  }
 }
 
 export interface User {
@@ -10,9 +23,10 @@ export interface User {
   password?: string;
   first_name: string;
   last_name: string;
-  user_name?: string;
+  fullname?: string;
   avatar: string;
   active?: boolean;
+  schools : School[];
 }
 
 export interface AccessToken {
@@ -21,5 +35,4 @@ export interface AccessToken {
   message       : string;
   user          : User;
   success       : boolean;
-  school        : School;
 }

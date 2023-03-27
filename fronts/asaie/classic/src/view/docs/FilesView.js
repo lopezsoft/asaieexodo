@@ -17,7 +17,7 @@ Ext.define('Admin.view.docs.FilesView',{
     config  : {
         pathReadFile    : '',
         pathUploadFile  : '',
-        pathDeleteFile  : 'General/delete_file',
+        pathDeleteFile  : 'files/delete',
         titlePanelLoad  : AppLang.getSButtonLoadFile(),
         titlePanelView  : AppLang.getSButtonMyFiles(),
         textButtonLoad  : AppLang.getSButtonSelectFile(),
@@ -25,8 +25,8 @@ Ext.define('Admin.view.docs.FilesView',{
         extraParams     : {}
     },
     constructor : function (config) {
-        var me  = this;
-        // Requires a configuration
+		const me = this;
+		// Requires a configuration
         if (Ext.isEmpty(config)) {
             Ext.Error.raise('Se necesita una configuración!');
             return false;
@@ -55,22 +55,22 @@ Ext.define('Admin.view.docs.FilesView',{
             api = {};
         this.setTitle(AppLang.getSTitleSelectFile());
         if (Ext.isEmpty(me.getPathReadFile())){
-            Ext.Error.raise('Debe proporcinar una ruta para la lectura de los archivos! - pathReadFile');
+            Ext.Error.raise('Debe proporcionar una ruta para la lectura de los archivos! - pathReadFile');
             return false;
         }
         if (Ext.isEmpty(me.getPathUploadFile())){
-            Ext.Error.raise('Debe proporcinar una ruta para la subida de los archivos! - pathUploadFile');
+            Ext.Error.raise('Debe proporcionar una ruta para la subida de los archivos! - pathUploadFile');
             return false;
         }
         if (Ext.isEmpty(me.getPathDeleteFile())){
-            Ext.Error.raise('Debe proporcinar una ruta para la eliminación de los archivos! - pathDeleteFile');
+            Ext.Error.raise('Debe proporcionar una ruta para la eliminación de los archivos! - pathDeleteFile');
             return false;
         }
         api = {
             create  : '',
             read    : me.pathReadFile,
             update  : '',
-            destroy : me.pathDeleteFile
+            destroy : me.getPathDeleteFile()
         };
         prox.setApi(api);
         prox.setExtraParams(me.extraParams);
@@ -124,14 +124,14 @@ Ext.define('Admin.view.docs.FilesView',{
                                 buttonText  : me.textButtonLoad,
                                 listeners   : {
                                     change: function (tf, value, eOpts) {
-                                        var form = tf.up('#FrmImg').getForm(),
-                                            win = tf.up('window'),
-                                            val = form.getValues(),
-                                            rec = form.getRecord(),
-                                            xParam  = me.extraParams,
-                                            app     = Admin.getApplication(),
-                                            xFoto   = Global.getUrlBase() + me.pathUploadFile;
-                                        Ext.define('Ext.ux.data.Html5Connection', {
+										const form = tf.up('#FrmImg').getForm(),
+											win = tf.up('window'),
+											val = form.getValues(),
+											rec = form.getRecord(),
+											xParam = me.extraParams,
+											app = Admin.getApplication(),
+											xFoto = Global.getApiUrl() + '/' + me.pathUploadFile;
+										Ext.define('Ext.ux.data.Html5Connection', {
                                             override: 'Ext.data.Connection',
                                             overrideAccept: true,
                                             isHtml5Supported: function () {
@@ -190,21 +190,24 @@ Ext.define('Admin.view.docs.FilesView',{
                                             }
                                         });
                                         if (form.isValid()) {
+											const {school, profile}	= AuthToken.recoverParams();
+											const dt			= new Date();
+											xParam.schoolId  	= school.id || 0;
+											xParam.profileId  	= profile.id || 0;
+											xParam.year  		= school.year || dt.getFullYear();
                                             form.submit({
                                                 url     : xFoto,
                                                 params  : xParam,
-                                                waitMsg : 'Subiendo foto...',
+                                                waitMsg : 'Subiendo archivo...',
+												headers: {
+													'Authorization' : (AuthToken) ? AuthToken.authorization() : ''
+												},
                                                 success: function (fp, o) {
-                                                    var img = win.down('#imgPhoto'),
-                                                        btn = win.down('#btnApply'),
-                                                        r   = o.result,
-                                                        imgUrl  = '';
-                                                    if (r.type == 1) {
-                                                        imgUrl  = r.foto;
-                                                    }else {
-                                                        imgUrl  = 'assets/img/files/128/'+r.format+'.png';
-                                                    }
-                                                    img.setSrc(imgUrl);
+													const img = win.down('#imgPhoto'),
+														btn = win.down('#btnApply'),
+														r = o.result,
+														imgUrl = 'assets/img/files/128/' + r.format + '.png';
+													img.setSrc(imgUrl);
                                                     me.fireEvent('afterupload',me,r);
                                                     btn.setDisabled(false);
                                                     store   = Ext.getStore('ImageBrowserStore');
@@ -216,7 +219,8 @@ Ext.define('Admin.view.docs.FilesView',{
                                                     Ext.Msg.updateProgress(progress)
                                                 },
                                                 failure: function (fp, o) {
-                                                    app.onAler(o.response.responseText);
+													const response	= JSON.parse(o.response.responseText);
+                                                    app.onAler(response.error || response.message);
                                                 }
                                             });
                                         }
@@ -248,7 +252,6 @@ Ext.define('Admin.view.docs.FilesView',{
                                     {
                                         xtype       : 'TextField',
                                         name        : 'filter',
-                                        // fieldLabel  : 'Filtrar',
                                         labelWidth  : 50,
                                         flex        : 1,
                                         listeners: {
@@ -261,43 +264,55 @@ Ext.define('Admin.view.docs.FilesView',{
                                         xtype   : 'customButton',
                                         iconCls : 'x-fa fa-refresh',
                                         handler  : function (btn) {
-                                            var
-                                                store   = Ext.getStore('ImageBrowserStore');
-                                            store.reload();
+											const store = Ext.getStore('ImageBrowserStore');
+											store.reload();
                                         }
                                     },'-',
                                     {
                                         xtype       : 'deletebutton',
                                         iconAlign   : 'left',
                                         handler     : function (btn) {
-                                            var cbtn = btn,
-                                                me	 = Admin.getApplication();
+                                            const cbtn = btn,
+                                                app	 = Admin.getApplication();
 
                                             Ext.Msg.show({
-                                                title	: 'Elimiar datos',
+                                                title	: 'Eliminar archivo',
                                                 message	: 'Desea eliminar el archivo?',
                                                 buttons	: Ext.Msg.YESNO,
                                                 icon	: Ext.Msg.QUESTION,
                                                 fn: function(btn) {
                                                     if (btn === 'yes') {
-                                                        me.onMsgWait();
-                                                        var grid 	= cbtn.up('window').down('#Browser'),
-                                                            records = grid.getSelection();
-
-                                                            store 	= grid.getStore() ;
-                                                        store.remove(records);
-                                                        store.sync({
-                                                            success : function (b, o) {
-                                                                me.onMsgClose();
-                                                                me.showResult('Se ha realizado la acción de borrado');
-                                                                store.reload();
-                                                            },
-                                                            failure : function (b, o) {
-                                                                me.onMsgClose();
-                                                                me.showResult('No se ha realizado la acción de borrado');
-                                                                store.reload();
-                                                            }
-                                                        });
+														app.onMsgWait();
+														const grid = cbtn.up('window').down('#Browser'),
+															records = grid.getSelection()[0];
+														const {school, profile}	= AuthToken.recoverParams();
+														store 	= grid.getStore() ;
+														Ext.Ajax.request({
+															url     : Global.getApiUrl() + '/' + me.getPathDeleteFile() + '/1',
+															method	: 'DELETE',
+															headers: {
+																'Authorization' : (AuthToken) ? AuthToken.authorization() : ''
+															},
+															params: {
+																schoolId  	: school.id || 0,
+																profileId   : profile.id || 0,
+																year        : school.year || dt.getFullYear(),
+																pathFile	: records.id,
+															},
+															success : function (response) {
+																app.onMsgClose();
+																app.showResult('Se ha realizado la acción de borrado');
+																store.reload();
+															},
+															failure: function (response, opts) {
+																app.onMsgClose();
+																app.showResult('No se ha realizado la acción de borrado');
+																store.reload();
+															},
+															callback    : function (r, e) {
+																app.onMsgClose();
+															}
+														});
                                                     }
                                                 }
                                             });
@@ -331,9 +346,8 @@ Ext.define('Admin.view.docs.FilesView',{
                             text    : me.textButtonApply,
                             iconCls : 'x-fa fa-check-square-o',
                             handler: function (btn) {
-                                var
-                                    app = Admin.getApplication();
-                                // app.onCloseWin(btn);
+								const app = Admin.getApplication();
+								// app.onCloseWin(btn);
                                 me.fireEvent('apply',me);
                             }
                         }, '-',
@@ -359,12 +373,12 @@ Ext.define('Admin.view.docs.FilesView',{
      * Called whenever the user types in the Filter textfield. Filters the DataView's store
      */
     filter: function(field, newValue) {
-        var view = this.down('ImageBrowserView'),
-            store = view.getStore(),
-            selModel = view.getSelectionModel(),
-            selection = selModel.getSelection()[0];
+		const view = this.down('ImageBrowserView'),
+			store = view.getStore(),
+			selModel = view.getSelectionModel(),
+			selection = selModel.getSelection()[0];
 
-        store.getFilters().replaceAll({
+		store.getFilters().replaceAll({
             property: 'name',
             anyMatch: true,
             value   : newValue
@@ -378,16 +392,15 @@ Ext.define('Admin.view.docs.FilesView',{
      * Called whenever the user clicks on an item in the DataView. This tells the info panel in the east region to
      * display the details of the image that was clicked on
      */
-    onIconSelect: function(dataview, selections) {
-        var selected = selections[0],
-            bd  = this.down('#deletebutton');
-            bd.setDisabled(!selected),
-            me  = this;
+    onIconSelect: function(dataView, selections) {
+		const selected = selections[0],
+			bd = this.down('#deletebutton');
+			bd.setDisabled(!selected);
+            const me  = this;
         if (selected) {
             this.down('InfoPanel').loadRecord(selected);
-            var
-                btn = this.down('#btnApply');
-            btn.setDisabled(false);
+			const btn = this.down('#btnApply');
+			btn.setDisabled(false);
             me.fireEvent('afterselect',me,selected);
         }
     },
@@ -396,17 +409,17 @@ Ext.define('Admin.view.docs.FilesView',{
      * Fires the 'selected' event, informing other components that an image has been selected
      */
     fireImageSelected: function() {
-        var selectedImage = this.down('ImageBrowserView').selModel.getSelection()[0];
-        if (selectedImage) {
+		const selectedImage = this.down('ImageBrowserView').selModel.getSelection()[0];
+		if (selectedImage) {
             this.fireEvent('selected', selectedImage);
             this.hide();
         }
     },
 
     afterRender: function () {
-        var me = this;
+		const me = this;
 
-        me.callParent(arguments);
+		me.callParent(arguments);
 
         me.syncSize();
 
@@ -430,10 +443,10 @@ Ext.define('Admin.view.docs.FilesView',{
     },
 
     syncSize: function () {
-        var width = Ext.Element.getViewportWidth(),
-            height = Ext.Element.getViewportHeight();
+		const width = Ext.Element.getViewportWidth(),
+			height = Ext.Element.getViewportHeight();
 
-        // We use percentage sizes so we'll never overflow the screen (potentially
+		// We use percentage sizes so we'll never overflow the screen (potentially
         // clipping buttons and locking the user in to the dialog).
 
         this.setSize(Math.floor(width * 0.9), Math.floor(height * 0.9));

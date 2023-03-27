@@ -7,7 +7,7 @@ Ext.define('Admin.view.academico.NivelacionesPeriodicas',{
     itemId      : 'NivelacionesPerView',
     initComponent: function () {
         this.callParent(arguments);
-        this.setTitle('Actividades de apoyo preriódicas - '+ Global.getYear());
+        this.setTitle('Actividades de apoyo periódicas - '+ Global.getYear());
     },
     
     items   : [
@@ -27,7 +27,6 @@ Ext.define('Admin.view.academico.NivelacionesPeriodicas',{
                     readonlyIndexes	: ['note'],
                     disableIndexes	: ['pctChange'],
                     minChars		: 1,
-                    mode            : 'local',
                     flex			: 1,
                     autoFocus		: true,
                     independent		: true
@@ -69,9 +68,8 @@ Ext.define('Admin.view.academico.NivelacionesPeriodicas',{
                             disabled: true,
                             itemId  : 'btnNotas',
                             handler : function (btn) {
-                                var	
-                                    select	= btn.up('window').down('grid').getSelection()[0];
-                                stitle	= 'Actividades de apoyo - '+select.get('nombres');
+								const select = btn.up('window').down('grid').getSelection()[0];
+								let stitle = 'Actividades de apoyo - ' + select.get('nombres');
                                 Ext.create('Admin.view.academico.NivelacionesPeriodicasView',{
                                     title   : stitle,
                                     record  : select

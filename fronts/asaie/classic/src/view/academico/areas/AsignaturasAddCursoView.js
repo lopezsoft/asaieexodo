@@ -24,8 +24,7 @@ Ext.define('Admin.view.academico.AsignaturasAddCursoView' ,{
                 ptype			: 'gridSearch',
                 readonlyIndexes	: ['note'],
                 disableIndexes	: ['pctChange'],
-                minChars		: 1,
-                mode            : 'local',
+                minChars		: 3,
                 flex			: 1,
                 autoFocus		: true,
                 independent		: true
@@ -40,13 +39,13 @@ Ext.define('Admin.view.academico.AsignaturasAddCursoView' ,{
             {
                 text        : 'Área',
                 dataIndex   : 'area',
-                width       : 300,
+                flex       	: 1,
                 filter      : 'list'
             },
             {
                 text        : 'Asignatura',
                 dataIndex   : 'asignatura',
-                width       : 300,
+                flex 		: 1,
                 filter      : 'string'
             },
             {
@@ -74,37 +73,45 @@ Ext.define('Admin.view.academico.AsignaturasAddCursoView' ,{
                                 cCount	    = 0,
                                 store       = Ext.getStore('MatCursoStore');
 
-                            if (!Ext.isEmpty(selectGrado)) {
-                                if (selectAsig.length > 0){
-                                    win.el.mask('Guardando…', 'x-mask-loading');
-                                    for (cCount = 0; cCount < selectGrado.length; cCount++) {
-                                        cCountLog = 0;
-                                        for (cCountLog = 0; cCountLog < selectAsig.length; cCountLog++) {
-                                            data = {
-                                                id_grado	: selectGrado[cCount].get('id'),
-                                                id_asig     : selectAsig[cCountLog].get('id_asign'),
-                                                ih          : 1,
-                                                estado      : 1
-                                            };
-                                            store.insert(0, data);
-                                        }
-                                    }
-                                    store.sync({
-                                        success: function () {
-                                            win.el.unmask();
-                                            me.showResult('Se guardaron los datos correctamente');
-                                            store.reload();
-                                        },
-                                        failure: function () {
-                                            me.showResult('No se guardaron los datos correctamente')
-                                        }
-                                    });
-                                }else {
-                                    me.showResult('Debe seleccionar al menos una asignatura para guardar.');
-                                }
-                            }else{
-                                me.showResult('Para realizar esta operación debe seleccionar al menos un grado.');
-                            }
+							let cCountLog;
+							let data;
+							if (!Ext.isEmpty(selectGrado)) {
+								if (selectAsig.length > 0) {
+									win.el.mask('Guardando…', 'x-mask-loading');
+									const {school} 	= AuthToken.recoverParams();
+									const dt		= new Date()
+									const year		= school.year || dt.getFullYear();
+									for (cCount = 0; cCount < selectGrado.length; cCount++) {
+										cCountLog = 0;
+										for (cCountLog = 0; cCountLog < selectAsig.length; cCountLog++) {
+											data = {
+												id_grado: selectGrado[cCount].get('id'),
+												id_asig: selectAsig[cCountLog].get('id_asign'),
+												ih: 1,
+												estado: true,
+												year: year
+											};
+											store.insert(0, data);
+										}
+									}
+									store.sync({
+										success: function () {
+											win.el.unmask();
+											me.showResult('Se guardaron los datos correctamente');
+											store.reload();
+										},
+										failure: function () {
+											me.showResult('No se guardaron los datos correctamente');
+											store.reload();
+											win.el.unmask();
+										}
+									});
+								} else {
+									me.showResult('Debe seleccionar al menos una asignatura para guardar.');
+								}
+							} else {
+								me.showResult('Para realizar esta operación debe seleccionar al menos un grado.');
+							}
                         }
                     },'->',
                     {

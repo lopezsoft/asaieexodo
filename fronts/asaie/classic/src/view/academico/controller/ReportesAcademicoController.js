@@ -80,7 +80,7 @@ Ext.define('Admin.view.academico.controller.ReportesAcademicoController',{
         switch (name){
             case  'FamiliaresRepView'  :
                 var
-                    url     = 'reports/report_familiares',
+                    url     = 'reports/family-members',
                     param   = {
                         pdbGrado    : win.down('#comboGrados').getValue() || 0,
                         pdbJorn     : win.down('#comboJornadas').getValue() || 0,
@@ -91,7 +91,7 @@ Ext.define('Admin.view.academico.controller.ReportesAcademicoController',{
                 break;
             case  'FechaNacView'  :
                 var
-                    url     = 'reports/report_fechas_nac',
+                    url     = 'reports/birth-dates',
                     param   = {
                         pdbGrado    : win.down('#comboGrados').getValue(),
                         pdbJorn     : win.down('#comboJornadas').getValue(),
@@ -102,13 +102,13 @@ Ext.define('Admin.view.academico.controller.ReportesAcademicoController',{
                 break;
             case  'ListaDocentesView'  :
                 var
-                    url     = 'reports/report_listas_docentes',
+                    url     = 'reports/teachers-list',
                     grid    = win.down('grid'),
                     param   = {};
                 break;
             case  'AsignacionAcadView'  :
                 var
-                    url     = 'reports/report_listas_asignacion_acad',
+                    url     = 'reports/academic-allocation',
                     grid    = win.down('grid'),
                     param   = {
                         pdbGrado    : win.down('#comboGrados').getValue(),
@@ -118,7 +118,7 @@ Ext.define('Admin.view.academico.controller.ReportesAcademicoController',{
                 break;
             case  'CtrlNotasCargaView'  :
                 var
-                    url     = 'reports/report_listas_con_carga',
+                    url     = 'reports/lists-with-load',
                     values  = win.down('grid').getSelection()[0],
                     param   = {
                         pdbDocente  : values.get('id_docente'),
@@ -128,7 +128,7 @@ Ext.define('Admin.view.academico.controller.ReportesAcademicoController',{
                 break;
             case  'CtrlNotasView'  :
                 var
-                    url     = 'reports/report_listas_sin_carga',
+                    url     = 'reports/lists-without-load',
                     param   = {
                         pdbGrado    : win.down('#comboGrados').getValue(),
                         pdbJorn     : win.down('#comboJornadas').getValue(),
@@ -140,7 +140,7 @@ Ext.define('Admin.view.academico.controller.ReportesAcademicoController',{
                 break;
             case  'FichaMatriculaView'  :
                 var
-                    url     = 'reports/report_ficha_matricula',
+                    url     = 'reports/enrollment-sheet',
                     param   = {
                         pdbGrado    : win.down('#comboGrados').getValue(),
                         pdbJorn     : win.down('#comboJornadas').getValue(),
@@ -152,11 +152,11 @@ Ext.define('Admin.view.academico.controller.ReportesAcademicoController',{
                 break;
             case  'EstadisticaEdadesView'  :
                 var
-                    url     = 'reports/report_estadistica_edades';
+                    url     = 'reports/statistics-by-ages';
                 break;
             case  'MatriculadosView'  :
                 var
-                    url     = 'reports/report_matriculados',
+                    url     = 'reports/students-enrolled',
                     param   = {
                         pdbGrado    : win.down('#comboGrados').getValue(),
                         pdbJorn     : win.down('#comboJornadas').getValue(),
@@ -167,11 +167,11 @@ Ext.define('Admin.view.academico.controller.ReportesAcademicoController',{
                 break;
             case  'DesplazadosView'  :
                 var
-                    url     = 'reports/report_desplazados';
+                    url     = 'reports/displaced-students';
                 break;
             case  'EstudiantesJornadasView'  :
                 var
-                    url     = 'reports/report_estudiantes_jorn';
+                    url     = 'reports/students-per-day';
                 break;
             default :
                 var

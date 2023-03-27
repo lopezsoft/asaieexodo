@@ -41,7 +41,7 @@ Ext.define('Admin.view.academico.inscripciones.InscripcionesView',{
             ts.buildWindow();
         }
         form = ts.winObject.down('form');
-        if (btn.itemId == 'editButton') {
+        if (btn.itemId === 'editButton') {
             form.loadRecord(data);
             form.down('#FsMatricula').setHidden(true);
             form.down('#comboSedes').allowBlank = true;
@@ -98,20 +98,20 @@ Ext.define('Admin.view.academico.inscripciones.InscripcionesView',{
                             store       : 'InscripcionesStore',
                             listeners   : {
                                 'selectionchange': function(mo, selected, eOpts) {
-                                    var 
-                                        me  = Admin.getApplication(),
-                                        ts  = this;
-                                    if (selected[0]) {
-                                        xparam = {
-                                            id_student : selected[0].get('id'),
-                                            pdbTable: 'student_enrollment'
-                                        };
-                                    } else {
-                                        xparam = {
-                                            id_student  : 0,
-                                            pdbTable    : 'student_enrollment'
-                                        };                        
-                                    }
+									const me = Admin.getApplication(),
+										ts = this;
+									let xparam;
+									if (selected[0]) {
+										xparam = {
+											id_student: selected[0].get('id'),
+											pdbTable: 'student_enrollment'
+										};
+									} else {
+										xparam = {
+											id_student: 0,
+											pdbTable: 'student_enrollment'
+										};
+									}
                                     me.setParamStore('HistorialStore', xparam, true);
                                     ts.up('window').down('#tab2').setDisabled(!selected);
                                 }
@@ -127,10 +127,34 @@ Ext.define('Admin.view.academico.inscripciones.InscripcionesView',{
                                     filter      : 'string'
                                 },
                                 {
-                                    text        : 'Apellidos y nombres',
-                                    dataIndex   : 'nombres',
-                                    width       : 300,
-                                    filter      : 'string'
+                                    text        : 'Apellidos',
+									columns		: [
+										{
+											text 		: 'Primer',
+											dataIndex   : 'apellido1',
+											filter      : 'string'
+										},
+										{
+											text 		: 'Segundo',
+											dataIndex   : 'apellido2',
+											filter      : 'string'
+										}
+									]
+                                },
+								{
+                                    text        : 'Nombres',
+									columns		: [
+										{
+											text 		: 'Primer',
+											dataIndex   : 'nombre1',
+											filter      : 'string'
+										},
+										{
+											text 		: 'Segundo',
+											dataIndex   : 'nombre2',
+											filter      : 'string'
+										}
+									]
                                 },
                                 {
                                     text        : 'Documento',
@@ -187,23 +211,23 @@ Ext.define('Admin.view.academico.inscripciones.InscripcionesView',{
                                                 xparam  = {
                                                     pdbTable    : 'extra_inscripciones',
                                                     where       : '{"id_inscripcion" : "'+record.get('id')+'"}'
-                                                },
+                                                };
                                                 app.setParamStore('ExtraInscripcionesStore',xparam,false);
                                                 ts.mask(AppLang.getSMsgLoading());
                                                 store.load({
                                                     scope: this,
                                                     callback: function(records, operation, success) {
                                                         ts.unmask();
-                                                        if (success){
-                                                            win = Ext.create('Admin.view.academico.inscripciones.ExtraInscripciones');
-                                                            var
-                                                                form = win.down('form');
-                                                            if (records.length == 1) {
-                                                                form.loadRecord(records[0]);
-                                                            }
-                                                            win.setRecord(record);
-                                                            win.setAlwaysOnTop(true).show();
-                                                        };
+														let win;
+														if (success) {
+															win = Ext.create('Admin.view.academico.inscripciones.ExtraInscripciones');
+															const form = win.down('form');
+															if (records.length === 1) {
+																form.loadRecord(records[0]);
+															}
+															win.setRecord(record);
+															win.setAlwaysOnTop(true).show();
+														}
                                                     }
                                                 });
                                             },
@@ -214,7 +238,7 @@ Ext.define('Admin.view.academico.inscripciones.InscripcionesView',{
                                             xtype       : 'customButton',
                                             tooltip     : 'Familiares asignados al estudiante',
                                             iconCls     : 'x-fa fa-users',
-                                            text        : 'Agregar',
+                                            text        : 'Familiares',
                                             itemId      : 'btnFamil',
                                             disabled  	: true,
                                             handler     : 'onFamiliesStudent'
@@ -222,7 +246,7 @@ Ext.define('Admin.view.academico.inscripciones.InscripcionesView',{
                                         {
                                             xtype       : 'customButton',
                                             tooltip     : 'Crear Familiares',
-                                            text        : 'Crear',
+                                            text        : 'Crear Familiares',
                                             iconCls     : 'x-fa fa-users',
                                             handler     : 'onFamilies'
                                         },
@@ -234,12 +258,12 @@ Ext.define('Admin.view.academico.inscripciones.InscripcionesView',{
                                             iconCls     : 'x-fa fa-book',
                                             handler     : 'onViewArchivos'
                                         },
-                                        {
+                                        /*{
 											xtype       : 'btnWebcam',
 											iconCls		: 'far fa-images',
-											tooltip		: 'Imaganes del estudiante',
+											tooltip		: 'Imágenes del estudiante',
                                             handler		: 'onViewWebcam'
-                                        },
+                                        },*/
                                         {
                                             xtype   : 'customButton',
                                             ui      : 'soft-green',
@@ -289,7 +313,7 @@ Ext.define('Admin.view.academico.inscripciones.InscripcionesView',{
                                     width   : 25
                                 },
                                 {
-                                    text        : 'CÓDIGO',
+                                    text        : 'Código',
                                     dataIndex   : 'id',
                                     width       : 85,
                                     filter      : 'string'
@@ -326,13 +350,13 @@ Ext.define('Admin.view.academico.inscripciones.InscripcionesView',{
                                 {
                                     text        : 'Sede',
                                     dataIndex   : 'sede',
-                                    width       : 200,
+                                    flex 		: 1,
                                     filter      : 'string'
                                 },
                                 {
                                     text        : 'Estado',
                                     dataIndex   : 'name_state',
-                                    width       : 100,
+                                    width       : 120,
                                     filter      : 'string'
                                 },
                                 {
@@ -380,21 +404,19 @@ Ext.define('Admin.view.academico.inscripciones.InscripcionesView',{
                                                 var cbtn = btn,
                                                     me	 = Admin.getApplication();
                                                 Ext.Msg.show({
-                                                    title	: 'Elimiar matricula',
+                                                    title	: 'Eliminar matricula',
                                                     message	: 'Desea eliminar esta matricula?',
                                                     buttons	: Ext.Msg.YESNO,
                                                     icon	: Ext.Msg.QUESTION,
                                                     fn: function(btn) {
                                                         if (btn === 'yes') {
                                                             me.onMsgWait();
-                                                            var grid 	= cbtn.up('#gridMat'),
+                                                            const grid 	= cbtn.up('#gridMat'),
                                                                 records = grid.getSelectionModel().getSelection(),
-                                                                store 	= grid.getStore(),
-                                                                extra	= {};
-                                                            extra		= me.getParamStore('HistorialStore');
+                                                                store 	= grid.getStore();
+                                                            let extra		= me.getParamStore('HistorialStore');
                                                             extra.pdbForce = 0;
                                                             me.setParamStore('HistorialStore',extra);
-                                                            extra	= {};
                                                             store.remove(records);
                                                             store.sync({
                                                                 success : function (b, o) {
@@ -415,13 +437,14 @@ Ext.define('Admin.view.academico.inscripciones.InscripcionesView',{
                                         },'-',
                                         {
                                             xtype   : 'deletebutton',
+											hidden  : true,
                                             text	: 'Forzar borrado',
                                             itemId	: 'btnDeleteForce',
                                             handler : function (btn) {
                                                 var cbtn = btn,
                                                     me	 = Admin.getApplication();
                                                 Ext.Msg.show({
-                                                    title	: 'Elimiar matricula',
+                                                    title	: 'Eliminar matricula',
                                                     message	: 'Desea eliminar esta matricula y sus respectivas notas?',
                                                     buttons	: Ext.Msg.YESNO,
                                                     icon	: Ext.Msg.QUESTION,

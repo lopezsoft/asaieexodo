@@ -1,50 +1,35 @@
-<div class="content-wrapper">
-	<div class="card">
-		<div class="card-header"><strong>{{ title | uppercase }}</strong></div>
-	</div>
-  <div class="content-detached">
-    <div class="content-body">
-      <!-- E-commerce Head Section Starts -->
-			<app-custom-cards-header [total]="total" [records]="records" [total]="total" [useImport]="useImport" [useOtherButton]="useOtherButton"
-				[textOtherButton]="textOtherButton" [faOtherButton] ="faOtherButton"
-				(createData)="createData()" (onOtherButton)="onOtherButton()" (importData)="importData()" (refreshCarsd)="refreshCarsd()"
-				[gridViewRef]="gridViewRef" (listView)="listView()" (gridView)="gridView()" (searchQuery)="searchQuery($event)">
-			</app-custom-cards-header>
-
-      <!-- E-commerce Head Section Starts -->
-
-      <section id="ecommerce-products" [ngClass]="gridViewRef === true ? 'grid-view' : 'list-view'">
-				<div class="card ecommerce-card" *ngFor="let user of records">
-					<!-- Ecommerce Item -->
-					<div class="item-img text-center">
-						<a  href="javascript:void(0)" (click)="editData(user)">
-							<img class="img-fluid card-img-top" [src]="appUrl+user.avatar" fallimg="user" alt="img-placeholder" />
-						</a>
-					</div>
-					<div class="card-body">
-						<div class="item-cost">
-							<h6 class="item-price"> {{ user.email}}</h6>
-						</div>
-						<div class="item-cost">
-							<h6 class="item-price"> {{ user.user_type }}</h6>
-						</div>
-						<h6 class="item-name">
-							<a class="text-body"  href="javascript:void(0)" (click)="editData(user)"> {{ user.first_name }}</a>
-						</h6>
-						<p class="card-text item-description">
-							{{ user.last_name }}
-						</p>
-					</div>
-					<app-custom-cards-body (deleteData)="deleteData(product)" (editData)="editData(user)"></app-custom-cards-body>
-					<!--/ Ecommerce Item -->
-				</div>
-      </section>
-      <!-- E-commerce Products Ends -->
-
-      <!-- E-commerce Pagination Starts -->
-      <app-custom-cards-footer [pageNum]="pageNum" [total]="total" (onPageChange)="onPageChange($event)" [maskSpinner]="maskSpinner">
-			</app-custom-cards-footer>
-      <!-- E-commerce Pagination Ends -->
+<exodo-grid #exodoGrid class="w-100"
+            [caption]="title"
+            [columns]="eColumns"
+            [showPagination]="true"
+            mode="remote"
+            *ngIf="user.isRolAccess()"
+>
+    <div class="d-flex justify-content-end w-100 mb-1" header>
+      <div class="form-group w-100 mr-1">
+        <label>Escuela</label>
+        <ng-select (change)="onChangeSchool($event)">
+          <ng-container *ngFor="let school of user.schoolList">
+            <ng-option  [value]="school.id">
+              {{ school.statecode }} - {{ school.nameschool }}
+            </ng-option>
+          </ng-container>
+        </ng-select>
+      </div>
+      <button class="btn btn-success btn-sm" (click)="createData()" [disabled]="gService.loading">
+        <i class="fa fa-plus mr-1 fas-fa-22"></i>
+        {{ 'buttons.new' | translate }}
+      </button>
     </div>
+</exodo-grid>
+<block-ui></block-ui>
+
+<ng-container  *ngIf="!user.isRolAccess()">
+<div class="card w-100 h-100">
+  <div class="card-body w-100">
+    <span class="text-black-50">
+      Sin permiso para acceder.
+    </span>
   </div>
 </div>
+</ng-container>

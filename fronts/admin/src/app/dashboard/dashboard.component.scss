@@ -1,0 +1,26 @@
+
+.card-module {
+  padding: 0.5em;
+  display: flex;
+  width: 100%;
+  color: #2556a3 !important;
+  cursor: pointer;
+  .card-icon {
+    padding: 0.25em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+    vertical-align: middle;
+    font-size: 3rem;
+    color: #2556a3;
+  }
+
+  .card-content {
+    display: flex;
+    flex-direction: column;
+    span {
+      text-transform: uppercase;
+    }
+  }
+}

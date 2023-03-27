@@ -13,10 +13,10 @@ Ext.define('Admin.store.general.ColumnasNotasCompetenciasStore', {
             pdbTable : 'columnas_notas_competencias'
         },
         api: {
-            create  : 'General/insert_data',
-            read    : 'General/get_select_columnas_notas_competencias',
-            update  : 'General/update_data',
-            destroy : 'General/delete_data'
+            create  : 'crud',
+            read    : 'settings/competencies/columns-notes',
+            update  : 'crud',
+            destroy : 'crud'
         }
     }
 });

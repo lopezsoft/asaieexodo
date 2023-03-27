@@ -18,48 +18,43 @@ Ext.define('Admin.view.admin.forms.SaveSchoolHeadquarters',{
 					items 	: [
 						{
 							fieldLabel  : 'Nombre',
-							name        : 'NOMBRE_SEDE'
+							name        : 'headquarters_name'
 						},
 						{
 							xtype       : 'CbCiudades',
 							fieldLabel  : 'Ciudad o Municipio',
-							name		: 'ID_CITY'
+							name		: 'city_id'
 						},
 						{
 							fieldLabel  : 'Dirección',
-							name        : 'DIRECCION_SEDE'
+							name        : 'address'
 						},
 						{
 							fieldLabel  : 'Barrio Inspección',
-							name        : 'BARRIO'
+							name        : 'suburd'
 						},
 						{
 							xtype		: 'CbZona',
-							name		: 'ID_ZONA'
-						},
-						{
-							fieldLabel	: 'FAX',
-							name		: 'FAX',
-							allowBlank 	: true
+							name		: 'zone_id'
 						},
 						{
 							fieldLabel	: 'Teléfonos',
-							name		: 'TELEFONOS_SEDE',
+							name		: 'phones',
 							allowBlank 	: true
 						},
 						{
 							fieldLabel	: 'Correo electrónico',
-							name		: 'EMAIL',
+							name		: 'email',
 							allowBlank 	: true
 						},
 						{
 							xtype		: 'CbADesicion',
-							name		: 'PRINCIPAL',
+							name		: 'is_main',
 							fieldLabel	: 'Sede principal'
 						},
 						{
 							xtype		: 'CbPoblacionAtendida',
-							name		: 'ID_SEXO',
+							name		: 'sex_id',
 							fieldLabel	: 'Género de población atendida'
 						}
 					]

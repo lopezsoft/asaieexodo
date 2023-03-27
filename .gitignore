@@ -4,6 +4,10 @@
 /storage/*.key
 /vendor
 .env
+.zip
+/.zip
+/backend/.zip
+/front/.zip
 .env.backup
 .phpunit.result.cache
 docker-compose.override.yml
@@ -14,3 +18,7 @@ yarn-error.log
 /.idea
 /.vscode
 /backend/nbproject/private/
+/backend/public/
+/backend/public/*
+/backend/public/hot
+/backend/public/storage

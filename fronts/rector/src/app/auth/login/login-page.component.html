@@ -1,0 +1,84 @@
+<!--Login Page Starts-->
+<section>
+  <div class="auth-wrapper auth-v2">
+    <div class="auth-inner row m-0">
+      <!-- Brand logo--><a class="brand-logo" href="javascript:void(0);">
+        <img src="{{ coreConfig.app.appLogoImage }}" alt="brand-logo" height="28" />
+        <h2 class="brand-text text-primary ml-1">{{ coreConfig.app.appName }}</h2>
+      </a>
+      <!-- /Brand logo-->
+      <!-- Left Text-->
+      <div class="d-none d-lg-flex col-lg-8 align-items-center p-5">
+        <div class="w-100 d-lg-flex align-items-center justify-content-center px-5">
+          <img class="img-fluid" [src]="
+            coreConfig.layout.skin === 'dark'
+              ? 'assets/images/pages/login-v2-dark.svg'
+              : 'assets/images/pages/login-v2.svg'
+          " alt="Login V2" />
+        </div>
+      </div>
+      <!-- /Left Text-->
+      <!-- Login-->
+      <div class="d-flex col-lg-4 align-items-center auth-bg px-2 p-lg-5">
+        <div class="col-12 col-sm-8 col-md-6 col-lg-12 px-xl-2 mx-auto">
+          <h1 class="text-break text-center" style="font-size: 24px;">
+            <strong>{{ 'login.headerForm' | translate }}</strong><br></h1>
+          <form [formGroup]="customForm">
+            <div class="form-group">
+              <input #focusElement class="form-control" type="text" [placeholder]="placeholderUserName"
+                required formControlName="email" [class.is-invalid]="isInvalid('email')" autofocus>
+              <div *ngIf="isInvalid('email')" class="help-block mt-1 text-danger"> <i
+                  class="ft-alert-circle align-middle"></i> <span>
+                  {{ 'general.isRequired' | translate }} </span>
+              </div>
+            </div>
+            <div class="form-group">
+              <input class="form-control" type="password" name="password" [placeholder]="placeholderPassw" required=""
+                formControlName="password" [class.is-invalid]="isInvalid('password')">
+              <div *ngIf="isInvalid('password')" class="help-block mt-1 text-danger"> <i
+                  class="ft-alert-circle align-middle"></i>
+                {{ 'general.isRequired' | translate }}
+              </div>
+            </div>
+            <div class="form-group">
+                <div class="custom-control custom-checkbox">
+                  <input type="checkbox" formControlName="remember_me" class="custom-control-input" id="remember_me">
+                  <label class="custom-control-label" for="remember_me"><span>{{ 'login.rememberMe' | translate }}</span></label>
+                </div>
+            </div>
+            <button class="btn btn-info btn-block btn-lg" type="submit" (click)="onSubmit()" [disabled]="loading">
+              <strong *ngIf="!loading">{{ 'login.button.startNow' | translate }}</strong>
+              <strong *ngIf="loading">{{ 'login.button.loggingIn' | translate }}</strong>
+              <i [ngClass]="{'fa-sign-in-alt':!loading, 'fa-spinner fa-spin':loading }" class="fas"
+                style="text-align: left;padding-left: 10px;">
+              </i>
+            </button>
+            <label
+              style="padding: 2px;font-size: 12px;">{{ 'login.label.youHaveNotRegistered' | translate }}
+              <a
+                [routerLink]="['/auth/register']"><strong>{{ 'login.label.createAccount' | translate }}</strong>
+							</a>
+            </label>
+            <br>
+            <label
+              style="padding: 2px;font-size: 12px;">{{ 'login.label.forgotYourPassword' | translate }}
+              <a
+                [routerLink]="['/auth/forgotpassword']"><strong>{{ 'login.label.recoverPassword' | translate }}</strong>
+							</a>
+            </label>
+          </form>
+          <!-- <hr> -->
+          <div class="d-flex justify-content-between align-items-center">
+            <!-- <h6 class="text-primary m-0">Or Login With</h6> -->
+            <div class="login-options">
+							<a class="btn btn-sm btn-social-icon btn-facebook mr-1"><span class="fa fa-facebook"></span></a>
+							<a class="btn btn-sm btn-social-icon btn-twitter mr-1"><span class="fa fa-twitter"></span></a>
+						</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<ngx-spinner> <p style="color: white" > {{ maskSpinner }} </p></ngx-spinner>
+<!--Login Page Ends-->

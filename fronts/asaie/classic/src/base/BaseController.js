@@ -428,12 +428,17 @@ Ext.define('Admin.base.BaseController', {
 
     onGenReport: function (btn, url, param) {
         var me  	= this,
-            cUrl	= Global.getUrlBase() + url,
+            cUrl	= Global.getApiUrl() +'/' + url,
             vMask;
         vMask = btn.up('window');
         if (Ext.isEmpty(vMask)){
+            vMask   = btn.up('form');
+        }
+
+		if (Ext.isEmpty(vMask)){
             vMask   = btn.up('grid');
         }
+		let xFormat = '';
         switch(btn.itemId){
             case 'btnHtml':
                 xFormat = 'html';
@@ -460,7 +465,7 @@ Ext.define('Admin.base.BaseController', {
                 xFormat = 'pdf';
                 break;
         }
-        xParam  = param;
+        const xParam  = param;
         Object.defineProperty(xParam,'pFormat',{
                 value : xFormat,
                 writable: true,
@@ -469,15 +474,23 @@ Ext.define('Admin.base.BaseController', {
             });
         if(!Ext.isEmpty(url)) {
             if (!Ext.isEmpty(vMask)) {
-               // vMask.el.mask('Cargando reporte...')
+                vMask.el.mask('Generando reporte...');
             }
+			const {school, profile}	= AuthToken.recoverParams();
+			const dt			= new Date();
+			xParam.schoolId  	= school.id || 0;
+			xParam.profileId   	= profile.id || 0;
+			xParam.year        	= school.year || dt.getFullYear();
             Ext.Ajax.request({
                 timeout : 120000000,
                 url: cUrl,
                 params: xParam,
+				headers: {
+					'Authorization' : (AuthToken) ? AuthToken.authorization() : ''
+				},
                 success: function (response) {
-                    result = Ext.decode(response.responseText);
-                    me.getIframe(result.path_report, xFormat);
+					let result = Ext.decode(response.responseText);
+                    me.getIframe(result.pathFile, xFormat);
                 },
                 failure: function (response) {
                     me.app.onError('No se pueden cargar los datos');

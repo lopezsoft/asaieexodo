@@ -6,19 +6,15 @@ import { NouisliderModule } from 'ng2-nouislider';
 
 import { NgFallimgModule } from 'ng-fallimg';
 
-import { QuillModule } from 'ngx-quill';
-
 import { NgxMaskModule, IConfig } from 'ngx-mask';
+import {ExodolibsModule} from "exodolibs";
 
 export const options: Partial<IConfig> | (() => Partial<IConfig>) = null;
 
 import { CoreCommonModule } from '@core/common.module';
 import { CoreSidebarModule } from '@core/components';
 import { CoreTouchspinModule } from '@core/components/core-touchspin/core-touchspin.module';
-
 import { ContentHeaderModule } from 'app/layout/components/content-header/content-header.module';
-
-
 
 import {
   FooterFormComponent,
@@ -28,14 +24,8 @@ import {
 } from './index';
 
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
-
 import { NgSelectModule } from '@ng-select/ng-select';
-
-
-
 import { NgxDocViewerModule } from 'ngx-doc-viewer';
-
-
 import { NgxCurrencyModule } from "ngx-currency";
 import { UiSwitchModule } from 'ngx-ui-switch';
 
@@ -51,17 +41,13 @@ export const customCurrencyMaskConfig = {
   nullable: true
 };
 import { NgxSpinnerModule } from 'ngx-spinner';
-
-
+import { BlockUIModule } from 'ng-block-ui';
 /*
   * Translation
 */
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { HttpClient } from '@angular/common/http';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
-
-
-
 @NgModule({
   exports: [
     FooterFormComponent,
@@ -73,6 +59,7 @@ import { TranslateHttpLoader } from '@ngx-translate/http-loader';
     ReactiveFormsModule,
     NgSelectModule,
     NgxSpinnerModule,
+    BlockUIModule,
     NgbPaginationModule,
     NgbModule,
     NouisliderModule,
@@ -82,10 +69,10 @@ import { TranslateHttpLoader } from '@ngx-translate/http-loader';
     NgFallimgModule,
     TranslateModule,
     NgxDocViewerModule,
-    QuillModule,
     ContentHeaderModule,
     FormsModule,
     NgxMaskModule,
+    ExodolibsModule,
   ],
   declarations: [
     FooterFormComponent,
@@ -97,8 +84,8 @@ import { TranslateHttpLoader } from '@ngx-translate/http-loader';
     CommonModule,
     UiSwitchModule,
     NgxCurrencyModule.forRoot(customCurrencyMaskConfig),
-    QuillModule.forRoot(),
     NgxMaskModule.forRoot(),
+    BlockUIModule.forRoot(),
     ContentHeaderModule,
     FormsModule,
     ReactiveFormsModule,
@@ -111,6 +98,7 @@ import { TranslateHttpLoader } from '@ngx-translate/http-loader';
     CoreSidebarModule,
     CoreCommonModule,
     NgFallimgModule,
+    ExodolibsModule,
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,

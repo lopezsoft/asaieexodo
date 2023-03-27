@@ -3,10 +3,10 @@ Ext.define('Admin.store.admin.SchoolStore',{
     storeId : 'SchoolStore',
     proxy: {
         api: {
-            create  : 'admin/school',
-            read    : 'admin/school/read',
-            update  : 'admin/school/update',
-            destroy : 'admin/school'
+            create  : 'school/create',
+            read    : 'school/read',
+            update  : 'school/update',
+            destroy : 'school/destroy',
         }
     },
     requires: [

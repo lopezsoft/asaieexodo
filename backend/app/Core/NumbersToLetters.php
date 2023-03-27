@@ -76,7 +76,7 @@ class NumbersToLetters
         $decimal    = strpos(strval($value),',');
         if($decimal){
             return 'Formato incorrecto, cambie la COMA por  un PUNTO';
-        };
+        }
         $decimal    = strpos(strval($value),'.');
         if($decimal){
             $decVal     = substr($value,$decimal + 1);
@@ -88,7 +88,7 @@ class NumbersToLetters
 
         if(strlen($realNumber) > 12){
             return 'Supera el valor soportado.';
-        };
+        }
 
         $A1         = floatval(substr($realNumber, 9,3));
         $A2         = floatval(substr($realNumber, 6,3));
@@ -168,6 +168,9 @@ class NumbersToLetters
             case 3 :
                 $Result = $this->getHundreds($number);
                 break ;
+            default :
+                $Result = '';
+                break ;
         }
 
         return $Result;
@@ -183,11 +186,12 @@ class NumbersToLetters
     /**
      *  read tens - Lee las decenas
      */
-    private function getTens(int $NValue = 0){
+    private function getTens(int $NValue = 0): string
+    {
         $NDesc  = 0;
         $NUnit  = 0;
         $Result = '';
-        if($NValue == 0) return $Result;
+        if($NValue == 0){return $Result;}
         $NDesc = $NValue;
         $NUnit = intval(substr(strval($NValue),1,1));
         if ($NDesc > 10 && $NDesc < 20){
@@ -212,12 +216,16 @@ class NumbersToLetters
     /**
      * read hundreds - Leer centenas
     */
-    private function getHundreds (int $NValue = 0){
+    private function getHundreds (int $NValue = 0): string
+    {
         $NCent = 0;
         $NDesc = 0;
         $NUnit = 0;
         $Result= '';
-        if ($NValue == 0) return $Result;
+        if($NValue == 0){
+            return $Result;
+        }
+
         $NCent = intval(substr(strval($NValue),0,1)); // Centena
         $NDesc = intval(substr(strval($NValue),1,1)); // Descena
         $NUnit = intval(substr(strval($NValue),2,1)); // Unidad
@@ -245,6 +253,8 @@ class NumbersToLetters
                 break;
             case 9 : $Result = $this->UNITS[92];
                 break;
+            default:
+                break;
         }
         if (($NUnit > 0 && $NUnit < 10) && $NDesc == 0){
             $Result = $Result.$this->NumberSPACE.$this->getUnits($NUnit);  // Units - Unidades
@@ -254,7 +264,5 @@ class NumbersToLetters
 
         return $Result;
     }
-
-
 }
 

@@ -2,16 +2,17 @@
 
 namespace App\Models;
 
-use Laravel\Passport\HasApiTokens;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Notifications\Notifiable;
+use App\Models\User\SchoolUser;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Passport\HasApiTokens;
+use Illuminate\Auth\Passwords\CanResetPassword;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
-    use HasApiTokens, HasFactory, Notifiable;
-
+    use HasApiTokens, HasFactory, Notifiable, CanResetPassword;
     protected $fillable = [
         'first_name',
         'last_name',
@@ -23,51 +24,38 @@ class User extends Authenticatable
     ];
 
     protected $appends = [
-        'year',
-        'database',
-        'statecode',
         'fullname',
+        'name',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
+    protected $with = [
+        'schools',
+    ];
+
     protected $hidden = [
         'password',
         'remember_token',
         'created_at',
         'updated_at',
-        'year',
-        'database',
-        'statecode'
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
-        'email_verified_at' => 'datetime',
+        'email_verified_at' => 'datetime:d-m-Y H:i:s a',
     ];
 
-    function getFullnameAttribute(): string
+    public function getNameAttribute(): string
     {
-        return $this->first_name." ".$this->last_name;
+        return "{$this->first_name} {$this->last_name}";
     }
 
-    function getStatecodeAttribute() {
-
+    public function getFullNameAttribute(): string
+    {
+        return "{$this->first_name} {$this->last_name}";
     }
 
-    function getDatabaseAttribute() {
-        $query  = DB::select("SELECT a.database_name FROM schools AS a LEFT JOIN school_users AS b ON a.id = b.school_id WHERE b.user_id = ? LIMIT 1", [$this->id]);
-        return $query[0]->database_name;
+    public function schools(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(SchoolUser::class, 'user_id', 'id');
     }
 
-    function getYearAttribute() {
-
-    }
 }

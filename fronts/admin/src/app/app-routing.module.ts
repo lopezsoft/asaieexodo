@@ -13,33 +13,8 @@ const routes: Routes = [
     canActivate: [AuthGuard]
   },
   {
-    path: 'administrative',
-    loadChildren: () => import('./Administrative/Administrative.module').then(m => m.AdministrativeModule),
-    canActivate: [AuthGuard]
-  },
-  {
-    path: 'academic',
-    loadChildren: () => import('./Academic/Academic.module').then(m => m.AcademicModule),
-    canActivate: [AuthGuard]
-  },
-  {
-    path: 'promotion',
-    loadChildren: () => import('./Promotion/Promotion.module').then(m => m.PromotionModule),
-    canActivate: [AuthGuard]
-  },
-  {
-    path: 'reports',
-    loadChildren: () => import('./Reports/Reports.module').then(m => m.ReportsModule),
-    canActivate: [AuthGuard]
-  },
-  {
-    path: 'elections',
-    loadChildren: () => import('./Vote/Vote.module').then(m => m.VoteModule),
-    canActivate: [AuthGuard]
-  },
-  {
-    path: 'settings',
-    loadChildren: () => import('./Settings/Settings.module').then(m => m.SettingsModule),
+    path: 'user',
+    loadChildren: () => import('./users/users.module').then(m => m.UsersModule),
     canActivate: [AuthGuard]
   },
   {

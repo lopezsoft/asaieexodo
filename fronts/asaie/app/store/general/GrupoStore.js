@@ -8,6 +8,6 @@ Ext.define('Admin.store.general.GrupoStore',{
         { name : 'grupo'}
     ],
     proxy: {
-        url	: 'General/get_grupos'
+        url	: 'grades/groups'
     }
 });

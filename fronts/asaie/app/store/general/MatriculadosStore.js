@@ -10,10 +10,10 @@ Ext.define('Admin.store.general.MatriculadosStore',{
             pdbTable : 'student_enrollment'
         },
         api: {
-            create  : '',
-            read    : 'General/get_select_matriculados',
-            update  : 'General/update_data',
-            destroy : 'General/delete_data'
+            create  : 'crud',
+            read    : 'students/enrollment',
+            update  : 'crud',
+            destroy : 'crud'
         }
     },
     requires: [

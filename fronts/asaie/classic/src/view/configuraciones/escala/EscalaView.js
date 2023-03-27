@@ -63,14 +63,13 @@ Ext.define('Admin.view.configuraciones.EscalaView',{
 							tooltip: 'Asignar grupo de grados',
 							iconCls: 'x-fa fa-pencil',
 							handler: function (grid, rowIndex, colIndex) {
-								var	win		= grid.up('window'),
-									rec 	= grid.getStore().getAt(rowIndex),
-									me	= Admin.getApplication();
-								var
-									btn1	= win.down('#btnSave'),
-									btn2	= win.down('#btnUndoAs'),
-									win2	= Ext.create('Admin.view.configuraciones.GradosEscalaView'),
-									form	= win2.down('form');
+								const win = grid.up('window'),
+									rec = grid.getStore().getAt(rowIndex),
+									me = Admin.getApplication();
+								const btn1 = win.down('#btnSave'),
+									btn2 = win.down('#btnUndoAs'),
+									win2 = Ext.create('Admin.view.configuraciones.GradosEscalaView'),
+									form = win2.down('form');
 								if (btn1.isDisabled()) {
 									btn1.setDisabled(false);
 								}
@@ -86,14 +85,13 @@ Ext.define('Admin.view.configuraciones.EscalaView',{
 							tooltip: 'Asignar escala nacional',
 							iconCls: 'x-fa fa-pencil',
 							handler: function (grid, rowIndex, colIndex) {
-								var	win		= grid.up('window'),
-									rec 	= grid.getStore().getAt(rowIndex),
-									me	= Admin.getApplication();
-								var
-									btn1	= win.down('#btnSave'),
-									btn2	= win.down('#btnUndoAs'),
-									win2	= Ext.create('Admin.view.configuraciones.EscalaNacionalInView'),
-									form	= win2.down('form');
+								const win = grid.up('window'),
+									rec = grid.getStore().getAt(rowIndex),
+									me = Admin.getApplication();
+								const btn1 = win.down('#btnSave'),
+									btn2 = win.down('#btnUndoAs'),
+									win2 = Ext.create('Admin.view.configuraciones.EscalaNacionalInView'),
+									form = win2.down('form');
 								if (btn1.isDisabled()) {
 									btn1.setDisabled(false);
 								}
@@ -109,9 +107,8 @@ Ext.define('Admin.view.configuraciones.EscalaView',{
 							tooltip: 'Eliminar',
 							iconCls: 'x-fa fa-minus',
 							handler: function (grid, rowIndex, colIndex) {
-								var	win		= grid.up('window'),
-									rec 	= grid.getStore().getAt(rowIndex),
-									me	= Admin.getApplication();
+								const rec = grid.getStore().getAt(rowIndex),
+									me = Admin.getApplication();
 								me.onRecordDelete(rec,'EscalaStore');
 							}
 						}
@@ -217,10 +214,16 @@ Ext.define('Admin.view.configuraciones.EscalaView',{
 							xtype		: 'addButton',
 							iconAlign	: 'left',
 							handler		: function (btn) {
-								var
-									win     = btn.up('window'),
-									store   = win.down('grid').getStore();
-								store.insert(0,{periodo : '1'});
+								const win = btn.up('window'),
+									store = win.down('grid').getStore();
+								const {school} 	= AuthToken.recoverParams();
+								const dt		= new Date();
+								const data		= {
+									id 		: 0,
+									periodo : '1',
+									year	: school.year || dt.getFullYear
+								};
+								store.insert(0, data);
 								win.down('grid').setSelection(0);
 							}
 						},'-',

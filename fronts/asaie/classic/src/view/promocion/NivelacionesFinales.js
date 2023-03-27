@@ -27,7 +27,6 @@ Ext.define('Admin.view.promocion.NivelacionesFinales',{
                     readonlyIndexes	: ['note'],
                     disableIndexes	: ['pctChange'],
                     minChars		: 1,
-                    mode            : 'local',
                     flex			: 1,
                     autoFocus		: true,
                     independent		: true
@@ -47,8 +46,8 @@ Ext.define('Admin.view.promocion.NivelacionesFinales',{
             ],
             listeners : {
                 'selectionchange': function(grid, selected, eOpts) {
-                    var me = this;
-                    if (me.up('window').down('#btnActa')) {
+					const me = this;
+					if (me.up('window').down('#btnActa')) {
                         me.up('window').down('#btnActa').setDisabled(!selected.length);
                     }
                     if (me.up('window').down('#btnNotas')) {
@@ -83,17 +82,24 @@ Ext.define('Admin.view.promocion.NivelacionesFinales',{
                             disabled: true,
                             itemId  : 'btnActa',
                             handler : function (btn) {
-                                var
-                                    win     = btn.up('window'),
-                                    grid    = win.down('grid'),
-                                    me      = Admin.getApplication();
-                                win.mask('Generando...');
+								const win = btn.up('window'),
+									grid = win.down('grid'),
+									me = Admin.getApplication();
+								const {school, profile} = AuthToken.recoverParams();
+								const dt	= new Date();
+								win.mask('Generando...');
                                 Ext.Ajax.request({
-                                    url     : Global.getUrlBase()  +  'recuperaciones/get_act_apoyo_finales',
+                                    url     : Global.getApiUrl()  +  '/promotion/generate-support-activities',
                                     timeout : 0,
+									headers	: {
+										'Authorization' : (AuthToken) ? AuthToken.authorization() : ''
+									},
                                     params  : {
                                         pdbDocente  : grid.getSelection()[0].get('id_docente'),
-                                        pdbType     : win.down('#CkNoct').getValue() ? 1 : 0
+                                        pdbType     : win.down('#CkNoct').getValue() ? 1 : 0,
+										schoolId	: school.id || 0,
+										profileId	: profile.id || 0,
+										year		: school.year || dt.getFullYear()
                                     },
                                     success: function(response, opts) {
                                         me.showResult('Se ha realizado el proceso correctamente.');
@@ -113,16 +119,15 @@ Ext.define('Admin.view.promocion.NivelacionesFinales',{
                             iconCls : 'x-fa fa-plus',
                             disabled: true,
                             handler : function (btn) {
-                                var
-                                    win = btn.up('window'),
-                                    grid= win.down('grid'),
-                                    me  = Admin.getApplication();
+								const win = btn.up('window'),
+									grid = win.down('grid'),
+									me = Admin.getApplication();
 
-                                me.onStore('docentes.RecuperacionesFinalesStore');
-                                param   = {
-                                    pdbDocente  : grid.getSelection()[0].get('id_docente'),
-                                    pdbTable    : 'respeciales'
-                                };
+								me.onStore('docentes.RecuperacionesFinalesStore');
+								let param = {
+									pdbDocente: grid.getSelection()[0].get('id_docente'),
+									pdbTable: 'respeciales'
+								};
                                 me.setParamStore('RecuperacionesFinalesStore',param,false);
                                 Ext.create('Admin.view.docentes.RecuperacionesFinalesView').show();
                             },

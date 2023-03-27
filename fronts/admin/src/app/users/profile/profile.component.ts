@@ -1,88 +1,112 @@
-import { NgxSpinnerService } from 'ngx-spinner';
 import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { FormBuilder } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import {FormBuilder, Validators} from '@angular/forms';
 
-import { TranslateService } from '@ngx-translate/core';
-import { HttpServerService, MessagesService } from './../../utils';
-
-import { UserTypes } from './../../models/users-model';
 import { UsersService } from '../../services/users/users.service';
-import { UsersEditComponent } from '../users-edit/users-edit.component';
+import {FormComponent} from "../../core/components/forms";
+import {GlobalService} from "../../core/common/global.service";
+import {TranslateService} from "@ngx-translate/core";
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss']
 })
-export class ProfileComponent extends UsersEditComponent implements OnInit, AfterViewInit {
+export class ProfileComponent extends FormComponent implements OnInit, AfterViewInit {
   @ViewChild('uploadFile') uploadFile: ElementRef;
   @ViewChild('imgUp') imgUp: ElementRef;
   @ViewChild('focusElement') focusElement: ElementRef;
 
-  userTypes: UserTypes[] = [];
   title = 'Perfil de usuario';
   constructor(
     public fb: FormBuilder,
-    public api: HttpServerService,
-    public msg: MessagesService,
-    public router: Router,
-    public translate: TranslateService,
-    public aRouter: ActivatedRoute,
-    public spinner: NgxSpinnerService,
+    public gService: GlobalService,
     public usersSer: UsersService,
+    public translate: TranslateService,
   ) {
-    super(fb, api, msg, router, translate, aRouter, spinner, usersSer);
+      super(fb, gService, translate);
+      this.customForm = this.fb.group({
+          first_name     : ['',[Validators.required, Validators.minLength(3)]],
+          last_name      : ['',[Validators.required, Validators.minLength(3)]],
+          active         : [true, [Validators.required]],
+          email          : ['', [Validators.pattern('^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$'), Validators.required]]
+      });
   }
 
-  ngOnInit(): void {
-    super.ngOnInit();
+    // VALIDATION
+    get rf() {
+        return this.customForm.controls;
+    }
+
+    get invalidFirstName(): boolean{
+        return this.isInvalid('first_name');
+    }
+
+    get invalidLastName(): boolean{
+        return this.isInvalid('last_name');
+    }
+
+    get invalidEmail() {
+        return this.isInvalid('email');
+    }
+
+    get placeholderEmail(): string {
+        return this.gService.translate.instant('placeholder.email');
+    }
+
+    ngOnInit(): void {
+        super.ngOnInit();
+        this.PutURL   = '/auth/user/update/';
+        this.PostURL  = '/auth/user/create';
 		this.loadData();
   }
+    ngAfterViewInit(): void {
+        super.ngAfterViewInit();
+        this.hideSpinner();
+    }
 
-	loadData(id: any = 0): void {
-    const ts    = this;
-    const frm   = ts.customForm;
-    ts.getCurrentUser();
-    ts.usersSer.getProfile()
+    loadData(id: any = 0): void {
+    const frm   = this.customForm;
+    this.getCurrentUser();
+    this.usersSer.getProfile()
 		.subscribe({
-			next:(resp) => {
+			next:(resp: any) => {
 				localStorage.setItem('oldRoute', '/');
-				ts.editing  = true;
-				ts.hideSpinner();
-				ts.uid  = resp[0].id;
+				this.editing  = true;
+				this.hideSpinner();
+				this.uid  = resp.id;
 				frm.setValue({
-					type_id     : resp[0].type_id,
-					first_name  : resp[0].first_name,
-					last_name   : resp[0].last_name,
-					active      : resp[0].active,
-					email       : resp[0].email,
+					first_name  : resp.first_name,
+					last_name   : resp.last_name,
+					active      : resp.active,
+					email       : resp.email,
 				});
-				ts.upCurrentUser({
-						firstName : resp[0].first_name,
-						avatar    : resp[0].avatar,
-						id        : resp[0].id,
-						email     : resp[0].email,
-						lastName  : ts.currentUser.lastName,
-						role      : ts.currentUser.role
-				});
-				ts.imgData              = resp[0].avatar ? `${ts.api.getAppUrl()}${resp[0].avatar}` : '';
+                this.imgData    = `${this.gService.http.getAppUrl()}${resp.avatar}`;
 			},
 			error: ()=> { 
-				ts.hideSpinner();
+				this.hideSpinner();
 			}
 		});
   }
 
+    onResetForm() {
+        let frm   = this.customForm;
+        super.onResetForm(frm);
+        frm.setValue({
+            first_name  : '',
+            last_name   : '',
+            active      : true,
+            email       : '',
+        });
+        this.imgData = null;
+    }
   onAfterSave(resp: any){
     super.onAfterSave(resp);
-    const ts    = this;
-    ts.upCurrentUser({
-        avatar    : resp.records.avatar,
-        id        : resp.records.id,
-        email     : resp.records.email,
-        lastName  : ts.currentUser.lastName,
-        firstName : ts.currentUser.firstName,
-        role      : ts.currentUser.role
+    this.upCurrentUser({
+        avatar    : resp.user.avatar,
+        id        : resp.user.id,
+        email     : resp.user.email,
+        lastName  : this.currentUser.lastName,
+        firstName : this.currentUser.firstName,
+        role      : this.currentUser.role
     });
     setTimeout(() => {
         window.location.reload();

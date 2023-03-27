@@ -62,7 +62,7 @@ Ext.define('Admin.view.academico.CtrlNotasCargaView',{
                                     readonlyIndexes	: ['note'],
                                     disableIndexes	: ['pctChange'],
                                     minChars		: 1,
-                                    mode            : 'local',
+                                    mode            : 'remote',
                                     flex			: 1,
                                     autoFocus		: true,
                                     independent		: true
@@ -94,9 +94,7 @@ Ext.define('Admin.view.academico.CtrlNotasCargaView',{
                                 {
                                     xtype   : 'customToolbar',
                                     items   :[
-                                        {
-                                            xtype   : 'ContainerListData'
-                                        },'->',
+                                        '->',
                                         {
                                             xtype   : 'closebutton'
                                         }

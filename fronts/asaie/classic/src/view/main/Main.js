@@ -22,15 +22,17 @@ Ext.define('Admin.view.main.Main', {
         render: 'onMainViewRender'
     },
     initComponent: function () {
-        let 
+		const params	= AuthToken.recoverParams();
+		const dt		= new Date();
+        let
             me          = this,
             treeStore   = 'NavigationTree',
-            nameApp     = AppLang.getSMainMenu()
+            nameApp     = AppLang.getSMainMenu(),
             reports     = [],
-            user  		= AuthToken.recoverParams().user,
-            membership  = AuthToken.recoverParams().membership,
-            schoolData  = AuthToken.recoverParams().school;
+            user  		= params.user,
+            schoolData  = params.school;
 			Global.setYear(schoolData.year);
+		const {profile}	= params;
         me.items = [
             {
                 xtype   : 'toolbar',
@@ -44,14 +46,14 @@ Ext.define('Admin.view.main.Main', {
 					},
 					{
 						xtype       : 'label',
-						cls			: (membership.state == 1) ? 'membership-text-active' : 'membership-text-inactive', 
-						text 		: (membership.state == 1) ? 'cuenta activa hasta: ' + membership.lockdate : 'cuenta inactiva'
+						cls			: (schoolData.state === 1) ? 'membership-text-active' : 'membership-text-inactive',
+						text 		: (schoolData.state === 1) ? 'cuenta activa hasta: ' + schoolData.lockdate : 'cuenta inactiva'
 					},
                     '->',
                     {
                         xtype   : 'tbtext',
                         cls     : 'name-text',
-                        text    : (schoolData.school_name) ? schoolData.school_name : 'Escuela Demo'
+                        text    : (schoolData && schoolData.nameschool) ? schoolData.nameschool : 'Escuela Demo'
                     },
                     {
                         xtype   : 'image',
@@ -89,7 +91,7 @@ Ext.define('Admin.view.main.Main', {
                         xtype		: 'yearField',
                         allowBlank	: false,
                         name		: 'year',
-                        value       : (schoolData) ? (schoolData.year) : 0,
+                        value       : (schoolData) ? (schoolData.year) : dt.getFullYear(),
                         width       : 85,
                         fieldLabel  : '',
                         hideTrigger	: false,
@@ -105,7 +107,7 @@ Ext.define('Admin.view.main.Main', {
 						}
                     },
                     '->',
-                    ,'-',
+                    '-',
                     {
                         xtype       : 'badgebutton',
                         badgeCls    : 'x-btn-badgeCls-green',
@@ -137,7 +139,7 @@ Ext.define('Admin.view.main.Main', {
                         xtype   : 'tbtext',
                         cls     : 'top-user-name',
                         itemId  :'btnUser',
-                        text    : (user) ? (user.fullname) : 'Demo'
+                        text    : (user) ? (user.fullname+' - ' + profile.profile_name.toUpperCase() || '') : 'Demo'
                     },
                     {
                         xtype   : 'image',
@@ -146,7 +148,7 @@ Ext.define('Admin.view.main.Main', {
                         width   : 32,
                         alt     : AppLang.getSToolTipUserProfile(),
                         itemId  : 'imgUser',
-                        src     : (Ext.isEmpty(user.avatar)) ? Global.getAvatarUnknoun() : user.avatar,
+                        src     : (Ext.isEmpty(user.avatar)) ? Global.getAvatarUnknoun() : Global.getUrlBase() + user.avatar,
                         imgCls  : 'avatar-background',
                         tooltip : AppLang.getSToolTipUserProfile()
                     },
@@ -204,6 +206,5 @@ Ext.define('Admin.view.main.Main', {
             }
         ];
         me.callParent(arguments);
-
     }
 });

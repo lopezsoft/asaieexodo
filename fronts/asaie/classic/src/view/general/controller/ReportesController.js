@@ -7,7 +7,7 @@ Ext.define('Admin.view.general.controller.ReportesController',{
         me.setConfigVar();
     },
     /**
-     * Funcion para setear los datos que se enviar al servidor para lamar el reporte.
+     * Funcion para setear los datos que se envía al servidor para lamar el reporte.
      * @param btn
      */
     onSetReport: function(btn){
@@ -15,7 +15,7 @@ Ext.define('Admin.view.general.controller.ReportesController',{
 
 		switch (xtype) {
 			case 'generarcarnets':
-				var url     = 'reports/carnets_esc',
+				var url     = 'reports/school-carnes',
 					ts      = btn.up('window'),
 					tab		= ts.down('customtab').getActiveTab(),
 					param	= {};
@@ -30,7 +30,7 @@ Ext.define('Admin.view.general.controller.ReportesController',{
 				this.onGenReport(btn,url,param);
 				break;
 			default:
-				var url     = 'reports/report_consolidado',
+				var url     = 'reports/consolidated',
 					win     = btn.up('window'),
 					values  = win.down('form').getValues(),
 					param   = {

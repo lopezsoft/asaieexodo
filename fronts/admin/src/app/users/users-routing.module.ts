@@ -2,9 +2,8 @@ import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 
 import {
+    ProfileComponent, UsersEditComponent,
     UsersListComponent,
-    UsersEditComponent,
-    ProfileComponent,
 } from "./index";
 import { UsersContainerComponent } from "./users-container.component";
 const routes: Routes = [
@@ -13,21 +12,21 @@ const routes: Routes = [
         component: UsersContainerComponent,
     },
     {
+        path: "profile",
+        component: ProfileComponent,
+    },
+    {
         path: "list",
         component: UsersListComponent,
     },
     {
-        path: "create",
-        component: UsersEditComponent,
+        path: 'create',
+        component: UsersEditComponent
     },
     {
-        path: "edit/:id",
-        component: UsersEditComponent,
-    },
-    {
-        path: "profile",
-        component: ProfileComponent,
-    },
+        path: 'edit/:id/:schoolId',
+        component: UsersEditComponent
+    }
 ];
 
 @NgModule({

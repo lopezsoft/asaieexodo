@@ -20,7 +20,7 @@ Ext.define('Admin.view.promocion.controller.PromocionController', {
         Ext.onReady(function() {
             me.onStore('general.GradosStore');
 
-            win = me.getWindow('Historial académico', 'Admin.view.promocion.HistorialAcademicoView');
+			let win = me.getWindow('Historial académico', 'Admin.view.promocion.HistorialAcademicoView');
             win.show();
         });
     },
@@ -156,22 +156,21 @@ Ext.define('Admin.view.promocion.controller.PromocionController', {
             grado = ts.down('#comboGrados').selection.get('id'),
             grupo = ts.down('#cbGrupos').selection.get('grupo'),
             jorn = ts.down('#cbJornadas').selection.get('cod_jorn'),
-            sede = ts.down('#cbSedes').selection.get('ID');
+            sede = ts.down('#cbSedes').selection.get('id');
 
         if (sel.length > 0) {
             ts.mask('Matriculando estudiantes...');
-            var
-                values = [],
-                param = {
-                    pdbList: sel
-                };
+			let values = [],
+				param = {};
 
-            sel.forEach(ele => {
+			sel.forEach(ele => {
                 data = {
                     id: ele.get('id')
                 };
                 values.push(data);
             });
+			const {school, profile}	= AuthToken.recoverParams();
+			const dt			= new Date();
             param = {
                 pdbList: Ext.encode(values),
                 pdbGrado: grado,
@@ -180,16 +179,23 @@ Ext.define('Admin.view.promocion.controller.PromocionController', {
                 pdbSede: sede
             };
 
+			param.schoolId  	= school.id || 0;
+			param.profileId   	= profile.id || 0;
+			param.year        	= school.year || dt.getFullYear();
+
             Ext.Ajax.request({
-                url: gb.getUrlBase() + 'general/get_matricular_antiguos',
+                url: Global.getApiUrl() + '/students/old-registration',
                 params: param,
+				headers: {
+					'Authorization' : (AuthToken) ? AuthToken.authorization() : ''
+				},
                 success: function(response, opts) {
                     store.reload();
                     ts.unmask();
                     me.showResult('Se han guardado los cambios.');
                 },
                 failure: function(response, opts) {
-                    me.onError('Error en el servidor, codigo del estado ' + response.status);
+                    me.onError('Error en el servidor, código del estado ' + response.status);
                 },
                 callback: function(r, e) {
                     ts.unmask();
@@ -217,14 +223,14 @@ Ext.define('Admin.view.promocion.controller.PromocionController', {
         switch (name) {
             case 'HistorialAcademicoView':
                 var
-                    url = 'reports/report_historial_academico',
+                    url = 'reports/academic-history',
                     param = {
                         pdbGrado: win.down('#comboGrados').getValue()
                     };
                 break;
             case 'SabanaFinalesView':
                 values = win.down('form').getValues(),
-                    url = 'reports/report_sabanas_finales',
+                    url = 'reports/final-savannas',
                     record = win.down('form').getValues(),
                     param = {
                         pdbSede: record.id_sede,
@@ -260,14 +266,14 @@ Ext.define('Admin.view.promocion.controller.PromocionController', {
                 break;
             case 'ActaPromocionEstaView':
                 var
-                    url = 'reports/report_actas_promocion_est',
+                    url = 'reports/minutes-promotion-statistics',
                     param = {
                         pdbType: win.down('#CkGrado').getValue() ? 1 : 0
                     };
                 break;
             case 'ActaPromocionView':
                 var
-                    url = 'reports/report_actas_promocion',
+                    url = 'reports/minutes-promotion',
                     param = {
                         pdbGrado: win.down('#comboGrados').getValue(),
                         pdbJorn: win.down('#comboJornadas').getValue(),
@@ -278,7 +284,7 @@ Ext.define('Admin.view.promocion.controller.PromocionController', {
             case 'certificadofinal':
                 var
                     values = win.getValues(),
-                    url = 'reports/report_certificado_final',
+                    url = 'reports/final-certificate',
                     grid = win.down('grid'),
                     param = {
                         pdbGrado: win.down('#comboGrados').getValue(),
@@ -296,7 +302,7 @@ Ext.define('Admin.view.promocion.controller.PromocionController', {
             case 'LibroFinalView':
                 var
                     values = win.getValues(),
-                    url = 'reports/report_libro_final',
+                    url = 'reports/final-report',
                     grid = win.down('grid');
 
                 param = {

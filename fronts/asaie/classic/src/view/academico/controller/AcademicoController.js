@@ -1,24 +1,30 @@
-/**
- * Created by LOPEZSOFT2 on 10/12/2016.
- */
+
 Ext.define('Admin.view.academico.controller.AcademicoController',{
     extend  : 'Admin.base.BaseController',
     alias   : 'controller.academico',
     init: function () {
-        me = this;
-        me.setConfigVar();
+        this.setConfigVar();
     },
     onDownloadExcelStudents : function(btn){
         let me  = Admin.getApplication(),
             app = this,
             ts  = btn.up('window');
         ts.mask('Descargando archivo...');
+		const {school, profile}	= AuthToken.recoverParams();
         Ext.Ajax.request({
-            url     : Global.getUrlBase() + 'excel_manager/download_excel_students',
-            success : function (response, opts) {
+            url     : Global.getApiUrl() + '/download/excel/template-enrollment',
+			headers: {
+				'Authorization' : (AuthToken) ? AuthToken.authorization() : ''
+			},
+			params: {
+				schoolId  	: school.id || 0,
+				profileId   : profile.id || 0,
+				year        : school.year || dt.getFullYear(),
+			},
+            success : function (response) {
                 ts.unmask();
-                var obj = Ext.decode(response.responseText);
-                if(obj.success  == true){
+				const obj = JSON.parse(response.responseText);
+				if(obj.success  === true){
                     app.onOpenUrl(obj.pathFile);
                 }else{
                     me.showResult('No se pudo descargar el archivo','error');
@@ -32,7 +38,7 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
             }
         });
     },
-    onLoadExcelStudents : function(btn){        
+    onLoadExcelStudents : function(btn){
          Ext.create({
             xtype           : 'VideoView',
             alwaysOnTop     : true,
@@ -51,7 +57,7 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
                         fieldLabel  : 'Archivo'
                     }],
                     buttons: [{
-                        text    : 'Imprtar',
+                        text    : 'Importar',
                         ui      : 'soft-green',
                         iconCls : 'x-fa fa-cloud-upload',
                         handler: function () {
@@ -119,14 +125,23 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
                             });
 
                             if (form.isValid()) {
+								const {school, profile}	= AuthToken.recoverParams();
                                 win.mask('Realizando petición');
                                 form.submit({
-                                    url     : Global.getUrlBase()   + 'excel_manager/load_excel_students',
+                                    url     : Global.getApiUrl() + '/upload/excel/template-enrollment',
                                     waitMsg : 'Cargando plantilla..',
+									headers: {
+										'Authorization' : (AuthToken) ? AuthToken.authorization() : ''
+									},
+									params: {
+										schoolId  	: school.id || 0,
+										profileId   : profile.id || 0,
+										year        : school.year || dt.getFullYear(),
+									},
                                     success: function (fp, o) {
-                                        var obj = Ext.decode(o.response.responseText);
-                                        win.unmask();
-                                        if (obj.success == true) {
+										const obj = Ext.decode(o.response.responseText);
+										win.unmask();
+                                        if (obj.success === true) {
                                             Ext.getStore('InscripcionesStore').reload();
                                             app.showResult('La plantilla se ha importado correctamente.');
                                             win.close();
@@ -140,7 +155,7 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
                                     },
                                     failure: function (f, e) {
                                         win.unmask();
-                                        app.showResult('La plantilla no se pudo importar, ocurrio un error','error');
+                                        app.showResult('La plantilla no se pudo importar, ocurrió un error','error');
                                     }
                                 });
                             }
@@ -151,7 +166,7 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
         }).show();
     },
     onNovelty : function (btn) {
-        var 
+        const
             me      = Admin.getApplication(),
             eStore  = Ext.getStore('HistorialStore'),
             data    = btn.up('window').down('#gridMat').getSelection()[0],
@@ -159,8 +174,9 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
                 pdbTable    : 'registration_novelties',
                 where       :  '{"id_register":"'+data.get('id')+'"}'
             };
-            me.setParamStore('NoveltyStore',xparam,false);
-            win = Ext.create('Admin.view.academico.inscripciones.NoveltyView');
+			me.onStore('inscripciones.NoveltyStore');
+            me.setParamStore('NoveltyStore',xparam, false);
+		let win = Ext.create('Admin.view.academico.inscripciones.NoveltyView');
             win.setRecord(data);
             win.on('cancel', function(me){
                 eStore.reload();
@@ -353,7 +369,7 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
 	},
 
 	onUpdateDocentesChange : function (btn) {
-        var 
+        var
             win     = btn.up('window'),
 			grid    = win.down('grid'),
 			record  = grid.getSelection()[0],
@@ -487,62 +503,65 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
         Ext.create('Admin.view.academico.NivelacionesPeriodicas').show();
     },
 
-    onMover : function (btn) {
-        var 
-            win     = btn.up('form'),
-            sel     = win.down('grid').getSelection(),
-            me      = Admin.getApplication(),
-            cCount  = 0,
-            data    = {},
-            valForm = win.getValues(),
-            store   = Ext.getStore('MatriculadosStore'),
-            grado   = valForm.grados_id,
-            grupo   = valForm.grupo_id,
-            jorn    = valForm.jorn_id,
-            sede    = valForm.sedes_id,
-            cgrado  = valForm.id_grado,
-            cgrupo  = valForm.grupo,
-            cjorn   = valForm.cod_jorn,
-            csede   = valForm.id_sede;
-      
-        if(sel.length > 0){
+    onMoveStudents : function (btn) {
+		let win = btn.up('form'),
+			sel = win.down('grid').getSelection(),
+			me = Admin.getApplication(),
+			cCount = 0,
+			data = {},
+			valForm = win.getValues(),
+			store = Ext.getStore('MatriculadosStore'),
+			grado = valForm.grados_id,
+			grupo = valForm.grupo_id,
+			jorn = valForm.jorn_id,
+			sede = valForm.sedes_id,
+			cgrado = valForm.id_grado,
+			cgrupo = valForm.grupo,
+			cjorn = valForm.cod_jorn,
+			csede = valForm.id_sede;
+
+		if(sel.length > 0){
             try {
                 win.mask(AppLang.getSSavingChanges());
-                if (grado == cgrado && grupo == cgrupo && jorn == cjorn && sede == csede) {
+                if (grado === cgrado && grupo === cgrupo && jorn === cjorn && sede === csede) {
                     win.unmask();
                     me.onAler('No se puede mover estudiantes al mismo, grado, grupo, sede y jornada.');
                 } else {
                     //Mover estudiantes con notas
                     if (win.down('#ckMoveNotes').getValue()) {
-                        var
-                            values = [],
-                            param = {
-                                pdbList: sel
-                            };
-                        for (cCount = 0; cCount < sel.length; cCount++) {
+						let values = [];
+						for (cCount = 0; cCount < sel.length; cCount++) {
                             data = {
                                 id_matric: sel[cCount].get('id')
                             };
                             Ext.Array.push(values, data);
                         }
-                        param = {
+						const dt	= new Date();
+						const {school, profile} = AuthToken.recoverParams();
+                        const param = {
                             pdbList     : Ext.encode(values),
                             pdbGrado    : grado,
                             pdbGrupo    : grupo,
                             pdbJorn     : jorn,
                             pdbSede     : sede,
-                            pdbGradoMove: cgrado
+                            pdbGradoMove: cgrado,
+							schoolId  	: school.id || 0,
+							profileId   : profile.id || 0,
+							year        : school.year || dt.getFullYear(),
                         };
                         Ext.Ajax.request({
-                            url: Global.getUrlBase() + 'academic/get_mover_estudiantes',
+                            url: Global.getApiUrl() + '/students/move-students',
                             params: param,
+							headers: {
+								'Authorization' : (AuthToken) ? AuthToken.authorization() : ''
+							},
                             success: function (response, opts) {
                                 store.reload();
                                 win.unmask();
                                 me.showResult(AppLang.getSChangesOk());
                             },
                             failure: function (response, opts) {
-                                me.onError('Error en el servidor, codigo del estado ' + response.status);
+                                me.onError('Error en el servidor, código del estado ' + response.status);
                             },
                             callback    : function (r, e) {
                                 win.unmask();
@@ -699,25 +718,27 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
     },
 
     onSaveCarga : function (btn) {
-        var win 	        = btn.up('window'),
-            selectAsig      = win.down('#gridMatCurso').getSelection(),
-            selectDocente   = win.down('#gridDocente').getSelection()[0],
-            me		        = Admin.getApplication(),
-            cCount	        = 0,
-            store           = Ext.getStore('CargaStore');
-        if (!Ext.isEmpty(selectAsig)) {
+		let win = btn.up('window'),
+			selectAsig = win.down('#gridMatCurso').getSelection(),
+			selectDocente = win.down('#gridDocente').getSelection()[0],
+			me = Admin.getApplication(),
+			cCount = 0,
+			store = Ext.getStore('CargaStore');
+		if (!Ext.isEmpty(selectAsig)) {
             if (!Ext.isEmpty(selectDocente)){
                 win.down('#gridDocente').el.mask('Guardando…', 'x-mask-loading');
+				const {school} 	= AuthToken.recoverParams();
+				const dt		= new Date();
                 for (cCount = 0; cCount < selectAsig.length; cCount++) {
-                    cCountLog = 0;
-                    data = {
+                    const data = {
                         id_grado   	: selectAsig[cCount].get('id_grado'),
                         id_asig     : selectAsig[cCount].get('id_asig'),
                         id_docente  : selectDocente.get('id_docente'),
-                        estado      : 1,
+                        estado      : true,
                         id_sede     : win.down('#comboSedes').getSelection().data.ID,
                         grupo       : win.down('#comboGrupo').getSelection().data.grupo,
-                        id_jorn     : win.down('#comboJornadas').getSelection().data.cod_jorn
+                        id_jorn     : win.down('#comboJornadas').getSelection().data.cod_jorn,
+						year		: school.year || dt.getFullYear()
                     };
                     store.insert(0, data);
                 }
@@ -728,7 +749,9 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
                         store.reload();
                     },
                     failure: function () {
+                        win.down('#gridDocente').el.unmask();
                         me.showResult('No se guardaron los datos correctamente')
+                        store.reload();
                     }
                 });
             }else {
@@ -842,23 +865,24 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
         });
 	},
     onViewArchivos : function (btn) {
+		const 	baseUrlSys 	= Global.getApiUrl() + '/';
         var me  = Admin.getApplication(),
             rec = btn.up('window').down('grid').getSelection()[0];
         me.onStore('docs.ImageBrowserStore');
-        var win = Ext.create({
-            xtype       : 'FilesView',
-            title       : 'Seleccionar archivo',
-            pathReadFile    : 'academic/read_files_dig_est',
-            pathUploadFile  : 'academic/upload_files_dig_est',
-            titlePanelLoad  : 'Subir archivos',
-            titlePanelView  : 'Mis archivos',
-            textButtonLoad  : 'Seleccionar una archivo en el equipo',
-            textButtonApply : 'Aceptar',
-            extraParams     : {
-                pdbCodEst   : rec.get('id')
-            }
-        });
-        win.show();
+		const win = Ext.create({
+			xtype: 'FilesView',
+			title: 'Seleccionar archivo',
+			pathReadFile	: 'download/student/read-documents',
+			pathUploadFile	: 'upload/student/upload-documents',
+			titlePanelLoad	: 'Subir archivos',
+			titlePanelView	: 'Mis archivos',
+			textButtonLoad	: 'Seleccionar una archivo en el equipo',
+			textButtonApply	: 'Aceptar',
+			extraParams: {
+				pdbStudentId: rec.get('id')
+			}
+		});
+		win.show();
     },
     onFamilies : function (btn) {
         var me = Admin.getApplication(),
@@ -905,7 +929,7 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
                 break;
             case 'fichaseguimiento' :
                 var
-                    url     = 'reports/report_ficha_observador',
+                    url     = 'reports/observer-sheet',
                     values  = win.down('grid').getSelection()[0],
                     param   = {
                         pdbGrado    : values.get('id_grade'),
@@ -931,7 +955,7 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
                 break;
             case 'CuadroHonorView' :
                 var
-                    url     = 'reports/report_cuadro_honor',
+                    url     = 'reports/honor-frame',
                     param   = {
                         pdbGrado    : win.down('#comboGrados').getValue(),
                         pdbGrupo    : win.down('#comboGrupo').getValue(),
@@ -958,7 +982,7 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
                 break;
             case 'ConstanciasView' :
                 var
-                    url     = 'reports/report_constancias',
+                    url     = 'reports/certificate',
                     values  = win.down('grid').getSelection()[0],
                     rbVal   = win.down('#rdGroup').getValue(),
                     param   = {
@@ -973,7 +997,7 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
                 break;
             case 'CertificadosView' :
                 var
-                    url     = 'reports/report_certificados_per',
+                    url     = 'reports/periodic-certificate',
                     values  = win.down('grid').getSelection()[0],
                     rbVal   = win.down('#rdGroup').getValue(),
                     param   = {
@@ -988,11 +1012,10 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
                     };
                 break;
             default :
-                var
-                    url     = 'reports/report_ficha_matricula',
+                   var url     = 'reports/enrollment-sheet',
                     values = win.down('#gridMat').getSelection()[0],
                     param   = {
-                        pdbId     : values.get('id'),           
+                        pdbId     : values.get('id'),
                         pdbYear   : values.get('year'),
                         pdbGrado  : values.get('id_grade'),
                         pdbType   : 1
@@ -1007,18 +1030,19 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
         Ext.create('Admin.view.academico.inscripciones.InscripcionesView').show();
     },
     onMatricula : function (btn) {
-        var 
-            me  = Admin.getApplication(),
-            ts  = btn.up('window');
-        var
-            data    = ts.down('#gridMat').getSelection()[0],
-            xparam  = {
-                pdbTable    : 'student_enrollment',
-                id          : btn.itemId == 'btnNewMat' ? 0 :  data.get('id')
-            },
-            store   = Ext.getStore('MatriculasStore'),
-            record  = ts.down('#studentgrid').getSelection()[0];
-        me.setParamStore('MatriculasStore',xparam,false);
+		const
+			me = Admin.getApplication(),
+			ts = btn.up('window');
+		const
+			data = ts.down('#gridMat').getSelection()[0],
+			xparam = {
+				pdbTable: 'student_enrollment',
+				id: btn.itemId === 'btnNewMat' ? 0 : data.get('id'),
+				where: `{"id": ${btn.itemId === 'btnNewMat' ? 0 : data.get('id')}}`
+			},
+			store = Ext.getStore('MatriculasStore'),
+			record = ts.down('#studentgrid').getSelection()[0];
+		me.setParamStore('MatriculasStore',xparam,false);
         ts.mask(AppLang.getSMsgLoading());
         store.load({
             scope: this,
@@ -1028,7 +1052,7 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
                     win = Ext.create('Admin.view.academico.inscripciones.forms.MatriculasFormView');
                     var
                         form = win.down('form');
-                    if (records.length == 1) {
+                    if (records.length === 1) {
                         form.loadRecord(records[0]);
                         form.down('#CbEstado').setReadOnly(true);
                         form.down('#CbEstado').setDisabled(true);
@@ -1045,7 +1069,7 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
                     }
                     win.setRecord(record);
                     win.setAlwaysOnTop(true).show();
-                };
+                }
             }
         });
     }

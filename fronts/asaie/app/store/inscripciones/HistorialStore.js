@@ -1,19 +1,16 @@
-/**
- * Created by LOPEZSOFT2 on 23/09/2016.
- */
 Ext.define('Admin.store.inscripciones.HistorialStore',{
     extend  : 'Admin.store.base.StoreApi',
     storeId : 'HistorialStore',
-    pageSize: '60',
     proxy: {
 		extraParams : {
-			pdbForce : 0
+			pdbForce 	: 0,
+			pdbTable    : 'student_enrollment'
 		},
         api: {
-            create  : '',
-            read    : 'academic/get_select_historial',
-            update  : '',
-            destroy : 'academic/get_force_delete_matricula'
+            create  : 'crud',
+            read    : 'students/academic-history',
+            update  : 'crud',
+            destroy : 'crud'
         }
     },
     requires: [

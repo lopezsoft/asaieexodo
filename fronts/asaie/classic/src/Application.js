@@ -7,8 +7,6 @@ Ext.define('Admin.Application', {
     extend: 'Ext.app.Application',
     name: 'Admin',
     requires: [
-        'Admin.sockets.data.proxy.SocketIo',
-        'Admin.sockets.Socket',
         'Ext.util.TaskRunner',
         'Admin.view.language.Es',
         'Admin.security.TokenStorage',
@@ -105,9 +103,7 @@ Ext.define('Admin.Application', {
 				const msg	= (token)	? token.user.first_name + ' ' + token.user.last_name : '';
 				toastr.success('Hola ' + msg + ', bienvenid@ al sistema de notas ASAIE ÉXODO.');
 			}else {
-				Ext.create({
-					xtype: 'login'
-				});
+				window.location.href	= '/auth/login';
 			}
 
         });

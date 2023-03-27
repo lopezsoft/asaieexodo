@@ -1,6 +1,3 @@
-/**
- * Created by LOPEZSOFT2 on 23/09/2016.
- */
 Ext.define('Admin.model.admin.DocentesDirGrupoModel',{
     extend  : 'Admin.model.base.BaseModel',
     idProperty  : 'id_docente',
@@ -11,6 +8,7 @@ Ext.define('Admin.model.admin.DocentesDirGrupoModel',{
         {name : 'sede'},
         {name : 'nombres'},
         {name : 'año'},
+        {name : 'year'},
         {name : 'estado', type: 'bool'}
     ]
 });

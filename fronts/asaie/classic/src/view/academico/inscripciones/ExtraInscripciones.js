@@ -24,7 +24,7 @@ Ext.define('Admin.view.academico.inscripciones.ExtraInscripciones',{
 				success : function(batch, o) {
 					me.showResult('Se han guardado los datos');
 					win.unmask();
-					if (reload == true){
+					if (reload === true){
 						store.reload();
 					}
 					win.close();
@@ -39,17 +39,17 @@ Ext.define('Admin.view.academico.inscripciones.ExtraInscripciones',{
 			values.id_inscripcion = datastud.get('id');
 			store.insert(0,values);
 			store.sync({
-				success : function(batch, o){
+				success : function(){
 					me.showResult('Se han guardado los datos');
 					win.unmask();
 					win.close();
 				},
-				failure	: function (re) {
+				failure	: function () {
 					store.rejectChanges();
 					win.unmask();
 				}
 			});
-		};
+		}
 	},
 	store	: 'ExtraInscripcionesStore',
     items 	: [

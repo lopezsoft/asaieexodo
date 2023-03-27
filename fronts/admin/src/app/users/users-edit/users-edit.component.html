@@ -25,52 +25,67 @@
               <!-- Account form starts -->
               <form [formGroup]="customForm">
                 <div class="row">
-									<div class="col-md-4">
-										<div class="form-group">
-											<label>Nombre</label>
-											<input class="form-control" type="text" formControlName="first_name" placeholder="Nombre" [class.is-invalid]="invalidFirstName" required autofocus   #focusElement>
-											<small class="text-danger" *ngIf="invalidFirstName">Nombre muy corto</small>
-										</div>
-									</div>
-									<div class="col-md-4">
-										<div class="form-group">
-											<label>Apellidos</label>
-											<input class="form-control" type="text" formControlName="last_name"
-												placeholder="Apellidos"  [class.is-invalid]="invalidLastName" required>
-											<small class="text-danger" *ngIf="invalidLastName">Apellidos muy cortos</small>
-										</div>
-									</div>
-									<div class="col-md-4">
-										<div class="form-group">
-											<label>{{'placeholder.email' | translate}}</label>
-											<input class="form-control" type="email" formControlName="email" required
-												placeholder="Correo electrónico" inputmode="email"  [class.is-invalid]="invalidEmail" [readonly]="editing">
-											<small class="text-danger" *ngIf="invalidEmail">Correo electrónico incorrecto</small>
-										</div>
-									</div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Nombre</label>
+                        <input class="form-control" type="text" formControlName="first_name"
+                               placeholder="Nombre" [class.is-invalid]="invalidFirstName" required autofocus   #focusElement>
+                        <small class="text-danger" *ngIf="invalidFirstName">Nombre muy corto</small>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Apellidos</label>
+                        <input class="form-control" type="text" formControlName="last_name"
+                            placeholder="Apellidos"  [class.is-invalid]="invalidLastName" required>
+                        <small class="text-danger" *ngIf="invalidLastName">Apellidos muy cortos</small>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>{{'placeholder.email' | translate}}</label>
+                        <input class="form-control" type="email" formControlName="email" required
+                            placeholder="Correo electrónico" inputmode="email"  [class.is-invalid]="invalidEmail" [readonly]="editing">
+                        <small class="text-danger" *ngIf="invalidEmail">Correo electrónico incorrecto</small>
+                    </div>
+                </div>
                 </div>
                 <div class="row">
-                  <div class="col-12 col-md-8">
-                    <ng-select formControlName="type_id" [readonly]="editing">
+                  <div class="col-12 col-md-4">
+                      <label>Rol</label>
+                    <ng-select formControlName="profile_id" [multiple]="true">
                       <ng-option *ngFor="let item of userTypes" [value]="item.id">
-                        {{ item.user_type_name }}
+                          <i [class]="item.font"></i> {{ item.profile_name }}
                       </ng-option>
                     </ng-select>
                   </div>
-                  <div class="col-12 col-md-4">
-                      <div class="form-group custom-control-inline mb-1 mb-xl-0 switchery-success align-items-center">
-                        <ui-switch checked class="switchery" size="large"  formControlName="active"></ui-switch>
-                        <label for="switchery" class="ml-2">Activo</label>
-                      </div>
+                  <div class="col-12 col-md-8">
+                      <label>Escuela</label>
+                      <ng-select formControlName="school_id" [readonly]="editing">
+                          <ng-container *ngFor="let school of usersSer.schoolList">
+                              <ng-option  [value]="school.id">
+                                  {{ school.statecode }} - {{ school.nameschool }}
+                              </ng-option>
+                          </ng-container>
+                      </ng-select>
                     </div>
                 </div>
+                  <div class="row">
+                    <div class="col-12 col-md-4">
+                      <div class="form-check">
+                          <input type="checkbox" class="form-check-input" id="exampleCheck1" formControlName="active">
+                          <label class="form-check-label" for="exampleCheck1">Activo</label>
+                      </div>
+                    </div>
+                  </div>
               </form>
             </div>
           </div>
         </div>
         <div class="card-footer">
-          <app-footer-form [saveAClose]="saveAClose" [saveAClose]="saveAClose" (closeEvent)="cancel()"
-                            (saveAndCreateEvent)="saveAndCreate()" (saveAndCloseEvent)="saveAndClose()" [maskSpinner]="maskSpinner">
+          <app-footer-form [saveAClose]="saveAClose" (closeEvent)="cancel()"
+                            (saveAndCreateEvent)="saveAndCreate()" (saveAndCloseEvent)="saveAndClose()"
+                           [maskSpinner]="gService.maskSpinner" [loading]="gService.loading">
 					</app-footer-form>
         </div>
       </div>

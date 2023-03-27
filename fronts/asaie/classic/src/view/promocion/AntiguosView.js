@@ -57,11 +57,10 @@ Ext.define('Admin.view.promocion.AntiguosView',{
                             },
                             listeners   : {
                                 select : function(cb, record , eOpts ){
-                                    var
-                                        win = cb.up('form'),
-                                        gdo = record.get('id'),
-                                        gb  = Global;
-                                    if (gdo == 22 || gdo == 23){
+									const win = cb.up('form'),
+										gdo = record.get('id'),
+										gb = Global;
+									if (gdo == 22 || gdo == 23){
                                         win.down('#yr').setValue(gb.getYear());
                                     }else {
                                         win.down('#yr').setValue(gb.getYear() - 1);
@@ -85,34 +84,26 @@ Ext.define('Admin.view.promocion.AntiguosView',{
                         {
                             xtype       : 'customButton',
                             iconCls     : 'x-fa fa-search',
-                            text        : 'Búscar',
+                            text        : 'Buscar',
                             bind    : {
                                 visible : '{comboJornadas.value}'
                             },
                             handler     : function (btn) {
-                                var
-                                    win     = btn.up('form'),
-                                    me      = Admin.getApplication(),
-                                    gdo     = win.down('#comboGrados').selection.get('id');
-                                if (gdo ==22 || gdo == 23){
-                                    extra   = {
-                                        pdbCodGrado : win.down('#comboGrados').selection.get('id'),
-                                        pdbGrupo    : win.down('#comboGrupo').selection.get('grupo'),
-                                        pdbSede     : win.down('#comboSedes').selection.get('ID'),
-                                        pdbJorn     : win.down('#comboJornadas').selection.get('cod_jorn'),
-                                        pdbYear     : Global.getYear(),
-                                        pdbTable    : 'student_enrollment'
-                                    };
-                                }else{
-                                    extra   = {
-                                        pdbCodGrado : win.down('#comboGrados').selection.get('id'),
-                                        pdbGrupo    : win.down('#comboGrupo').selection.get('grupo'),
-                                        pdbSede     : win.down('#comboSedes').selection.get('ID'),
-                                        pdbJorn     : win.down('#comboJornadas').selection.get('cod_jorn'),
-                                        pdbYear     : Global.getYear() - 1,
-                                        pdbTable    : 'student_enrollment'
-                                    };
-                                }
+								const win = btn.up('form'),
+									me = Admin.getApplication(),
+									gdo = win.down('#comboGrados').selection.get('id');
+								let extra = {
+									pdbGrado: win.down('#comboGrados').selection.get('id'),
+									pdbGrupo: win.down('#comboGrupo').selection.get('grupo'),
+									pdbSede: win.down('#comboSedes').selection.get('id'),
+									pdbJorn: win.down('#comboJornadas').selection.get('cod_jorn'),
+									pdbYear: Global.getYear() - 1,
+									pdbTable: 'student_enrollment',
+									promoted:  0
+								};
+								if (gdo == 22 || gdo == 23) {
+									extra.pdbYear = Global.getYear();
+								}
                                 me.setParamStore('ListaMatriculaStore',extra,true);
                             }
                         }
@@ -186,8 +177,8 @@ Ext.define('Admin.view.promocion.AntiguosView',{
             ],
             listeners : {
                 'selectionchange': function(grid, selected, eOpts) {
-                    var me = this;
-                    if (me.up('form').down('#Mat')) {
+					const me = this;
+					if (me.up('form').down('#Mat')) {
                         me.up('form').down('#Mat').setHidden(!selected.length);
                     }
                 }
@@ -204,7 +195,7 @@ Ext.define('Admin.view.promocion.AntiguosView',{
                 {
                     text        : 'Grado',
                     dataIndex   : 'grado',
-                    width       : 100
+                    width       : 120
                 },
                 {
                     text        : 'Grupo',
@@ -216,6 +207,11 @@ Ext.define('Admin.view.promocion.AntiguosView',{
                     dataIndex   : 'jornada',
                     width       : 120
                 },
+				{
+					text: 'Año',
+					dataIndex: 'year',
+					width: 65
+				},
                 {
                     text        : 'Sede',
                     dataIndex   : 'sede',

@@ -1,22 +1,16 @@
 import { Validators, FormBuilder } from '@angular/forms';
-import { Router, ActivatedRoute } from "@angular/router";
-import { NgxSpinnerService } from "ngx-spinner";
 
 import { Component, OnInit, ElementRef } from '@angular/core';
 
-// Services
-import { HttpServerService, MessagesService } from './../../utils/index';
-
-import { TranslateService } from '@ngx-translate/core';
-
 // Base component
-import { FormComponent } from './../../core/components/forms/form.component';
+import { FormComponent } from '../../core/components/forms';
 
 // Interfaces
 import { ViewChild } from '@angular/core';
 
 // Singletons
-import { CoreConfigService } from '@core/services/config.service';
+import {GlobalService} from "../../core/common/global.service";
+import {TranslateService} from "@ngx-translate/core";
 
 @Component({
   selector: 'app-login-page',
@@ -26,25 +20,19 @@ import { CoreConfigService } from '@core/services/config.service';
 
 export class LoginPageComponent extends FormComponent implements OnInit {
   @ViewChild('focusElement') focusElement: ElementRef;
-
+    public forgotPassword: string = '';
   constructor(public fb: FormBuilder,
-    public coreConfigService: CoreConfigService,
-    public api: HttpServerService,
-    public msg: MessagesService,
-    public router: Router,
+    public gService: GlobalService,
     public translate: TranslateService,
-    public aRouter: ActivatedRoute,
-    public spinner: NgxSpinnerService,
   ) {
-    super(fb, msg, api, router, translate, aRouter, spinner, coreConfigService);
-    const ts = this;
-    ts.customForm = ts.fb.group({
+    super(fb, gService, translate);
+    this.customForm = this.fb.group({
       password: ['', [Validators.required, Validators.minLength(5)]],
-      user_name: ['', [Validators.required, Validators.minLength(5)]],
+      email: ['', [Validators.required, Validators.minLength(5)]],
       remember_me: [false]
     });
     // Configure the layout
-    ts.coreConfigService.config = {
+    this.gService.coreConfigService.config = {
       layout: {
         navbar: {
           hidden: true
@@ -68,49 +56,49 @@ export class LoginPageComponent extends FormComponent implements OnInit {
   ngOnInit(): void {
     super.ngOnInit();
     this.goHome();
+    this.forgotPassword =  `${this.gService.http.getAppUrl()}/forgot-password`;
   }
 
   get placeholderUserName(): string {
-    return this.translate.instant('placeholder.userName');
+    return this.gService.translate.instant('placeholder.userName');
   }
 
   get placeholderPassw(): string {
-    return this.translate.instant('placeholder.password');
+    return this.gService.translate.instant('placeholder.password');
   }
 
   // On submit button click
   onSubmit() {
-    const ts = this;
-    ts.loginFormSubmitted = true;
-    const lang = ts.translate;
+    this.loginFormSubmitted = true;
+    const lang = this.gService.translate;
     const me = this.customForm;
-    if (ts.customForm.invalid) {
-      ts.onValidateForm(me);
-      ts.msg.toastMessage(lang.instant('titleMessages.emptyFields'), lang.instant('bodyMessages.emptyFields'), 4);
-      ts.disabledLoading();
+    if (this.customForm.invalid) {
+      this.onValidateForm(me);
+      this.gService.msg.toastMessage(lang.instant('titleMessages.emptyFields'), lang.instant('bodyMessages.emptyFields'), 4);
+      this.disabledLoading();
       return;
     }
 
-    ts.activeLoading();
-    ts.showSpinner(lang.instant('login.button.loggingIn'));
-    ts.api.post('/admin/auth/login', me.value)
+    this.activeLoading();
+    this.showSpinner(lang.instant('login.button.loggingIn'));
+    this.gService.http.post('/auth/login', me.value)
       .subscribe({
-				next: (resp) => {
-					ts.disabledLoading();
-					ts.hideSpinner();
-					ts.msg.toastMessage(lang.instant('login.button.loggingIn'), resp.message, 0);
-					localStorage.setItem(ts.api.getApiJwt(), JSON.stringify(resp));
-					ts.onResetForm(me);
-					ts.router.navigate(['/dashboard']);
-					window.location.reload();
-				}, 
-				error: (err: string) => {
-					ts.hideSpinner();
-					ts.msg.toastMessage(lang.instant('general.error'), err, 4);
-						ts.disabledLoading();
-						ts.onValidateForm(me);
-						ts.router.navigate(['/auth/login']);
-				}
-			});
+        next: (resp) => {
+            this.disabledLoading();
+            this.hideSpinner();
+            this.gService.msg.toastMessage(lang.instant('login.button.loggingIn'), resp.message, 0);
+            localStorage.setItem(this.gService.http.getApiJwt(), JSON.stringify(resp));
+            this.onResetForm(me);
+            this.gService.router.navigate(['/dashboard']);
+            window.location.reload();
+        },
+        error: (err: string) => {
+            this.hideSpinner();
+            this.gService.msg.toastMessage(lang.instant('general.error'), err, 4);
+                this.disabledLoading();
+                this.onValidateForm(me);
+                this.gService.router.navigate(['/auth/login']);
+        }
+    });
   }
 }

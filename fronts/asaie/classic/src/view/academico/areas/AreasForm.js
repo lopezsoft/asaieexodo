@@ -50,7 +50,7 @@ Ext.define('Admin.view.academico.AreasForm',{
             {
                 text        : 'Nombre del área',
                 dataIndex   : 'area',
-                width       : 300,
+                flex       	: 2,
                 filter      : 'string'
             },
             {

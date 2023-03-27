@@ -1,19 +1,24 @@
 Ext.define('Admin.store.base.StoreApi',{
 	extend		: 'Admin.store.base.StoreUrl',
 	storeId		: 'StoreApi',
-	pageSize	: 100,
+	pageSize	: 15,
     proxy: {
 		type	: 'rest',
 	    api: {
-			create  : 'admin/master/store',
-			read    : 'admin/master/index',
-			update  : 'admin/master/update',
-			destroy : 'admin/master/destroy'
+			create  : 'crud',
+			read    : 'crud/index',
+			update  : 'crud',
+			destroy : 'crud'
 		},
 	    writer : {
 			type 			: 'json',
 			rootProperty	: 'records',
 			encode 			: true
+		},
+		reader	: {
+			type			: 'json',
+			rootProperty	: 'records.data',
+			totalProperty	: 'records.total'
 		}
 	}
 });

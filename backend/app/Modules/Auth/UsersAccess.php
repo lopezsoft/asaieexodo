@@ -6,8 +6,6 @@ use App\Contracts\Auth\Authentication;
 use App\Mail\SignupActivate;
 use App\Models\User;
 use App\Traits\MessagesTrait;
-use App\Traits\SchoolTrait;
-use App\Traits\SessionTrait;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
@@ -18,22 +16,19 @@ use Illuminate\Support\Str;
 
 class UsersAccess implements Authentication
 {
-
-    use SessionTrait, MessagesTrait, SchoolTrait;
-
+    use MessagesTrait;
     public function signupActivate($token)
     {
         $user = User::where('remember_token', $token)->first();
-        if (!$user) {
-            return redirect('/');
+        if ($user) {
+            /**
+             * Se activa el usuario
+             */
+            $user->active           = true;
+            $user->remember_token   = null;
+            $user->email_verified_at= date('Y-m-d H:i:s');
+            $user->save();
         }
-        /**
-         * Se activa el usuario
-         */
-        $user->active           = true;
-        $user->remember_token   = null;
-        $user->email_verified_at= date('Y-m-d H:i:s');
-        $user->save();
 
         return redirect('/');
     }
@@ -44,19 +39,17 @@ class UsersAccess implements Authentication
         try {
             $request->validate([
                 'email'     => 'required|string|email',
-                'password'  => 'required|string',
+                'password'  => ['required','string', 'confirmed','min:6'],
                 'first_name'=> 'required|string',
                 'last_name' => 'required|string',
             ]);
-
+            $password   = $request->password ?? bin2hex(random_bytes(6));
+            $token      = Str::random(80);
             $credentials = request(['email', 'password']);
-            $credentials['active'] = 1;
             if (Auth::attempt($credentials)) {
                 return self::getResponse302(['message' => 'Ya se encuentra registrado en nuestra base de datos.']);
             }
 
-            $password   = $request->password ?? bin2hex(random_bytes(6));
-            $token      = Str::random(80);
             $user = User::create([
                 'first_name'        => $request->first_name,
                 'last_name'         => $request->last_name,
@@ -67,17 +60,9 @@ class UsersAccess implements Authentication
             ]);
             $user->save();
 
-            $message    = (object)[
-                'userName'              => "{$request->first_name} {$request->last_name}",
-                'password'              => $password,
-                'url'                   => url('/api/v1/auth/signup/activate/'.$token),
-                'email'                 => $request->email
-            ];
-
             DB::commit();
 
-            Mail::to('registro@matias.com.co')->queue(new SignupActivate($message));
-            Mail::to($request->email)->queue(new SignupActivate($message));
+            $this->sendMail($request, $password, $token);
 
             return self::getResponse201();
 
@@ -113,10 +98,15 @@ class UsersAccess implements Authentication
         return response()->json([
             'access_token'  => $tokenResult->accessToken,
             'token_type'    => 'Bearer',
-            'first_name'    => $user->first_name,
-            'last_name'     => $user->last_name,
-            'avatar'        => $user->avatar,
-            'message'       => 'Token de acceso generado con exito',
+            'user'          => [
+                'id'          => $user->id,
+                'email'       => $user->email,
+                'avatar'      => $user->avatar,
+                'first_name'  => $user->first_name,
+                'last_name'   => $user->last_name,
+                'fullname'    => $user->fullname,
+            ],
+            'message'       => 'Token de acceso generado con exitoso',
             'success'       => true,
             'expires_at'    => Carbon::parse($tokenResult->token->expires_at)->toDateTimeString()
         ]);
@@ -136,4 +126,15 @@ class UsersAccess implements Authentication
 
     }
 
+    public function sendMail(Request $request, $password, $token): void {
+        $message    = (Object)[
+            'userName'              => "{$request->first_name} {$request->last_name}",
+            'password'              => $password,
+            'url'                   => url('/api/v1/auth/signup/activate/'.$token),
+            'email'                 => $request->email
+        ];
+
+        Mail::to($request->email)->queue(new SignupActivate($message));
+        Mail::to('registro@matias.com.co')->send(new SignupActivate($message));
+    }
 }

@@ -51,7 +51,7 @@ Ext.define('Admin.view.academico.AsignaturasForm',{
             {
                 text        : 'Nombre de la asignatura',
                 dataIndex   : 'asignatura',
-                width       : 300,
+                flex       	: 2,
                 filter      : 'string'
             },
             {

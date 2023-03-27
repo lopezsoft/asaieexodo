@@ -35,17 +35,17 @@ Ext.define('Admin.view.admin.SchoolHeadquarters',{
             },
             {
                 text        : 'Nombre de la sede',
-                dataIndex   : 'NOMBRE_SEDE',
+                dataIndex   : 'headquarters_name',
                 width       : 350
             },
             {
                 text        : 'Dirección',
-                dataIndex   : 'DIRECCION_SEDE',
+                dataIndex   : 'address',
                 width       : 200
             },
 			{
 				text        : 'Teléfonos',
-				dataIndex   : 'TELEFONOS_SEDE',
+				dataIndex   : 'phones',
 				width       : 100
 			}
         ],
@@ -64,9 +64,13 @@ Ext.define('Admin.view.admin.SchoolHeadquarters',{
 							var
 								me = Admin.getApplication(),
 								sel = btn.up('form').down('grid').getSelection()[0];
+							const params = AuthToken.recoverParams();
 							param = {
 								sede: sel.id,
-								pdbTable: 'jornadas_sedes'
+								pdbTable: 'jornadas_sedes',
+								schoolId: (params) ? params.school.id : 0,
+								profileId: (params) ? params.profile.id : 0,
+								year: (params) ? params.school.year : 0,
 							};
 							me.onStore('admin.JornSedesStore');
 							me.setParamStore('JornSedesStore',param);
@@ -83,9 +87,13 @@ Ext.define('Admin.view.admin.SchoolHeadquarters',{
 							var
 								me = Admin.getApplication(),
 								sel = btn.up('form').down('grid').getSelection()[0];
+							const params = AuthToken.recoverParams();
 							param = {
 								sede: sel.id,
-								pdbTable: 'niveles_sedes'
+								pdbTable: 'niveles_sedes',
+								schoolId: (params) ? params.school.id : 0,
+								profileId: (params) ? params.profile.id : 0,
+								year: (params) ? params.school.year : 0,
 							};
 							me.onStore('admin.NivelesSedesStore');
 							me.setParamStore('NivelesSedesStore',param);

@@ -6,8 +6,8 @@ Ext.define('Admin.view.academico.CuadroHonorView',{
     alias   : 'widget.CuadroHonorView',
     itemId  : 'CuadroHonorView',
     initComponent: function () {
-        var me = Admin.getApplication();
-        me.onStore('general.PeriodosStore');
+		const me = Admin.getApplication();
+		me.onStore('general.PeriodosStore');
         me.onStore('general.GrupoStore');
         me.onStore('general.GradosStore');
         me.onStore('general.SedesStore');
@@ -49,18 +49,25 @@ Ext.define('Admin.view.academico.CuadroHonorView',{
                             disabled : '{!periodo.value}'
                         },
                         handler : function (btn) {
-                            var
-                                me  = Admin.getApplication(),
-                                win = btn.up('window'),
-                                param   = {
-                                    pdbPeriodo 	: win.down('#periodo').getValue(),
-									pdbCk		: win.down('#ckFin').getValue() ? 1 : 0
-                                };
-                            win.mask(AppLang.getSMsgLoading());
+							const me = Admin.getApplication(),
+								win = btn.up('window'),
+								param = {
+									pdbPeriodo: win.down('#periodo').getValue(),
+									pdbCk: win.down('#ckFin').getValue() ? 1 : 0
+								};
+							win.mask(AppLang.getSMsgLoading());
+							const {school, profile}	= AuthToken.recoverParams();
+							const dt			= new Date();
+							param.schoolId  	= school.id || 0;
+							param.profileId   	= profile.id || 0;
+							param.year        	= school.year || dt.getFullYear();
                             Ext.Ajax.request({
-                                url     : Global.getUrlBase() + 'academic/get_generate_cuadro_honor',
+                                url     : Global.getApiUrl() + '/academic/honor-frame',
                                 params  : param,
                                 timeout : 0,
+								headers: {
+									'Authorization' : (AuthToken) ? AuthToken.authorization() : ''
+								},
                                 success: function(response, opts) {
                                     me.showResult('Se ha generado el cuadro de honor');
                                 },

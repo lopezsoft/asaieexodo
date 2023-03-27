@@ -31,7 +31,8 @@ Ext.define('Admin.base.WindowCrud' ,{
 		modalView	: undefined,
 		record		: undefined,
 		records		: undefined,
-		reloadStore	: false
+		reloadStore	: false,
+		autoSave	: true,
 	},
 	initComponent	: function(){
     	this.callParent(arguments);
@@ -94,36 +95,40 @@ Ext.define('Admin.base.WindowCrud' ,{
 	/**
 	 * Funcion utilizada para guardar los cambios realizados en una tienda
 	 * @param storeName Nombre de la tienda Donde se sincronizan los datos
-	 * @param reload : Indica si se Recarga la tienda despues de una inserción de registros
+	 * @param reload : Indica si se Recarga la tienda después de una inserción de registros
 	 */
 
-	onSave	: function(btn){
-		var
-			me		= this,
-			store 	= this.getStore();
+	onSave	: function(){
+		const me = this,
+			store = this.getStore();
 		if (store) {
 			this.saveData(store, me.getReloadStore());
 		}
 	},
 
 	saveData	: function(storeName,reload){
-		var me 		= this.getApp(),
-			win		= this,
-			ts		= this,
-			form    = win.down('form'),
-			record  = form.getRecord(),
-			values  = form.getValues(),
-			store   = Ext.getStore(storeName);
+		const me = this.getApp(),
+			win = this,
+			ts = this,
+			form = win.down('form'),
+			record = form.getRecord(),
+			values = form.getValues(),
+			store = Ext.getStore(storeName);
+		const autoSave = ts.getAutoSave();
 		if (record) { //Edición
 			if (store.getModifiedRecords().length > 0) {
 				win.mask('Guardando...');
 			}
 			record.set(values);
+			if(!autoSave) {
+				this.onClose(win);
+				return false;
+			}
 			store.sync({
 				success : function(batch, o) {
 					me.showResult('Se han guardado los datos');
 					win.unmask();
-					if (reload == true){
+					if (reload === true){
 						store.reload();
 					}
 					ts.afterSave();
@@ -137,13 +142,17 @@ Ext.define('Admin.base.WindowCrud' ,{
 		}else{ // Insertar
 			win.mask('Guardando...');
 			store.insert(0,values);
+			if(!autoSave) {
+				this.onClose(win);
+				return false;
+			}
 			store.sync({
 				success : function(batch, o){
 					me.showResult('Se han guardado los datos');
 					win.unmask();
 					ts.afterSave();
 					win.close();
-					if (reload == true){
+					if (reload === true){
 						store.reload();
 					}
 				},
@@ -152,7 +161,12 @@ Ext.define('Admin.base.WindowCrud' ,{
 					win.unmask();
 				}
 			});
-		};
+		}
+	},
+
+	onClose: function (win) {
+		win.unmask();
+		win.close();
 	},
 
 	/**

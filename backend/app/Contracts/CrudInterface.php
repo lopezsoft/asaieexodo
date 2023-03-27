@@ -7,8 +7,8 @@ use Illuminate\Http\Request;
 
 interface CrudInterface
 {
-    static function create(Request $request);
-    static function read(Request $request, $id);
-    static function update(Request $request, $id);
-    static function delete(Request $request, $id);
+    public static function create(Request $request);
+    public static function read(Request $request, $id);
+    public static function update(Request $request, $id);
+    public static function delete(Request $request, $id);
 }

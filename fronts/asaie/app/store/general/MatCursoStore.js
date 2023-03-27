@@ -1,6 +1,3 @@
-/**
- * Created by LOPEZSOFT on 5/12/2015.
- */
 Ext.define('Admin.store.general.MatCursoStore', {
     extend: 'Admin.store.base.StoreApi',
     storeId : 'MatCursoStore',
@@ -15,10 +12,10 @@ Ext.define('Admin.store.general.MatCursoStore', {
             pdbGrado    : 0
         },
         api: {
-            create  : 'master/insertData',
-            read    : 'academic/get_select_matcurso',
-            update  : 'master/updateData',
-            destroy : 'master/deleteData'
+            create  : 'crud',
+            read    : 'courses/subjects-by-courses',
+            update  : 'crud',
+            destroy : 'crud'
         }
     }
 });

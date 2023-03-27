@@ -6,17 +6,15 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 
-import { AuthenticationService } from 'app/auth/service';
 import { CoreSidebarService } from '@core/components/core-sidebar/core-sidebar.service';
 import { CoreConfigService } from '@core/services/config.service';
 import { CoreMediaService } from '@core/services/media.service';
 
 import { User } from 'app/auth/models';
 
-import { coreConfig } from 'app/app-config';
 import { Router } from '@angular/router';
 
-import { AccessToken, ErrorResponse } from './../../../interfaces';
+import { AccessToken, ErrorResponse } from '../../../interfaces';
 
 import Swal from 'sweetalert2';
 import { HttpServerService, MessagesService } from 'app/utils';
@@ -37,6 +35,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   public currentUser: User;
   public token: AccessToken;
+  public avatar: string;
 
   public languageOptions: any;
   public navigation: any;
@@ -52,13 +51,13 @@ export class NavbarComponent implements OnInit, OnDestroy {
   @HostListener('window:scroll', [])
   onWindowScroll() {
     if (
-      (window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop > 100) &&
+      (window.scrollY || document.documentElement.scrollTop || document.body.scrollTop > 100) &&
       this.coreConfig.layout.navbar.type == 'navbar-static-top' &&
       this.coreConfig.layout.type == 'horizontal'
     ) {
       this.windowScrolled = true;
     } else if (
-      (this.windowScrolled && window.pageYOffset) ||
+      (this.windowScrolled && window.scrollY) ||
       document.documentElement.scrollTop ||
       document.body.scrollTop < 10
     ) {
@@ -73,16 +72,16 @@ export class NavbarComponent implements OnInit, OnDestroy {
    * Constructor
    *
    * @param {Router} _router
-  //  * @param {AuthenticationService} _authenticationService
    * @param {CoreConfigService} _coreConfigService
    * @param {CoreSidebarService} _coreSidebarService
    * @param {CoreMediaService} _coreMediaService
    * @param {MediaObserver} _mediaObserver
    * @param {TranslateService} _translateService
+   * @param _http
+   * @param msg
    */
   constructor(
     private _router: Router,
-    // private _authenticationService: AuthenticationService,
     private _coreConfigService: CoreConfigService,
     private _coreMediaService: CoreMediaService,
     private _coreSidebarService: CoreSidebarService,
@@ -176,8 +175,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
    * Logout method
    */
     logout() {
-      const ts    = this;
-      const lang  = ts._translateService;
+      const lang  = this._translateService;
       Swal.fire({
         title : lang.instant('titleMessages.logout'),
         text  : lang.instant('bodyMessages.logout'),
@@ -189,16 +187,16 @@ export class NavbarComponent implements OnInit, OnDestroy {
         cancelButtonText: lang.instant('buttons.not')
       }).then((result) => {
         if (result.value) {
-          ts._http.get('/admin/auth/logout', {})
+          this._http.get('/auth/logout', {})
           .subscribe(() => {
-            ts._router.navigate(['/auth/login']);
-            localStorage.removeItem(ts._http.getApiJwt());
-            ts._http.onClearCurrentUser();
+            this._router.navigate(['/auth/login']);
+            localStorage.removeItem(this._http.getApiJwt());
+            this._http.onClearCurrentUser();
             setTimeout(() => {
               window.location.reload();
             }, 1000);
           }, (err: ErrorResponse) => {
-            ts.msg.toastMessage(lang.instant('general.error'), err.error.message, 4);
+            this.msg.toastMessage(lang.instant('general.error'), err.error.message, 4);
           });
           }
       });
@@ -213,7 +211,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     // get the currentUser details from localStorage
     this.token  = this._http.getToken();
-
+    if(this.token) {
+      this.avatar = this._http.getAppUrl() + this.token.user.avatar;
+    }
     // Subscribe to the config changes
     this._coreConfigService.config.pipe(takeUntil(this._unsubscribeAll)).subscribe(config => {
       this.coreConfig = config;
@@ -236,11 +236,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
       // On every media(screen) change
       this._coreMediaService.onMediaUpdate.pipe(takeUntil(this._unsubscribeAll)).subscribe(() => {
         const isFixedTop = this._mediaObserver.isActive('bs-gt-xl');
-        if (isFixedTop) {
-          this.isFixed = false;
-        } else {
-          this.isFixed = true;
-        }
+        this.isFixed = !isFixedTop;
       });
     }
 

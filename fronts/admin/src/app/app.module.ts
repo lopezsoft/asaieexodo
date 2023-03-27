@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
-import { RouterModule, Routes } from '@angular/router';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClient, HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 
@@ -20,9 +19,7 @@ import { AppComponent } from 'app/app.component';
 import { LayoutModule } from 'app/layout/layout.module';
 import { SampleModule } from 'app/main/sample/sample.module';
 
-import { SocketioService } from './utils';
-
-import { HttpServerService } from './utils/http-server.service';
+import { HttpServerService } from './utils';
 import { AuthInterceptor } from './interceptors/auth-interceptor';
 import { AuthGuard } from './services/auth-guard.service';
 import { ErrorInterceptor } from './auth/helpers';
@@ -34,8 +31,8 @@ import AppRoutingModule from './app-routing.module';
 */
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
-
-
+import { BlockUIModule } from 'ng-block-ui';
+import {UsersModule} from "./users/users.module";
 
 @NgModule({
   declarations: [AppComponent],
@@ -45,7 +42,7 @@ import { TranslateHttpLoader } from '@ngx-translate/http-loader';
     HttpClientModule,
   
     TranslateModule.forRoot(),
-
+    BlockUIModule.forRoot(),
     //NgBootstrap
     NgbModule,
     ToastrModule.forRoot(),
@@ -73,13 +70,13 @@ import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 
     // App modules
     LayoutModule,
-    SampleModule
+    SampleModule,
+    UsersModule
   ],
 
   providers: [
     AuthGuard,
     FormBuilder,
-    SocketioService,
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,

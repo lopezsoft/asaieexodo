@@ -9,7 +9,6 @@ Ext.define('Admin.view.academico.inscripciones.forms.InscripcionesForm',{
         'Admin.combo.CbCiudades',
 		'Admin.combo.CbRH',
 		'Admin.combo.CbPoblacionAtendida',
-		'Admin.sockets.Socket'
 	],
 	initComponent: function () {
 		this.callParent(arguments);
@@ -32,38 +31,40 @@ Ext.define('Admin.view.academico.inscripciones.forms.InscripcionesForm',{
                             fieldLabel  : 'Número del documento',
                             name        : 'nro_documento',
 							listeners	: {
-								focusleave : function (me, event, eOpts) {
-									var
-										form	= me.up('window').down('form'),
-										values	= form.getValues(),
-										app		= Admin.getApplication(),
-										record	= form.getRecord();
+								focusleave : function (me) {
+									let form = me.up('window').down('form'),
+										app = Admin.getApplication(),
+										record = form.getRecord();
 									if (!record){
+										const {school, profile}	= AuthToken.recoverParams();
+										const dt				= new Date();
 										if (me.getValue().length > 0){
-											let 
-												socket	= Global.getSocket();
-											
-											socket.emit('querySelect',{
-												dataName: Global.getDbName(),
-												table	: 'inscripciones',
-												where	:  ['nro_documento = ?'],
-												values	: [me.getValue()]
-											}, function (err, result){
-												if(err){
-													app.onError(err.message);
-												}else{
-													values	= result;
-													if (values.length > 0) {
+											Ext.Ajax.request({
+												url: Global.getApiUrl() + '/crud/index',
+												method: 'GET',
+												headers: {
+													'Authorization' : (AuthToken) ? AuthToken.authorization() : ''
+												},
+												params: {
+													pdbTable	: "inscripciones",
+													where		: `{"nro_documento" : "${me.getValue()}"}`,
+													schoolId  	: school.id || 0,
+													profileId   : profile.id || 0,
+													year        : school.year || dt.getFullYear(),
+												},
+												success: function (response, opts) {
+													const data	= JSON.parse(response.responseText);
+													if (data.records.data.length > 0) {
 														form.reset();
-														form.getForm().setValues(values[0]);
+														form.getForm().setValues(data.records.data[0]);
 														app.showResult('Ya existe una inscripción para el documento: '+me.getValue().toString());
 														form.down('#FsMatricula').setHidden(true);
-													}else{
-														form.down('#FsMatricula').setHidden(false);
 													}
+												},
+												failure: function (response, opts) {
+													app.onError('Error en el servidor, código del estado ' + response.status);
 												}
 											});
-
 										}
 									}
 								}
@@ -230,7 +231,6 @@ Ext.define('Admin.view.academico.inscripciones.forms.InscripcionesForm',{
 						}
 					]
 				}
-
 			]
 		}		    
 	]

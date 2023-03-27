@@ -1,6 +1,3 @@
-/**
- * Created by LOPEZSOFT on 5/12/2015.
- */
 Ext.define('Admin.store.general.SedesStore',{
     extend  : 'Admin.store.base.StoreApi',
     storeId : 'SedesStore',
@@ -9,8 +6,8 @@ Ext.define('Admin.store.general.SedesStore',{
     ],
     model   : 'Admin.model.general.SedesModel',
     proxy: {
-        extraParams : {
-            pdbTable : 'sedes'
-        }
+		extraParams : {
+			pdbTable    : 'sedes'
+		}
     }
 });

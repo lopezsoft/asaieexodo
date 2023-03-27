@@ -1,22 +1,27 @@
 Ext.define('Admin.store.base.StoreUrl',{
 	extend		: 'Ext.data.Store',
 	storeId		: 'StoreUrl',
-    pageSize	: 100,
+    pageSize	: 15,
 	urlCrtl		: '', // Propiedad para controlar si la URL a sido cargada
     proxy: {
 		type	: 'ajax',
 		headers: {
 			'Authorization' : (AuthToken) ? AuthToken.authorization() : ''
 		},
+		extraParams: {
+			schoolId: (AuthToken.recoverParams()) ? AuthToken.recoverParams().school.id : 0,
+			profileId: (AuthToken.recoverParams()) ? AuthToken.recoverParams().profile.id : 0,
+			year: (AuthToken.recoverParams()) ? AuthToken.recoverParams().school.year : 0,
+		},
 	    reader	: {
 	        type			: 'json',
-	        rootProperty	: 'records',
+	        rootProperty	: 'records.data',
 	        totalProperty	: 'total'  
 	    },
 		timeout : 60000,
 		listeners: {
 	        exception: function(proxy, response, operation){
-				var Msg = Ext.create('Ext.window.MessageBox', {
+				Ext.create('Ext.window.MessageBox', {
 					alwaysOnTop	: true,
 					modal		: true,
 					closeAction	: 'destroy'
@@ -31,11 +36,11 @@ Ext.define('Admin.store.base.StoreUrl',{
 	},
 
 	listeners: {
-		beforesync : function (o , eOpts) {
+		beforesync : function () {
 			this.updateProperties(this);
 		},
 
-		beforeload: function (xStore, operation, eOpts ){
+		beforeload: function (){
 			this.updateProperties(this);
 		}
 	},
@@ -44,7 +49,14 @@ Ext.define('Admin.store.base.StoreUrl',{
 		const 	baseUrlSys 	= Global.getApiUrl() + '/'; // Obtenemos la URL base
 		const 	proxy 		= me.getProxy(); // Obtenemos el PROXY de Ajax
 		const 	proxApi		= proxy.getApi();
-		if(me.urlCrtl.length == 0) {
+		const extraParams 	= proxy.getExtraParams();
+		const {school, profile}	= AuthToken.recoverParams();
+		const dt				= new Date();
+		extraParams.schoolId  	= school.id || 0;
+		extraParams.profileId   = profile.id || 0;
+		extraParams.year        = school.year || dt.getFullYear();
+		proxy.setExtraParams(extraParams);
+		if(me.urlCrtl.length === 0) {
 			if (proxy.url.length > 0) {
 				proxy.setUrl(baseUrlSys + proxy.url);
 			}else{
@@ -54,7 +66,7 @@ Ext.define('Admin.store.base.StoreUrl',{
 					update	: baseUrlSys + proxApi.update,
 					destroy	: baseUrlSys + proxApi.destroy 
 				});
-			};
+			}
 
 			me.urlCrtl	= 'baseFull' ;// Se llena la propiedad que controla la carga de la URL.
 		}

@@ -15,7 +15,7 @@ Ext.define('Admin.view.promocion.InformeFinal',{
     items       : [
         {
             xtype   		: 'fieldset',
-            title   		: 'Búsqueda de estudiantes',
+            title   		: 'Squabbed de estudiantes',
 			width   		: 455,
             defaults : {
                 labelWidth	: 65
@@ -117,7 +117,7 @@ Ext.define('Admin.view.promocion.InformeFinal',{
                     var me = this;
                     if (me.up('form').down('#ckEst')) {
                         me.up('form').down('#ckEst').setDisabled(!selected.length);
-                        if (selected.length == 0){
+                        if (selected.length === 0){
                             me.up('form').down('#ckEst').setValue(false);
                         }
                     }
@@ -166,7 +166,7 @@ Ext.define('Admin.view.promocion.InformeFinal',{
             {
                 xtype       : 'customButton',
                 iconCls     : 'x-fa fa-search',
-                text        : 'Búscar',
+                text        : 'Buscar',
                 bind    : {
                     disabled : '{!comboJornadas.value}'
                 },
@@ -174,13 +174,13 @@ Ext.define('Admin.view.promocion.InformeFinal',{
                     var
                         win     = btn.up('form'),
                         me      = Admin.getApplication();
-                    extra   = {
-                        pdbCodGrado : win.down('#comboGrados').getValue(),
-                        pdbGrupo    : win.down('#comboGrupo').getValue(),
-                        pdbSede     : win.down('#comboSedes').getValue(),
-                        pdbJorn     : win.down('#comboJornadas').getValue(),
-                        pdbTable    : 'matriculas'
-                    };
+					let extra = {
+						pdbCodGrado: win.down('#comboGrados').getValue(),
+						pdbGrupo: win.down('#comboGrupo').getValue(),
+						pdbSede: win.down('#comboSedes').getValue(),
+						pdbJorn: win.down('#comboJornadas').getValue(),
+						pdbTable: 'matriculas'
+					};
                     me.setParamStore('MatriculadosStore',extra,true);
                 }
             },'-',
@@ -189,23 +189,30 @@ Ext.define('Admin.view.promocion.InformeFinal',{
                 text    : 'Generar',
                 iconCls : 'x-fa fa-spinner',
                 handler : function (btn) {
-                    var
-                        me  = Admin.getApplication(),
-                        gb  = Global,
-                        win = btn.up('form'),
-                        values  = win.getValues(),
-                        param   = {
-                            pdbGrado    : win.down('#comboGrados').getValue(),
-                            pdbJorn     : win.down('#comboJornadas').getValue(),
-                            pdbGrupo    : win.down('#comboGrupo').getValue(),
-                            pdbSede     : win.down('#comboSedes').getValue(),
-                            pdbAll      : win.down('#ckAll').getValue() ? 1 : 0,
-                            pdbPer      : values.periodo
-                        };
-                    win.mask('Procesando petición...');
+					const me = Admin.getApplication(),
+						gb = Global,
+						win = btn.up('form'),
+						values = win.getValues(),
+						param = {
+							pdbGrado: win.down('#comboGrados').getValue(),
+							pdbJorn: win.down('#comboJornadas').getValue(),
+							pdbGrupo: win.down('#comboGrupo').getValue(),
+							pdbSede: win.down('#comboSedes').getValue(),
+							pdbAll: win.down('#ckAll').getValue() ? 1 : 0,
+							pdbPer: values.periodo
+						};
+					const {school, profile} = AuthToken.recoverParams();
+					const dt	= new Date();
+					param.schoolId	= school.id || 0;
+					param.profileId	= profile.id || 0;
+					param.year     	= school.year || dt.getFullYear();
+					win.mask('Procesando petición...');
                     Ext.Ajax.request({
-                        url     : gb.getUrlBase() + 'reports/get_generate_libro',
+                        url     : gb.getApiUrl() + '/promotion/generate-final-report',
                         params  : param,
+						headers : {
+							'Authorization' : (AuthToken) ? AuthToken.authorization() : ''
+						},
                         timeout : 0,
                         success: function(response, opts) {
                             me.showResult('Se ha generado el libro.');
@@ -229,17 +236,16 @@ Ext.define('Admin.view.promocion.InformeFinal',{
                 itemId  : 'btnObs',
                 disabled: true,
                 handler : function (btn) {
-                    var
-                        me = Admin.getApplication(),
-                        store    = '',
-                        win  = btn.up('form'),
-                        grid = win.down('grid');
-               
-                    store   = Ext.getStore('ActaPromoObsStore');
-                    param   = {
-                        pdbTable    : 'acta_promocion',
-                        where       : '{"id_matric": '+ grid.getSelection()[0].get('id') + '}'
-                    };
+					let me = Admin.getApplication(),
+						store = '',
+						win = btn.up('form'),
+						grid = win.down('grid');
+
+					store   = Ext.getStore('ActaPromoObsStore');
+					let param = {
+						pdbTable: 'acta_promocion',
+						where: '{"id_matric": ' + grid.getSelection()[0].get('id') + '}'
+					};
                     me.setParamStore('ActaPromoObsStore',param,false);
                     win.mask();
                     store.load({

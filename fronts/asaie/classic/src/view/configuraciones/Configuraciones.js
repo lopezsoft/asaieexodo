@@ -10,7 +10,7 @@ Ext.define('Admin.view.configuraciones.Configuraciones' ,{
 			rec	= btn.up('window').down('grid').getSelection()[0];
 		win		= Ext.create('Admin.view.configuraciones.ConfiguraGeneralView');
 		form	= win.down('form');
-		if(btn.xtype	== 'editButton'){
+		if(btn.xtype	=== 'editButton'){
 			form.loadRecord(rec);
 			win.setRecord(rec);
 		}else{

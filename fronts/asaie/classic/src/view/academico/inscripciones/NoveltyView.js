@@ -15,7 +15,6 @@ Ext.define('Admin.view.academico.inscripciones.NoveltyView',{
     initComponent: function () {
         var me  = Admin.getApplication();
         me.onStore('general.EstadoStore');
-        me.onStore('inscripciones.NoveltyStore');
         this.callParent(arguments);
         this.setTitle(AppLang.getSTitleViewNovelty());
     },

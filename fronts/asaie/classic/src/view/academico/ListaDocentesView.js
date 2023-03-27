@@ -34,7 +34,7 @@ Ext.define('Admin.view.academico.ListaDocentesView',{
                     readonlyIndexes	: ['note'],
                     disableIndexes	: ['pctChange'],
                     minChars		: 1,
-                    mode            : 'local',
+                    mode            : 'remote',
                     flex			: 1,
                     autoFocus		: true,
                     independent		: true
@@ -64,14 +64,6 @@ Ext.define('Admin.view.academico.ListaDocentesView',{
                 }
             },
             dockedItems : [
-                {
-                    xtype   : 'customToolbar',
-                    items   :[
-                        {
-                            xtype   : 'ContainerListData'
-                        }
-                    ]
-                },
                 {
                     xtype 		: 'pagination',
                     itemId      : 'pToolbar',

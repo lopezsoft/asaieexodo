@@ -100,7 +100,7 @@ Ext.define('Admin.view.configuraciones.ConfiguraGeneralView',{
 						}
 					]
 				},
-				{
+				/*{
 					xtype   : 'fieldSet',
 					title   : 'Trabajar año  lectivo por:',
 					items   : [
@@ -120,7 +120,7 @@ Ext.define('Admin.view.configuraciones.ConfiguraGeneralView',{
 							]
 						}
 					]
-				},
+				},*/
 				{
 					xtype   : 'fieldSet',
 					title   : 'Pierden directamente con:',

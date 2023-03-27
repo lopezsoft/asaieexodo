@@ -61,6 +61,12 @@ Ext.define('Admin.view.promocion.CertificatesHeadersSave' ,{
                     boxLabel    : 'Mostrar número de certificado',
                     name        : 'show_number'
                 },
+				{
+					xtype       : 'customtextarea',
+					labelAlign  : 'top',
+					fieldLabel  : 'Nombre del certificado',
+					name        : 'show_number_message'
+				},
                 {
                     xtype		: 'customradiogroup',
                     columns		: 2,

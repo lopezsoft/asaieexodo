@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
-import { RouterModule, Routes } from '@angular/router';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClient, HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 
@@ -32,6 +31,8 @@ import AppRoutingModule from './app-routing.module';
 */
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import { BlockUIModule } from 'ng-block-ui';
+import {UsersModule} from "./users/users.module";
 
 @NgModule({
   declarations: [AppComponent],
@@ -41,7 +42,7 @@ import { TranslateHttpLoader } from '@ngx-translate/http-loader';
     HttpClientModule,
   
     TranslateModule.forRoot(),
-
+    BlockUIModule.forRoot(),
     //NgBootstrap
     NgbModule,
     ToastrModule.forRoot(),
@@ -69,7 +70,8 @@ import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 
     // App modules
     LayoutModule,
-    SampleModule
+    SampleModule,
+    UsersModule
   ],
 
   providers: [

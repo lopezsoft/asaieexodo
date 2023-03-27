@@ -9,7 +9,6 @@ Ext.define('Admin.view.academico.inscripciones.forms.InscripcionesForm',{
         'Admin.combo.CbCiudades',
 		'Admin.combo.CbRH',
 		'Admin.combo.CbPoblacionAtendida',
-		'Admin.sockets.Socket'
 	],
 	initComponent: function () {
 		this.callParent(arguments);

@@ -10,6 +10,34 @@ use Illuminate\Support\Facades\DB;
 class RatingScale
 {
     use MessagesTrait;
+    public static function getRatingScaleMin($school, $gradeId = 5): ?object
+    {
+        $db     = $school->db;
+        return DB::table($db."desempeños","td")
+            ->selectRaw('td.desde, td.hasta')
+            ->leftJoin($db.'grados_agrupados AS t1', 'td.id_grado_agrupado','=','t1.id')
+            ->leftJoin($db.'aux_grados_agrupados AS t2', 't2.id_grado_agrupado','=','t1.id')
+            ->where('td.year', $school->year)
+            ->where('td.id', 2)
+            ->where('t2.id_grado', $gradeId)
+            ->first();
+    }
+    public static function getRatingScaleReproved($school, $gradeId = 5): ?object
+    {
+        $db     = $school->db;
+        return DB::table($db."desempeños","td")
+            ->selectRaw('td.desde, td.hasta')
+            ->leftJoin($db.'grados_agrupados AS t1', 'td.id_grado_agrupado','=','t1.id')
+            ->leftJoin($db.'aux_grados_agrupados AS t2', 't2.id_grado_agrupado','=','t1.id')
+            ->where('td.year', $school->year)
+            ->where('td.reprueba', 1)
+            ->where('t2.id_grado', $gradeId)
+            ->first();
+    }
+
+    /**
+     * @throws \Exception
+     */
     public static function getRatingScale(Request $request): \Illuminate\Http\JsonResponse
     {
         $school = SchoolQueries::getSchoolRequest($request);

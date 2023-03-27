@@ -556,7 +556,7 @@ Ext.define('Admin.view.convivencia.controller.ConvivenciaController', {
     },
 
     onSetReport : function (btn) {
-        var url     = 'c_convivencia/get_report_estadistica',
+        let url     = '',
             param   = {},
             win     = btn.up('window'),
             wName   = win. getItemId(),
@@ -565,7 +565,7 @@ Ext.define('Admin.view.convivencia.controller.ConvivenciaController', {
             values  = {};
         switch (wName) {
             case 'EstadisticaReportView' :
-                url     = 'c_convivencia/get_report_estadistica';
+                url     = 'reports/statistics';
                 values  = form.getValues();
                 param   = {
                     pbdNivel        : values.nivel,

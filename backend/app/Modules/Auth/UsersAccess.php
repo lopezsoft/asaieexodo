@@ -16,22 +16,19 @@ use Illuminate\Support\Str;
 
 class UsersAccess implements Authentication
 {
-
     use MessagesTrait;
-
     public function signupActivate($token)
     {
         $user = User::where('remember_token', $token)->first();
-        if (!$user) {
-            return redirect('/');
+        if ($user) {
+            /**
+             * Se activa el usuario
+             */
+            $user->active           = true;
+            $user->remember_token   = null;
+            $user->email_verified_at= date('Y-m-d H:i:s');
+            $user->save();
         }
-        /**
-         * Se activa el usuario
-         */
-        $user->active           = true;
-        $user->remember_token   = null;
-        $user->email_verified_at= date('Y-m-d H:i:s');
-        $user->save();
 
         return redirect('/');
     }

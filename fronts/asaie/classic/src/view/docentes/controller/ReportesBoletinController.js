@@ -18,11 +18,11 @@ Ext.define('Admin.view.docentes.controller.ReportesBoletinController',{
         }).show();
     },
     /**
-     * Funcion para setear los datos que se enviar al servidor para lamar el reporte.
+     * Funcion para setear los datos que se envía al servidor para lamar el reporte.
      * @param btn
      */
     onSetReport: function(btn){
-        var url     = 'reports/report_boletin',
+        var url     = 'reports/periodic-bulletin',
             win     = btn.up('window'),
             grid    = win.down('grid'),
             values  = win.down('form').getValues(),

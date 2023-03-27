@@ -6,7 +6,6 @@ use Illuminate\Support\Facades\DB;
 
 trait SystemTablesTrait
 {
-
     public static function getTeacherCourse($gdo,$gpo,$sede,$jorn,$year,$courseId, $db): int
     {
         $course	= DB::table("{$db}cursos")->where('id', $courseId)->first();

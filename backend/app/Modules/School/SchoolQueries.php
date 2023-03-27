@@ -21,17 +21,20 @@ class SchoolQueries
                 'db'                => "{$school->database_name}.",
                 'database_name'     => $school->database_name,
                 'year'              => $year,
+                'pdbYear'           => $request->input('pdbYear'),
                 'grade' 	        => $request->input('pdbGrado'),
                 'group'	            => $request->input('pdbGrupo'),
                 'headquarter'	    => $request->input('pdbSede'),
                 'workingDay'        => $request->input('pdbJorn'),
-                'format'		    => $request->input('pFormat'),
+                'format'		    => $request->input('pFormat') ?? 'pdf',
                 'schoolId'		    => $request->input('schoolId') ?? 0,
+                'page'		        => $request->input('page') ?? 0,
+                'limit'		        => $request->input('limit') ?? 15,
                 'profileId'		    => $request->input('profileId') ?? 0,
                 'path'              => "{$school->folder_name}"
             ];
         }catch( \Exception $e) {
-            return null;
+            throw new \Exception($e->getMessage());
         }
     }
     public static function getSchool($id): object | null

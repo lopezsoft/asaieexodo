@@ -7,10 +7,10 @@ Ext.define('Admin.view.config.Configs', {
         avatarWomen: "/assets/img/avatars/woman.png",
         avatarUnknoun: "/assets/img/avatars/unknown.png",
         socket: null,
-        //hostSocket	: 'https://ns547829.ip-66-70-178.net:3001',
-        //urlBase		: "https://admin.asaie.co/",
-        //urlLocation	: "https://admin.asaie.co/",
-		//apiUrl		: "https://admin.asaie.co/api/v1",
+        // hostSocket	: 'https://ns547829.ip-66-70-178.net:3001',
+        // urlBase		: "https://admin.asaie.co/",
+        // urlLocation	: "https://admin.asaie.co/",
+		// apiUrl		: "https://admin.asaie.co/api/v1",
 		year		: 0,
         hostSocket	: 'http://localhost:8081',
 		urlBase		: "http://asaie/",
@@ -53,13 +53,6 @@ Ext.define('Admin.view.config.Configs', {
      * @function getSocket
      */
     getSocket: function() {
-        /*var
-            me = this;
-        me.socket = io.connect(me.getHostSocket(), { 'forceNew': true });
-        me.socket.on('connect_error', function(error) {
-            console.log(error);
-            Admin.getApplication().showResult('No hay conexión con el servidor de sockets, contante al administrador del sistema.', 'error');
-        });*/
         return me.socket;
     },
 

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import {HttpServerService} from "../utils";
 import { BlockUI, NgBlockUI } from 'ng-block-ui';
+import {UsersService} from "../services/users/users.service";
 
 @Component({
   selector: 'app-dashboard',
@@ -9,22 +10,12 @@ import { BlockUI, NgBlockUI } from 'ng-block-ui';
 })
 export class DashboardComponent implements OnInit {
     @BlockUI() blockUI: NgBlockUI;
-    public schools : Array<any> = [];
-
   constructor(
-      private _http: HttpServerService
+      private _http: HttpServerService,
+      public user: UsersService
   ) { }
-
   ngOnInit(): void {
-    this._http.get('/user')
-        .subscribe({
-          next: (resp: any) => {
-            this.schools  = resp.records.schools;
-          },
-          error: (err: any) => {
-            console.log(err);
-          }
-        });
+    this.user.getUserSchools();
   }
 
   clickOnModule(school: any, role: any): void {

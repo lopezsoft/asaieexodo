@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
 import { BaseComponent } from 'app/core/components/base/base.component';
-import { HttpServerService } from 'app/utils';
+import {GlobalService} from "../core/common/global.service";
+import {UsersService} from "../services/users/users.service";
 
 @Component({
   selector: 'app-users-container',
@@ -10,16 +9,13 @@ import { HttpServerService } from 'app/utils';
   styleUrls: ['./users-container.component.scss']
 })
 export class UsersContainerComponent extends BaseComponent implements OnInit {
-
   constructor(
-    public api: HttpServerService,
-    public router: Router,
-    public translate: TranslateService,
+    public gService: GlobalService,
+    public user: UsersService
   ) {
-      super(api, router, translate);
+      super(gService);
   }
-
   ngOnInit(): void {
+    this.user.getUserSchools();
   }
-
 }

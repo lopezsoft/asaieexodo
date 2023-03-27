@@ -5,15 +5,16 @@ Ext.define('Admin.store.general.MatricularAntiguosStore',{
     extend  : 'Admin.store.base.StoreApi',
     storeId : 'MatricularAntiguosStore',
     proxy: {
-        extraParams : {
-            pdbTable : 'matriculas'
-        },
-        api: {
-            create  : 'General/insert_data',
-            read    : 'academic/get_select_matriculas',
-            update  : 'General/update_data',
-            destroy : 'General/delete_data'
-        }
+		extraParams : {
+			pdbTable : 'student_enrollment',
+			promoted : 0,
+		},
+		api: {
+			create  : 'crud',
+			read    : 'students/enrollment',
+			update  : 'crud',
+			destroy : 'crud'
+		}
     },
     requires: [
         'Admin.model.inscripciones.MatriculasModel'

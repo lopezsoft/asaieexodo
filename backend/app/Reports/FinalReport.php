@@ -11,6 +11,9 @@ use Illuminate\Support\Facades\DB;
 
 class FinalReport
 {
+    /**
+     * @throws \Exception
+     */
     public static function getFinalCertificate(Request $request): \Illuminate\Http\JsonResponse
     {
         $school     = SchoolQueries::getSchoolRequest($request);
@@ -102,7 +105,7 @@ class FinalReport
             'R_ESCALA'      => RatingScale::getScaleString($school->grade, $year, $db)
         ];
 
-        return (new JReportModel())->getReportExport($report,$report_export,$school->format,$query,$school->path, $school->database_name, $params);
+        return (new JReportModel())->getReportExport($report,$report_export,$school->format,$query,$school->path, $school->school, $params);
     }
 
     public static function getFinalReport(Request $request): \Illuminate\Http\JsonResponse
@@ -152,6 +155,6 @@ class FinalReport
         $params         = [
             'R_ESCALA'  => RatingScale::getScaleString($school->grade, $year, $db)
         ];
-        return (new JReportModel())->getReportExport($report,$report_export,$school->format,$query,$school->path, $school->database_name, $params);
+        return (new JReportModel())->getReportExport($report,$report_export,$school->format,$query,$school->path, $school->school, $params);
     }
 }

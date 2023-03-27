@@ -10,6 +10,33 @@ use Illuminate\Support\Facades\DB;
 class GradesQuery
 {
     use MessagesTrait;
+
+    public static function getGradeCount($school, $grade = 0)
+    {
+        $db     = $school->db;
+        $year   = $school->year;
+        $query  = DB::Table($db . 'desempeños', 't1')
+            ->selectRaw('COUNT(id_pk) notas_num_prees')
+            ->leftJoin($db . 'grados_agrupados AS t2', 't1.id_grado_agrupado', '=', 't2.id')
+            ->leftJoin($db . 'aux_grados_agrupados AS t3', 't3.id_grado_agrupado', '=', 't2.id')
+            ->where('t1.year', $year)
+            ->where('t3.id_grado', $grade)
+            ->get();
+        return $query[0] ?? null;
+    }
+
+    public static function getPromotionGrade($grade = 0, $db)
+    {
+        $query  = DB::table("{$db}grados_agrupados", "t1")
+                    ->leftJoin("{$db}aux_grados_agrupados AS t2", "t2.id_grado_agrupado", "=", "t1.id")
+                    ->where("t2.id_grado", $grade)
+                    ->where("t1.fin_ciclo_escolar", 1)
+                    ->first();
+        return ($query)  ? $grade : $grade + 1;
+    }
+    /**
+     * @throws \Exception
+     */
     public static function getPeriods(Request $request): \Illuminate\Http\JsonResponse {
         $school = SchoolQueries::getSchoolRequest($request);
         $db	    = $school->db;

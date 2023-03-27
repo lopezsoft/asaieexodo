@@ -13,7 +13,18 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+
 Route::prefix('v1')->group(function () {
+    Route::controller('UserController')->group(function () {
+       Route::prefix('email')->group(function () {
+            Route::get('/verify/{id}/{hash}', 'verify')
+                ->name('verification.verify');
+
+            Route::get('/resend/{id}', 'resend')
+                ->name('verification.resend');
+       });
+    });
+
     Route::middleware('auth:api')->get('/user', function (Request $request) {
         return response()->json([
             'records'   => $request->user()
@@ -42,7 +53,14 @@ Route::prefix('v1')->group(function () {
         Route::prefix('school')->group(function () {
             Route::controller('School\SchoolsController')->group(function () {
                 Route::get('read',          'read');
+                Route::get('users',          'users');
+                Route::get('user/{id}',          'user');
                 Route::put('update/{id}',   'update');
+            });
+            Route::prefix('user')->group(function () {
+                Route::controller('UserController')->group(function () {
+                    Route::post('register', 'register');
+                });
             });
         });
         Route::prefix('headquarters')->group(function () {
@@ -93,6 +111,7 @@ Route::prefix('v1')->group(function () {
                 Route::get('enrollment', 'getEnrollment');
                 Route::get('enrollment-list', 'getEnrollmentList');
                 Route::post('move-students', 'moveStudents');
+                Route::post('old-registration', 'oldRegistration');
             });
         });
         Route::prefix('download')->group(function () {
@@ -140,43 +159,16 @@ Route::prefix('v1')->group(function () {
             });
         });
 
-        Route::prefix('reports')->group(function () {
-            Route::controller('ReportsController')->group(function () {
-                Route::post('enrollment-sheet', 'getEnrollmentSheet');
-                Route::post('certificate', 'getCertificate');
-                Route::post('periodic-certificate', 'getPeriodicCertificate');
-                Route::post('honor-frame', 'getHonorFrame');
-                Route::post('observer-sheet', 'getObserverSheet');
-                Route::post('final-report', 'getFinalReport');
-                Route::post('minutes-promotion', 'getMinutesPromotion');
-                Route::post('minutes-promotion-statistics', 'getMinutesPromotionStatistics');
-                Route::post('final-savannas', 'getFinalSavannas');
-                Route::post('final-certificate', 'getFinalCertificate');
-            });
-        });
 
-        Route::prefix('settings')->group(function () {
-           Route::controller('SettingsController')->group(function () {
-                Route::get('final-student-state', 'getFinalStudentState');
-                Route::get('general-setting', 'getGeneralSetting');
-                Route::get('rating-scale', 'getRatingScale');
-                Route::prefix('competencies')->group(function () {
-                    Route::get('/', 'getCompetencies');
-                    Route::get('columns-notes', 'getColumnsNotesCompetencies');
-                    Route::get('columns-notes-exists', 'getColumnsNotesCompetenciesExists');
-                });
-                Route::post('delete-notes-zero', 'deleteNotesZero');
-           });
-        });
+        require __DIR__.'/reports.php';
+        require __DIR__.'/settings.php';
 
         Route::prefix('promotion')->group(function () {
            Route::controller('PromotionController')->group(function () {
               Route::post('generate-final-report', 'generateFinalReport');
               Route::post('generate-final-savannas', 'generateFinalSavannas');
+              Route::post('generate-support-activities', 'generateSupportActivities');
            });
         });
     });
-
-
-
 });

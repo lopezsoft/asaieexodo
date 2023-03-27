@@ -1,18 +1,11 @@
 
 import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 import { FormGroup, Validators, FormBuilder } from '@angular/forms';
-import { Router, ActivatedRoute } from "@angular/router";
-import { NgxSpinnerService } from "ngx-spinner";
-import { TranslateService } from '@ngx-translate/core';
-
-import { CoreConfigService } from '@core/services/config.service';
-
-// Services
-import { HttpServerService, MessagesService } from '../../utils';
-
 
 // Base component
 import { FormComponent } from '../../core/components/forms';
+import {GlobalService} from "../../core/common/global.service";
+import {TranslateService} from "@ngx-translate/core";
 
 @Component({
   selector: 'app-register-page',
@@ -25,17 +18,12 @@ export class RegisterPageComponent extends FormComponent implements OnInit {
   customForm: FormGroup;
   constructor(
     public fb: FormBuilder,
-    public api: HttpServerService,
-    public msg: MessagesService,
-    public router: Router,
+    public gService: GlobalService,
     public translate: TranslateService,
-    public aRouter: ActivatedRoute,
-    public spinner: NgxSpinnerService,
-    public coreConfigService: CoreConfigService,
   ) {
-    super(fb, msg, api, router, translate, aRouter, spinner, coreConfigService);
+    super(fb, gService, translate);
     // Configure the layout
-    this.coreConfigService.config = {
+    this.gService.coreConfigService.config = {
       layout: {
         navbar: {
           hidden: true
@@ -81,42 +69,42 @@ export class RegisterPageComponent extends FormComponent implements OnInit {
   // placeholder
 
   get placeholderEmail(): string {
-    return this.translate.instant('placeholder.email');
+    return this.gService.translate.instant('placeholder.email');
   }
   get placeholderPassword(): string {
-    return this.translate.instant('placeholder.password');
+    return this.gService.translate.instant('placeholder.password');
   }
 
   get placeholderConfirmPassword(): string {
-    return this.translate.instant('placeholder.confirmPassword');
+    return this.gService.translate.instant('placeholder.confirmPassword');
   }
   onSave(): void {
     const me = this.customForm;
-    const lang = this.translate;
+    const lang = this.gService.translate;
     this.activeLoading();
     this.showSpinner(lang.instant('register.button.creatingAccount'));
     if (me.invalid) {
       this.onValidateForm(me);
-      this.msg.toastMessage(lang.instant('titleMessages.emptyFields'), lang.instant('bodyMessages.emptyFields'), 4);
+      this.gService.msg.toastMessage(lang.instant('titleMessages.emptyFields'), lang.instant('bodyMessages.emptyFields'), 4);
       this.disableMsg();
       return;
     }
     const values  = this.customForm.getRawValue();
     if(values.password !== values.password_confirmation) {
       this.disableMsg();
-      this.msg.errorMessage('Registro de usuarios', 'Las contraseñas no coinciden.');
+      this.gService.msg.errorMessage('Registro de usuarios', 'Las contraseñas no coinciden.');
       return;
     }
-    this.api.post('/auth/signup', me.value)
+    this.gService.http.post('/auth/signup', me.value)
       .subscribe({
         next: (resp) => {
             this.onResetForm(me);
             this.disableMsg();
-            this.msg.onMessage(lang.instant('register.messages.successfulRegistration'), resp.message);
+            this.gService.msg.onMessage(lang.instant('register.messages.successfulRegistration'), resp.message);
         },
         error: (err: string) => {
             this.disableMsg();
-            this.msg.errorMessage(lang.instant('general.error'), err);
+            this.gService.msg.errorMessage(lang.instant('general.error'), err);
         }
     });
 

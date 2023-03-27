@@ -17,7 +17,9 @@ class Master Implements CrudInterface
     static function read(Request $request, $id): \Illuminate\Http\JsonResponse
     {
         $table  = $request->input('pdbTable') ?? null;
-        return QueryTable::query($request, $table);
+        $where  = json_decode($request->where, true) ?? [];
+        $order  = json_decode($request->order, true) ?? [];
+        return QueryTable::query($request, $table, $where, $order);
     }
 
     static function update(Request $request, $id){

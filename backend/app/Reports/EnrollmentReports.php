@@ -10,6 +10,9 @@ use Illuminate\Support\Facades\DB;
 
 class EnrollmentReports
 {
+    /**
+     * @throws \Exception
+     */
     public static function getHonorFrame(Request $request): \Illuminate\Http\JsonResponse {
         $school     = SchoolQueries::getSchoolRequest($request);
         $ye         = $school->year;
@@ -47,7 +50,7 @@ class EnrollmentReports
         // Nombre dado al informe de salida
         $report_export	= 'Cuadro de honor ';
         $path       = "{$school->school->folder_name}";
-        return (new JReportModel())->getReportExport($report,$report_export,$format,$query,$path, $school->school->database_name);
+        return (new JReportModel())->getReportExport($report,$report_export,$format,$query,$path, $school->school);
     }
 
     public static function getCertificate(Request $request, Int $typeReport): \Illuminate\Http\JsonResponse{
@@ -88,7 +91,7 @@ class EnrollmentReports
         }
 
         $path       = "{$school->folder_name}";
-        return (new JReportModel())->getReportExport($report,$report,$format,$query,$path, $school->database_name, $params);
+        return (new JReportModel())->getReportExport($report,$report,$format,$query,$path, $school, $params);
     }
 
     public static function getEnrollmentSheet (Request $request): \Illuminate\Http\JsonResponse
@@ -140,6 +143,6 @@ class EnrollmentReports
 
         $query	    = $m_SQL;
         $path       = "{$school->folder_name}";
-        return (new JReportModel())->getReportExport($report,$report_export,$format,$query,$path, $school->database_name);
+        return (new JReportModel())->getReportExport($report,$report_export,$format,$query,$path, $school);
     }
 }

@@ -33,19 +33,17 @@ class QueryTable
                 }
 
                 if(strlen($queryField) > 0){
-                    $tableQuery = $tableQuery->where($queryField, 'like', '%'. $query .'%');
-                }else {
-                    $limit  = 0;
+                    $tableQuery->where($queryField, 'like', '%'. $query .'%');
                 }
             }
 
             if(count($where) > 0){
-                $tableQuery = $tableQuery->where($where);
+                $tableQuery->where($where);
             }
 
             if(count($order) > 0){
                 foreach ($order as $key => $value) {
-                    $tableQuery = $tableQuery->orderBy($key, $value);
+                    $tableQuery->orderBy($key, $value);
                 }
             }
 
@@ -64,7 +62,7 @@ class QueryTable
         try {
             $query          = DB::table($table);
             if(count($where) > 0) {
-                $query = $query->where($where);
+               $query->where($where);
             }
             return self::getResponse([
                 'records'   => $query->paginate($perPage)

@@ -5,4 +5,10 @@
             Perfil
         </button>
     </div>
+    <div class="col-6 col-sm-4 col-md-2" *ngIf="user.isRolAccess()">
+        <button type="button" class="btn btn-custom" (click)="goRoute('user/list')">
+            <i class="fas fa-id-card"></i>
+            Lista de usuarios
+        </button>
+    </div>
 </div>

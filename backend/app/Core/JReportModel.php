@@ -2,6 +2,7 @@
 
 namespace App\Core;
 
+use App\Models\School\FileManager;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -58,8 +59,9 @@ class JReportModel  extends MasterModel {
         $this->subreport_dir    = 'reports'.$delim.'subreports';
     }
 
-	public function getReportExport ($reportName, $outputName, $fmt, $query, $outputFolder, $db, $param = []): \Illuminate\Http\JsonResponse
+	public function getReportExport ($reportName, $outputName, $fmt, $query, $outputFolder, $school, $param = []): \Illuminate\Http\JsonResponse
     {
+        $db             = $school->database_name;
         $delim          = $this->path_delim;
         $format         = strtolower($fmt);
         //Reporte a Procesar: Este nombre es del reporte creado en JasReport
@@ -109,10 +111,11 @@ class JReportModel  extends MasterModel {
 			// Compile a JRXML to Jasper
 			$jasper->compile($reportName.'.jrxml')->execute();
 
-            $saveTo  = "{$output_report}{$realName}_{$date}";
+            $saveTo     = "{$output_report}{$realName}_{$date}";
+            $storage    = Storage::disk('public')->path($saveTo);
 			$jasper->process(
 				$reportName.'.jasper',
-                Storage::disk('public')->path($saveTo),
+                $storage,
 				array($format),
 				$paramReport,
 				array(
@@ -124,12 +127,30 @@ class JReportModel  extends MasterModel {
 					'port' 		=> $this->port
 				)
             )->execute();
+            $filename   = "{$realName}_{$date}.{$format}";
+            $filePath   = "{$saveTo}.{$format}";
+            // Local Storage
+            Storage::disk('public')->url("{$saveTo}.{$format}");
+            // Aws Storage
+            Storage::putFileAs("{$aws_main_path}/{$output_report}", "{$storage}.{$format}", $filename,'public');
+            $output     = Storage::url("{$aws_main_path}/{$saveTo}.{$format}");
 
-            $output     = Storage::disk('public')->url("{$saveTo}.{$format}");
-
+            FileManager::create([
+                'school_id'     =>  $school->id,
+                'user_id'       =>  $user->id,
+                'file_name'     =>  $filename,
+                'file_path'     =>  $output,
+                'extension_file'=>  $format,
+                'mime_type'     =>  Storage::disk('public')->mimeType($filePath),
+                'size_file'     =>  Storage::disk('public')->size($filePath),
+                'last_modified' =>  date('Y-m-d H:i:s', Storage::disk('public')->lastModified($filePath)),
+                'state'         =>  1,
+            ]);
+            // Delete local storage
+            Storage::disk('public')->delete($filePath);
             return response()->json([
                 'success'   => true,
-                'pathFile'  => utf8_encode($output)
+                'pathFile'  => utf8_encode($output),
             ], 200);
 
 		} catch (Exception $e) {

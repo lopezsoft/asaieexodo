@@ -7,6 +7,7 @@ import { NouisliderModule } from 'ng2-nouislider';
 import { NgFallimgModule } from 'ng-fallimg';
 
 import { NgxMaskModule, IConfig } from 'ngx-mask';
+import {ExodolibsModule} from "exodolibs";
 
 export const options: Partial<IConfig> | (() => Partial<IConfig>) = null;
 
@@ -41,14 +42,12 @@ export const customCurrencyMaskConfig = {
 };
 import { NgxSpinnerModule } from 'ngx-spinner';
 import { BlockUIModule } from 'ng-block-ui';
-
 /*
   * Translation
 */
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { HttpClient } from '@angular/common/http';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
-
 @NgModule({
   exports: [
     FooterFormComponent,
@@ -73,6 +72,7 @@ import { TranslateHttpLoader } from '@ngx-translate/http-loader';
     ContentHeaderModule,
     FormsModule,
     NgxMaskModule,
+    ExodolibsModule,
   ],
   declarations: [
     FooterFormComponent,
@@ -98,6 +98,7 @@ import { TranslateHttpLoader } from '@ngx-translate/http-loader';
     CoreSidebarModule,
     CoreCommonModule,
     NgFallimgModule,
+    ExodolibsModule,
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,

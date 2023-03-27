@@ -1,13 +1,10 @@
-import { NgxSpinnerService } from 'ngx-spinner';
 import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import {FormBuilder, Validators} from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-
-import { TranslateService } from '@ngx-translate/core';
-import { HttpServerService, MessagesService } from '../../utils';
 
 import { UsersService } from '../../services/users/users.service';
 import {FormComponent} from "../../core/components/forms";
+import {GlobalService} from "../../core/common/global.service";
+import {TranslateService} from "@ngx-translate/core";
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.component.html',
@@ -21,15 +18,11 @@ export class ProfileComponent extends FormComponent implements OnInit, AfterView
   title = 'Perfil de usuario';
   constructor(
     public fb: FormBuilder,
-    public api: HttpServerService,
-    public msg: MessagesService,
-    public router: Router,
-    public translate: TranslateService,
-    public aRouter: ActivatedRoute,
-    public spinner: NgxSpinnerService,
+    public gService: GlobalService,
     public usersSer: UsersService,
+    public translate: TranslateService,
   ) {
-      super(fb, msg, api, router, translate, aRouter, spinner);
+      super(fb, gService, translate);
       this.customForm = this.fb.group({
           first_name     : ['',[Validators.required, Validators.minLength(3)]],
           last_name      : ['',[Validators.required, Validators.minLength(3)]],
@@ -56,9 +49,8 @@ export class ProfileComponent extends FormComponent implements OnInit, AfterView
     }
 
     get placeholderEmail(): string {
-        return this.translate.instant('placeholder.email');
+        return this.gService.translate.instant('placeholder.email');
     }
-
 
     ngOnInit(): void {
         super.ngOnInit();
@@ -66,12 +58,10 @@ export class ProfileComponent extends FormComponent implements OnInit, AfterView
         this.PostURL  = '/auth/user/create';
 		this.loadData();
   }
-
     ngAfterViewInit(): void {
         super.ngAfterViewInit();
         this.hideSpinner();
     }
-
 
     loadData(id: any = 0): void {
     const frm   = this.customForm;
@@ -89,7 +79,7 @@ export class ProfileComponent extends FormComponent implements OnInit, AfterView
 					active      : resp.active,
 					email       : resp.email,
 				});
-                this.imgData    = `${this.api.getAppUrl()}${resp.avatar}`;
+                this.imgData    = `${this.gService.http.getAppUrl()}${resp.avatar}`;
 			},
 			error: ()=> { 
 				this.hideSpinner();

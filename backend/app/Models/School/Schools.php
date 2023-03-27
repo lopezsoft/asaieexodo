@@ -2,12 +2,14 @@
 namespace App\Models\School;
 
 use App\Contracts\CrudInterface;
+use App\Models\User;
 use App\Modules\School\SchoolQueries;
 use App\Queries\QueryTable;
 use App\Queries\UpdateTable;
 use App\Traits\MessagesTrait;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class Schools Implements CrudInterface
@@ -16,6 +18,34 @@ class Schools Implements CrudInterface
     public static function create(Request $request)
     {
         throw new Exception("No implements", 1);
+    }
+
+    public static function user(Request $request, $id = null): \Illuminate\Http\JsonResponse
+    {
+        $user   = Auth::user();
+        $query  = User::query()
+                    ->whereNot('id', $user->id)
+                    ->where('id', $id);
+        return self::getResponse([
+            'dataRecords'   => $query->paginate()
+        ]);
+    }
+    public static function users(Request $request, $id = null): \Illuminate\Http\JsonResponse
+    {
+        $user   = Auth::user();
+        $school = SchoolQueries::getSchool($request->input('schoolId') ?? 0);
+        $query  = User::query()
+                    ->whereNot('id', $user->id)
+                    ->whereHas('schools', function ($row) use ($school) {
+                        $row->where('school_id', $school->id ?? 0);
+                        $row->where('state', 1);
+                    });
+        if($id) {
+            $query->where('id', $id);
+        }
+        return self::getResponse([
+            'dataRecords'   => $query->paginate()
+        ]);
     }
 
     public static function read(Request $request, $id): \Illuminate\Http\JsonResponse

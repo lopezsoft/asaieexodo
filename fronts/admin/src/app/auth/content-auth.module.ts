@@ -18,6 +18,7 @@ import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { NgSelectModule } from '@ng-select/ng-select';
 
 import CoreModule from '../core/core-app.module';
+import {BlockUIModule} from "ng-block-ui";
 
 export function createTranslateLoader(http: HttpClient) {
   return new TranslateHttpLoader(http, "./assets/i18n/", ".json");
@@ -31,6 +32,7 @@ export function createTranslateLoader(http: HttpClient) {
     ReactiveFormsModule,
     NgbModule,
     NgSelectModule,
+    BlockUIModule.forRoot(),
     TranslateModule.forChild({
       loader: {
         provide: TranslateLoader,

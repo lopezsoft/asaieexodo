@@ -58,12 +58,36 @@ Ext.define('Admin.view.general.GenerarCarnets',{
                                     width       : 80,
                                     filter      : 'string'
                                 },
-                                {
-                                    text        : 'Apellidos y nombres',
-                                    dataIndex   : 'nombres',
-                                    width       : 300,
-                                    filter      : 'string'
-                                },
+								{
+									text        : 'Apellidos',
+									columns		: [
+										{
+											text 		: 'Primer',
+											dataIndex   : 'apellido1',
+											filter      : 'string'
+										},
+										{
+											text 		: 'Segundo',
+											dataIndex   : 'apellido2',
+											filter      : 'string'
+										}
+									]
+								},
+								{
+									text        : 'Nombres',
+									columns		: [
+										{
+											text 		: 'Primer',
+											dataIndex   : 'nombre1',
+											filter      : 'string'
+										},
+										{
+											text 		: 'Segundo',
+											dataIndex   : 'nombre2',
+											filter      : 'string'
+										}
+									]
+								},
                                 {
                                     text        : 'Documento',
                                     dataIndex   : 'nro_documento',
@@ -131,10 +155,36 @@ Ext.define('Admin.view.general.GenerarCarnets',{
 									width   : 50
 								},
 								{
-									text        : 'Apellidos y nombres',
-									dataIndex   : 'docente',
-									width       : 300,
-									filter      : 'string'
+									text        : 'Apellidos',
+									columns : [
+										{
+											text        : 'Primer',
+											dataIndex   : 'apellido1',
+											width       : 120,
+											filter      : 'string'
+										},{
+											text        : 'Segundo',
+											dataIndex   : 'apellido2',
+											width       : 120,
+											filter      : 'string'
+										}
+									]
+								},
+								{
+									text        : 'Nombres',
+									columns : [
+										{
+											text        : 'Primer',
+											dataIndex   : 'nombre1',
+											width       : 120,
+											filter      : 'string'
+										},{
+											text        : 'Segundo',
+											dataIndex   : 'nombre2',
+											width       : 120,
+											filter      : 'string'
+										}
+									]
 								},
 								{
 									text        : 'Documento',

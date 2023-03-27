@@ -1,18 +1,10 @@
 import { AfterViewInit, ElementRef, Injectable, OnInit, ViewChild } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-
-// Services
-import { NgxSpinnerService } from 'ngx-spinner';
-import { HttpServerService, MessagesService } from '../../../utils';
-
 // Base component
-
 import { BaseComponent } from '../base/base.component';
-import { TranslateService } from '@ngx-translate/core';
 import { JsonResponse } from '../../../interfaces';
-import { CoreConfigService } from '@core/services/config.service';
-
+import {GlobalService} from "../../common/global.service";
+import {TranslateService} from "@ngx-translate/core";
 @Injectable()
 export class FormComponent extends BaseComponent implements OnInit, AfterViewInit {
     title = 'Titulo del formulario';
@@ -33,26 +25,25 @@ export class FormComponent extends BaseComponent implements OnInit, AfterViewIni
     public loginFormSubmitted = false;
     public isLoginFailed = false;
     public active = 1;
-    constructor(public fb: FormBuilder,
-        public msg: MessagesService,
-        public api: HttpServerService,
-        public router: Router,
-        public translate: TranslateService,
-        public aRouter: ActivatedRoute,
-        public spinner: NgxSpinnerService,
-        public coreConfigService?: CoreConfigService
+    constructor(
+        public fb: FormBuilder,
+        public gService: GlobalService,
+        public translate?: TranslateService,
     ) {
-        super(api, router, translate, coreConfigService);
+        super(gService);
     }
 
     // tslint:disable-next-line: contextual-lifecycle
     ngOnInit(): void {
         super.ngOnInit();
         const ts = this;
-        ts.uid = ts.aRouter.snapshot.paramMap.get('id');
+        ts.uid = ts.gService.aRouter.snapshot.paramMap.get('id');
         if (ts.uid) {
             ts.loadData(ts.uid);
         }
+        this.gService.changeLanguage(this.gService.activeLang);
+        this.translate.setDefaultLang(this.gService.activeLang);
+        this.translate.use(this.gService.activeLang);
     }
 
     // tslint:disable-next-line: contextual-lifecycle
@@ -63,31 +54,17 @@ export class FormComponent extends BaseComponent implements OnInit, AfterViewIni
     }
 
     showSpinner(mask: string = ''): void {
-        const ts = this;
-        const lang = this.translate;
-        if (mask.length > 0) {
-            ts.maskSpinner = mask;
-        } else {
-            ts.maskSpinner = lang.instant('messages.loading');
-        }
-        this.spinner.show(undefined,
-            {
-                type: 'ball-triangle-path',
-                size: 'medium',
-                bdColor: 'rgba(0, 0, 0, 0.8)',
-                color: '#fff',
-                fullScreen: true
-            });
+        this.gService.mask.showBlockUI(mask);
     }
 
     hideSpinner(): void {
-        this.spinner.hide();
+        this.gService.mask.hideBlockUI();
     }
 
 
     loadData(id: any = 0): void {
         // Implements
-        const lang = this.translate;
+        const lang = this.gService.translate;
         this.showSpinner(lang.instant('messages.loading'));
     }
 
@@ -114,11 +91,11 @@ export class FormComponent extends BaseComponent implements OnInit, AfterViewIni
     }
 
     activeLoading(): void {
-        this.loading = true;
+        this.gService.loading = true;
     }
 
     disabledLoading(): void {
-        this.loading = false;
+        this.gService.loading = false;
         this.saveAClose = false;
         this.saveACreate = false;
     }
@@ -137,17 +114,7 @@ export class FormComponent extends BaseComponent implements OnInit, AfterViewIni
     }
 
     public validateForm(): boolean {
-        const me = this.customForm;
-        const ts = this;
-        const lang = this.translate;
-        ts.activeLoading();
-        if (me.invalid) {
-            ts.onValidateForm(me);
-            ts.msg.toastMessage(lang.instant('titleMessages.emptyFields'), lang.instant('bodyMessages.emptyFields'), 4);
-            ts.disabledLoading();
-        }
-
-        return !me.invalid;
+       return this.gService.frmValidation.validateForm(this.customForm);
     }
 
     saveAndCreate(): void {
@@ -169,9 +136,11 @@ export class FormComponent extends BaseComponent implements OnInit, AfterViewIni
     saveData(): void {
         const ts = this;
         const frm = ts.customForm;
-        const lang = ts.translate;
+        const lang = ts.gService.translate;
         let values: any = {};
-        if (!frm.invalid) {
+        if (frm.invalid) {
+            this.disabledLoading();
+        } else {
             ts.hideSpinner();
             ts.showSpinner(lang.instant('messages.loading'));
             values = frm.value;
@@ -185,10 +154,10 @@ export class FormComponent extends BaseComponent implements OnInit, AfterViewIni
                     records: JSON.stringify(values)
                 };
 
-                ts.api.put(`${ts.PutURL}${ts.uid}`, data)
+                ts.gService.http.put(`${ts.PutURL}${ts.uid}`, data)
                     .subscribe({
                         next: (resp) => {
-                            ts.msg.toastMessage(lang.instant('general.savedSuccessfully'), resp.message, 0);
+                            ts.gService.msg.toastMessage(lang.instant('general.savedSuccessfully'), resp.message, 0);
                             ts.editing = false;
                             ts.onAfterSave(resp);
                             if (ts.toClose) {
@@ -207,15 +176,15 @@ export class FormComponent extends BaseComponent implements OnInit, AfterViewIni
                         error: (err: string) => {
                             ts.hideSpinner();
                             ts.disabledLoading();
-                            ts.msg.errorMessage(lang.instant('general.error'), err);
+                            ts.gService.msg.errorMessage(lang.instant('general.error'), err);
                         }
                     });
             } else {
                 values.records = JSON.stringify(values);
-                ts.api.post(ts.PostURL, values)
+                ts.gService.http.post(ts.PostURL, values)
                     .subscribe({
                         next: (resp) => {
-                            ts.msg.toastMessage(lang.instant('general.successfullyCreated'), resp.message, 0);
+                            ts.gService.msg.toastMessage(lang.instant('general.successfullyCreated'), resp.message, 0);
                             ts.onAfterSave(resp);
                             if (ts.toClose) {
                                 ts.close();
@@ -233,7 +202,7 @@ export class FormComponent extends BaseComponent implements OnInit, AfterViewIni
                         error: (err: string) => {
                             ts.hideSpinner();
                             ts.disabledLoading();
-                            ts.msg.errorMessage(lang.instant('general.error'), err);
+                            ts.gService.msg.errorMessage(lang.instant('general.error'), err);
                         }
                     });
             }
@@ -248,7 +217,7 @@ export class FormComponent extends BaseComponent implements OnInit, AfterViewIni
             size = (parseInt(file.size) / 1024);
             ts.imgData = 'assets/avatars/no-image.png';
             if (parseInt(file.size) > 512000) {
-                ts.msg.toastMessage('Archivo muy grande.', `El tamaño del archivo no debe ser mayor a 512 kb. Peso del archivo actual: ${size.toFixed(3)}`, 3);
+                ts.gService.msg.toastMessage('Archivo muy grande.', `El tamaño del archivo no debe ser mayor a 512 kb. Peso del archivo actual: ${size.toFixed(3)}`, 3);
                 ts.uploadFile.nativeElement.value = '';
                 return;
             }
@@ -262,11 +231,11 @@ export class FormComponent extends BaseComponent implements OnInit, AfterViewIni
                 };
                 reader.onerror = function (error: any) {
                     console.log('Error: ', error);
-                    ts.msg.toastMessage('Error', error, 4);
+                    ts.gService.msg.toastMessage('Error', error, 4);
                 };
             } else {
                 ts.uploadFile.nativeElement.value = '';
-                ts.msg.toastMessage('Formato no soportado.', 'Solo se permiten archivos en formato PNG/JPG', 4);
+                ts.gService.msg.toastMessage('Formato no soportado.', 'Solo se permiten archivos en formato PNG/JPG', 4);
             }
         }
     }
@@ -277,19 +246,7 @@ export class FormComponent extends BaseComponent implements OnInit, AfterViewIni
      * @returns Boolean
      */
     isInvalid(controlName: string): boolean {
-        const frm = this.customForm;
-        if (!frm) {
-            return false;
-        }
-        return frm.get(controlName).invalid && frm.get(controlName).touched;
-    }
-
-    isInvalidNumber(controlName: string): boolean {
-        const frm = this.customForm;
-        if (!frm) {
-            return false;
-        }
-        return (frm.get(controlName).value <= 0);
+        return this.gService.frmValidation.isInvalid(controlName, this.customForm);
     }
 
     onAfterSave(resp: JsonResponse) {

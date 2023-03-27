@@ -107,7 +107,7 @@ Ext.define('Admin.view.main.Main', {
 						}
                     },
                     '->',
-                    ,'-',
+                    '-',
                     {
                         xtype       : 'badgebutton',
                         badgeCls    : 'x-btn-badgeCls-green',
@@ -206,6 +206,5 @@ Ext.define('Admin.view.main.Main', {
             }
         ];
         me.callParent(arguments);
-
     }
 });

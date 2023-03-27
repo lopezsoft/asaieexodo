@@ -1,10 +1,10 @@
 <section>
     <div class="card">
         <div class="card-header">ESTIMADO USUARIO USTED TIENE ACCESO A:</div>
-        <div class="card-body" *ngIf="!(schools.length > 0)">NO TIENE ACCESOS</div>
+        <div class="card-body" *ngIf="!(user.schools.length > 0)">NO TIENE ACCESOS</div>
     </div>
 </section>
-<section *ngFor="let school of schools">
+<section *ngFor="let school of user.schools">
     <div class="row">
         <div class="col-12 col-md-4" *ngFor="let role of school.school.roles">
             <div class="card">

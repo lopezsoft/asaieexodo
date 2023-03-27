@@ -8,6 +8,9 @@ use Illuminate\Http\Request;
 
 class MinutesPromotion
 {
+    /**
+     * @throws \Exception
+     */
     public static function getFinalSavannas(Request $request): \Illuminate\Http\JsonResponse {
         $school     = SchoolQueries::getSchoolRequest($request);
         $year       = $school->year;
@@ -19,9 +22,12 @@ class MinutesPromotion
         $params = [
             'R_ESCALA'  => RatingScale::getScaleString($school->grade, $year, $db)
         ];
-        return (new JReportModel())->getReportExport($report,$report_export,$school->format,$query,$school->path, $school->database_name, $params);
+        return (new JReportModel())->getReportExport($report,$report_export,$school->format,$query,$school->path, $school->school, $params);
     }
 
+    /**
+     * @throws \Exception
+     */
     public static function getMinutesPromotionStatistics(Request $request): \Illuminate\Http\JsonResponse
     {
         $school     = SchoolQueries::getSchoolRequest($request);
@@ -39,9 +45,12 @@ class MinutesPromotion
         $params         = [
             'P_YEAR'    => $year
         ];
-        return (new JReportModel())->getReportExport($report,$report_export,$school->format,$query,$school->path, $school->database_name, $params);
+        return (new JReportModel())->getReportExport($report,$report_export,$school->format,$query,$school->path, $school->school, $params);
     }
 
+    /**
+     * @throws \Exception
+     */
     public static function getMinutesPromotion(Request $request): \Illuminate\Http\JsonResponse
     {
         $school     = SchoolQueries::getSchoolRequest($request);
@@ -50,6 +59,6 @@ class MinutesPromotion
         $query	    = "CALL `sp_select_acta_promocion`('".$school->grade."','".$school->group.
                             "',".$school->workingDay.",".$school->headquarter.",".$year.")";
         $report_export	= 'Acta de promocion';
-        return (new JReportModel())->getReportExport($report,$report_export,$school->format,$query,$school->path, $school->database_name);
+        return (new JReportModel())->getReportExport($report,$report_export,$school->format,$query,$school->path, $school->school);
     }
 }

@@ -10,6 +10,21 @@ use Illuminate\Support\Facades\DB;
 class GeneralSetting
 {
     use MessagesTrait;
+    public static function getGeneralSettingByGrade($school, $gradeId = 5): ?object
+    {
+        $db     = $school->db;
+        $year   = $school->year;
+        return DB::table("{$db}config001","t")
+            ->leftJoin($db."grados_agrupados AS t1", "t.id_grupo_grados", "=", "t1.id")
+            ->leftJoin($db."aux_grados_agrupados AS t2", "t2.id_grado_agrupado", "=", "t1.id")
+            ->where('t.year', $year)
+            ->where('t2.id_grado', $gradeId)
+            ->first();
+    }
+
+    /**
+     * @throws \Exception
+     */
     public static function generalSetting(Request $request): \Illuminate\Http\JsonResponse
     {
         $school = SchoolQueries::getSchoolRequest($request);

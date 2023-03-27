@@ -2,20 +2,20 @@
  * Created by LOPEZSOFT on 13/02/2016.
  */
 Ext.define('Admin.store.promocion.ListaMatriculaStore',{
-    extend  : 'Admin.store.base.StoreApi',
+    extend  : 'Admin.store.general.MatriculadosStore',
     storeId : 'ListaMatriculaStore',
     pageSize: 100,
     proxy: {
-        extraParams : {
-            pdbTable : 'matriculas'
-        },
-        api: {
-            create  : 'academic/insert_matriculas',
-            read    : 'General/get_select_matricula_antiguos',
-            update  : 'General/update_data',
-            destroy : 'General/delete_data'
-        }
-    },
+		extraParams : {
+			pdbTable : 'student_enrollment'
+		},
+		api: {
+			create  : 'crud',
+			read    : 'students/enrollment-list',
+			update  : 'crud',
+			destroy : 'crud'
+		}
+	},
     requires: [
         'Admin.model.inscripciones.MatriculasModel'
     ],

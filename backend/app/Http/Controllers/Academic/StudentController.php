@@ -14,6 +14,17 @@ class StudentController extends Controller
         return MoveStudents::move($request);
     }
 
+    /**
+     * @throws \Exception
+     */
+    public function oldRegistration(Request $request): \Illuminate\Http\JsonResponse
+    {
+        return StudentEnrollment::oldRegistration($request);
+    }
+
+    /**
+     * @throws \Exception
+     */
     public function getEnrollment(Request $request): \Illuminate\Http\JsonResponse
     {
         return StudentEnrollment::getEnrollment($request);

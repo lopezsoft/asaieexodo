@@ -1,0 +1,35 @@
+<exodo-grid #exodoGrid class="w-100"
+            [caption]="title"
+            [columns]="eColumns"
+            [showPagination]="true"
+            mode="remote"
+            *ngIf="user.isRolAccess()"
+>
+    <div class="d-flex justify-content-end w-100 mb-1" header>
+      <div class="form-group w-100 mr-1">
+        <label>Escuela</label>
+        <ng-select (change)="onChangeSchool($event)">
+          <ng-container *ngFor="let school of user.schoolList">
+            <ng-option  [value]="school.id">
+              {{ school.statecode }} - {{ school.nameschool }}
+            </ng-option>
+          </ng-container>
+        </ng-select>
+      </div>
+      <button class="btn btn-success btn-sm" (click)="createData()" [disabled]="gService.loading">
+        <i class="fa fa-plus mr-1 fas-fa-22"></i>
+        {{ 'buttons.new' | translate }}
+      </button>
+    </div>
+</exodo-grid>
+<block-ui></block-ui>
+
+<ng-container  *ngIf="!user.isRolAccess()">
+<div class="card w-100 h-100">
+  <div class="card-body w-100">
+    <span class="text-black-50">
+      Sin permiso para acceder.
+    </span>
+  </div>
+</div>
+</ng-container>

@@ -7,8 +7,6 @@ Ext.define('Admin.Application', {
     extend: 'Ext.app.Application',
     name: 'Admin',
     requires: [
-        'Admin.sockets.data.proxy.SocketIo',
-        'Admin.sockets.Socket',
         'Ext.util.TaskRunner',
         'Admin.view.language.Es',
         'Admin.security.TokenStorage',

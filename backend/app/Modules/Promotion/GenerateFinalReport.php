@@ -3,6 +3,7 @@
 namespace App\Modules\Promotion;
 
 use App\Modules\School\SchoolQueries;
+use App\Modules\Settings\GeneralSetting;
 use App\Queries\CallExecute;
 use App\Traits\MessagesTrait;
 use App\Traits\SystemTablesTrait;
@@ -42,6 +43,9 @@ class GenerateFinalReport
         }
     }
 
+    /**
+     * @throws \Exception
+     */
     public function generateReport(Request $request): \Illuminate\Http\JsonResponse
     {
         $Grado 	= $request->input('pdbGrado');
@@ -55,12 +59,7 @@ class GenerateFinalReport
         $db	    = $school->db;
         $year   = $school->year;
 
-        $sql    = DB::table("{$db}config001","t")
-                    ->leftJoin($db."grados_agrupados AS t1", "t.id_grupo_grados", "=", "t1.id")
-                    ->leftJoin($db."aux_grados_agrupados AS t2", "t2.id_grado_agrupado", "=", "t1.id")
-                    ->where('t.year', $year)
-                    ->where('t2.id_grado', $Grado)
-                    ->first();
+        $sql    = GeneralSetting::getGeneralSettingByGrade($school, $Grado);
         if ($sql){
             $this->_n_decimales	    = $sql->Ndecimales;
             $this->_n_promocion	    = $sql->promocion;
@@ -73,27 +72,13 @@ class GenerateFinalReport
         switch($this->_n_promocion){
             case 3 : // Periodo final
             case 4 : // cuarto periodo
-                $query  = DB::table($db."periodos_academicos","td")
-                            ->select("periodo")
-                            ->leftJoin($db."grados_agrupados AS t1", "td.id_grado_agrupado", "=", "t1.id")
-                            ->leftJoin($db."aux_grados_agrupados AS t2", "t2.id_grado_agrupado", "=", "t1.id")
-                            ->where( "td.year", $year)
-                            ->where("t2.id_grado", $Grado)
-                            ->orderBy('td.periodo', 'desc')
-                            ->first();
+                $query  = AcademicPeriods::getLastPeriod($school, $Grado);
                 if($query){
                     $this->_n_per_div = $query->periodo;
                 }
                 break;
             default:
-                $query  = DB::table($db."periodos_academicos","td")
-                    ->selectRaw("COUNT(periodo) total")
-                    ->leftJoin($db."grados_agrupados AS t1", "td.id_grado_agrupado", "=", "t1.id")
-                    ->leftJoin($db."aux_grados_agrupados AS t2", "t2.id_grado_agrupado", "=", "t1.id")
-                    ->where( "td.year", $year)
-                    ->where("t2.id_grado", $Grado)
-                    ->groupByRaw('td.id_grado_agrupado')
-                    ->first();
+                $query  = AcademicPeriods::getPeriodsTotal($school, $Grado);;
                 if($query){
                     $this->_n_per_div = $query->total;
                 }

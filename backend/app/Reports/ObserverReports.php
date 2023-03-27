@@ -9,6 +9,9 @@ use Illuminate\Support\Facades\DB;
 
 class ObserverReports
 {
+    /**
+     * @throws \Exception
+     */
     public static function getObserverSheet(Request $request): \Illuminate\Http\JsonResponse
     {
         $school     = SchoolQueries::getSchoolRequest($request);
@@ -52,6 +55,6 @@ class ObserverReports
 
         $report_export	= 'Ficha Observador';
         $path       = "{$school->school->folder_name}";
-        return (new JReportModel())->getReportExport($report,$report_export,$format,$query,$path, $school->school->database_name, $params);
+        return (new JReportModel())->getReportExport($report,$report_export,$format,$query,$path, $school->school, $params);
     }
 }

@@ -6,6 +6,7 @@ use App\Processors\ReportProcessor;
 use App\Reports\AcademicAllocation;
 use App\Reports\AcademicHistory;
 use App\Reports\BirthDates;
+use App\Reports\Consolidated\GenerateConsolidate;
 use App\Reports\ConsolidatedReport;
 use App\Reports\DisplacedStudents;
 use App\Reports\EnrollmentReports;
@@ -26,6 +27,10 @@ use Illuminate\Http\Request;
 
 class ReportsController extends Controller
 {
+    public function generateConsolidated(Request $request): \Illuminate\Http\JsonResponse
+    {
+        return (new GenerateConsolidate())->generate($request);
+    }
     public function getFamilyMembers(Request $request): \Illuminate\Http\JsonResponse
     {
         return ReportProcessor::runReport($request, new FamilyMembers());

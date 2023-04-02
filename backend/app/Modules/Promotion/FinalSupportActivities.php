@@ -27,7 +27,6 @@ class FinalSupportActivities
         $teacherId	= $request->input('pdbDocente');
         $type	    = intval($request->input('pdbType')) ?? 5;
         $school     = SchoolQueries::getSchoolRequest($request);
-        $db         = $school->db;
         $gradeId    = ($type == 0) ? 5 : 24;
         try {
             $queryConfig    = GeneralSetting::getGeneralSettingByGrade($school, $gradeId);

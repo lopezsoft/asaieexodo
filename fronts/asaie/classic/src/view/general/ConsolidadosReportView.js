@@ -110,7 +110,7 @@ Ext.define('Admin.view.general.ConsolidadosReportView',{
             text        : AppLang.getSButtonGenerate(),
             formBind    : true,
             handler     : function (btn) {
-                var url     = 'reports/generar_consolidado',
+                var url     = '/reports/generate/consolidated',
                     win     = btn.up('window'),
                     me      = Admin.getApplication(),
                     values  = win.down('form').getValues(),
@@ -126,10 +126,18 @@ Ext.define('Admin.view.general.ConsolidadosReportView',{
                     };
                 try {
                     win.mask(AppLang.getSSavingChanges());
+					const {school, profile}	= AuthToken.recoverParams();
+					const dt			= new Date();
+					param.schoolId  	= school.id || 0;
+					param.profileId   	= profile.id || 0;
+					param.year        	= school.year || dt.getFullYear();
                     Ext.Ajax.request({
-                        url: Global.getUrlBase() + url,
+                        url: Global.getApiUrl() + url,
                         timeout: 6000000,
                         params: param,
+						headers: {
+							'Authorization' : (AuthToken) ? AuthToken.authorization() : ''
+						},
                         success: function (response, opts) {
                             me.showResult(AppLang.getSChangesOk());
                         },
@@ -140,7 +148,8 @@ Ext.define('Admin.view.general.ConsolidadosReportView',{
                             win.unmask()
                         }
                     });
-                } catch (e) { 
+                } catch (e) {
+					console.log(e);
                     win.unmask();
                 }
             }

@@ -5,11 +5,12 @@ namespace App\Reports;
 use App\Contracts\ReportProcessorContract;
 use App\Core\JReportModel;
 use App\Modules\School\SchoolQueries;
+use App\Traits\MessagesTrait;
 use Illuminate\Http\Request;
 
 class TeachersList implements  ReportProcessorContract
 {
-
+    use MessagesTrait;
     public function getReport(Request $request): \Illuminate\Http\JsonResponse
     {
         try {

@@ -4,7 +4,7 @@ namespace App\Contracts;
 
 use Illuminate\Http\Request;
 
-interface ResourceActionsInterface{
+interface ResourceActionsInterface {
     public function index(Request $request);
     public function store(Request $request);
     public function show(Request $request, $id);

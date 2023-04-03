@@ -24,10 +24,10 @@ export class GlobalService implements OnInit, OnDestroy {
     public router: Router,
     public translate: TranslateService,
     public aRouter: ActivatedRoute,
-    public mask?: LoadMaskService,
-    public coreConfigService?: CoreConfigService,
-    // @ts-ignore
+    public coreConfigService: CoreConfigService,
     public frmValidation: FormsValidatorsService,
+    public mask?: LoadMaskService,
+    // @ts-ignore
   ) {
     const ts = this;
     ts.translate.setDefaultLang(ts.activeLang);

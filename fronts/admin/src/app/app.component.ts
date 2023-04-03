@@ -19,7 +19,7 @@ import { locale as menuFrench } from 'app/menu/i18n/fr';
 import { locale as menuGerman } from 'app/menu/i18n/de';
 import { locale as menuSpanish } from 'app/menu/i18n/es';
 import { locale as menuPortuguese } from 'app/menu/i18n/pt';
-import { LocationService } from './services/location/location.service';
+import {GlobalService} from "./core/common/global.service";
 
 @Component({
   selector: 'app-root',
@@ -60,6 +60,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private _coreMenuService: CoreMenuService,
     private _coreTranslationService: CoreTranslationService,
     private _translateService: TranslateService,
+    public _gService: GlobalService,
   ) {
     // Get the application main menu
     this.menu = menu;
@@ -213,6 +214,7 @@ export class AppComponent implements OnInit, OnDestroy {
         this.document.body.classList.remove('default-layout', 'bordered-layout', 'dark-layout', 'semi-dark-layout');
         this.document.body.classList.add(this.coreConfig.layout.skin + '-layout');
       }
+      this._gService.coreConfig = this.coreConfig;
     });
 
     // Set the application page title

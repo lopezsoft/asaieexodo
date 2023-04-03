@@ -2,6 +2,9 @@
 
 Route::prefix('reports')->group(function () {
     Route::controller('ReportsController')->group(function () {
+        Route::prefix('generate')->group(function () {
+            Route::post('consolidated', 'generateConsolidated');
+        });
         Route::post('family-members', 'getFamilyMembers');
         Route::post('birth-dates', 'getBirthDates');
         Route::post('school-carnes', 'getSchoolCarnes');

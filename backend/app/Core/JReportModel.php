@@ -6,6 +6,7 @@ use App\Models\School\FileManager;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use JasperPHP\JasperPHP;
 
 class JReportModel  extends MasterModel {
@@ -59,14 +60,14 @@ class JReportModel  extends MasterModel {
         $this->subreport_dir    = 'reports'.$delim.'subreports';
     }
 
-	public function getReportExport ($reportName, $outputName, $fmt, $query, $outputFolder, $school, $param = []): \Illuminate\Http\JsonResponse
+	public function getReportExport ($reportName, $fileDescription, $fmt, $query, $outputFolder, $school, $param = []): \Illuminate\Http\JsonResponse
     {
         $db             = $school->database_name;
         $delim          = $this->path_delim;
         $format         = strtolower($fmt);
         //Reporte a Procesar: Este nombre es del reporte creado en JasReport
         $pathRoot           =  public_path().$this->path_delim;
-        $realName           = $reportName;
+        $realName           =  Str::random(40);
 		$reportName			=  "{$pathRoot}reports{$this->path_delim}{$reportName}";
 
 		//Parámetro en caso de que el reporte no este parametrizado
@@ -102,7 +103,7 @@ class JReportModel  extends MasterModel {
                 default => $this->path_folder_pdf . $this->path_delim,
             };
 
-            $date	        = date('Ymdhis');
+            $date	        = date('Y');
             $aws_main_path  = env('AWS_MAIN_PATH', 'test');
             $path_report    = "schools{$delim}{$outputFolder}{$delim}reports{$delim}{$user->id}{$delim}";
             $output_report  = "{$path_report}{$output}";
@@ -136,15 +137,16 @@ class JReportModel  extends MasterModel {
             $output     = Storage::url("{$aws_main_path}/{$saveTo}.{$format}");
 
             FileManager::create([
-                'school_id'     =>  $school->id,
-                'user_id'       =>  $user->id,
-                'file_name'     =>  $filename,
-                'file_path'     =>  $output,
-                'extension_file'=>  $format,
-                'mime_type'     =>  Storage::disk('public')->mimeType($filePath),
-                'size_file'     =>  Storage::disk('public')->size($filePath),
-                'last_modified' =>  date('Y-m-d H:i:s', Storage::disk('public')->lastModified($filePath)),
-                'state'         =>  1,
+                'school_id'         =>  $school->id,
+                'user_id'           =>  $user->id,
+                'file_name'         =>  $filename,
+                'file_description'  =>  $fileDescription,
+                'file_path'         =>  $output,
+                'extension_file'    =>  $format,
+                'mime_type'         =>  Storage::disk('public')->mimeType($filePath),
+                'size_file'         =>  Storage::disk('public')->size($filePath),
+                'last_modified'     =>  date('Y-m-d H:i:s', Storage::disk('public')->lastModified($filePath)),
+                'state'             =>  1,
             ]);
             // Delete local storage
             Storage::disk('public')->delete($filePath);

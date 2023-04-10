@@ -45,7 +45,7 @@ Ext.define('Admin.view.general.controller.ReportesController',{
 					};
 				this.onGenReport(btn,url,param);
 				if (btn.itemId == 'btnXls'){
-					this.onDownLoadReportXls(btn,url,param);
+					// this.onDownLoadReportXls(btn,url,param);
 				}
 				break;
 		}

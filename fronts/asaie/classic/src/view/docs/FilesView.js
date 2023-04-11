@@ -379,7 +379,7 @@ Ext.define('Admin.view.docs.FilesView',{
 			selection = selModel.getSelection()[0];
 
 		store.getFilters().replaceAll({
-            property: 'name',
+            property: 'file_description',
             anyMatch: true,
             value   : newValue
         });
@@ -398,6 +398,8 @@ Ext.define('Admin.view.docs.FilesView',{
 			bd.setDisabled(!selected);
             const me  = this;
         if (selected) {
+			const size = parseInt(selected.get('size_file'));
+			selected.set('size_file', (size / 1024).toFixed(2));
             this.down('InfoPanel').loadRecord(selected);
 			const btn = this.down('#btnApply');
 			btn.setDisabled(false);

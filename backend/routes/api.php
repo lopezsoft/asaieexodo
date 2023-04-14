@@ -74,7 +74,9 @@ Route::prefix('v1')->group(function () {
         Route::prefix('group-director')->group(function () {
             Route::controller('Administrative\GroupDirectorsController')->group(function () {
                Route::get('getGroupDirectorByGrade', 'getGroupDirectorByGrade');
+
             });
+            //este
         });
 
         Route::prefix('grades')->group(function () {
@@ -93,7 +95,9 @@ Route::prefix('v1')->group(function () {
 
         Route::prefix('academic')->group(function () {
            Route::controller('Academic\AcademicController')->group(function () {
-              Route::post('honor-frame', 'honorFrame');
+            Route::post('honorFrame', 'getHonorFrame');
+            // Route::post('honor-frame', 'getHonorFrame');
+            //este
            });
         });
 

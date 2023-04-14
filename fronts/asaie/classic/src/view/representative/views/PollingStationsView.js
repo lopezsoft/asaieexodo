@@ -12,7 +12,7 @@ Ext.define('Admin.view.representative.PollingStationsView',{
             defaultFocus : 'customtextarea',
             items   : [
                 {
-                    fieldLabel  : '* Nomble de la mesa',
+                    fieldLabel  : '* Nombre de la mesa',
                     name        : 'table_name'
                 },
                 {
@@ -28,8 +28,18 @@ Ext.define('Admin.view.representative.PollingStationsView',{
                     fieldLabel  : 'Ubicación, dirección',
                     name        : 'table_location',
 					allowBlank	: true,
-                }
+                },
+
+				{
+                    
+                    name        : 'year',
+                    fieldLabel  : 'año',
+					value: new Date().getFullYear(),
+					
+                },
             ]
         }
     ]
 });
+
+

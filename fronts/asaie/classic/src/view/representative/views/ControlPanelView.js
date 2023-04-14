@@ -10,6 +10,16 @@ Ext.define('Admin.view.representative.ControlPanelView',{
             xtype   		: 'customform',
 			defaultFocus	: 'customnumberfield',
             items   : [
+
+				{
+                    xtype       : 'fieldset',
+                    name        : 'school_name',
+					items   : [
+						        {
+						            xtype       : 'CbSedes'
+						        }]
+                },
+				
                 {
                     xtype       : 'customnumberfield',
                     fieldLabel  : 'Votos por mesa',
@@ -17,6 +27,7 @@ Ext.define('Admin.view.representative.ControlPanelView',{
 					hideTrigger	: false,
                     name        : 'voting_table'
                 },
+				
                 {
                     xtype       : 'radiogroup',
                     fieldLabel  : 'Discriminar por sede',
@@ -88,8 +99,20 @@ Ext.define('Admin.view.representative.ControlPanelView',{
                     xtype       : 'customtimefield',
                     name        : 'closing_time',
                     fieldLabel  : 'Hora de cierre'
-                }
+                },
+
+				{
+                    
+                    name        : 'year',
+                    fieldLabel  : 'año',
+					value: new Date().getFullYear(),
+					
+                },
+				
+				  
             ]
         }
     ]
 });
+
+//editado

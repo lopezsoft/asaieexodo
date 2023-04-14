@@ -13,7 +13,7 @@ Ext.define('Admin.model.docentes.perfil.PerfilDocentesModel',{
         { name  : 'cod_ense'},
         { name  : 'cod_vin'},
         { name  : 'direccion'},
-        { name  : 'tipo_sangr'},
+        { name  : 'tipo_sangre'},
         { name  : 'foto'},
         { name  : 'mime'},
         { name  : 'documento'},

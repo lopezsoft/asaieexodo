@@ -23,6 +23,7 @@ use App\Reports\StatisticsReport;
 use App\Reports\StudentsEnrolled;
 use App\Reports\StudentsPerDay;
 use App\Reports\TeachersList;
+use App\Reports\GroupDirectors;
 use Illuminate\Http\Request;
 
 class ReportsController extends Controller
@@ -31,6 +32,22 @@ class ReportsController extends Controller
     {
         return (new GenerateConsolidate())->generate($request);
     }
+
+
+
+    // ejemplo
+    // public function getFamilyMembers(Request $request): \Illuminate\Http\JsonResponse
+    // {
+    //     return ReportProcessor::runReport($request, new FamilyMembers());
+    // }
+
+    public function getGroupDirectors(Request $request): \Illuminate\Http\JsonResponse
+    {
+        return ReportProcessor::runReport($request, new GroupDirectors() );
+
+    }
+
+    //
     public function getFamilyMembers(Request $request): \Illuminate\Http\JsonResponse
     {
         return ReportProcessor::runReport($request, new FamilyMembers());

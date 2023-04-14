@@ -15,7 +15,7 @@ Ext.define('Admin.store.general.AsignaturaCertificadoStore', {
         },
         api: {
             create  : 'academic/insert_asignaturas_certificados',
-            read    : 'academic/get_select_asignaturas_certificados',
+            read    : 'academic/get_select_asignaturas_certificados',//X
             update  : 'General/update_data',
             destroy : 'General/delete_data'
         }

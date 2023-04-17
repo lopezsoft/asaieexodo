@@ -10,4 +10,10 @@ class SubjectController extends Controller{
     {
         return Subject::getSubject($request);
     }
+
+    public function createSubject(Request $request): \Illuminate\Http\JsonResponse
+    {
+        return Subject::createSubjectCertificate($request);
+    }
+
 }

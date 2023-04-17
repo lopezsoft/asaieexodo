@@ -39,7 +39,9 @@ Ext.define('Admin.view.academico.AsignaturasCertificadosView',{
             } else {
                 form.reset(true);
             };
-            ts.winObject.show();
+             ts.winObject.show();
+			ts.winObject.setRecord(ts.getRecord());
+			ts.winObject.show();
         });
     },
     store: 'AsignaturaCertificadoStore',

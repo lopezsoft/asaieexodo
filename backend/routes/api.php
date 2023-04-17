@@ -76,7 +76,7 @@ Route::prefix('v1')->group(function () {
                Route::get('getGroupDirectorByGrade', 'getGroupDirectorByGrade');
 
             });
-            //este
+
         });
 
         Route::prefix('grades')->group(function () {
@@ -96,8 +96,9 @@ Route::prefix('v1')->group(function () {
         Route::prefix('academic')->group(function () {
            Route::controller('Academic\AcademicController')->group(function () {
             Route::post('honorFrame', 'getHonorFrame');
-            // Route::post('honor-frame', 'getHonorFrame');
-            //este
+
+
+
            });
         });
 
@@ -108,6 +109,15 @@ Route::prefix('v1')->group(function () {
                Route::get('subjects-by-year', 'getSubjectsByYear');
            });
         });
+
+
+        Route::prefix('subject')->group(function () {
+            Route::controller('SubjectController')->group(function () {
+                Route::get('get_subject_certificate','getSubject');
+            });
+         });
+
+
 
         Route::prefix('students')->group(function () {
             Route::controller('Academic\StudentController')->group(function () {

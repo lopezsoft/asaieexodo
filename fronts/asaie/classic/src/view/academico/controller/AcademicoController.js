@@ -780,6 +780,7 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
     },
 
     onCreateAsignaturasCert : function (btn) {
+		console.log("dentrando a asignatura");
         var me = Admin.getApplication(),
             record  = btn.up('form').down('grid').getSelection()[0];
         param   = {
@@ -788,7 +789,9 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
         };
         me.setParamStore('AsignaturaCertificadoStore',param,false);
         win = Ext.create('Admin.view.academico.AsignaturasCertificadosView');
+		console.log("antes de show");
         win.show();
+        console.log("despúes de show");
     },
 
     onCreateAsignaturas : function (btn) {

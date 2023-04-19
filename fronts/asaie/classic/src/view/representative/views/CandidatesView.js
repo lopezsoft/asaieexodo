@@ -27,7 +27,16 @@ Ext.define('Admin.view.representative.CandidatesView',{
                 {
                     xtype       : 'cbcandidacies',
 					labelWidth	: 100,
-                }
+                },
+				{
+					xtype: 'numberfield',
+					fieldLabel: 'Year',
+					name: 'year',
+					minValue: 2014, 
+					maxValue: new Date().getFullYear() ,
+					hideTrigger: true,
+					allowBlank: false
+				} 
             ]
         }
     ],

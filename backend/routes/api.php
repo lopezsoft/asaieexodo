@@ -116,6 +116,7 @@ Route::prefix('v1')->group(function () {
          Route::prefix('representative')->group(function () {
             Route::controller('RepresentativeController')->group(function () {
                 Route::get('votes-white-candidates','getCandidates');
+                Route::get('juries','getJuries');
             });
          });
 

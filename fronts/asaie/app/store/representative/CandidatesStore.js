@@ -11,7 +11,7 @@ Ext.define('Admin.store.representative.CandidatesStore',{
         },
         api : {
             create  : 'master/insertData',
-            read    : 'representative/getCandidates',
+            read    : 'representative/votes-white-candidates',
             update  : 'master/updateData',
             destroy : 'master/deleteData'
         }

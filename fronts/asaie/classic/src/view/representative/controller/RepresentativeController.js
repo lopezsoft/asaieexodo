@@ -458,6 +458,7 @@ Ext.define('Admin.view.representative.controller.RepresentativeController',{
 				};
 
         }else{
+			console.log("win = ",win.alias)
 
 			url     = 'representative/report_resultados';
            	var  report  = win.down('#comboReport').getSelection();

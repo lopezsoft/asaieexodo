@@ -76,7 +76,6 @@ Route::prefix('v1')->group(function () {
                Route::get('getGroupDirectorByGrade', 'getGroupDirectorByGrade');
 
             });
-
         });
 
         Route::prefix('grades')->group(function () {
@@ -96,9 +95,6 @@ Route::prefix('v1')->group(function () {
         Route::prefix('academic')->group(function () {
            Route::controller('Academic\AcademicController')->group(function () {
             Route::post('honorFrame', 'getHonorFrame');
-
-
-
            });
         });
 
@@ -114,7 +110,12 @@ Route::prefix('v1')->group(function () {
         Route::prefix('subject')->group(function () {
             Route::controller('SubjectController')->group(function () {
                 Route::get('subject-certificate','getSubject');
-                Route::post('subject-new','createSubject');
+            });
+         });
+
+         Route::prefix('representative')->group(function () {
+            Route::controller('RepresentativeController')->group(function () {
+                Route::get('votes-white-candidates','getCandidates');
             });
          });
 

@@ -13,10 +13,10 @@ Ext.define('Admin.store.representative.TableHeadquartersStore',{
             pdbTable    : 'tp_table_headquarters'
         },
         api : {
-            create  : 'master/insertData',
-            read    : 'representative/getTableHeadquarters',
-            update  : 'master/updateData',
-            destroy : 'master/deleteData'
+            create  : 'crud',
+            read    : 'polling-station/headquarters',
+            update  : 'crud',
+            destroy : 'crud'
         }
     }
 });

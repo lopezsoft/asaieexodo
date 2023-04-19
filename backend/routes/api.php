@@ -123,6 +123,7 @@ Route::prefix('v1')->group(function () {
          Route::prefix('polling-station')->group(function () {
             Route::controller('TableVoteController')->group(function () {
                 Route::get('headquarters','getTableHeadquarters');
+                Route::get('assigned-courses','getDegreesPerTable');
             });
          });
 

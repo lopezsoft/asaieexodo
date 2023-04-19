@@ -10,10 +10,10 @@ Ext.define('Admin.store.representative.DegreesPerTableStore',{
           pdbTable  : 'tp_degrees_per_table'
         },
         api : {
-            create  : 'master/insertData',
-            read    : 'representative/getDegreesPerTable',
-            update  : 'master/updateData',
-            destroy : 'master/deleteData'
+            create  : 'crud',
+            read    : 'polling-station/assigned-courses',
+            update  : 'crud',
+            destroy : 'crud'
         }
     }
 });

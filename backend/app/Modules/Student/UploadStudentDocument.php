@@ -2,17 +2,18 @@
 
 namespace App\Modules\Student;
 
+use App\Contracts\FileManageContract;
 use App\Modules\School\SchoolQueries;
 use App\Modules\Upload\UploadFiles;
 use App\Traits\MessagesTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class UploadStudentDocument
+class UploadStudentDocument implements FileManageContract
 {
     use MessagesTrait;
 
-    public static function getDocuments(Request $request): \Illuminate\Http\JsonResponse
+    public static function getFiles(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $school     = SchoolQueries::getSchoolRequest($request);
@@ -33,7 +34,7 @@ class UploadStudentDocument
             ]);
         }
     }
-    public static function uploadDocument(Request $request): \Illuminate\Http\JsonResponse
+    public static function uploadFile(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             DB::beginTransaction();

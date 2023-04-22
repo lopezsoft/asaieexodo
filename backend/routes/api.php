@@ -146,6 +146,9 @@ Route::prefix('v1')->group(function () {
                 Route::prefix('student')->group(function () {
                     Route::get('read-documents', 'readStudentDocuments');
                 });
+                Route::prefix('teacher')->group(function () {
+                    Route::get('read-documents', 'readTeacherDocuments');
+                });
                 Route::prefix('settings')->group(function () {
                     Route::get('read-school-logo', 'readSchoolLogo');
                     Route::get('read-signature', 'readSignature');
@@ -159,6 +162,9 @@ Route::prefix('v1')->group(function () {
                 });
                 Route::prefix('student')->group(function () {
                     Route::post('upload-documents', 'uploadStudentDocuments');
+                });
+                Route::prefix('teacher')->group(function () {
+                    Route::post('upload-documents', 'uploadTeacherDocuments');
                 });
                 Route::prefix('settings')->group(function () {
                     Route::post('upload-school-logo', 'uploadSchoolLogo');

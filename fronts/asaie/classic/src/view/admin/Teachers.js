@@ -114,12 +114,6 @@ Ext.define('Admin.view.admin.Teachers',{
                 xtype   : 'toolbarCrud',
                 items   : [
 					'->',
-					{
-						xtype       : 'btnWebcam',
-						iconCls		: 'far fa-images',
-						tooltip		: 'Imaganes del docente',
-						handler		: 'onViewWebcam'
-					},'-',
                     {
                         xtype       : 'customButton',
                         tooltip     : AppLang.getSToolTipDigitalDocuments(),
@@ -127,16 +121,17 @@ Ext.define('Admin.view.admin.Teachers',{
                         disabled  	: true,
                         iconCls     : 'x-fa fa-book',
                         handler     : function (btn) {
-                            var me  = Admin.getApplication(),
-                                rec = btn.up('form').down('grid').getSelection()[0];
-                                me.onStore('docs.ImageBrowserStore');
-                            var win = Ext.create({
+							const me = Admin.getApplication(),
+								rec = btn.up('form').down('grid').getSelection()[0];
+
+							me.onStore('docs.ImageBrowserStore');
+                            Ext.create({
                                 xtype           : 'FilesView',
-                                pathReadFile    : 'c_docentes/read_files_dig',
-                                pathUploadFile  : 'c_docentes/upload_files_dig',
+                                pathReadFile    : 'download/teacher/read-documents',
+                                pathUploadFile  : 'upload/teacher/upload-documents',
                                 textButtonApply : AppLang.getSButtonAcept(),
                                 extraParams     : {
-                                    pdbDocumento: rec.get('documento')
+                                    pdbTeacherId: rec.get('documento')
                                 }
                             }).show();
                         }

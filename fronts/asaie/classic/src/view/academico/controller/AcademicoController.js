@@ -780,13 +780,13 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
     },
 
     onCreateAsignaturasCert : function (btn) {
-        var me = Admin.getApplication(),
-            record  = btn.up('form').down('grid').getSelection()[0];
-        param   = {
+		const me = Admin.getApplication(),
+			record = btn.up('form').down('grid').getSelection()[0];
+		const param   = {
             pdbTable : 'asignaturas_certificados',
             pdbId    : record.get('id_pk')
         };
-        me.setParamStore('AsignaturaCertificadoStore',param,false);
+        me.setParamStore('AsignaturaCertificadoStore',param, false);
         let win = Ext.create('Admin.view.academico.AsignaturasCertificadosView');
         win.setRecord(record.getData());
 		win.show();

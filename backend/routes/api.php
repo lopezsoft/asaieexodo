@@ -108,7 +108,11 @@ Route::prefix('v1')->group(function () {
 
         Route::prefix('subject')->group(function () {
             Route::controller('SubjectController')->group(function () {
-                Route::get('subject-certificate','getSubject');
+                Route::prefix('auxiliar-subjects')->group(function () {
+                    Route::get('/','getAuxiliarSubjects');
+                    Route::post('/','createAuxiliarSubjects');
+                });
+                Route::get('subject-certificate','getSubjectCertificate');
             });
          });
 

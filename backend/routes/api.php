@@ -120,6 +120,14 @@ Route::prefix('v1')->group(function () {
             });
          });
 
+         Route::prefix('vote')->group(function () {
+            Route::controller('VotesController')->group(function () {
+                Route::post('new-vote','insertVotes');
+            });
+         });
+
+
+
          Route::prefix('polling-station')->group(function () {
             Route::controller('TableVoteController')->group(function () {
                 Route::get('headquarters','getTableHeadquarters');

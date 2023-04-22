@@ -55,8 +55,9 @@ Ext.define('Admin.view.representative.VotingView', {
 			selected 	= selections[0],
             me      	= Admin.getApplication(),
            	ts   		= this,
-            url  		= Global.getUrlBase() + 'representative/insertVotes',
+            url  		= Global.getApiUrl() + '/vote/new-vote',
 			record		= ts.getRecord();
+			
 
         if (selected) {
             Ext.Msg.prompt('Código identidad', 'Por favor digite su código de votación:', function(btn, text){
@@ -64,7 +65,7 @@ Ext.define('Admin.view.representative.VotingView', {
                     if (!Ext.isEmpty(text)) {
                         ts.el.mask('Procesando voto...');
 
-                        const 
+                        let 
 							data = {
 								enrollment_id		: text,
 								id					: selected.get('id'),
@@ -73,13 +74,19 @@ Ext.define('Admin.view.representative.VotingView', {
 								candidacy_id		: selected.get('candidacy_id'),
 								type        		: selected.get('type')
 							};
+                            data = {...data,...Global.getSchoolParams()};
 
                         Ext.Ajax.request({
                             url     : url,
+                            headers: {
+                                'Authorization' : (AuthToken) ? AuthToken.authorization() : ''
+                            },
                             params  : data,
                             method  : 'POST',
                             success: function (response) {
                                 value   = Ext.decode(response.responseText);
+                                let msg = ""; 
+                                let msgt = ""; 
 
                                 switch ( parseInt(value.state)) {
                                     case 0 :
@@ -100,7 +107,8 @@ Ext.define('Admin.view.representative.VotingView', {
                                         break;
                                 }
 
-                               me.showResult(msg + '.', msgt);
+                            //    me.showResult(msg + '.', msgt);
+                                me.showResult(msg + msgt);
                             },
 
                             failure: function (response) {

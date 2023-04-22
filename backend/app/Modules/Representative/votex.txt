@@ -1,0 +1,166 @@
+<?php
+
+namespace App\Modules\Representative;
+
+use App\Modules\School\SchoolQueries;
+use App\Traits\MessagesTrait;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+
+
+class Votex{
+
+    use MessagesTrait;
+
+    public static function insertVotes($request) {
+
+        $school    = SchoolQueries::getSchoolRequest($request);
+        $db        = $school->db;
+
+        $limit  = $request->input('limit') ?? 15;
+
+        $enrollment_id = $request->input('enrollment_id');
+        $id = $request->input('profileId');
+        $candidate_id = $request->input('candidate_id');
+        $polling_station_id = $request->input('polling_station_id');
+        $candidacy_id = $request->input('candidacy_id');
+        $type = $request->input('type');
+        $year = $request->input('year');
+        $queryMesa = null;
+
+
+
+
+        $query = DB::table("{$db}student_enrollment")
+            ->where('id', '=', $enrollment_id)
+            ->where('year', '=', $year)
+            ->get();
+
+
+        if ($query) {
+
+            if ($query->count() > 0) {
+
+                $queryMesa = DB::table("{$db}tp_polling_stations")
+                    ->where('id', '=', $polling_station_id)
+                    ->where('year', '=', $year)
+                    ->get();
+
+                if ($queryMesa->count() > 0) {
+
+
+                    // Se verifica si la mesa está activa
+                    if ($queryMesa[0]->state == 2) {
+
+                        $queryVoto = DB::table("{$db}tp_votes")
+                            ->where('year', '=', $year)
+                            ->where('enrollment_id', '=', $enrollment_id)
+                            ->where('candidacy_id', '=', $candidacy_id)
+                            ->get();
+
+                        /**
+                         * Se verifica si el votante no ha relizado el proceso del voto para evitar
+                         * duplicidad de votos y se realiza el proceso de insert.
+                         */
+                        if ($queryVoto->count() == 0) {
+
+                            if ($type == 1) { // White vote
+                                $data = [
+                                    "year" => $year,
+                                    "white_vote_id" => $candidate_id,
+                                    "enrollment_id" => $enrollment_id,
+                                    "candidacy_id" => $candidacy_id,
+                                    "polling_station_id" => $polling_station_id,
+                                ];
+
+                                DB::table("{$db}tp_aux_white_vote")->insert($data);
+                            } else {
+                                $data = [
+                                    "year" => $year,
+                                    "candidate_id" => $candidate_id,
+                                    "enrollment_id" => $enrollment_id,
+                                    "candidacy_id" => $candidacy_id,
+                                    "polling_station_id" => $polling_station_id,
+                                ];
+
+                                DB::table("{$db}tp_aux_candidate_votes")->insert($data);
+                            }
+
+                            $data = [
+                                "year" => $year,
+                                "enrollment_id" => $enrollment_id,
+                                "candidacy_id" => $candidacy_id,
+                                "attempts" => 1,
+                                "state" => 1,
+                            ];
+
+                            DB::table("{$db}tp_votes")->insert($data);
+
+                            $request = array(
+                                'success' => true,
+                                'state' => 1 // Se realizó el proceso de voto correctamente
+                            );
+                            $request = json_encode($request);
+                        } else { // Si el estudiante ya había realizado el voto y lo intenta de nuevo
+
+                            DB::table("{$db}tp_votes")
+                                ->where('id', '=', $queryVoto[0]->id)
+                                ->update(['attempts' => DB::raw('attempts + 1')]);
+
+                            $request = array(
+                                'success' => true,
+                                'state' => 0,
+                                'message' => 'Se realizó el proceso de voto correctamente'
+                            );
+                            $request = json_encode($request);
+                        }
+                    } else {
+                        $request = array(
+                            'success' => true,
+                            'state' => 3,
+                            'message' => ' Mesa cerrada'
+                        );
+                        $request = json_encode($request);
+                    }
+                } else {
+                    $request = array(
+                        'success' => false,
+                        'message' => 'No se encontraron registros de la mesa o la mesa no esta activa.'
+                    );
+                    $request = json_encode($request);
+                }
+            } else {
+
+                $request = array(
+                    'success' => true,
+                    'state' => 2 ,
+                    'message' => ' No se encuentra registros de matricula del estudiante'
+                );
+
+                $request = json_encode($request);
+            }
+        }
+
+        // if ($queryMesa) {
+        //     return self::getResponse(['records' => $queryMesa->toArray(),'success' => true]);
+        // } else {
+        //     return self::getResponse(['records' => null,'success' => false, 'message' => 'No se encontraron registros de la mesa o la mesa no está activa.']);
+        // }
+
+
+
+
+
+
+
+
+        return self::getResponse(['records' => $request,'success' => true]);
+        // return self::getResponse(['records' => $queryMesa->toArray(),'success' => true]);
+
+
+
+
+
+
+	}
+}

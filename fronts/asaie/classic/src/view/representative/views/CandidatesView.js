@@ -32,7 +32,7 @@ Ext.define('Admin.view.representative.CandidatesView',{
 					xtype: 'numberfield',
 					fieldLabel: 'Year',
 					name: 'year',
-					minValue: 2014, 
+					minValue: 2010, 
 					maxValue: new Date().getFullYear() ,
 					hideTrigger: true,
 					allowBlank: false

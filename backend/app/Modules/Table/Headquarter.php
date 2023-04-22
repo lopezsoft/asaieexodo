@@ -17,7 +17,8 @@ class Headquarter{
         $limit  = $request->input('limit') ?? 15;
         $school    = SchoolQueries::getSchoolRequest($request);
         $db        = $school->db;
-        $id = $request->input('pdbPolingStationId');;
+
+        $id = $request->input('pdbPolingStationId');
         $query = DB::table("{$db}tp_table_headquarters AS tp")
         ->select("tp.*", DB::raw("rtrim(ts.headquarters_name) AS sede"))
         ->leftJoin("{$db}sedes AS ts", "tp.headquarter_id", "=", "ts.id")

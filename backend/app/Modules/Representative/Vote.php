@@ -27,6 +27,10 @@ class Vote{
         $type = $request->input('type');
         $year = $request->input('year');
         $queryMesa = null;
+        $msg = "";
+        $msg6="";
+        $msg7="";
+        $msg5="";
 
         $query = DB::table("{$db}student_enrollment")
             ->where('id', $enrollment_id)
@@ -57,10 +61,33 @@ class Vote{
                         ->where('enrollment_id', $enrollment_id)//identificación de inscripción
                         ->where('candidacy_id', $candidacy_id)
                         ->get();
+
                         if ($queryVoto) {
                             $msg5="pasó";
+                             /**
+						 * Se verifica si el votante no ha relizado el proceso del voto para evitar
+						 * duplicidad de votos y se realiza el proceso de insert.
+						 */
+                            if($queryVoto->count() == 0) {
+                                if($type == 1) { // White vote
+                                    $data = [
+                                        "year"                  => $year,
+                                        "white_vote_id"         => $candidate_id,
+                                        "enrollment_id"         => $enrollment_id,
+                                        "candidacy_id"          => $candidacy_id,
+                                        "polling_station_id"    => $polling_station_id,
+                                    ];
+                                    DB::table("{$db}tp_aux_white_vote")->insert($data);
+                                    return $msg6 = "voto en blanco?";
+                                }
+
+                            } else {
+
+                                return $msg6 = "que paso?";
+                            }
+
                           } else {
-                            return $msg5 = "error";
+                            return $msg5 = "número de identificacion no corresponde con candidato y año";
                           }
 
 
@@ -83,19 +110,21 @@ class Vote{
         }
 
         $data =[
-            $mensaje,
-            $msg,
-            $msg3,
+            // $mensaje,
+            // $msg,
+            // $msg3,
             $msg4,
-            $msg5
+            $msg5,
+            $msg6
         ];
 
 
 
 
 
+
+        // return self::getResponse(['records' => $data,'success' => true]);
         return self::getResponse(['records' => $data,'success' => true]);
-        // return self::getResponse(['records' => $queryMesa->toArray(),'success' => true]);
 
 
 

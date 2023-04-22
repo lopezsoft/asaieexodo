@@ -1,0 +1,575 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.9.0.final using JasperReports Library version 6.9.0-cb8f9004be492ccc537180b49c026951f4220bf3  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="consolidado_totales_subreport" pageWidth="595" pageHeight="842" columnWidth="567" leftMargin="0" rightMargin="28" topMargin="0" bottomMargin="0" uuid="4c69dae3-e689-4737-96b1-d92f42759f57">
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="SME"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="0"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="1000"/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<parameter name="Table" class="java.lang.String"/>
+	<queryString language="SQL">
+		<![CDATA[$P!{Table}]]>
+	</queryString>
+	<field name="id_sede" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="id_sede"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado_totales"/>
+	</field>
+	<field name="id_jorn" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="id_jorn"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado_totales"/>
+	</field>
+	<field name="id_grado" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="id_grado"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado_totales"/>
+	</field>
+	<field name="grupo" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="grupo"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado_totales"/>
+	</field>
+	<field name="year" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="año"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado_totales"/>
+	</field>
+	<field name="periodo" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="periodo"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado_totales"/>
+	</field>
+	<field name="ar1" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="ar1"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado_totales"/>
+	</field>
+	<field name="ar2" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="ar2"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado_totales"/>
+	</field>
+	<field name="ar3" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="ar3"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado_totales"/>
+	</field>
+	<field name="ar4" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="ar4"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado_totales"/>
+	</field>
+	<field name="ar5" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="ar5"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado_totales"/>
+	</field>
+	<field name="ar6" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="ar6"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado_totales"/>
+	</field>
+	<field name="ar7" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="ar7"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado_totales"/>
+	</field>
+	<field name="ar8" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="ar8"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado_totales"/>
+	</field>
+	<field name="ar9" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="ar9"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado_totales"/>
+	</field>
+	<field name="ar10" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="ar10"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado_totales"/>
+	</field>
+	<field name="ar11" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="ar11"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado_totales"/>
+	</field>
+	<field name="ar12" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="ar12"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado_totales"/>
+	</field>
+	<field name="ar13" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="ar13"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado_totales"/>
+	</field>
+	<field name="ar14" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="ar14"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado_totales"/>
+	</field>
+	<field name="ar15" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="ar15"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado_totales"/>
+	</field>
+	<field name="ar16" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="ar16"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado_totales"/>
+	</field>
+	<field name="ar17" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="ar17"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado_totales"/>
+	</field>
+	<field name="ar18" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="ar18"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado_totales"/>
+	</field>
+	<field name="ar19" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="ar19"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado_totales"/>
+	</field>
+	<field name="ar20" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="ar20"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado_totales"/>
+	</field>
+	<field name="ar21" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="ar21"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado_totales"/>
+	</field>
+	<field name="ar22" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="ar22"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado_totales"/>
+	</field>
+	<field name="ar23" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="ar23"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado_totales"/>
+	</field>
+	<field name="ar24" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="ar24"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado_totales"/>
+	</field>
+	<field name="ar25" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="ar25"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado_totales"/>
+	</field>
+	<field name="t" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="t"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado_totales"/>
+	</field>
+	<variable name="ar11" class="java.lang.Integer" resetType="Group" resetGroup="Total" calculation="Sum">
+		<variableExpression><![CDATA[$F{ar1}]]></variableExpression>
+	</variable>
+	<variable name="ar21" class="java.lang.Integer" resetType="Group" resetGroup="Total" calculation="Sum">
+		<variableExpression><![CDATA[$F{ar2}]]></variableExpression>
+	</variable>
+	<variable name="ar31" class="java.lang.Integer" resetType="Group" resetGroup="Total" calculation="Sum">
+		<variableExpression><![CDATA[$F{ar3}]]></variableExpression>
+	</variable>
+	<variable name="ar41" class="java.lang.Integer" resetType="Group" resetGroup="Total" calculation="Sum">
+		<variableExpression><![CDATA[$F{ar4}]]></variableExpression>
+	</variable>
+	<variable name="ar51" class="java.lang.Integer" resetType="Group" resetGroup="Total" calculation="Sum">
+		<variableExpression><![CDATA[$F{ar5}]]></variableExpression>
+	</variable>
+	<variable name="ar61" class="java.lang.Integer" resetType="Group" resetGroup="Total" calculation="Sum">
+		<variableExpression><![CDATA[$F{ar6}]]></variableExpression>
+	</variable>
+	<variable name="ar71" class="java.lang.Integer" resetType="Group" resetGroup="Total" calculation="Sum">
+		<variableExpression><![CDATA[$F{ar7}]]></variableExpression>
+	</variable>
+	<variable name="ar81" class="java.lang.Integer" resetType="Group" resetGroup="Total" calculation="Sum">
+		<variableExpression><![CDATA[$F{ar8}]]></variableExpression>
+	</variable>
+	<variable name="ar91" class="java.lang.Integer" resetType="Group" resetGroup="Total" calculation="Sum">
+		<variableExpression><![CDATA[$F{ar9}]]></variableExpression>
+	</variable>
+	<variable name="ar101" class="java.lang.Integer" resetType="Group" resetGroup="Total" calculation="Sum">
+		<variableExpression><![CDATA[$F{ar10}]]></variableExpression>
+	</variable>
+	<variable name="ar111" class="java.lang.Integer" resetType="Group" resetGroup="Total" calculation="Sum">
+		<variableExpression><![CDATA[$F{ar11}]]></variableExpression>
+	</variable>
+	<variable name="ar121" class="java.lang.Integer" resetType="Group" resetGroup="Total" calculation="Sum">
+		<variableExpression><![CDATA[$F{ar12}]]></variableExpression>
+	</variable>
+	<variable name="ar131" class="java.lang.Integer" resetType="Group" resetGroup="Total" calculation="Sum">
+		<variableExpression><![CDATA[$F{ar13}]]></variableExpression>
+	</variable>
+	<variable name="ar141" class="java.lang.Integer" resetType="Group" resetGroup="Total" calculation="Sum">
+		<variableExpression><![CDATA[$F{ar14}]]></variableExpression>
+	</variable>
+	<variable name="ar151" class="java.lang.Integer" resetType="Group" resetGroup="Total" calculation="Sum">
+		<variableExpression><![CDATA[$F{ar15}]]></variableExpression>
+	</variable>
+	<variable name="ar161" class="java.lang.Integer" resetType="Group" resetGroup="Total" calculation="Sum">
+		<variableExpression><![CDATA[$F{ar16}]]></variableExpression>
+	</variable>
+	<variable name="ar171" class="java.lang.Integer" resetType="Group" resetGroup="Total" calculation="Sum">
+		<variableExpression><![CDATA[$F{ar17}]]></variableExpression>
+	</variable>
+	<variable name="ar181" class="java.lang.Integer" resetType="Group" resetGroup="Total" calculation="Sum">
+		<variableExpression><![CDATA[$F{ar18}]]></variableExpression>
+	</variable>
+	<variable name="ar191" class="java.lang.Integer" resetType="Group" resetGroup="Total" calculation="Sum">
+		<variableExpression><![CDATA[$F{ar19}]]></variableExpression>
+	</variable>
+	<variable name="ar201" class="java.lang.Integer" resetType="Group" resetGroup="Total" calculation="Sum">
+		<variableExpression><![CDATA[$F{ar20}]]></variableExpression>
+	</variable>
+	<group name="Total">
+		<groupExpression><![CDATA[$F{id_sede}]]></groupExpression>
+		<groupFooter>
+			<band height="12">
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="21" y="1" width="22" height="11" forecolor="#4F0403" uuid="a463d382-e98c-4600-b2f5-95c4f1742e1e"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{ar11}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="44" y="1" width="22" height="11" forecolor="#4F0403" uuid="8fdcc6d7-911f-44fe-8adf-603ad2bc7ceb"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{ar21}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="67" y="1" width="22" height="11" forecolor="#4F0403" uuid="973a71b5-948b-4f8e-b3b8-589f5d983496"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{ar31}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="90" y="1" width="22" height="11" forecolor="#4F0403" uuid="cc1f77d4-62e3-41e4-8eac-90d65f5f93f7"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle" markup="none">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{ar41}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="113" y="1" width="22" height="11" forecolor="#4F0403" uuid="cb0cbb88-c8de-4eec-b52d-563187060909"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{ar51}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="136" y="1" width="22" height="11" forecolor="#4F0403" uuid="0d15b41f-4bb0-4741-9c9a-d741056acf12"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{ar61}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="159" y="1" width="22" height="11" forecolor="#4F0403" uuid="6ab75f19-bceb-4b4f-9ac8-3a1cf89aa307"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{ar71}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="182" y="1" width="22" height="11" forecolor="#4F0403" uuid="3f6f9cfb-e225-43a3-a5fc-5ca371becef0"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{ar81}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="228" y="1" width="22" height="11" forecolor="#4F0403" uuid="ef4cefba-77a1-4ec5-95b4-92f28240ad48"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{ar101}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="205" y="1" width="22" height="11" forecolor="#4F0403" uuid="751907c0-e2cd-401e-b509-567b27e0e237"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{ar91}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="413" y="1" width="22" height="11" isRemoveLineWhenBlank="true" forecolor="#4F0403" uuid="4bd99d73-95fb-4016-a964-0ca15ae6e1f8"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{ar181}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" isPrintRepeatedValues="false" x="252" y="1" width="22" height="11" isRemoveLineWhenBlank="true" forecolor="#4F0403" uuid="cee37c42-c2ae-4966-a30e-01c34805981d"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{ar111}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="275" y="1" width="22" height="11" isRemoveLineWhenBlank="true" forecolor="#4F0403" uuid="c11e5ff3-7c07-4a88-8c6a-94bcde8e8134"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{ar121}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="436" y="1" width="22" height="11" isRemoveLineWhenBlank="true" forecolor="#4F0403" uuid="0b64b9a7-0397-4ed9-8749-2274dcab987f"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{ar191}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="298" y="1" width="22" height="11" isRemoveLineWhenBlank="true" forecolor="#4F0403" uuid="99dcd77f-78da-4b4e-808a-45ec03dc42c8"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{ar131}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="367" y="1" width="22" height="11" isRemoveLineWhenBlank="true" forecolor="#4F0403" uuid="a59bcc60-cdba-46d6-b2da-42c947626ace"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{ar161}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="321" y="1" width="22" height="11" isRemoveLineWhenBlank="true" forecolor="#4F0403" uuid="a59a4ea5-5bce-48ef-b84f-c18ba7880045"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{ar141}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="459" y="1" width="22" height="11" isRemoveLineWhenBlank="true" forecolor="#4F0403" uuid="99fa4bad-0c95-46c4-8c7c-ae4e1ee8270c"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{ar201}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="390" y="1" width="22" height="11" isRemoveLineWhenBlank="true" forecolor="#4F0403" uuid="3a037a34-d3c2-42b7-8616-f0f7978ec6a7"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{ar171}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="344" y="1" width="22" height="11" isRemoveLineWhenBlank="true" forecolor="#4F0403" uuid="87a683fc-43a3-4716-a8c1-6adc18502333"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{ar151}]]></textFieldExpression>
+				</textField>
+				<line>
+					<reportElement positionType="Float" x="0" y="0" width="539" height="1" isRemoveLineWhenBlank="true" forecolor="#8A2827" uuid="1ced09a1-e10a-4d7f-b144-d1eb311d8a16"/>
+					<graphicElement>
+						<pen lineWidth="0.75"/>
+					</graphicElement>
+				</line>
+				<staticText>
+					<reportElement positionType="Float" x="0" y="1" width="21" height="11" uuid="943e8f16-2bd2-4f91-9130-3cf87d121254"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Total:]]></text>
+				</staticText>
+			</band>
+		</groupFooter>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<detail>
+		<band height="11" splitType="Stretch">
+			<textField>
+				<reportElement x="4" y="0" width="10" height="11" uuid="39607d87-7fef-4dc4-bdef-031b08636413"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{periodo}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00">
+				<reportElement positionType="Float" x="21" y="0" width="22" height="11" uuid="6a05bb57-26a4-4bc1-bb03-dce480bf8ab6">
+					<printWhenExpression><![CDATA[$F{ar1}.intValue() > 0]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{ar1}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00">
+				<reportElement positionType="Float" x="44" y="0" width="22" height="11" uuid="8ddbe91c-d5ab-4285-9ff0-3f64a2167aed">
+					<printWhenExpression><![CDATA[$F{ar2}.intValue() > 0]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{ar2}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00">
+				<reportElement positionType="Float" x="67" y="0" width="22" height="11" uuid="7473512e-683a-4154-b386-f368758318dc">
+					<printWhenExpression><![CDATA[$F{ar3}.intValue() > 0]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{ar3}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00">
+				<reportElement positionType="Float" x="90" y="0" width="22" height="11" uuid="b380f27a-63d4-4f5c-bf72-8c99b9634c78">
+					<printWhenExpression><![CDATA[$F{ar4}.intValue() > 0]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle" markup="none">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{ar4}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00">
+				<reportElement positionType="Float" x="113" y="0" width="22" height="11" uuid="31312e9b-4743-4941-aae5-c0dfc556f6b5">
+					<printWhenExpression><![CDATA[$F{ar5}.intValue() > 0]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{ar5}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00">
+				<reportElement positionType="Float" x="136" y="0" width="22" height="11" uuid="3b5e62ad-e664-4b43-906b-1adc4879147e">
+					<printWhenExpression><![CDATA[$F{ar6}.intValue() > 0]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{ar6}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00">
+				<reportElement positionType="Float" x="159" y="0" width="22" height="11" uuid="969cc0bd-da39-4656-a70c-6c82e5c664a4">
+					<printWhenExpression><![CDATA[$F{ar7}.floatValue() > 0]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{ar7}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00">
+				<reportElement positionType="Float" x="182" y="0" width="22" height="11" uuid="9ce3e0e8-e875-44be-ba2a-eab31647872e">
+					<printWhenExpression><![CDATA[$F{ar8}.floatValue() > 0]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{ar8}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00">
+				<reportElement positionType="Float" x="228" y="0" width="22" height="11" uuid="6465b5ee-07c8-4112-9850-e44a52a64ea2">
+					<printWhenExpression><![CDATA[$F{ar10}.floatValue() > 0]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{ar10}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00">
+				<reportElement positionType="Float" x="205" y="0" width="22" height="11" uuid="90768951-f3fb-47dc-870b-d6f063f6d29c">
+					<printWhenExpression><![CDATA[$F{ar9}.floatValue() > 0]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{ar9}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00">
+				<reportElement positionType="Float" x="413" y="0" width="22" height="11" isRemoveLineWhenBlank="true" uuid="daa6796b-529d-4c12-87f8-4bb55550d453">
+					<printWhenExpression><![CDATA[$F{ar18}.floatValue() > 0]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{ar18}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00">
+				<reportElement positionType="Float" isPrintRepeatedValues="false" x="252" y="0" width="22" height="11" isRemoveLineWhenBlank="true" uuid="954c3942-6b4a-4699-86ca-7bf8ba22a93d">
+					<printWhenExpression><![CDATA[$F{ar11}.floatValue() > 0]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{ar11}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00">
+				<reportElement positionType="Float" x="275" y="0" width="22" height="11" isRemoveLineWhenBlank="true" uuid="af8e106c-beb7-4ae9-a1e3-92f5fe945658">
+					<printWhenExpression><![CDATA[$F{ar12}.floatValue() > 0]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{ar12}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00">
+				<reportElement positionType="Float" x="436" y="0" width="22" height="11" isRemoveLineWhenBlank="true" uuid="452c7f1e-1170-4cf3-8cbb-23e0e6e4ec5b">
+					<printWhenExpression><![CDATA[$F{ar19}.floatValue() > 0]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{ar19}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00">
+				<reportElement positionType="Float" x="298" y="0" width="22" height="11" isRemoveLineWhenBlank="true" uuid="f04f03ef-a929-4769-b272-6796f63b7250">
+					<printWhenExpression><![CDATA[$F{ar13}.floatValue() > 0]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{ar13}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00">
+				<reportElement positionType="Float" x="367" y="0" width="22" height="11" isRemoveLineWhenBlank="true" uuid="a8254a1e-bb8e-45fb-8ee3-98c6388c1109">
+					<printWhenExpression><![CDATA[$F{ar16}.floatValue() > 0]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{ar16}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00">
+				<reportElement positionType="Float" x="321" y="0" width="22" height="11" isRemoveLineWhenBlank="true" uuid="97ba163d-fe8d-4338-a405-d442ef240fd4">
+					<printWhenExpression><![CDATA[$F{ar14}.floatValue() > 0]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{ar14}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00">
+				<reportElement positionType="Float" x="459" y="0" width="22" height="11" isRemoveLineWhenBlank="true" uuid="bbbd40fb-9d34-4beb-b39c-001a10030bb2">
+					<printWhenExpression><![CDATA[$F{ar20}.floatValue() > 0]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{ar20}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00">
+				<reportElement positionType="Float" x="390" y="0" width="22" height="11" isRemoveLineWhenBlank="true" uuid="408dad6a-8714-49bb-9434-e35a02482e1d">
+					<printWhenExpression><![CDATA[$F{ar17}.floatValue() > 0]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{ar17}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00">
+				<reportElement positionType="Float" x="344" y="0" width="22" height="11" isRemoveLineWhenBlank="true" uuid="ba3e88f6-3887-45ba-9bde-b731699121b6">
+					<printWhenExpression><![CDATA[$F{ar15}.floatValue() > 0]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{ar15}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<summary>
+		<band height="10">
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="0" width="539" height="10" backcolor="#F5F2F2" uuid="9965e184-dd8c-4dd0-a93f-a79bf95c1ef7"/>
+				<box leftPadding="7"/>
+				<textElement verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Áreas/Asignaturas perdidas]]></text>
+			</staticText>
+		</band>
+	</summary>
+</jasperReport>

@@ -1,0 +1,2657 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.18.1.final using JasperReports Library version 6.18.1-9d75d1969e774d4f179fb3be8401e98a0e6d1611  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="consolidado_asignaturas_horz" language="groovy" pageWidth="842" pageHeight="595" orientation="Landscape" columnWidth="786" leftMargin="28" rightMargin="28" topMargin="43" bottomMargin="20" uuid="33974257-97b3-4498-8fe2-7887b59433ce">
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="105"/>
+	<property name="ireport.y" value="3"/>
+	<property name="ireport.callouts" value="##Sun Dec 13 17:00:36 COT 2015\ncallouts.1.text=Informe plantilla base para crear los dem\u00E1s informes\n\ncallouts.1.bounds=-12,404,240,51"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="ASAIE"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="0"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="1000"/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<style name="StyleNar8">
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$F{nar8}.floatValue() <= new BigDecimal ($P{P_HASTA}).floatValue()]]></conditionExpression>
+			<style forecolor="#FF0400"/>
+		</conditionalStyle>
+	</style>
+	<style name="StyleRedColor" forecolor="#FF0400"/>
+	<style name="StyleNar1" pattern="">
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$F{nar1}.floatValue() <= new BigDecimal ($P{P_HASTA}).floatValue()]]></conditionExpression>
+			<style forecolor="#FF0400"/>
+		</conditionalStyle>
+	</style>
+	<style name="StyleNar2">
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$F{nar2}.floatValue() <= new BigDecimal ($P{P_HASTA}).floatValue()]]></conditionExpression>
+			<style forecolor="#FF0900"/>
+		</conditionalStyle>
+	</style>
+	<style name="StyleNar3">
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$F{nar3}.floatValue() <= new BigDecimal ($P{P_HASTA}).floatValue()]]></conditionExpression>
+			<style forecolor="#FF0400"/>
+		</conditionalStyle>
+	</style>
+	<style name="StyleNar4">
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$F{nar4}.floatValue() <= new BigDecimal ($P{P_HASTA}).floatValue()]]></conditionExpression>
+			<style forecolor="#FF0900"/>
+		</conditionalStyle>
+	</style>
+	<style name="StyleNar5">
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$F{nar5}.floatValue() <= new BigDecimal ($P{P_HASTA}).floatValue()]]></conditionExpression>
+			<style forecolor="#FF0400"/>
+		</conditionalStyle>
+	</style>
+	<style name="StyleNar6">
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$F{nar6}.floatValue() <= new BigDecimal ($P{P_HASTA}).floatValue()]]></conditionExpression>
+			<style forecolor="#FF0400"/>
+		</conditionalStyle>
+	</style>
+	<style name="StyleNar7">
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$F{nar7}.floatValue() <= new BigDecimal ($P{P_HASTA}).floatValue()]]></conditionExpression>
+			<style forecolor="#FF0400"/>
+		</conditionalStyle>
+	</style>
+	<style name="StyleNar9">
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$F{nar9}.floatValue() <= new BigDecimal ($P{P_HASTA}).floatValue()]]></conditionExpression>
+			<style forecolor="#FF0400"/>
+		</conditionalStyle>
+	</style>
+	<style name="StyleNar10">
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$F{nar10}.floatValue() <= new BigDecimal ($P{P_HASTA}).floatValue()]]></conditionExpression>
+			<style forecolor="#FF0400"/>
+		</conditionalStyle>
+	</style>
+	<style name="StyleNar11">
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$F{nar11}.floatValue() <= new BigDecimal ($P{P_HASTA}).floatValue()]]></conditionExpression>
+			<style forecolor="#FF0400"/>
+		</conditionalStyle>
+	</style>
+	<style name="StyleNar12" pattern="">
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$F{nar12}.floatValue() <= new BigDecimal ($P{P_HASTA}).floatValue()]]></conditionExpression>
+			<style forecolor="#FF0400"/>
+		</conditionalStyle>
+	</style>
+	<style name="StyleNar13">
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$F{nar13}.floatValue() <= new BigDecimal ($P{P_HASTA}).floatValue()]]></conditionExpression>
+			<style forecolor="#FF0900"/>
+		</conditionalStyle>
+	</style>
+	<style name="StyleNar14">
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$F{nar14}.floatValue() <= new BigDecimal ($P{P_HASTA}).floatValue()]]></conditionExpression>
+			<style forecolor="#FF0400"/>
+		</conditionalStyle>
+	</style>
+	<style name="StyleNar15">
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$F{nar15}.floatValue() <= new BigDecimal ($P{P_HASTA}).floatValue()]]></conditionExpression>
+			<style forecolor="#FF0900"/>
+		</conditionalStyle>
+	</style>
+	<style name="StyleNar16">
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$F{nar16}.floatValue() <= new BigDecimal ($P{P_HASTA}).floatValue()]]></conditionExpression>
+			<style forecolor="#FF0400"/>
+		</conditionalStyle>
+	</style>
+	<style name="StyleNar17">
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$F{nar17}.floatValue() <= new BigDecimal ($P{P_HASTA}).floatValue()]]></conditionExpression>
+			<style forecolor="#FF0400"/>
+		</conditionalStyle>
+	</style>
+	<style name="StyleNar18">
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$F{nar18}.floatValue() <= new BigDecimal ($P{P_HASTA}).floatValue()]]></conditionExpression>
+			<style forecolor="#FF0400"/>
+		</conditionalStyle>
+	</style>
+	<style name="StyleNar19">
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$F{nar19}.floatValue() <= new BigDecimal ($P{P_HASTA}).floatValue()]]></conditionExpression>
+			<style forecolor="#FF0400"/>
+		</conditionalStyle>
+	</style>
+	<style name="StyleNar20">
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$F{nar20}.floatValue() <= new BigDecimal ($P{P_HASTA}).floatValue()]]></conditionExpression>
+			<style forecolor="#FF0400"/>
+		</conditionalStyle>
+	</style>
+	<style name="StyleNar21">
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$F{nar21}.floatValue() <= new BigDecimal ($P{P_HASTA}).floatValue()]]></conditionExpression>
+			<style forecolor="#FF0400"/>
+		</conditionalStyle>
+	</style>
+	<style name="StyleNar22">
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$F{nar22}.floatValue() <= new BigDecimal ($P{P_HASTA}).floatValue()]]></conditionExpression>
+			<style forecolor="#FF0400"/>
+		</conditionalStyle>
+	</style>
+	<style name="StyleNar23">
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$F{nar20}.floatValue() <= new BigDecimal ($P{P_HASTA}).floatValue()]]></conditionExpression>
+			<style forecolor="#FF0400"/>
+		</conditionalStyle>
+	</style>
+	<style name="StyleNar24">
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$F{nar20}.floatValue() <= new BigDecimal ($P{P_HASTA}).floatValue()]]></conditionExpression>
+			<style forecolor="#FF0400"/>
+		</conditionalStyle>
+	</style>
+	<style name="StyleNar25">
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$F{nar20}.floatValue() <= new BigDecimal ($P{P_HASTA}).floatValue()]]></conditionExpression>
+			<style forecolor="#FF0400"/>
+		</conditionalStyle>
+	</style>
+	<parameter name="R_ESCALA" class="java.lang.String"/>
+	<parameter name="P_DESDE" class="java.lang.String"/>
+	<parameter name="P_NotaMin" class="java.lang.String">
+		<parameterDescription><![CDATA[Nota minima]]></parameterDescription>
+	</parameter>
+	<parameter name="P_NotaMinB" class="java.lang.String"/>
+	<parameter name="P_HASTA" class="java.lang.String"/>
+	<parameter name="SQL_TOTALES" class="java.lang.String"/>
+	<parameter name="SQL_PARAM" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="R_MARKETING" class="java.lang.String"/>
+	<parameter name="HOME_DIR" class="java.lang.String"/>
+	<parameter name="P_USER" class="java.lang.String"/>
+	<parameter name="AWS_PATH" class="java.lang.String"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["D:\\wamp64\\www\\asaieexodo\\backend\\public\\reports\\subreports\\"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="R_FOOTER" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[$P!{SQL_PARAM}]]>
+	</queryString>
+	<field name="year" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="year"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="student_enrollment"/>
+	</field>
+	<field name="periodo" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="periodo"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="id_matric" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="id_matric"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="ar1" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="ar1"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="nar1" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="nar1"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="ar2" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="ar2"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="nar2" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="nar2"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="ar3" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="ar3"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="nar3" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="nar3"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="ar4" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="ar4"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="nar4" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="nar4"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="ar5" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="ar5"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="nar5" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="nar5"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="ar6" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="ar6"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="nar6" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="nar6"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="ar7" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="ar7"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="nar7" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="nar7"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="ar8" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="ar8"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="nar8" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="nar8"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="ar9" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="ar9"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="nar9" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="nar9"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="ar10" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="ar10"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="nar10" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="nar10"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="ar11" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="ar11"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="nar11" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="nar11"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="ar12" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="ar12"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="nar12" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="nar12"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="ar13" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="ar13"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="nar13" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="nar13"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="ar14" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="ar14"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="nar14" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="nar14"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="ar15" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="ar15"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="nar15" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="nar15"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="ar16" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="ar16"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="nar16" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="nar16"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="ar17" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="ar17"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="nar17" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="nar17"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="ar18" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="ar18"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="nar18" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="nar18"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="ar19" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="ar19"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="nar19" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="nar19"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="ar20" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="ar20"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="nar20" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="nar20"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="ar21" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="ar21"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="nar21" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="nar21"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="ar22" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="ar22"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="nar22" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="nar22"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="ar23" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="ar23"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="nar23" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="nar23"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="ar24" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="ar24"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="nar24" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="nar24"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="ar25" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="ar25"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="nar25" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="nar25"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="prom" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="prom"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="t" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="t"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="consolidado"/>
+	</field>
+	<field name="id_grade" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="id_grade"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="student_enrollment"/>
+	</field>
+	<field name="id_group" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="id_group"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="student_enrollment"/>
+	</field>
+	<field name="id_study_day" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="id_study_day"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="student_enrollment"/>
+	</field>
+	<field name="id_headquarters" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="id_headquarters"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="student_enrollment"/>
+	</field>
+	<field name="id_student" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="id_student"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="student_enrollment"/>
+	</field>
+	<field name="estudiante" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="estudiante"/>
+	</field>
+	<field name="grado" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="grado"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="grados"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="cod_grado" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="cod_grado"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="grados"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="jornada" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="jornada"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="jornadas"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="sede" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="sede"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="sedes"/>
+	</field>
+	<variable name="nar1_1" class="java.math.BigDecimal" resetType="Group" resetGroup="est" calculation="Average">
+		<variableExpression><![CDATA[$F{nar1}]]></variableExpression>
+	</variable>
+	<variable name="count_as" class="java.lang.Integer" resetType="Group" resetGroup="est" calculation="Count">
+		<variableExpression><![CDATA[$F{id_matric}]]></variableExpression>
+		<initialValueExpression><![CDATA[1]]></initialValueExpression>
+	</variable>
+	<variable name="prom_1" class="java.math.BigDecimal" resetType="Group" resetGroup="est" calculation="Average">
+		<variableExpression><![CDATA[$F{prom}]]></variableExpression>
+	</variable>
+	<variable name="nar2_1" class="java.math.BigDecimal" resetType="Group" resetGroup="est" calculation="Average">
+		<variableExpression><![CDATA[$F{nar2}]]></variableExpression>
+	</variable>
+	<variable name="nar3_1" class="java.math.BigDecimal" resetType="Group" resetGroup="est" calculation="Average">
+		<variableExpression><![CDATA[$F{nar3}]]></variableExpression>
+	</variable>
+	<variable name="nar4_1" class="java.math.BigDecimal" resetType="Group" resetGroup="est" calculation="Average">
+		<variableExpression><![CDATA[$F{nar4}]]></variableExpression>
+	</variable>
+	<variable name="nar5_1" class="java.math.BigDecimal" resetType="Group" resetGroup="est" calculation="Average">
+		<variableExpression><![CDATA[$F{nar5}]]></variableExpression>
+	</variable>
+	<variable name="nar6_1" class="java.math.BigDecimal" resetType="Group" resetGroup="est" calculation="Average">
+		<variableExpression><![CDATA[$F{nar6}]]></variableExpression>
+	</variable>
+	<variable name="nar7_1" class="java.math.BigDecimal" resetType="Group" resetGroup="est" calculation="Average">
+		<variableExpression><![CDATA[$F{nar7}]]></variableExpression>
+	</variable>
+	<variable name="nar8_1" class="java.math.BigDecimal" resetType="Group" resetGroup="est" calculation="Average">
+		<variableExpression><![CDATA[$F{nar8}]]></variableExpression>
+	</variable>
+	<variable name="nar9_1" class="java.math.BigDecimal" resetType="Group" resetGroup="est" calculation="Average">
+		<variableExpression><![CDATA[$F{nar9}]]></variableExpression>
+	</variable>
+	<variable name="nar10_1" class="java.math.BigDecimal" resetType="Group" resetGroup="est" calculation="Average">
+		<variableExpression><![CDATA[$F{nar10}]]></variableExpression>
+	</variable>
+	<variable name="nar11_1" class="java.math.BigDecimal" resetType="Group" resetGroup="est" calculation="Average">
+		<variableExpression><![CDATA[$F{nar11}]]></variableExpression>
+	</variable>
+	<variable name="nar12_1" class="java.math.BigDecimal" resetType="Group" resetGroup="est" calculation="Average">
+		<variableExpression><![CDATA[$F{nar12}]]></variableExpression>
+	</variable>
+	<variable name="nar13_1" class="java.math.BigDecimal" resetType="Group" resetGroup="est" calculation="Average">
+		<variableExpression><![CDATA[$F{nar13}]]></variableExpression>
+	</variable>
+	<variable name="nar14_1" class="java.math.BigDecimal" resetType="Group" resetGroup="est" calculation="Average">
+		<variableExpression><![CDATA[$F{nar14}]]></variableExpression>
+	</variable>
+	<variable name="nar15_1" class="java.math.BigDecimal" resetType="Group" resetGroup="est" calculation="Average">
+		<variableExpression><![CDATA[$F{nar15}]]></variableExpression>
+	</variable>
+	<variable name="nar16_1" class="java.math.BigDecimal" resetType="Group" resetGroup="est" calculation="Average">
+		<variableExpression><![CDATA[$F{nar16}]]></variableExpression>
+	</variable>
+	<variable name="nar17_1" class="java.math.BigDecimal" resetType="Group" resetGroup="est" calculation="Average">
+		<variableExpression><![CDATA[$F{nar17}]]></variableExpression>
+	</variable>
+	<variable name="nar18_1" class="java.math.BigDecimal" resetType="Group" resetGroup="est" calculation="Average">
+		<variableExpression><![CDATA[$F{nar18}]]></variableExpression>
+	</variable>
+	<variable name="nar19_1" class="java.math.BigDecimal" resetType="Group" resetGroup="est" calculation="Average">
+		<variableExpression><![CDATA[$F{nar19}]]></variableExpression>
+	</variable>
+	<variable name="nar20_1" class="java.math.BigDecimal" resetType="Group" resetGroup="est" calculation="Average">
+		<variableExpression><![CDATA[$F{nar20}]]></variableExpression>
+	</variable>
+	<variable name="nar21_1" class="java.math.BigDecimal" resetType="Group" resetGroup="est" calculation="Average">
+		<variableExpression><![CDATA[$F{nar21}]]></variableExpression>
+	</variable>
+	<variable name="nar22_1" class="java.math.BigDecimal" resetType="Group" resetGroup="est" calculation="Average">
+		<variableExpression><![CDATA[$F{nar22}]]></variableExpression>
+	</variable>
+	<variable name="nar23_1" class="java.math.BigDecimal" resetType="Group" resetGroup="est" calculation="Average">
+		<variableExpression><![CDATA[$F{nar23}]]></variableExpression>
+	</variable>
+	<variable name="nar24_1" class="java.math.BigDecimal" resetType="Group" resetGroup="est" calculation="Average">
+		<variableExpression><![CDATA[$F{nar24}]]></variableExpression>
+	</variable>
+	<variable name="nar25_1" class="java.math.BigDecimal" resetType="Group" resetGroup="est" calculation="Average">
+		<variableExpression><![CDATA[$F{nar25}]]></variableExpression>
+	</variable>
+	<group name="Per" isResetPageNumber="true">
+		<groupExpression><![CDATA[$F{id_headquarters}]]></groupExpression>
+		<groupFooter>
+			<band height="23" splitType="Stretch">
+				<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				<property name="com.jaspersoft.studio.layout"/>
+				<line>
+					<reportElement x="0" y="-1" width="680" height="1" isRemoveLineWhenBlank="true" forecolor="#8A2827" uuid="27db9f95-71f2-441f-877d-0ff222b44165">
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					</reportElement>
+				</line>
+				<subreport>
+					<reportElement positionType="Float" stretchType="ContainerHeight" x="0" y="11" width="680" height="11" uuid="5e77eda3-f083-4d8f-817c-9f37c4d42d41"/>
+					<subreportParameter name="Table">
+						<subreportParameterExpression><![CDATA[$P{SQL_TOTALES}]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_totales_2_subreport.jasper"]]></subreportExpression>
+				</subreport>
+				<line>
+					<reportElement positionType="Float" x="0" y="22" width="680" height="1" isRemoveLineWhenBlank="true" forecolor="#8A2827" uuid="0ae0e7ca-9590-4bc2-ad44-a7f4a67daf6f">
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					</reportElement>
+				</line>
+				<subreport>
+					<reportElement x="343" y="0" width="22" height="11" uuid="900a4313-de65-4e6e-9f97-0c2f5b65a10e"/>
+					<subreportParameter name="_year">
+						<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="_id_asig">
+						<subreportParameterExpression><![CDATA[$F{ar15}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="_type">
+						<subreportParameterExpression><![CDATA["1"]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_abre_asignaturas_subreport.jasper"]]></subreportExpression>
+				</subreport>
+				<subreport>
+					<reportElement x="274" y="0" width="22" height="11" uuid="82e104ea-d449-4813-a441-cecd329f25f7"/>
+					<subreportParameter name="_year">
+						<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="_id_asig">
+						<subreportParameterExpression><![CDATA[$F{ar12}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="_type">
+						<subreportParameterExpression><![CDATA["1"]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_abre_asignaturas_subreport.jasper"]]></subreportExpression>
+				</subreport>
+				<subreport>
+					<reportElement x="90" y="0" width="22" height="11" uuid="d3fc709b-297e-4c3e-919b-4983dc355031"/>
+					<subreportParameter name="_year">
+						<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="_id_asig">
+						<subreportParameterExpression><![CDATA[$F{ar4}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="_type">
+						<subreportParameterExpression><![CDATA["1"]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_abre_asignaturas_subreport.jasper"]]></subreportExpression>
+				</subreport>
+				<subreport>
+					<reportElement x="366" y="0" width="22" height="11" uuid="acd37855-8573-4feb-9234-790bc6f70cdb"/>
+					<subreportParameter name="_year">
+						<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="_id_asig">
+						<subreportParameterExpression><![CDATA[$F{ar16}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="_type">
+						<subreportParameterExpression><![CDATA["1"]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_abre_asignaturas_subreport.jasper"]]></subreportExpression>
+				</subreport>
+				<subreport>
+					<reportElement x="159" y="0" width="22" height="11" uuid="6379bc8a-8190-4361-8bec-8de4dadb11ee"/>
+					<subreportParameter name="_year">
+						<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="_id_asig">
+						<subreportParameterExpression><![CDATA[$F{ar7}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="_type">
+						<subreportParameterExpression><![CDATA["1"]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_abre_asignaturas_subreport.jasper"]]></subreportExpression>
+				</subreport>
+				<subreport>
+					<reportElement x="435" y="0" width="22" height="11" uuid="c684d00b-481e-4357-9898-0bc992ab98a7"/>
+					<subreportParameter name="_year">
+						<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="_id_asig">
+						<subreportParameterExpression><![CDATA[$F{ar19}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="_type">
+						<subreportParameterExpression><![CDATA["1"]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_abre_asignaturas_subreport.jasper"]]></subreportExpression>
+				</subreport>
+				<subreport>
+					<reportElement x="412" y="0" width="22" height="11" uuid="b0a7614c-3e9e-4012-9ad9-10bb7186e0b1"/>
+					<subreportParameter name="_year">
+						<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="_id_asig">
+						<subreportParameterExpression><![CDATA[$F{ar18}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="_type">
+						<subreportParameterExpression><![CDATA["1"]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_abre_asignaturas_subreport.jasper"]]></subreportExpression>
+				</subreport>
+				<subreport>
+					<reportElement x="205" y="0" width="22" height="11" uuid="21561a69-0805-4fef-8fac-5d6ddc165303"/>
+					<subreportParameter name="_year">
+						<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="_id_asig">
+						<subreportParameterExpression><![CDATA[$F{ar9}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="_type">
+						<subreportParameterExpression><![CDATA["1"]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_abre_asignaturas_subreport.jasper"]]></subreportExpression>
+				</subreport>
+				<subreport>
+					<reportElement x="136" y="0" width="22" height="11" uuid="141beeb2-7835-430f-b81f-6e0f33003e00"/>
+					<subreportParameter name="_year">
+						<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="_id_asig">
+						<subreportParameterExpression><![CDATA[$F{ar6}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="_type">
+						<subreportParameterExpression><![CDATA["1"]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_abre_asignaturas_subreport.jasper"]]></subreportExpression>
+				</subreport>
+				<subreport>
+					<reportElement x="113" y="0" width="22" height="11" uuid="ae625956-b4a8-48e0-a7c0-500758afc1bf"/>
+					<subreportParameter name="_year">
+						<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="_id_asig">
+						<subreportParameterExpression><![CDATA[$F{ar5}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="_type">
+						<subreportParameterExpression><![CDATA["1"]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_abre_asignaturas_subreport.jasper"]]></subreportExpression>
+				</subreport>
+				<subreport>
+					<reportElement x="67" y="0" width="22" height="11" uuid="d05f51f3-b76a-4599-aef6-e162f210482c"/>
+					<subreportParameter name="_year">
+						<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="_id_asig">
+						<subreportParameterExpression><![CDATA[$F{ar3}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="_type">
+						<subreportParameterExpression><![CDATA["1"]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_abre_asignaturas_subreport.jasper"]]></subreportExpression>
+				</subreport>
+				<subreport>
+					<reportElement x="228" y="0" width="22" height="11" uuid="2dae7ae6-8f54-4a1f-b359-9db6d1dc6267"/>
+					<subreportParameter name="_year">
+						<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="_id_asig">
+						<subreportParameterExpression><![CDATA[$F{ar10}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="_type">
+						<subreportParameterExpression><![CDATA["1"]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_abre_asignaturas_subreport.jasper"]]></subreportExpression>
+				</subreport>
+				<subreport>
+					<reportElement x="504" y="0" width="22" height="11" uuid="007b2827-4f82-4610-a27c-d194f7f18e74"/>
+					<subreportParameter name="_year">
+						<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="_id_asig">
+						<subreportParameterExpression><![CDATA[$F{ar22}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="_type">
+						<subreportParameterExpression><![CDATA["1"]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_abre_asignaturas_subreport.jasper"]]></subreportExpression>
+				</subreport>
+				<subreport>
+					<reportElement x="481" y="0" width="22" height="11" uuid="3f3f0143-fb61-4fc7-81fb-293af298f3b8"/>
+					<subreportParameter name="_year">
+						<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="_id_asig">
+						<subreportParameterExpression><![CDATA[$F{ar21}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="_type">
+						<subreportParameterExpression><![CDATA["1"]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_abre_asignaturas_subreport.jasper"]]></subreportExpression>
+				</subreport>
+				<subreport>
+					<reportElement x="251" y="0" width="22" height="11" uuid="e1c71bda-5930-4de6-b234-d83e4d6a76fd"/>
+					<subreportParameter name="_year">
+						<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="_id_asig">
+						<subreportParameterExpression><![CDATA[$F{ar11}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="_type">
+						<subreportParameterExpression><![CDATA["1"]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_abre_asignaturas_subreport.jasper"]]></subreportExpression>
+				</subreport>
+				<subreport>
+					<reportElement x="44" y="0" width="22" height="11" uuid="542feab5-d0b6-43ed-80db-8a44142cdda6"/>
+					<subreportParameter name="_year">
+						<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="_id_asig">
+						<subreportParameterExpression><![CDATA[$F{ar2}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="_type">
+						<subreportParameterExpression><![CDATA["1"]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_abre_asignaturas_subreport.jasper"]]></subreportExpression>
+				</subreport>
+				<subreport>
+					<reportElement x="182" y="0" width="22" height="11" uuid="8bee25a9-26bb-41d6-a640-18ce5f1ec418"/>
+					<subreportParameter name="_year">
+						<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="_id_asig">
+						<subreportParameterExpression><![CDATA[$F{ar8}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="_type">
+						<subreportParameterExpression><![CDATA["1"]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_abre_asignaturas_subreport.jasper"]]></subreportExpression>
+				</subreport>
+				<subreport>
+					<reportElement x="389" y="0" width="22" height="11" uuid="4a3f69b9-8e63-4a57-87f2-17ce63f0b28a"/>
+					<subreportParameter name="_year">
+						<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="_id_asig">
+						<subreportParameterExpression><![CDATA[$F{ar17}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="_type">
+						<subreportParameterExpression><![CDATA["1"]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_abre_asignaturas_subreport.jasper"]]></subreportExpression>
+				</subreport>
+				<subreport>
+					<reportElement x="573" y="0" width="22" height="11" uuid="578e42a6-ada3-4f4b-8cab-1a9a2ac4c5bd"/>
+					<subreportParameter name="_year">
+						<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="_id_asig">
+						<subreportParameterExpression><![CDATA[$F{ar25}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="_type">
+						<subreportParameterExpression><![CDATA["1"]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_abre_asignaturas_subreport.jasper"]]></subreportExpression>
+				</subreport>
+				<subreport>
+					<reportElement x="527" y="0" width="22" height="11" uuid="2d1a00e4-db0c-45b3-9e57-84aa8ebd2d05"/>
+					<subreportParameter name="_year">
+						<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="_id_asig">
+						<subreportParameterExpression><![CDATA[$F{ar23}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="_type">
+						<subreportParameterExpression><![CDATA["1"]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_abre_asignaturas_subreport.jasper"]]></subreportExpression>
+				</subreport>
+				<subreport>
+					<reportElement x="21" y="0" width="22" height="11" uuid="6c86354c-c74d-4883-82ac-77d3b3b52935"/>
+					<subreportParameter name="_year">
+						<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="_id_asig">
+						<subreportParameterExpression><![CDATA[$F{ar1}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="_type">
+						<subreportParameterExpression><![CDATA["1"]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_abre_asignaturas_subreport.jasper"]]></subreportExpression>
+				</subreport>
+				<subreport>
+					<reportElement x="458" y="0" width="22" height="11" uuid="4263f375-c069-4346-8068-c1422f3207f7"/>
+					<subreportParameter name="_year">
+						<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="_id_asig">
+						<subreportParameterExpression><![CDATA[$F{ar20}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="_type">
+						<subreportParameterExpression><![CDATA["1"]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_abre_asignaturas_subreport.jasper"]]></subreportExpression>
+				</subreport>
+				<subreport>
+					<reportElement x="297" y="0" width="22" height="11" uuid="2c353b77-b249-401f-9548-e8d8288d606f"/>
+					<subreportParameter name="_year">
+						<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="_id_asig">
+						<subreportParameterExpression><![CDATA[$F{ar13}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="_type">
+						<subreportParameterExpression><![CDATA["1"]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_abre_asignaturas_subreport.jasper"]]></subreportExpression>
+				</subreport>
+				<subreport>
+					<reportElement x="550" y="0" width="22" height="11" uuid="e9a43511-c1de-471c-81e5-3d8b9840a4d4"/>
+					<subreportParameter name="_year">
+						<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="_id_asig">
+						<subreportParameterExpression><![CDATA[$F{ar24}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="_type">
+						<subreportParameterExpression><![CDATA["1"]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_abre_asignaturas_subreport.jasper"]]></subreportExpression>
+				</subreport>
+				<subreport>
+					<reportElement x="320" y="0" width="22" height="11" uuid="5319896e-419c-4686-bef3-e48862d2b369"/>
+					<subreportParameter name="_year">
+						<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="_id_asig">
+						<subreportParameterExpression><![CDATA[$F{ar14}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="_type">
+						<subreportParameterExpression><![CDATA["1"]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_abre_asignaturas_subreport.jasper"]]></subreportExpression>
+				</subreport>
+			</band>
+		</groupFooter>
+	</group>
+	<group name="est" isReprintHeaderOnEachPage="true">
+		<groupExpression><![CDATA[$F{id_matric}]]></groupExpression>
+		<groupHeader>
+			<band height="13">
+				<rectangle>
+					<reportElement mode="Opaque" x="0" y="0" width="635" height="13" backcolor="#E5E5E5" uuid="b11889d0-7d08-4bcf-8ae2-9ec62c95b999"/>
+					<graphicElement>
+						<pen lineWidth="0.75" lineStyle="Dashed" lineColor="#CCCCCC"/>
+					</graphicElement>
+				</rectangle>
+				<textField>
+					<reportElement x="3" y="0" width="235" height="13" uuid="75f8b06b-7ecf-4c93-a906-dfb8f85a4dba"/>
+					<textElement verticalAlignment="Middle">
+						<font size="8" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{estudiante}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="22">
+				<staticText>
+					<reportElement x="1" y="1" width="19" height="9" isRemoveLineWhenBlank="true" uuid="a537614b-fe8e-4e7d-a187-35e287ca1f3f"/>
+					<textElement verticalAlignment="Middle">
+						<font size="6"/>
+					</textElement>
+					<text><![CDATA[PROM]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="1" y="11" width="19" height="9" isRemoveLineWhenBlank="true" uuid="317b0ca9-6112-4925-8f1f-bc52d0fa12fe">
+						<printWhenExpression><![CDATA[INTEGER_VALUE($F{periodo}) < 4]]></printWhenExpression>
+					</reportElement>
+					<textElement verticalAlignment="Middle">
+						<font size="6"/>
+					</textElement>
+					<text><![CDATA[NOTA]]></text>
+				</staticText>
+				<textField pattern="###0.00">
+					<reportElement x="636" y="0" width="30" height="11" isRemoveLineWhenBlank="true" uuid="ddb97807-2492-40c6-8cb7-c227cc21fef9"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="8" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{prom_1}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="435" y="11" width="22" height="11" isRemoveLineWhenBlank="true" printWhenGroupChanges="est" uuid="85b00965-4f23-45ec-b2b0-6e3c13d9e918">
+						<printWhenExpression><![CDATA[INTEGER_VALUE($F{periodo}) < 4 && $V{nar19_1}.intValue() > 0]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[new BigDecimal ($P{P_NotaMin}).floatValue() > $V{nar19_1}.floatValue() ? $V{nar19_1}.equals(0.00) ? 0
+: ((new BigDecimal ($P{P_NotaMin}).floatValue() - $V{nar19_1}.floatValue()) * $V{count_as}.floatValue()) + new BigDecimal ($P{P_NotaMinB}).floatValue()
+: $V{nar19_1}.floatValue() >= new BigDecimal ($P{P_NotaMin}).floatValue()
+? $V{nar19_1}.equals(0.00) ? 0
+: new BigDecimal ($P{P_NotaMinB}).floatValue() - (($V{nar19_1}.floatValue() - new BigDecimal ($P{P_NotaMin}).floatValue()) * $V{count_as}.floatValue()) : 0]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="458" y="11" width="22" height="11" isRemoveLineWhenBlank="true" printWhenGroupChanges="est" uuid="ac4bc7ed-9a27-481b-be26-eca6d994376c">
+						<printWhenExpression><![CDATA[INTEGER_VALUE($F{periodo}) < 4 && $V{nar20_1}.intValue() > 0]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[new BigDecimal ($P{P_NotaMin}).floatValue() > $V{nar20_1}.floatValue() ? $V{nar20_1}.equals(0.00) ? 0
+: ((new BigDecimal ($P{P_NotaMin}).floatValue() - $V{nar20_1}.floatValue()) * $V{count_as}.floatValue()) + new BigDecimal ($P{P_NotaMinB}).floatValue()
+: $V{nar20_1}.floatValue() >= new BigDecimal ($P{P_NotaMin}).floatValue()
+? $V{nar20_1}.equals(0.00) ? 0
+: new BigDecimal ($P{P_NotaMinB}).floatValue() - (($V{nar20_1}.floatValue() - new BigDecimal ($P{P_NotaMin}).floatValue()) * $V{count_as}.floatValue()) : 0]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="159" y="11" width="22" height="11" isRemoveLineWhenBlank="true" printWhenGroupChanges="est" uuid="8c4016dd-8d5c-48f7-89f9-f330e5988604">
+						<printWhenExpression><![CDATA[INTEGER_VALUE($F{periodo}) < 4]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[new BigDecimal ($P{P_NotaMin}).floatValue() > $V{nar7_1}.floatValue() ? $V{nar7_1}.equals(0.00) ? 0
+: ((new BigDecimal ($P{P_NotaMin}).floatValue() - $V{nar7_1}.floatValue()) * $V{count_as}.floatValue()) + new BigDecimal ($P{P_NotaMinB}).floatValue()
+: $V{nar7_1}.floatValue() >= new BigDecimal ($P{P_NotaMin}).floatValue()
+? $V{nar7_1}.equals(0.00) ? 0
+: new BigDecimal ($P{P_NotaMinB}).floatValue() - (($V{nar7_1}.floatValue() - new BigDecimal ($P{P_NotaMin}).floatValue()) * $V{count_as}.floatValue()) : 0]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="90" y="11" width="22" height="11" isRemoveLineWhenBlank="true" printWhenGroupChanges="est" uuid="464e9bc4-6ebf-4166-b9b7-837109a332d3">
+						<printWhenExpression><![CDATA[INTEGER_VALUE($F{periodo}) < 4]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[new BigDecimal ($P{P_NotaMin}).floatValue() > $V{nar4_1}.floatValue() ? $V{nar4_1}.equals(0.00) ? 0
+: ((new BigDecimal ($P{P_NotaMin}).floatValue() - $V{nar4_1}.floatValue()) * $V{count_as}.floatValue()) + new BigDecimal ($P{P_NotaMinB}).floatValue()
+: $V{nar4_1}.floatValue() >= new BigDecimal ($P{P_NotaMin}).floatValue() ? $V{nar4_1}.equals(0.00) ? 0 
+: new BigDecimal ($P{P_NotaMinB}).floatValue() - (($V{nar4_1}.floatValue() - new BigDecimal ($P{P_NotaMin}).floatValue()) * $V{count_as}.floatValue()) : 0]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="343" y="11" width="22" height="11" isRemoveLineWhenBlank="true" printWhenGroupChanges="est" uuid="19afa754-85df-4a86-b35a-27a14f9ad264">
+						<printWhenExpression><![CDATA[INTEGER_VALUE($F{periodo}) < 4 && $V{nar15_1}.intValue() > 0]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[new BigDecimal ($P{P_NotaMin}).floatValue() > $V{nar15_1}.floatValue() ? $V{nar15_1}.equals(0.00) ? 0
+: ((new BigDecimal ($P{P_NotaMin}).floatValue() - $V{nar15_1}.floatValue()) * $V{count_as}.floatValue()) + new BigDecimal ($P{P_NotaMinB}).floatValue()
+: $V{nar15_1}.floatValue() >= new BigDecimal ($P{P_NotaMin}).floatValue()
+? $V{nar15_1}.equals(0.00) ? 0
+: new BigDecimal ($P{P_NotaMinB}).floatValue() - (($V{nar15_1}.floatValue() - new BigDecimal ($P{P_NotaMin}).floatValue()) * $V{count_as}.floatValue()) : 0]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="136" y="11" width="22" height="11" isRemoveLineWhenBlank="true" printWhenGroupChanges="est" uuid="1d332207-3525-473e-9367-003bb2f17076">
+						<printWhenExpression><![CDATA[INTEGER_VALUE($F{periodo}) < 4]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[new BigDecimal ($P{P_NotaMin}).floatValue() > $V{nar6_1}.floatValue() ? $V{nar6_1}.equals(0.00) ? 0
+: ((new BigDecimal ($P{P_NotaMin}).floatValue() - $V{nar6_1}.floatValue()) * $V{count_as}.floatValue()) + new BigDecimal ($P{P_NotaMinB}).floatValue()
+: $V{nar6_1}.floatValue() >= new BigDecimal ($P{P_NotaMin}).floatValue()
+? $V{nar6_1}.equals(0.00) ? 0
+: new BigDecimal ($P{P_NotaMinB}).floatValue() - (($V{nar6_1}.floatValue() - new BigDecimal ($P{P_NotaMin}).floatValue()) * $V{count_as}.floatValue()) : 0]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="412" y="11" width="22" height="11" isRemoveLineWhenBlank="true" printWhenGroupChanges="est" uuid="db0a0ce5-711d-4e6d-918c-99a0531e6510">
+						<printWhenExpression><![CDATA[INTEGER_VALUE($F{periodo}) < 4 && $V{nar18_1}.intValue() > 0]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[new BigDecimal ($P{P_NotaMin}).floatValue() > $V{nar18_1}.floatValue() ? $V{nar18_1}.equals(0.00) ? 0
+: ((new BigDecimal ($P{P_NotaMin}).floatValue() - $V{nar18_1}.floatValue()) * $V{count_as}.floatValue()) + new BigDecimal ($P{P_NotaMinB}).floatValue()
+: $V{nar18_1}.floatValue() >= new BigDecimal ($P{P_NotaMin}).floatValue()
+? $V{nar18_1}.equals(0.00) ? 0
+: new BigDecimal ($P{P_NotaMinB}).floatValue() - (($V{nar18_1}.floatValue() - new BigDecimal ($P{P_NotaMin}).floatValue()) * $V{count_as}.floatValue()) : 0]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="320" y="11" width="22" height="11" isRemoveLineWhenBlank="true" printWhenGroupChanges="est" uuid="fdfc98d6-87c3-46b6-bcef-04c31ec855b3">
+						<printWhenExpression><![CDATA[INTEGER_VALUE($F{periodo}) < 4 && $V{nar14_1}.intValue() > 0]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[new BigDecimal ($P{P_NotaMin}).floatValue() > $V{nar14_1}.floatValue() ? $V{nar14_1}.equals(0.00) ? 0
+: ((new BigDecimal ($P{P_NotaMin}).floatValue() - $V{nar14_1}.floatValue()) * $V{count_as}.floatValue()) + new BigDecimal ($P{P_NotaMinB}).floatValue()
+: $V{nar14_1}.floatValue() >= new BigDecimal ($P{P_NotaMin}).floatValue()
+? $V{nar14_1}.equals(0.00) ? 0
+: new BigDecimal ($P{P_NotaMinB}).floatValue() - (($V{nar14_1}.floatValue() - new BigDecimal ($P{P_NotaMin}).floatValue()) * $V{count_as}.floatValue()) : 0]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="44" y="11" width="22" height="11" isRemoveLineWhenBlank="true" printWhenGroupChanges="est" uuid="83718015-2396-4f22-808e-e012b567b4f0">
+						<printWhenExpression><![CDATA[INTEGER_VALUE($F{periodo}) < 4]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[new BigDecimal ($P{P_NotaMin}).floatValue() > $V{nar2_1}.floatValue() ? $V{nar2_1}.equals(0.00) ? 0
+: ((new BigDecimal ($P{P_NotaMin}).floatValue() - $V{nar2_1}.floatValue()) * $V{count_as}.floatValue()) + new BigDecimal ($P{P_NotaMinB}).floatValue()
+: $V{nar2_1}.floatValue() >= new BigDecimal ($P{P_NotaMin}).floatValue() ? $V{nar2_1}.equals(0.00) ? 0 
+: new BigDecimal ($P{P_NotaMinB}).floatValue() - (($V{nar2_1}.floatValue() - new BigDecimal ($P{P_NotaMin}).floatValue()) * $V{count_as}.floatValue()) : 0]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="389" y="11" width="22" height="11" isRemoveLineWhenBlank="true" printWhenGroupChanges="est" uuid="da4372d6-d994-4a62-9ed0-ed3026502bea">
+						<printWhenExpression><![CDATA[INTEGER_VALUE($F{periodo}) < 4 && $V{nar17_1}.intValue() > 0]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[new BigDecimal ($P{P_NotaMin}).floatValue() > $V{nar17_1}.floatValue() ? $V{nar17_1}.equals(0.00) ? 0
+: ((new BigDecimal ($P{P_NotaMin}).floatValue() - $V{nar17_1}.floatValue()) * $V{count_as}.floatValue()) + new BigDecimal ($P{P_NotaMinB}).floatValue()
+: $V{nar17_1}.floatValue() >= new BigDecimal ($P{P_NotaMin}).floatValue()
+? $V{nar17_1}.equals(0.00) ? 0
+: new BigDecimal ($P{P_NotaMinB}).floatValue() - (($V{nar17_1}.floatValue() - new BigDecimal ($P{P_NotaMin}).floatValue()) * $V{count_as}.floatValue()) : 0]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="274" y="11" width="22" height="11" isRemoveLineWhenBlank="true" printWhenGroupChanges="est" uuid="fc7b5b13-2093-439b-bc6f-ce4dff26b02f">
+						<printWhenExpression><![CDATA[INTEGER_VALUE($F{periodo}) < 4 && $V{nar12_1}.intValue() > 0]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[new BigDecimal ($P{P_NotaMin}).floatValue() > $V{nar12_1}.floatValue() ? $V{nar12_1}.equals(0.00) ? 0
+: ((new BigDecimal ($P{P_NotaMin}).floatValue() - $V{nar12_1}.floatValue()) * $V{count_as}.floatValue()) + new BigDecimal ($P{P_NotaMinB}).floatValue()
+: $V{nar12_1}.floatValue() >= new BigDecimal ($P{P_NotaMin}).floatValue()
+? $V{nar12_1}.equals(0.00) ? 0
+: new BigDecimal ($P{P_NotaMinB}).floatValue() - (($V{nar12_1}.floatValue() - new BigDecimal ($P{P_NotaMin}).floatValue()) * $V{count_as}.floatValue()) : 0]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="366" y="11" width="22" height="11" isRemoveLineWhenBlank="true" printWhenGroupChanges="est" uuid="848077c2-9265-4ade-b6e9-420fb501e056">
+						<printWhenExpression><![CDATA[INTEGER_VALUE($F{periodo}) < 4 && $V{nar17_1}.intValue() > 0]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[new BigDecimal ($P{P_NotaMin}).floatValue() > $V{nar16_1}.floatValue() ? $V{nar16_1}.equals(0.00) ? 0
+: ((new BigDecimal ($P{P_NotaMin}).floatValue() - $V{nar16_1}.floatValue()) * $V{count_as}.floatValue()) + new BigDecimal ($P{P_NotaMinB}).floatValue()
+: $V{nar16_1}.floatValue() >= new BigDecimal ($P{P_NotaMin}).floatValue()
+? $V{nar16_1}.equals(0.00) ? 0
+: new BigDecimal ($P{P_NotaMinB}).floatValue() - (($V{nar16_1}.floatValue() - new BigDecimal ($P{P_NotaMin}).floatValue()) * $V{count_as}.floatValue()) : 0]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="228" y="11" width="22" height="11" isRemoveLineWhenBlank="true" printWhenGroupChanges="est" uuid="34bdf87c-052f-4466-b153-9276de024a51">
+						<printWhenExpression><![CDATA[INTEGER_VALUE($F{periodo}) < 4 && $V{nar10_1}.intValue() > 0]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[new BigDecimal ($P{P_NotaMin}).floatValue() > $V{nar10_1}.floatValue() ? $V{nar10_1}.equals(0.00) ? 0
+: ((new BigDecimal ($P{P_NotaMin}).floatValue() - $V{nar10_1}.floatValue()) * $V{count_as}.floatValue()) + new BigDecimal ($P{P_NotaMinB}).floatValue()
+: $V{nar10_1}.floatValue() >= new BigDecimal ($P{P_NotaMin}).floatValue()
+? $V{nar10_1}.equals(0.00) ? 0
+: new BigDecimal ($P{P_NotaMinB}).floatValue() - (($V{nar10_1}.floatValue() - new BigDecimal ($P{P_NotaMin}).floatValue()) * $V{count_as}.floatValue()) : 0]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="205" y="11" width="22" height="11" isRemoveLineWhenBlank="true" printWhenGroupChanges="est" uuid="0a1c0ff1-9b43-4f2d-87e2-5cb869464e9c">
+						<printWhenExpression><![CDATA[INTEGER_VALUE($F{periodo}) < 4 && $V{nar9_1}.intValue() > 0]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[new BigDecimal ($P{P_NotaMin}).floatValue() > $V{nar9_1}.floatValue() ? $V{nar9_1}.equals(0.00) ? 0
+: ((new BigDecimal ($P{P_NotaMin}).floatValue() - $V{nar9_1}.floatValue()) * $V{count_as}.floatValue()) + new BigDecimal ($P{P_NotaMinB}).floatValue()
+: $V{nar9_1}.floatValue() >= new BigDecimal ($P{P_NotaMin}).floatValue()
+? $V{nar9_1}.equals(0.00) ? 0
+: new BigDecimal ($P{P_NotaMinB}).floatValue() - (($V{nar9_1}.floatValue() - new BigDecimal ($P{P_NotaMin}).floatValue()) * $V{count_as}.floatValue()) : 0]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="21" y="11" width="22" height="11" isRemoveLineWhenBlank="true" printWhenGroupChanges="est" uuid="c75b04c4-ead8-4a3d-a065-c55a3726abf3">
+						<printWhenExpression><![CDATA[INTEGER_VALUE($F{periodo}) < 4]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[new BigDecimal ($P{P_NotaMin}).floatValue() > $V{nar1_1}.floatValue() ? $V{nar1_1}.equals(0.00) ? 0
+: ((new BigDecimal ($P{P_NotaMin}).floatValue() - $V{nar1_1}.floatValue()) * $V{count_as}.floatValue()) + new BigDecimal ($P{P_NotaMinB}).floatValue()
+: $V{nar1_1}.floatValue() >= new BigDecimal ($P{P_NotaMin}).floatValue() ? $V{nar1_1}.equals(0.00) ? 0 
+: new BigDecimal ($P{P_NotaMinB}).floatValue() - (($V{nar1_1}.floatValue() - new BigDecimal ($P{P_NotaMin}).floatValue()) * $V{count_as}.floatValue()) : 0]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="251" y="11" width="22" height="11" isRemoveLineWhenBlank="true" printWhenGroupChanges="est" uuid="7a266097-4428-4def-b964-bf625fe37ffd">
+						<printWhenExpression><![CDATA[INTEGER_VALUE($F{periodo}) < 4 && $V{nar11_1}.intValue() > 0]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[new BigDecimal ($P{P_NotaMin}).floatValue() > $V{nar11_1}.floatValue() ? $V{nar11_1}.equals(0.00) ? 0
+: ((new BigDecimal ($P{P_NotaMin}).floatValue() - $V{nar11_1}.floatValue()) * $V{count_as}.floatValue()) + new BigDecimal ($P{P_NotaMinB}).floatValue()
+: $V{nar11_1}.floatValue() >= new BigDecimal ($P{P_NotaMin}).floatValue()
+? $V{nar11_1}.equals(0.00) ? 0
+: new BigDecimal ($P{P_NotaMinB}).floatValue() - (($V{nar11_1}.floatValue() - new BigDecimal ($P{P_NotaMin}).floatValue()) * $V{count_as}.floatValue()) : 0]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="182" y="11" width="22" height="11" isRemoveLineWhenBlank="true" printWhenGroupChanges="est" uuid="5b70dc6e-b0d3-42e7-b42d-535e71986623">
+						<printWhenExpression><![CDATA[INTEGER_VALUE($F{periodo}) < 4]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[new BigDecimal ($P{P_NotaMin}).floatValue() > $V{nar8_1}.floatValue() ? $V{nar8_1}.equals(0.00) ? 0
+: ((new BigDecimal ($P{P_NotaMin}).floatValue() - $V{nar8_1}.floatValue()) * $V{count_as}.floatValue()) + new BigDecimal ($P{P_NotaMinB}).floatValue()
+: $V{nar8_1}.floatValue() >= new BigDecimal ($P{P_NotaMin}).floatValue()
+? $V{nar8_1}.equals(0.00) ? 0
+: new BigDecimal ($P{P_NotaMinB}).floatValue() - (($V{nar8_1}.floatValue() - new BigDecimal ($P{P_NotaMin}).floatValue()) * $V{count_as}.floatValue()) : 0]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="297" y="11" width="22" height="11" isRemoveLineWhenBlank="true" printWhenGroupChanges="est" uuid="8489e134-d1a2-4c24-a5c4-21e14799c26b">
+						<printWhenExpression><![CDATA[INTEGER_VALUE($F{periodo}) < 4 && $V{nar13_1}.intValue() > 0]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[new BigDecimal ($P{P_NotaMin}).floatValue() > $V{nar13_1}.floatValue() ? $V{nar13_1}.equals(0.00) ? 0
+: ((new BigDecimal ($P{P_NotaMin}).floatValue() - $V{nar13_1}.floatValue()) * $V{count_as}.floatValue()) + new BigDecimal ($P{P_NotaMinB}).floatValue()
+: $V{nar13_1}.floatValue() >= new BigDecimal ($P{P_NotaMin}).floatValue()
+? $V{nar13_1}.equals(0.00) ? 0
+: new BigDecimal ($P{P_NotaMinB}).floatValue() - (($V{nar13_1}.floatValue() - new BigDecimal ($P{P_NotaMin}).floatValue()) * $V{count_as}.floatValue()) : 0]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="113" y="11" width="22" height="11" isRemoveLineWhenBlank="true" printWhenGroupChanges="est" uuid="cb1a1941-ed8f-4347-bc2b-660d3ccb72ab">
+						<printWhenExpression><![CDATA[INTEGER_VALUE($F{periodo}) < 4]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[new BigDecimal ($P{P_NotaMin}).floatValue() > $V{nar5_1}.floatValue() ? $V{nar5_1}.equals(0.00) ? 0
+: ((new BigDecimal ($P{P_NotaMin}).floatValue() - $V{nar5_1}.floatValue()) * $V{count_as}.floatValue()) + new BigDecimal ($P{P_NotaMinB}).floatValue()
+: $V{nar5_1}.floatValue() >= new BigDecimal ($P{P_NotaMin}).floatValue()
+? $V{nar5_1}.equals(0.00) ? 0
+: new BigDecimal ($P{P_NotaMinB}).floatValue() - (($V{nar5_1}.floatValue() - new BigDecimal ($P{P_NotaMin}).floatValue()) * $V{count_as}.floatValue()) : 0]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="67" y="11" width="22" height="11" isRemoveLineWhenBlank="true" printWhenGroupChanges="est" uuid="c54571eb-cff6-4273-a05f-0acd197d4427">
+						<printWhenExpression><![CDATA[INTEGER_VALUE($F{periodo}) < 4]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[new BigDecimal ($P{P_NotaMin}).floatValue() > $V{nar3_1}.floatValue() ? $V{nar3_1}.equals(0.00) ? 0
+: ((new BigDecimal ($P{P_NotaMin}).floatValue() - $V{nar3_1}.floatValue()) * $V{count_as}.floatValue()) + new BigDecimal ($P{P_NotaMinB}).floatValue()
+: $V{nar3_1}.floatValue() >= new BigDecimal ($P{P_NotaMin}).floatValue() ? $V{nar3_1}.equals(0.00) ? 0 
+: new BigDecimal ($P{P_NotaMinB}).floatValue() - (($V{nar3_1}.floatValue() - new BigDecimal ($P{P_NotaMin}).floatValue()) * $V{count_as}.floatValue()) : 0]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="320" y="0" width="22" height="11" isRemoveLineWhenBlank="true" printWhenGroupChanges="est" uuid="1460ec84-d8a9-4aa8-9b64-bf95247230bc">
+						<printWhenExpression><![CDATA[!new Boolean($F{periodo}.equals("1")) && $V{nar14_1}.intValue() > 0]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{nar14_1}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="182" y="0" width="22" height="11" isRemoveLineWhenBlank="true" printWhenGroupChanges="est" uuid="bb8ec1a1-ed9e-4897-b44a-45aefd13b687">
+						<printWhenExpression><![CDATA[$F{periodo}.equals("1" ) ? false : true]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{nar8_1}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="251" y="0" width="22" height="11" isRemoveLineWhenBlank="true" printWhenGroupChanges="est" uuid="f3c5a3a0-fabc-41ef-8d40-a7b706ee7f10">
+						<printWhenExpression><![CDATA[!new Boolean($F{periodo}.equals("1")) && $V{nar11_1}.intValue() > 0]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{nar11_1}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="366" y="0" width="22" height="11" isRemoveLineWhenBlank="true" printWhenGroupChanges="est" uuid="089b1465-50b4-4b68-a2dc-adfa9e3af428">
+						<printWhenExpression><![CDATA[!new Boolean($F{periodo}.equals("1")) && $V{nar16_1}.intValue() > 0]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{nar16_1}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement x="636" y="0" width="30" height="11" isRemoveLineWhenBlank="true" uuid="7f1831e0-f47f-49f7-8528-4b45118cd8d1">
+						<printWhenExpression><![CDATA[!new Boolean($F{periodo}.equals("1"))]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="8" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{prom_1}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="274" y="0" width="22" height="11" isRemoveLineWhenBlank="true" printWhenGroupChanges="est" uuid="18a91be8-9411-4a3f-bbc7-6e2d5cbcffe2">
+						<printWhenExpression><![CDATA[!new Boolean($F{periodo}.equals("1")) && $V{nar12_1}.intValue() > 0]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{nar12_1}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="136" y="0" width="22" height="11" isRemoveLineWhenBlank="true" printWhenGroupChanges="est" uuid="15c41dce-c838-4679-8c6f-5f1705493fb8">
+						<printWhenExpression><![CDATA[$F{periodo}.equals("1" ) ? false : true]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{nar6_1}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="113" y="0" width="22" height="11" isRemoveLineWhenBlank="true" printWhenGroupChanges="est" uuid="7d2252f8-c76b-440b-a383-88feb609e0fc">
+						<printWhenExpression><![CDATA[$F{periodo}.equals("1" ) ? false : true]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{nar5_1}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="412" y="0" width="22" height="11" isRemoveLineWhenBlank="true" printWhenGroupChanges="est" uuid="6795b44e-1959-4c90-9ac5-ade18ce65bd4">
+						<printWhenExpression><![CDATA[!new Boolean($F{periodo}.equals("1")) && $V{nar18_1}.intValue() > 0]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{nar18_1}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="435" y="0" width="22" height="11" isRemoveLineWhenBlank="true" printWhenGroupChanges="est" uuid="388c0313-2096-4cbb-a95d-477a81ff2cd6">
+						<printWhenExpression><![CDATA[!new Boolean($F{periodo}.equals("1")) && $V{nar19_1}.intValue() > 0]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{nar19_1}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="159" y="0" width="22" height="11" isRemoveLineWhenBlank="true" printWhenGroupChanges="est" uuid="e0683260-d7b7-4bf1-b1e2-135352b531e7">
+						<printWhenExpression><![CDATA[$F{periodo}.equals("1" ) ? false : true]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{nar7_1}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="67" y="0" width="22" height="11" isRemoveLineWhenBlank="true" printWhenGroupChanges="est" uuid="fe7103ef-fa7a-40ed-bd28-97d8d04cb02c">
+						<printWhenExpression><![CDATA[$F{periodo}.equals("1" ) ? false : true]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{nar3_1}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="228" y="0" width="22" height="11" isRemoveLineWhenBlank="true" printWhenGroupChanges="est" uuid="9a8112b8-7d20-49bd-aa5f-389df210b535">
+						<printWhenExpression><![CDATA[!new Boolean($F{periodo}.equals("1")) && $V{nar10_1}.intValue() > 0]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{nar10_1}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="389" y="0" width="22" height="11" isRemoveLineWhenBlank="true" printWhenGroupChanges="est" uuid="b08a5321-592f-4053-9e1e-b5f202014628">
+						<printWhenExpression><![CDATA[!new Boolean($F{periodo}.equals("1")) && $V{nar17_1}.intValue() > 0]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{nar17_1}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="458" y="0" width="22" height="11" isRemoveLineWhenBlank="true" printWhenGroupChanges="est" uuid="02ea862a-0438-4fee-9de1-28820d2478a2">
+						<printWhenExpression><![CDATA[!new Boolean($F{periodo}.equals("1")) && $V{nar20_1}.intValue() > 0]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{nar20_1}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="44" y="0" width="22" height="11" isRemoveLineWhenBlank="true" printWhenGroupChanges="est" uuid="f619ff47-29ea-4364-bb38-66ca6ac2c3a8">
+						<printWhenExpression><![CDATA[$F{periodo}.equals("1" ) ? false : true]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{nar2_1}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="343" y="0" width="22" height="11" isRemoveLineWhenBlank="true" printWhenGroupChanges="est" uuid="cc3bd7d4-81f5-4c53-84fa-e7f41011cbe0">
+						<printWhenExpression><![CDATA[!new Boolean($F{periodo}.equals("1")) && $V{nar15_1}.intValue() > 0]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{nar15_1}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="90" y="0" width="22" height="11" isRemoveLineWhenBlank="true" printWhenGroupChanges="est" uuid="c1707c94-98a3-409d-ab7e-ae994c07b4fe">
+						<printWhenExpression><![CDATA[$F{periodo}.equals("1" ) ? false : true]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{nar4_1}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="205" y="0" width="22" height="11" isRemoveLineWhenBlank="true" printWhenGroupChanges="est" uuid="43f0a6f2-bb81-4760-982d-b7ab0d4535e4">
+						<printWhenExpression><![CDATA[$F{periodo}.equals("1" ) ? false : true]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{nar9_1}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="297" y="0" width="22" height="11" isRemoveLineWhenBlank="true" printWhenGroupChanges="est" uuid="2d3f75a1-dcd1-493c-890c-bb42c9dc0225">
+						<printWhenExpression><![CDATA[!new Boolean($F{periodo}.equals("1")) && $V{nar13_1}.intValue() > 0]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{nar13_1}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="21" y="0" width="22" height="11" isRemoveLineWhenBlank="true" printWhenGroupChanges="est" uuid="5504ee19-7464-467b-b7b3-2ba4e20dcbf0">
+						<printWhenExpression><![CDATA[$F{periodo}.equals("1" ) ? false : true]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{nar1_1}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="481" y="0" width="22" height="11" isRemoveLineWhenBlank="true" printWhenGroupChanges="est" uuid="3d668c13-cb36-43d3-b821-9648f48c0938">
+						<printWhenExpression><![CDATA[!new Boolean($F{periodo}.equals("1")) && $V{nar21_1}.intValue() > 0]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{nar21_1}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="481" y="11" width="22" height="11" isRemoveLineWhenBlank="true" printWhenGroupChanges="est" uuid="62b332d7-0e89-417c-b109-e94464161e94">
+						<printWhenExpression><![CDATA[INTEGER_VALUE($F{periodo}) < 4 && $V{nar21_1}.intValue() > 0]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[new BigDecimal ($P{P_NotaMin}).floatValue() > $V{nar21_1}.floatValue() ? $V{nar21_1}.equals(0.00) ? 0
+: ((new BigDecimal ($P{P_NotaMin}).floatValue() - $V{nar21_1}.floatValue()) * $V{count_as}.floatValue()) + new BigDecimal ($P{P_NotaMinB}).floatValue()
+: $V{nar21_1}.floatValue() >= new BigDecimal ($P{P_NotaMin}).floatValue()
+? $V{nar21_1}.equals(0.00) ? 0
+: new BigDecimal ($P{P_NotaMinB}).floatValue() - (($V{nar21_1}.floatValue() - new BigDecimal ($P{P_NotaMin}).floatValue()) * $V{count_as}.floatValue()) : 0]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="550" y="0" width="22" height="11" isRemoveLineWhenBlank="true" printWhenGroupChanges="est" uuid="80ebc24d-b1e7-4230-a44d-e571d5679653">
+						<printWhenExpression><![CDATA[!new Boolean($F{periodo}.equals("1")) && $V{nar24_1}.intValue() > 0]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{nar24_1}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="504" y="0" width="22" height="11" isRemoveLineWhenBlank="true" printWhenGroupChanges="est" uuid="cf896198-6a97-4fa7-9986-d9022f9e8e5f">
+						<printWhenExpression><![CDATA[!new Boolean($F{periodo}.equals("1")) && $V{nar22_1}.intValue() > 0]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{nar22_1}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="527" y="11" width="22" height="11" isRemoveLineWhenBlank="true" printWhenGroupChanges="est" uuid="2af55a60-0142-4bd0-804b-9ab0ed97cf33">
+						<printWhenExpression><![CDATA[INTEGER_VALUE($F{periodo}) < 4 && $V{nar23_1}.intValue() > 0]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[new BigDecimal ($P{P_NotaMin}).floatValue() > $V{nar23_1}.floatValue() ? $V{nar23_1}.equals(0.00) ? 0
+: ((new BigDecimal ($P{P_NotaMin}).floatValue() - $V{nar23_1}.floatValue()) * $V{count_as}.floatValue()) + new BigDecimal ($P{P_NotaMinB}).floatValue()
+: $V{nar23_1}.floatValue() >= new BigDecimal ($P{P_NotaMin}).floatValue()
+? $V{nar23_1}.equals(0.00) ? 0
+: new BigDecimal ($P{P_NotaMinB}).floatValue() - (($V{nar23_1}.floatValue() - new BigDecimal ($P{P_NotaMin}).floatValue()) * $V{count_as}.floatValue()) : 0]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="550" y="11" width="22" height="11" isRemoveLineWhenBlank="true" printWhenGroupChanges="est" uuid="d93dc69a-546c-47b2-a770-67ea9a107375">
+						<printWhenExpression><![CDATA[INTEGER_VALUE($F{periodo}) < 4 && $V{nar19_1}.intValue() > 0]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[new BigDecimal ($P{P_NotaMin}).floatValue() > $V{nar24_1}.floatValue() ? $V{nar24_1}.equals(0.00) ? 0
+: ((new BigDecimal ($P{P_NotaMin}).floatValue() - $V{nar24_1}.floatValue()) * $V{count_as}.floatValue()) + new BigDecimal ($P{P_NotaMinB}).floatValue()
+: $V{nar24_1}.floatValue() >= new BigDecimal ($P{P_NotaMin}).floatValue()
+? $V{nar24_1}.equals(0.00) ? 0
+: new BigDecimal ($P{P_NotaMinB}).floatValue() - (($V{nar24_1}.floatValue() - new BigDecimal ($P{P_NotaMin}).floatValue()) * $V{count_as}.floatValue()) : 0]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="527" y="0" width="22" height="11" isRemoveLineWhenBlank="true" printWhenGroupChanges="est" uuid="4a648afe-7595-40a4-8501-1d5788698439">
+						<printWhenExpression><![CDATA[!new Boolean($F{periodo}.equals("1")) && $V{nar23_1}.intValue() > 0]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{nar23_1}]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="573" y="11" width="22" height="11" isRemoveLineWhenBlank="true" printWhenGroupChanges="est" uuid="9319624a-e202-42e4-bd9c-13e4f87685c5">
+						<printWhenExpression><![CDATA[INTEGER_VALUE($F{periodo}) < 4 && $V{nar20_1}.intValue() > 0]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[new BigDecimal ($P{P_NotaMin}).floatValue() > $V{nar25_1}.floatValue() ? $V{nar25_1}.equals(0.00) ? 0
+: ((new BigDecimal ($P{P_NotaMin}).floatValue() - $V{nar25_1}.floatValue()) * $V{count_as}.floatValue()) + new BigDecimal ($P{P_NotaMinB}).floatValue()
+: $V{nar25_1}.floatValue() >= new BigDecimal ($P{P_NotaMin}).floatValue()
+? $V{nar25_1}.equals(0.00) ? 0
+: new BigDecimal ($P{P_NotaMinB}).floatValue() - (($V{nar25_1}.floatValue() - new BigDecimal ($P{P_NotaMin}).floatValue()) * $V{count_as}.floatValue()) : 0]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="504" y="11" width="22" height="11" isRemoveLineWhenBlank="true" printWhenGroupChanges="est" uuid="6330a7ea-af8f-43ad-b3bd-72c0e7bc9598">
+						<printWhenExpression><![CDATA[INTEGER_VALUE($F{periodo}) < 4 && $V{nar17_1}.intValue() > 0]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[new BigDecimal ($P{P_NotaMin}).floatValue() > $V{nar22_1}.floatValue() ? $V{nar22_1}.equals(0.00) ? 0
+: ((new BigDecimal ($P{P_NotaMin}).floatValue() - $V{nar22_1}.floatValue()) * $V{count_as}.floatValue()) + new BigDecimal ($P{P_NotaMinB}).floatValue()
+: $V{nar22_1}.floatValue() >= new BigDecimal ($P{P_NotaMin}).floatValue()
+? $V{nar22_1}.equals(0.00) ? 0
+: new BigDecimal ($P{P_NotaMinB}).floatValue() - (($V{nar22_1}.floatValue() - new BigDecimal ($P{P_NotaMin}).floatValue()) * $V{count_as}.floatValue()) : 0]]></textFieldExpression>
+				</textField>
+				<textField pattern="###0.00">
+					<reportElement positionType="Float" x="573" y="0" width="22" height="11" isRemoveLineWhenBlank="true" printWhenGroupChanges="est" uuid="4c2fde5a-73a1-4376-ac34-5096fd345c01">
+						<printWhenExpression><![CDATA[!new Boolean($F{periodo}.equals("1")) && $V{nar25_1}.intValue() > 0]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{nar25_1}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupFooter>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="72" splitType="Stretch">
+			<subreport>
+				<reportElement positionType="Float" stretchType="ContainerHeight" x="124" y="0" width="539" height="72" uuid="49425eb8-26d0-4cb5-b3b3-09991d112270">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<subreportParameter name="AWS_PATH">
+					<subreportParameterExpression><![CDATA[$P{AWS_PATH}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "report_header.jasper"]]></subreportExpression>
+			</subreport>
+		</band>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="68" splitType="Stretch">
+			<textField>
+				<reportElement positionType="Float" x="3" y="14" width="375" height="12" uuid="cd5173db-4543-44b1-b7b5-a49e13b68250"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA["SEDE: "+$F{sede}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight">
+				<reportElement positionType="Float" x="3" y="26" width="536" height="12" uuid="f1fd5df1-a5bf-4ca6-be9b-81787b7e3d65"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA["JORNADA: "+$F{jornada}.trim()+". GRADO: "+$F{grado}+". GRUPO: "+$F{id_group}+". AÑO: "+$F{year}.toString()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="Float" x="4" y="52" width="10" height="12" uuid="eff64c7c-cd5c-4d31-b6b0-63f733529141"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[P]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="4" y="39" width="10" height="12" uuid="db60439b-32ad-47e1-a24a-d6df0d064006"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[%]]></text>
+			</staticText>
+			<line>
+				<reportElement x="4" y="51" width="680" height="1" uuid="bf13072b-11d3-4405-a128-95c62255b677">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<graphicElement>
+					<pen lineWidth="0.75"/>
+				</graphicElement>
+			</line>
+			<subreport>
+				<reportElement x="21" y="52" width="22" height="11" uuid="9b233443-557f-4dfe-93d7-01555497fe8d"/>
+				<subreportParameter name="_year">
+					<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_id_asig">
+					<subreportParameterExpression><![CDATA[$F{ar1}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_type">
+					<subreportParameterExpression><![CDATA["1"]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_abre_asignaturas_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement x="21" y="40" width="22" height="11" uuid="46e266bf-91c9-47b7-a9a0-7a60ea00572c"/>
+				<subreportParameter name="_year">
+					<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_id_asig">
+					<subreportParameterExpression><![CDATA[$F{ar1}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_grade">
+					<subreportParameterExpression><![CDATA[$F{id_grade}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_porcentaje_asignaturas_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement x="44" y="40" width="22" height="11" uuid="e3b247c1-ac8d-46bf-beca-69f4f5af64f5"/>
+				<subreportParameter name="_year">
+					<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_id_asig">
+					<subreportParameterExpression><![CDATA[$F{ar2}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_grade">
+					<subreportParameterExpression><![CDATA[$F{id_grade}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_porcentaje_asignaturas_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement x="44" y="52" width="22" height="11" uuid="087c51ca-d56b-44c0-bbf6-c75aabe4b749"/>
+				<subreportParameter name="_year">
+					<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_id_asig">
+					<subreportParameterExpression><![CDATA[$F{ar2}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_type">
+					<subreportParameterExpression><![CDATA["1"]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_abre_asignaturas_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement x="67" y="52" width="22" height="11" uuid="0485fffc-23c1-466e-8ac9-ae7dcedd4480"/>
+				<subreportParameter name="_year">
+					<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_id_asig">
+					<subreportParameterExpression><![CDATA[$F{ar3}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_type">
+					<subreportParameterExpression><![CDATA["1"]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_abre_asignaturas_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement x="67" y="40" width="22" height="11" uuid="8356f8ec-c3a0-41a5-9dae-a2af5701ffa1"/>
+				<subreportParameter name="_year">
+					<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_id_asig">
+					<subreportParameterExpression><![CDATA[$F{ar3}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_grade">
+					<subreportParameterExpression><![CDATA[$F{id_grade}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_porcentaje_asignaturas_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement x="90" y="40" width="22" height="11" uuid="7a060f75-18f9-43e1-8f07-c1c683b5fc28"/>
+				<subreportParameter name="_year">
+					<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_id_asig">
+					<subreportParameterExpression><![CDATA[$F{ar4}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_grade">
+					<subreportParameterExpression><![CDATA[$F{id_grade}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_porcentaje_asignaturas_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement x="90" y="52" width="22" height="11" uuid="3e870e97-147a-429c-b819-adb0d154924a"/>
+				<subreportParameter name="_year">
+					<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_id_asig">
+					<subreportParameterExpression><![CDATA[$F{ar4}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_type">
+					<subreportParameterExpression><![CDATA["1"]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_abre_asignaturas_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement x="113" y="52" width="22" height="11" uuid="cc089db6-6673-4589-9f20-2665f15f0e3d"/>
+				<subreportParameter name="_year">
+					<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_id_asig">
+					<subreportParameterExpression><![CDATA[$F{ar5}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_type">
+					<subreportParameterExpression><![CDATA["1"]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_abre_asignaturas_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement x="113" y="40" width="22" height="11" uuid="4833d21c-242a-4585-b35f-ba91890ebcac"/>
+				<subreportParameter name="_year">
+					<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_id_asig">
+					<subreportParameterExpression><![CDATA[$F{ar5}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_grade">
+					<subreportParameterExpression><![CDATA[$F{id_grade}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_porcentaje_asignaturas_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement x="136" y="40" width="22" height="11" uuid="1aaa824b-90a6-48e5-8676-39b9491ab1aa"/>
+				<subreportParameter name="_year">
+					<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_id_asig">
+					<subreportParameterExpression><![CDATA[$F{ar6}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_grade">
+					<subreportParameterExpression><![CDATA[$F{id_grade}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_porcentaje_asignaturas_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement x="136" y="52" width="22" height="11" uuid="52d9051d-2ce9-41d5-9609-6f55edf01dc8"/>
+				<subreportParameter name="_year">
+					<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_id_asig">
+					<subreportParameterExpression><![CDATA[$F{ar6}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_type">
+					<subreportParameterExpression><![CDATA["1"]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_abre_asignaturas_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement x="159" y="52" width="22" height="11" uuid="94e04fda-3748-40e1-9147-afc355615db2"/>
+				<subreportParameter name="_year">
+					<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_id_asig">
+					<subreportParameterExpression><![CDATA[$F{ar7}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_type">
+					<subreportParameterExpression><![CDATA["1"]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_abre_asignaturas_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement x="159" y="40" width="22" height="11" uuid="da4626ba-4d02-4b25-a9c0-da9ef3a479a6"/>
+				<subreportParameter name="_year">
+					<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_id_asig">
+					<subreportParameterExpression><![CDATA[$F{ar7}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_grade">
+					<subreportParameterExpression><![CDATA[$F{id_grade}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_porcentaje_asignaturas_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement x="182" y="40" width="22" height="11" uuid="7dd78c73-41e6-4c29-b484-0c801722d8bf"/>
+				<subreportParameter name="_year">
+					<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_id_asig">
+					<subreportParameterExpression><![CDATA[$F{ar8}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_grade">
+					<subreportParameterExpression><![CDATA[$F{id_grade}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_porcentaje_asignaturas_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement x="182" y="52" width="22" height="11" uuid="e77f07ad-3c48-4792-92b2-3fe9f9362639"/>
+				<subreportParameter name="_year">
+					<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_id_asig">
+					<subreportParameterExpression><![CDATA[$F{ar8}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_type">
+					<subreportParameterExpression><![CDATA["1"]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_abre_asignaturas_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement x="205" y="52" width="22" height="11" uuid="77f6658a-c434-4dc5-92d2-a9f4c6335ee4"/>
+				<subreportParameter name="_year">
+					<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_id_asig">
+					<subreportParameterExpression><![CDATA[$F{ar9}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_type">
+					<subreportParameterExpression><![CDATA["1"]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_abre_asignaturas_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement x="205" y="40" width="22" height="11" uuid="3e3dfe3e-5bfe-4db5-bb88-51c5cd703538"/>
+				<subreportParameter name="_year">
+					<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_id_asig">
+					<subreportParameterExpression><![CDATA[$F{ar9}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_grade">
+					<subreportParameterExpression><![CDATA[$F{id_grade}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_porcentaje_asignaturas_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement x="228" y="40" width="22" height="11" uuid="a38e840c-bcd6-4af6-81ee-7731214166a7"/>
+				<subreportParameter name="_year">
+					<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_id_asig">
+					<subreportParameterExpression><![CDATA[$F{ar10}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_grade">
+					<subreportParameterExpression><![CDATA[$F{id_grade}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_porcentaje_asignaturas_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement x="228" y="52" width="22" height="11" uuid="d3ec5454-e566-4b74-b59a-a95397c6848a"/>
+				<subreportParameter name="_year">
+					<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_id_asig">
+					<subreportParameterExpression><![CDATA[$F{ar10}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_type">
+					<subreportParameterExpression><![CDATA["1"]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_abre_asignaturas_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement x="251" y="52" width="22" height="11" uuid="88346046-8183-493c-98fe-3a6c040be3c6"/>
+				<subreportParameter name="_year">
+					<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_id_asig">
+					<subreportParameterExpression><![CDATA[$F{ar11}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_type">
+					<subreportParameterExpression><![CDATA["1"]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_abre_asignaturas_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement x="251" y="40" width="22" height="11" uuid="05a4e58b-a2c8-47d3-a573-3a236c2693fb"/>
+				<subreportParameter name="_year">
+					<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_id_asig">
+					<subreportParameterExpression><![CDATA[$F{ar11}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_grade">
+					<subreportParameterExpression><![CDATA[$F{id_grade}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_porcentaje_asignaturas_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement x="274" y="40" width="22" height="11" uuid="e2bf1387-887a-475b-bf35-a81d7f3d757d"/>
+				<subreportParameter name="_year">
+					<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_id_asig">
+					<subreportParameterExpression><![CDATA[$F{ar12}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_grade">
+					<subreportParameterExpression><![CDATA[$F{id_grade}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_porcentaje_asignaturas_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement x="274" y="52" width="22" height="11" uuid="583f4c0a-f2e5-4a26-bf58-1022bcb99369"/>
+				<subreportParameter name="_year">
+					<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_id_asig">
+					<subreportParameterExpression><![CDATA[$F{ar12}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_type">
+					<subreportParameterExpression><![CDATA["1"]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_abre_asignaturas_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement x="297" y="52" width="22" height="11" uuid="2bb66546-a2e0-4e4f-8955-a077be43516c"/>
+				<subreportParameter name="_year">
+					<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_id_asig">
+					<subreportParameterExpression><![CDATA[$F{ar13}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_type">
+					<subreportParameterExpression><![CDATA["1"]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_abre_asignaturas_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement x="297" y="40" width="22" height="11" uuid="030aad7d-2997-48de-b78b-59a4c5efe01b"/>
+				<subreportParameter name="_year">
+					<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_id_asig">
+					<subreportParameterExpression><![CDATA[$F{ar13}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_grade">
+					<subreportParameterExpression><![CDATA[$F{id_grade}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_porcentaje_asignaturas_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement x="320" y="40" width="22" height="11" uuid="18bb7e8c-0032-454f-b7c3-ecd82e140548"/>
+				<subreportParameter name="_year">
+					<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_id_asig">
+					<subreportParameterExpression><![CDATA[$F{ar14}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_grade">
+					<subreportParameterExpression><![CDATA[$F{id_grade}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_porcentaje_asignaturas_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement x="320" y="52" width="22" height="11" uuid="84b469d3-042f-4f79-a4cb-df6f8230a7f4"/>
+				<subreportParameter name="_year">
+					<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_id_asig">
+					<subreportParameterExpression><![CDATA[$F{ar14}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_type">
+					<subreportParameterExpression><![CDATA["1"]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_abre_asignaturas_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement x="343" y="52" width="22" height="11" uuid="bd37b808-a843-4ac8-8539-2b2b4312cda8"/>
+				<subreportParameter name="_year">
+					<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_id_asig">
+					<subreportParameterExpression><![CDATA[$F{ar15}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_type">
+					<subreportParameterExpression><![CDATA["1"]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_abre_asignaturas_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement x="343" y="40" width="22" height="11" uuid="aaa41548-654b-4a27-8edb-d354c5748065"/>
+				<subreportParameter name="_year">
+					<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_id_asig">
+					<subreportParameterExpression><![CDATA[$F{ar15}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_grade">
+					<subreportParameterExpression><![CDATA[$F{id_grade}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_porcentaje_asignaturas_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement x="366" y="40" width="22" height="11" uuid="d959d2c2-6a10-4c43-ade8-a2de44feb4a6"/>
+				<subreportParameter name="_year">
+					<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_id_asig">
+					<subreportParameterExpression><![CDATA[$F{ar16}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_grade">
+					<subreportParameterExpression><![CDATA[$F{id_grade}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_porcentaje_asignaturas_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement x="366" y="52" width="22" height="11" uuid="0f776311-6bc7-4f73-8c88-c074327ba33d"/>
+				<subreportParameter name="_year">
+					<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_id_asig">
+					<subreportParameterExpression><![CDATA[$F{ar16}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_type">
+					<subreportParameterExpression><![CDATA["1"]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_abre_asignaturas_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement x="389" y="52" width="22" height="11" uuid="c94fb323-0451-4bbb-9bed-e0d19ab24f35"/>
+				<subreportParameter name="_year">
+					<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_id_asig">
+					<subreportParameterExpression><![CDATA[$F{ar17}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_type">
+					<subreportParameterExpression><![CDATA["1"]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_abre_asignaturas_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement x="389" y="40" width="22" height="11" uuid="3036a830-61da-4a1b-bb59-9dc81f6438be"/>
+				<subreportParameter name="_year">
+					<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_id_asig">
+					<subreportParameterExpression><![CDATA[$F{ar17}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_grade">
+					<subreportParameterExpression><![CDATA[$F{id_grade}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_porcentaje_asignaturas_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement x="412" y="40" width="22" height="11" uuid="12400e10-7a34-4d07-994f-388eb0459f43"/>
+				<subreportParameter name="_year">
+					<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_id_asig">
+					<subreportParameterExpression><![CDATA[$F{ar18}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_grade">
+					<subreportParameterExpression><![CDATA[$F{id_grade}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_porcentaje_asignaturas_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement x="412" y="52" width="22" height="11" uuid="39a8875f-fdcd-4e64-8b24-6afde86a1f63"/>
+				<subreportParameter name="_year">
+					<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_id_asig">
+					<subreportParameterExpression><![CDATA[$F{ar18}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_type">
+					<subreportParameterExpression><![CDATA["1"]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_abre_asignaturas_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement x="435" y="52" width="22" height="11" uuid="d837a380-c5bd-4cef-b8af-f5a046cadcf2"/>
+				<subreportParameter name="_year">
+					<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_id_asig">
+					<subreportParameterExpression><![CDATA[$F{ar19}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_type">
+					<subreportParameterExpression><![CDATA["1"]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_abre_asignaturas_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement x="435" y="40" width="22" height="11" uuid="3da9b33d-56c4-443a-99aa-43d2707e1e9b"/>
+				<subreportParameter name="_year">
+					<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_id_asig">
+					<subreportParameterExpression><![CDATA[$F{ar19}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_grade">
+					<subreportParameterExpression><![CDATA[$F{id_grade}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_porcentaje_asignaturas_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement x="458" y="52" width="22" height="11" uuid="9d9627a0-2a42-4878-8aa7-828e7c43b16a"/>
+				<subreportParameter name="_year">
+					<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_id_asig">
+					<subreportParameterExpression><![CDATA[$F{ar20}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_type">
+					<subreportParameterExpression><![CDATA["1"]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_abre_asignaturas_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement x="458" y="40" width="22" height="11" uuid="227e4560-8dfb-4318-9b87-3c6e6e40b6f5"/>
+				<subreportParameter name="_year">
+					<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_id_asig">
+					<subreportParameterExpression><![CDATA[$F{ar20}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_grade">
+					<subreportParameterExpression><![CDATA[$F{id_grade}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_porcentaje_asignaturas_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<line>
+				<reportElement x="635" y="42" width="1" height="20" uuid="87740e7b-4436-417e-aea3-d322807cb6dd"/>
+				<graphicElement>
+					<pen lineWidth="0.75"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement x="640" y="52" width="26" height="12" uuid="b19858ff-35e1-491b-9aa6-f28123ff6eab"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[PROM]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="669" y="52" width="16" height="12" uuid="2ddb854e-e7dd-4788-ad5a-e3163b5c4592"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[T]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="3" y="1" width="199" height="13" uuid="e71cb94c-f966-4325-b3a4-868aec7fcc75"/>
+				<textElement verticalAlignment="Middle">
+					<font size="10" isBold="true" isItalic="true"/>
+				</textElement>
+				<text><![CDATA[CONSOLIDADO POR ASIGNATURAS]]></text>
+			</staticText>
+			<textField>
+				<reportElement positionType="Float" x="205" y="1" width="333" height="9" uuid="db3be50d-16a4-4982-8c36-cde5adcbbaf1"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{R_ESCALA}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="Float" x="378" y="10" width="160" height="8" uuid="8569b4f8-5894-40e3-87a3-971303ec06f5"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="6"/>
+				</textElement>
+				<text><![CDATA[PROM : Promedio de los periodos]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="378" y="18" width="160" height="8" uuid="4a94daa7-4f91-4e72-b45b-7fc3bb184442"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="6"/>
+				</textElement>
+				<text><![CDATA[NOTA : Nota miníma que debe sacar el periodo siguiente]]></text>
+			</staticText>
+			<subreport>
+				<reportElement x="481" y="40" width="22" height="11" uuid="db96b6e7-d023-43ff-9c2d-de9dbb8cc214"/>
+				<subreportParameter name="_year">
+					<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_id_asig">
+					<subreportParameterExpression><![CDATA[$F{ar21}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_grade">
+					<subreportParameterExpression><![CDATA[$F{id_grade}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_porcentaje_asignaturas_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement x="550" y="40" width="22" height="11" uuid="84498e8b-fc43-40b6-9853-c5506229af54"/>
+				<subreportParameter name="_year">
+					<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_id_asig">
+					<subreportParameterExpression><![CDATA[$F{ar19}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_grade">
+					<subreportParameterExpression><![CDATA[$F{id_grade}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_porcentaje_asignaturas_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement x="481" y="52" width="22" height="11" uuid="9bb04867-1179-425d-95a4-b195b8533c44"/>
+				<subreportParameter name="_year">
+					<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_id_asig">
+					<subreportParameterExpression><![CDATA[$F{ar21}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_type">
+					<subreportParameterExpression><![CDATA["1"]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_abre_asignaturas_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement x="504" y="40" width="22" height="11" uuid="fdb5cdcc-87f1-411c-815f-6ae241dfca68"/>
+				<subreportParameter name="_year">
+					<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_id_asig">
+					<subreportParameterExpression><![CDATA[$F{ar22}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_grade">
+					<subreportParameterExpression><![CDATA[$F{id_grade}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_porcentaje_asignaturas_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement x="550" y="52" width="22" height="11" uuid="cf36f2d4-8b97-4122-9656-105258e39a89"/>
+				<subreportParameter name="_year">
+					<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_id_asig">
+					<subreportParameterExpression><![CDATA[$F{ar24}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_type">
+					<subreportParameterExpression><![CDATA["1"]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_abre_asignaturas_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement x="573" y="40" width="22" height="11" uuid="4ef584a5-7d8c-4082-980a-271be722a033"/>
+				<subreportParameter name="_year">
+					<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_id_asig">
+					<subreportParameterExpression><![CDATA[$F{ar25}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_grade">
+					<subreportParameterExpression><![CDATA[$F{id_grade}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_porcentaje_asignaturas_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement x="504" y="52" width="22" height="11" uuid="bc5428b8-20d8-4d3e-94fa-462c3146fbb8"/>
+				<subreportParameter name="_year">
+					<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_id_asig">
+					<subreportParameterExpression><![CDATA[$F{ar22}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_type">
+					<subreportParameterExpression><![CDATA["1"]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_abre_asignaturas_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement x="527" y="52" width="22" height="11" uuid="b93db207-97c9-492b-bc44-7ae114a95651"/>
+				<subreportParameter name="_year">
+					<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_id_asig">
+					<subreportParameterExpression><![CDATA[$F{ar23}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_type">
+					<subreportParameterExpression><![CDATA["1"]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_abre_asignaturas_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement x="573" y="52" width="22" height="11" uuid="07d24509-62d5-4e20-8ea2-20eb1882a9a1"/>
+				<subreportParameter name="_year">
+					<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_id_asig">
+					<subreportParameterExpression><![CDATA[$F{ar25}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_type">
+					<subreportParameterExpression><![CDATA["1"]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_abre_asignaturas_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement x="527" y="40" width="22" height="11" uuid="7dea1039-1cac-4e7d-9b96-d11b2d8d06d3"/>
+				<subreportParameter name="_year">
+					<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_id_asig">
+					<subreportParameterExpression><![CDATA[$F{ar23}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_grade">
+					<subreportParameterExpression><![CDATA[$F{id_grade}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_porcentaje_asignaturas_subreport.jasper"]]></subreportExpression>
+			</subreport>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="11" splitType="Stretch">
+			<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.spreadsheet.SpreadsheetLayout"/>
+			<textField>
+				<reportElement x="4" y="0" width="10" height="11" uuid="c867707f-7644-4888-af5c-fc43e9b4cd54"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{periodo}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00">
+				<reportElement x="636" y="0" width="30" height="11" uuid="4863e25f-4d35-47f9-acf3-61658e842500"/>
+				<textElement textAlignment="Right">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{prom}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="669" y="0" width="16" height="11" uuid="f834450a-21db-4a41-8ed5-21f7120b830e"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{t}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00">
+				<reportElement style="StyleNar16" positionType="Float" x="366" y="0" width="22" height="11" isRemoveLineWhenBlank="true" uuid="c8f3a9e7-9f63-4083-9aac-a822f0652cfd">
+					<printWhenExpression><![CDATA[$F{nar16}.intValue() > 0]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nar16}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00">
+				<reportElement style="StyleNar4" positionType="Float" x="90" y="0" width="22" height="11" uuid="8f702982-8b00-4e1e-90ae-f7054fb5fe63">
+					<printWhenExpression><![CDATA[$F{nar4}.floatValue() > 0]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle" markup="none">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nar4}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00">
+				<reportElement style="StyleNar8" positionType="Float" x="182" y="0" width="22" height="11" uuid="423c78c7-a867-4dde-bebd-de4aa7eeb932">
+					<printWhenExpression><![CDATA[$F{nar8}.floatValue() > 0]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nar8}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00">
+				<reportElement style="StyleNar17" positionType="Float" x="389" y="0" width="22" height="11" isRemoveLineWhenBlank="true" uuid="7fe41128-c5b3-49ee-bfe1-ec3cd19c4277">
+					<printWhenExpression><![CDATA[$F{nar17}.intValue() > 0]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nar17}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00">
+				<reportElement style="StyleNar9" positionType="Float" x="205" y="0" width="22" height="11" uuid="dd6a9dd7-71c1-45a4-973b-a976cfd288b0">
+					<printWhenExpression><![CDATA[$F{nar9}.intValue() > 0]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nar9}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00">
+				<reportElement style="StyleNar6" positionType="Float" x="136" y="0" width="22" height="11" uuid="792c0502-6210-4c24-8ccc-c1f5ada8070a">
+					<printWhenExpression><![CDATA[$F{nar6}.floatValue() >0]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nar6}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00">
+				<reportElement style="StyleNar19" positionType="Float" x="435" y="0" width="22" height="11" isRemoveLineWhenBlank="true" uuid="33ac5b78-1b28-4ab7-a715-19012e6a5636">
+					<printWhenExpression><![CDATA[$F{nar19}.intValue() > 0]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nar19}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00">
+				<reportElement style="StyleNar3" positionType="Float" x="67" y="0" width="22" height="11" uuid="8941c519-8bec-413d-b9cc-b75fe4e24367">
+					<printWhenExpression><![CDATA[$F{nar3}.floatValue() > 0]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nar3}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00">
+				<reportElement style="StyleNar10" positionType="Float" x="228" y="0" width="22" height="11" uuid="65bc1b5d-b8bf-41ea-b8bc-e6cceedd7a01">
+					<printWhenExpression><![CDATA[$F{nar10}.intValue() > 0]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nar10}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00">
+				<reportElement style="StyleNar18" positionType="Float" x="412" y="0" width="22" height="11" isRemoveLineWhenBlank="true" uuid="1d1f8e37-b9a4-4686-b066-5610e55ee6a9">
+					<printWhenExpression><![CDATA[$F{nar18}.intValue() > 0]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nar18}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00">
+				<reportElement style="StyleNar13" positionType="Float" x="297" y="0" width="22" height="11" isRemoveLineWhenBlank="true" uuid="9b4a6373-8333-411f-94bf-2f24b471d95d">
+					<printWhenExpression><![CDATA[$F{nar13}.intValue() > 0]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nar13}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00">
+				<reportElement style="StyleNar14" positionType="Float" x="320" y="0" width="22" height="11" isRemoveLineWhenBlank="true" uuid="e5115cb8-8775-4177-8a8d-4b945c6dbada">
+					<printWhenExpression><![CDATA[$F{nar14}.intValue() > 0]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nar14}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00">
+				<reportElement style="StyleNar1" positionType="Float" x="21" y="0" width="22" height="11" uuid="3afa0c88-30e0-4b06-aa77-411eddf61a2c">
+					<printWhenExpression><![CDATA[$F{nar1}.floatValue() > 0]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nar1}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00">
+				<reportElement style="StyleNar20" positionType="Float" x="458" y="0" width="22" height="11" isRemoveLineWhenBlank="true" uuid="b3b1a2ad-7e8c-4bcc-8a6c-8fa8e7dcaf11">
+					<printWhenExpression><![CDATA[$F{nar20}.intValue() > 0]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nar20}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00">
+				<reportElement style="StyleNar2" positionType="Float" x="44" y="0" width="22" height="11" uuid="52e7072c-a002-4f47-a5de-cffd42c93d41">
+					<printWhenExpression><![CDATA[$F{nar2}.floatValue() > 0]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nar2}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00">
+				<reportElement style="StyleNar5" positionType="Float" x="113" y="0" width="22" height="11" uuid="a3b8fd0c-50ba-4607-9021-114e9361d71f">
+					<printWhenExpression><![CDATA[$F{nar5}.floatValue() > 0]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nar5}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00">
+				<reportElement style="StyleNar11" positionType="Float" isPrintRepeatedValues="false" x="251" y="0" width="22" height="11" isRemoveLineWhenBlank="true" uuid="13bea890-be05-4bf0-a385-8e11b780abc4">
+					<printWhenExpression><![CDATA[$F{nar11}.intValue() > 0]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nar11}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00">
+				<reportElement style="StyleNar15" positionType="Float" x="343" y="0" width="22" height="11" isRemoveLineWhenBlank="true" uuid="cd6257a0-07a8-4814-9014-00a4708bfbb4">
+					<printWhenExpression><![CDATA[$F{nar15}.intValue() > 0]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nar15}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00">
+				<reportElement style="StyleNar12" positionType="Float" x="274" y="0" width="22" height="11" isRemoveLineWhenBlank="true" uuid="d0a274f1-4eb8-4386-b774-61e7ac0ba883">
+					<printWhenExpression><![CDATA[$F{nar12}.intValue() > 0]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nar12}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00">
+				<reportElement style="StyleNar7" positionType="Float" x="159" y="0" width="22" height="11" uuid="bddd557e-3d44-43ef-a453-8540484288db">
+					<printWhenExpression><![CDATA[$F{nar7}.floatValue() > 0]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nar7}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00">
+				<reportElement style="StyleNar25" positionType="Float" x="573" y="0" width="22" height="11" isRemoveLineWhenBlank="true" uuid="3ed997dc-ca30-41d9-9d94-cf2820f1af0e">
+					<printWhenExpression><![CDATA[$F{nar25}.intValue() > 0]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nar25}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00">
+				<reportElement style="StyleNar21" positionType="Float" x="481" y="0" width="22" height="11" isRemoveLineWhenBlank="true" uuid="a308fda4-e595-4efa-b498-eceb52c7a236">
+					<printWhenExpression><![CDATA[$F{nar21}.intValue() > 0]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nar21}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00">
+				<reportElement style="StyleNar24" positionType="Float" x="550" y="0" width="22" height="11" isRemoveLineWhenBlank="true" uuid="3b8890c0-60f7-4216-93d8-b577c16e4277">
+					<printWhenExpression><![CDATA[$F{nar24}.intValue() > 0]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nar24}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00">
+				<reportElement style="StyleNar22" positionType="Float" x="504" y="0" width="22" height="11" isRemoveLineWhenBlank="true" uuid="18945c20-9930-4bb7-ae49-051a70afcad2">
+					<printWhenExpression><![CDATA[$F{nar22}.intValue() > 0]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nar22}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00">
+				<reportElement style="StyleNar23" positionType="Float" x="527" y="0" width="22" height="11" isRemoveLineWhenBlank="true" uuid="01bec553-5e74-4cb3-a916-8e517cc65768">
+					<printWhenExpression><![CDATA[$F{nar23}.intValue() > 0]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nar23}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="30" splitType="Stretch">
+			<textField>
+				<reportElement x="780" y="0" width="21" height="10" uuid="184a72c7-f142-4496-b933-89d1fe3009b0"/>
+				<textElement>
+					<font fontName="Arial" size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight">
+				<reportElement stretchType="RelativeToBandHeight" x="16" y="22" width="763" height="8" uuid="7829f300-5387-4522-b2ae-d6bf773009d8"/>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" size="6" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{R_MARKETING}]]></textFieldExpression>
+			</textField>
+			<subreport>
+				<reportElement x="115" y="0" width="556" height="17" isRemoveLineWhenBlank="true" uuid="13dc8e06-fa9a-4e70-aaea-4c05efedbac4">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "report_footer.jasper"]]></subreportExpression>
+			</subreport>
+		</band>
+	</pageFooter>
+</jasperReport>

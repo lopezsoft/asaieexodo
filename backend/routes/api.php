@@ -13,7 +13,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-
 Route::prefix('v1')->group(function () {
     Route::controller('UserController')->group(function () {
        Route::prefix('email')->group(function () {
@@ -143,15 +142,6 @@ Route::prefix('v1')->group(function () {
                 Route::prefix('excel')->group(function () {
                     Route::post('template-enrollment', 'getTemplateEnrollment');
                 });
-                Route::prefix('student')->group(function () {
-                    Route::get('read-documents', 'readStudentDocuments');
-                });
-                Route::prefix('teacher')->group(function () {
-                    Route::get('read-documents', 'readTeacherDocuments');
-                });
-                Route::prefix('file')->group(function () {
-                    Route::get('read-files', 'getFiles');
-                });
                 Route::prefix('settings')->group(function () {
                     Route::get('read-school-logo', 'readSchoolLogo');
                     Route::get('read-signature', 'readSignature');
@@ -162,15 +152,6 @@ Route::prefix('v1')->group(function () {
             Route::controller('UploadController')->group(function () {
                 Route::prefix('excel')->group(function () {
                     Route::post('template-enrollment', 'setTemplateEnrollment');
-                });
-                Route::prefix('student')->group(function () {
-                    Route::post('upload-documents', 'uploadStudentDocuments');
-                });
-                Route::prefix('teacher')->group(function () {
-                    Route::post('upload-documents', 'uploadStudentDocuments');
-                });
-                Route::prefix('file')->group(function () {
-                    Route::post('upload-file', 'uploadFile');
                 });
                 Route::prefix('settings')->group(function () {
                     Route::post('upload-school-logo', 'uploadSchoolLogo');

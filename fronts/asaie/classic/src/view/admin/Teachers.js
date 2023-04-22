@@ -127,12 +127,13 @@ Ext.define('Admin.view.admin.Teachers',{
 							me.onStore('docs.ImageBrowserStore');
                             Ext.create({
                                 xtype           : 'FilesView',
-                                pathReadFile    : 'download/teacher/read-documents',
-                                pathUploadFile  : 'upload/teacher/upload-documents',
-                                textButtonApply : AppLang.getSButtonAcept(),
-                                extraParams     : {
-                                    pdbTeacherId: rec.get('documento')
-                                }
+								pathReadFile    : 'files/read',
+								pathUploadFile  : 'files/upload',
+								textButtonApply : AppLang.getSButtonAcept(),
+								extraParams     : {
+									belongToId	: rec.get('documento'),
+									fileProfile	: 'Teacher'
+								}
                             }).show();
                         }
                     },'-',

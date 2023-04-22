@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Modules\Download\StudentDownloads;
+use App\Modules\FileManagers;
 use App\Modules\Student\UploadStudentDocument;
 use App\Modules\Teacher\TeacherFileManager;
 use App\Modules\Upload\UploadFiles;

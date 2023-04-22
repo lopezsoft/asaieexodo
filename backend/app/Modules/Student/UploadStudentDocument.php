@@ -2,14 +2,14 @@
 
 namespace App\Modules\Student;
 
-use App\Contracts\FileManageContract;
+use App\Contracts\FileManagerContract;
 use App\Modules\School\SchoolQueries;
 use App\Modules\Upload\UploadFiles;
 use App\Traits\MessagesTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class UploadStudentDocument implements FileManageContract
+class UploadStudentDocument implements FileManagerContract
 {
     use MessagesTrait;
 

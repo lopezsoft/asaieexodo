@@ -2,17 +2,17 @@
 
 namespace App\Modules\Teacher;
 
-use App\Contracts\FileManageContract;
+use App\Contracts\FileManagerContract;
 use App\Modules\School\SchoolQueries;
 use App\Modules\Upload\UploadFiles;
 use App\Traits\MessagesTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class TeacherFileManager implements FileManageContract
+class TeacherFileManager implements FileManagerContract
 {
     use MessagesTrait;
-    public static function uploadFile(Request $request): \Illuminate\Http\JsonResponse
+    public static function upload(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             DB::beginTransaction();
@@ -35,7 +35,7 @@ class TeacherFileManager implements FileManageContract
         }
     }
 
-    public static function getFiles(Request $request): \Illuminate\Http\JsonResponse
+    public static function get(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             $school     = SchoolQueries::getSchoolRequest($request);
@@ -55,5 +55,10 @@ class TeacherFileManager implements FileManageContract
                 'error'      => $e->getMessage()
             ]);
         }
+    }
+
+    public static function delete(Request $request, $id): \Illuminate\Http\JsonResponse
+    {
+        // TODO: Implement delete() method.
     }
 }

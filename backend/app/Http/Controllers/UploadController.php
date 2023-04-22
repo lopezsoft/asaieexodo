@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Modules\School\SchoolQueries;
+use App\Modules\FileManagers;
 use App\Modules\Student\UploadStudentDocument;
 use App\Modules\Teacher\TeacherFileManager;
 use App\Modules\Upload\StudentUploads;

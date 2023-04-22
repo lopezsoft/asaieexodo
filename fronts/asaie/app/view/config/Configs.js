@@ -37,6 +37,17 @@ Ext.define('Admin.view.config.Configs', {
         };
     },
 
+	getSchoolParams: function() {
+		const {school, profile}	= AuthToken.recoverParams();
+		const dt		= new Date();
+		let param		= {};
+		param.schoolId  	= school.id || 0;
+		param.profileId   	= profile.id || 0;
+		param.year        	= school.year || dt.getFullYear();
+
+		return param;
+	},
+
     /**
      * Función para comparar objetos
      * @function compareObjects

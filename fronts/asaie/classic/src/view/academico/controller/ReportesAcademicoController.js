@@ -19,12 +19,16 @@ Ext.define('Admin.view.academico.controller.ReportesAcademicoController',{
         var
             me  = this,
             ts  = btn.up('window') || btn.up('form'),
-            xUrl = Global.getUrlBase() + 'excel_manager/consolidado_sin_notas';
+            xUrl = Global.getApiUrl() + '/exports/excel/consolidated-without-notes';
         ts.mask(AppLang.getSGenerating());
         try {
             Ext.Ajax.request({
                 url: xUrl,
                 timeout: 0,
+				params: Global.getSchoolParams(),
+				headers: {
+					'Authorization' : (AuthToken) ? AuthToken.authorization() : ''
+				},
                 success: function (response, opts) {
                     var obj = Ext.decode(response.responseText);
                     ts.unmask();
@@ -45,12 +49,17 @@ Ext.define('Admin.view.academico.controller.ReportesAcademicoController',{
         var
             me      = this,
             ts      = btn.up('window') || btn.up('form'),
-            xUrl    = Global.getUrlBase()+'excel_manager/consolidado_matricula';
+            xUrl    = Global.getApiUrl() + '/exports/excel/consolidated-enrollment';
+
         try {
             ts.mask(AppLang.getSGenerating());
             Ext.Ajax.request({
                 url: xUrl,
                 timeout: 0,
+				params: Global.getSchoolParams(),
+				headers: {
+					'Authorization' : (AuthToken) ? AuthToken.authorization() : ''
+				},
                 success: function (response, opts) {
                     ts.unmask();
                     var obj = Ext.decode(response.responseText);

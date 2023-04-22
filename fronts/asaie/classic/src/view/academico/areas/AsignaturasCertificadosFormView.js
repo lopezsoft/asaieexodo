@@ -9,6 +9,37 @@ Ext.define('Admin.view.academico.AsignaturasCertificadosFormView' ,{
         this.callParent(arguments);
         this.setTitle(AppLang.getSTitleViewSubjects());
     },
+	onSave: function () {
+		const storeName = this.getStore();
+		if (storeName) {
+			const me = this.getApp(),
+				win = this,
+				form = win.down('form'),
+				record = form.getRecord(),
+				values = form.getValues();
+			if(record) { // edit
+				this.saveData(store, me.getReloadStore());
+			}else {
+				let subjectData	= this.getRecord();
+				let store 		= Ext.getStore(storeName);
+				values.id_asig_padre = subjectData.id_pk;
+				win.mask('Guardando...');
+				store.insert(0,values);
+				store.sync({
+					success : function(){
+						me.showResult('Se han guardado los datos');
+						win.unmask();
+						win.close();
+						store.reload();
+					},
+					failure	: function () {
+						store.rejectChanges();
+						win.unmask();
+					}
+				});
+			}
+		}
+	},
     store: 'AsignaturaCertificadoStore',
     items : [
     	{
@@ -52,6 +83,6 @@ Ext.define('Admin.view.academico.AsignaturasCertificadosFormView' ,{
 					]
 				}
 			]
-		}		    
+		}
 	]
 });

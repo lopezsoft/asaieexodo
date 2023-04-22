@@ -3,6 +3,7 @@
 namespace App\Models\School;
 
 use App\Core\CoreModel;
+use Illuminate\Support\Str;
 
 /**
  * @method static create(array $array)
@@ -10,6 +11,15 @@ use App\Core\CoreModel;
 class FileManager extends CoreModel
 {
     protected $fillable = [
-        'school_id', 'user_id', 'file_name', 'extension_file', 'mime_type', 'size_file', 'last_modified', 'state', 'file_path'
+        'school_id', 'user_id', 'file_name', 'extension_file', 'mime_type', 'size_file',
+        'last_modified', 'state', 'file_path', 'file_description', 'uuid'
     ];
+
+    protected static function boot() {
+        parent::boot();
+
+        static::creating(function ($fileManager) {
+            $fileManager->uuid =  Str::uuid();
+        });
+    }
 }

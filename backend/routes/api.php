@@ -160,6 +160,7 @@ Route::prefix('v1')->group(function () {
         });
 
 
+        require __DIR__.'/exports.php';
         require __DIR__.'/reports.php';
         require __DIR__.'/settings.php';
 

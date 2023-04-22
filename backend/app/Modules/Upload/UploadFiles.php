@@ -2,6 +2,7 @@
 
 namespace App\Modules\Upload;
 
+use App\Models\School\FileManager;
 use App\Modules\School\SchoolQueries;
 use App\Traits\MessagesTrait;
 use Illuminate\Http\Request;
@@ -56,30 +57,48 @@ class UploadFiles
         }
     }
 
-    public static function upload(Request $request, $path, String $disk = "s3"): \Illuminate\Http\JsonResponse
+    public static function upload(Request $request, $path, $school, String $disk = "s3"): ?object
     {
-        $file       = $request->file('foto') ?? $request->file('avatar');
-        $fileSize   = $file->getSize();
-        if ($fileSize > 2048000) {
-           return self::getResponse400([
-               'error'			=> 'No puede subir archivos mayores a 2 MB'
-           ]);
-        }
         try {
-            $school         = SchoolQueries::getSchool($request->input('schoolId') ?? 0);
-            $fileName       = $file->getClientOriginalName();
-            $date	        = date('Y-m-d h-m-s');
+            $user       = $request->user();
+            $file       = $request->file('foto') ?? $request->file('avatar');
+            $fileSize   = $file->getSize();
+            if ($fileSize > 2048000) {
+               return self::getResponse400([
+                   'error'			=> 'No puede subir archivos mayores a 2 MB'
+               ]);
+            }
+            $fileDescription= $file->getClientOriginalName();
+            $fileName       = date('Y')."_".$file->hashName();
             $aws_main_path  = env('AWS_MAIN_PATH', 'test');
-            $filePath	    = "{$aws_main_path}/schools/{$school->folder_name}/{$path}";
-            Storage::disk($disk)->putFileAs($filePath, $file, "{$date}-{$fileName}", 'public');
-            return self::getResponse([
-                'pathFile'  => Storage::disk($disk)->url("{$filePath}/{$date}-{$fileName}"),
-                'format'	=> $file->extension(),
+            $filePath	    = "{$aws_main_path}/schools/{$school->path}/{$path}";
+            Storage::disk($disk)->putFileAs($filePath, $file, "{$fileName}", 'public');
+
+
+            $filePath       = "{$filePath}/{$fileName}";
+            $format         = $file->extension();
+            $mimeType       = $file->getMimeType();
+            $sizeFile       = $file->getSize();
+            $output         = Storage::disk($disk)->url($filePath);
+            $lastModified   = Storage::disk($disk)->lastModified($filePath);
+            $fileManager = FileManager::create([
+                'school_id'         =>  $school->school->id,
+                'user_id'           =>  $user->id,
+                'file_name'         =>  $fileName,
+                'file_description'  =>  $fileDescription,
+                'file_path'         =>  $output,
+                'extension_file'    =>  $format,
+                'mime_type'         =>  $mimeType,
+                'size_file'         =>  $sizeFile,
+                'last_modified'     =>  date('Y-m-d H:i:s', $lastModified),
+                'state'             =>  1,
             ]);
+
+            return (object) [
+                'fileManager'   => $fileManager,
+            ];
         }catch(\Exception $e) {
-            return self::getResponse500([
-                'error'      => $e->getMessage()
-            ]);
+            throw new \Exception($e->getMessage());
         }
     }
 

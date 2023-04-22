@@ -8,6 +8,9 @@ use Illuminate\Http\Request;
 
 class GroupDirectors
 {
+
+
+
     public static function getGroupDirectorByGrade(Request $request): array
     {
         $grade  = $request->input('pdbGrado') ?? 0;
@@ -17,4 +20,6 @@ class GroupDirectors
         $param	= [$year, $grade];
         return CallExecute::execute($fun, $param);
     }
+
+
 }

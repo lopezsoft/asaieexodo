@@ -11,3 +11,5 @@ Ext.define('Admin.model.general.AsignaturaCertificadoModel',{
         { name: 'ih', type : 'float'}
     ]
 });
+
+

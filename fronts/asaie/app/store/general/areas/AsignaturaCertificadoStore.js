@@ -12,12 +12,15 @@ Ext.define('Admin.store.general.AsignaturaCertificadoStore', {
     proxy: {
         extraParams : {
             pdbTable : 'asignaturas_certificados'
+			
         },
         api: {
-            create  : 'academic/insert_asignaturas_certificados',
-            read    : 'academic/get_select_asignaturas_certificados',
-            update  : 'General/update_data',
-            destroy : 'General/delete_data'
+			// create  : 'subject-new',
+			create  : 'crud',
+			// read    : 'subject/subject-certificate',
+			read: 'crud/index',
+            update  : 'crud',
+            destroy : 'crud'
         }
     }
 });

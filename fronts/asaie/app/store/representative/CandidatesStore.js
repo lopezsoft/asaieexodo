@@ -10,10 +10,10 @@ Ext.define('Admin.store.representative.CandidatesStore',{
             pdbTable    : 'tp_candidates'
         },
         api : {
-            create  : 'master/insertData',
-            read    : 'representative/getCandidates',
-            update  : 'master/updateData',
-            destroy : 'master/deleteData'
+            create  : 'crud',
+            read    : 'representative/votes-white-candidates',
+            update  : 'crud',
+            destroy : 'crud'
         }
     }
 });

@@ -74,6 +74,7 @@ Route::prefix('v1')->group(function () {
         Route::prefix('group-director')->group(function () {
             Route::controller('Administrative\GroupDirectorsController')->group(function () {
                Route::get('getGroupDirectorByGrade', 'getGroupDirectorByGrade');
+
             });
         });
 
@@ -93,7 +94,7 @@ Route::prefix('v1')->group(function () {
 
         Route::prefix('academic')->group(function () {
            Route::controller('Academic\AcademicController')->group(function () {
-              Route::post('honor-frame', 'honorFrame');
+            Route::post('honorFrame', 'getHonorFrame');
            });
         });
 
@@ -104,6 +105,29 @@ Route::prefix('v1')->group(function () {
                Route::get('subjects-by-year', 'getSubjectsByYear');
            });
         });
+
+
+        Route::prefix('subject')->group(function () {
+            Route::controller('SubjectController')->group(function () {
+                Route::get('subject-certificate','getSubject');
+            });
+         });
+
+         Route::prefix('representative')->group(function () {
+            Route::controller('RepresentativeController')->group(function () {
+                Route::get('votes-white-candidates','getCandidates');
+                Route::get('juries','getJuries');
+            });
+         });
+
+         Route::prefix('polling-station')->group(function () {
+            Route::controller('TableVoteController')->group(function () {
+                Route::get('headquarters','getTableHeadquarters');
+                Route::get('assigned-courses','getDegreesPerTable');
+            });
+         });
+
+
 
         Route::prefix('students')->group(function () {
             Route::controller('Academic\StudentController')->group(function () {

@@ -787,9 +787,9 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
             pdbId    : record.get('id_pk')
         };
         me.setParamStore('AsignaturaCertificadoStore',param,false);
-		let win = Ext.create('Admin.view.academico.AsignaturasCertificadosView');
-		win.setRecord(record.getData());
-        win.show();
+        let win = Ext.create('Admin.view.academico.AsignaturasCertificadosView');
+        win.setRecord(record.getData());
+		win.show();
     },
 
     onCreateAsignaturas : function (btn) {

@@ -16,5 +16,7 @@ AUTO_INCREMENT=8
 ALTER TABLE `students_file_managers`
     CHANGE COLUMN `student_id` `student_id` BIGINT NOT NULL AFTER `file_manager_uuid`;
 
+DROP TABLE IF EXISTS teacher_file_managers;
+DROP TABLE  IF EXISTS students_file_managers;
 -- Path: database\Scripts\21-04-2023.sql
 

@@ -59,8 +59,13 @@ Ext.define('Admin.view.admin.controller.AdminController',{
     onCreateSchool : function (btn) {
        this.redirectTo('schoolinformation', true);
     },
+
+	
+	
     onSetReport: function(btn){
-        var url     = 'reports/report_dir_grupos',
+		console.log('entrada reporte directores de grupo');
+        var  url     = 'reports/group-directors',
+            
             win     = btn.up('window'),
             param   = {
 

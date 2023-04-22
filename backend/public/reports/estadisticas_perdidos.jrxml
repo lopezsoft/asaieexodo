@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.18.1.final using JasperReports Library version 6.18.1-9d75d1969e774d4f179fb3be8401e98a0e6d1611  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="estadisticas_perdidos" language="groovy" columnCount="2" pageWidth="595" pageHeight="842" columnWidth="269" leftMargin="28" rightMargin="28" topMargin="45" bottomMargin="20" uuid="33974257-97b3-4498-8fe2-7887b59433ce">
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="14"/>
+	<property name="ireport.y" value="0"/>
+	<property name="ireport.callouts" value="##Sun Sep 18 21:25:56 COT 2016\ncallouts.1.text=Informe plantilla base para crear los dem\u00E1s informes\n\ncallouts.1.bounds=-4,436,240,51"/>
+	<parameter name="P_NIVEL" class="java.lang.String">
+		<parameterDescription><![CDATA[Nivel de enseñanza]]></parameterDescription>
+		<defaultValueExpression><![CDATA[1]]></defaultValueExpression>
+	</parameter>
+	<parameter name="P_PERIODO" class="java.lang.String">
+		<parameterDescription><![CDATA[Periodo académico]]></parameterDescription>
+		<defaultValueExpression><![CDATA[0]]></defaultValueExpression>
+	</parameter>
+	<parameter name="P_ALLPER" class="java.lang.String">
+		<parameterDescription><![CDATA[Todos los periodos academicos]]></parameterDescription>
+		<defaultValueExpression><![CDATA[0]]></defaultValueExpression>
+	</parameter>
+	<parameter name="SQL_PARAM" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="R_FOOTER" class="java.lang.String"/>
+	<parameter name="R_MARKETING" class="java.lang.String"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["D:\\wamp64\\www\\asaieexodo\\backend\\public\\reports\\subreports\\"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="HOME_DIR" class="java.lang.String"/>
+	<parameter name="P_USER" class="java.lang.String"/>
+	<parameter name="AWS_PATH" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[$P!{SQL_PARAM}]]>
+	</queryString>
+	<field name="cod_grado" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="total" class="java.lang.Integer">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="totals" class="java.lang.Long"/>
+	<field name="id_desempeño" class="java.lang.Integer">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="periodo" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="year" class="java.lang.Integer">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="grado" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="desempeño" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="total_niños" class="java.lang.Long"/>
+	<field name="porciento" class="java.math.BigDecimal">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<variable name="totals_1" class="java.lang.Long" resetType="Group" resetGroup="grado y desempeño" calculation="Sum">
+		<variableExpression><![CDATA[$F{totals}]]></variableExpression>
+	</variable>
+	<variable name="totals_2" class="java.lang.Long" resetType="Group" resetGroup="grado" calculation="Sum">
+		<variableExpression><![CDATA[$F{totals}]]></variableExpression>
+	</variable>
+	<variable name="totals_3" class="java.lang.Long" resetType="Group" resetGroup="grado" calculation="Sum">
+		<variableExpression><![CDATA[$F{totals}]]></variableExpression>
+	</variable>
+	<group name="periodo" isStartNewPage="true">
+		<groupExpression><![CDATA[$F{periodo}]]></groupExpression>
+		<groupHeader>
+			<band height="44">
+				<textField>
+					<reportElement x="0" y="0" width="265" height="20" uuid="c6bbe2ed-c4ee-4ff5-9ce3-16e253ada5bd"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA["ESTADÍSTICAS PERIODO: "+$F{periodo}+" - "+$F{year}.toString()]]></textFieldExpression>
+				</textField>
+				<textField textAdjust="StretchHeight">
+					<reportElement positionType="Float" x="5" y="23" width="260" height="20" uuid="b8ff5b9c-530d-4141-b690-876e00239daf"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="8" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA["ESTADÍSTICA DEL COMPORTAMIENTO ACADÉMICO DE LOS ESTUDIANTES POR GRADO"]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="110">
+				<subreport>
+					<reportElement positionType="Float" x="3" y="0" width="262" height="36" isRemoveLineWhenBlank="true" printWhenGroupChanges="periodo" uuid="90fa1e97-d1c0-419a-838d-e1aa5e7093fc"/>
+					<subreportParameter name="_year">
+						<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="_periodo">
+						<subreportParameterExpression><![CDATA[$F{periodo}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="_type">
+						<subreportParameterExpression><![CDATA[$P{P_NIVEL}]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "estadisticas_grado_perdidos_subreport.jasper"]]></subreportExpression>
+				</subreport>
+				<subreport>
+					<reportElement positionType="Float" x="3" y="36" width="262" height="34" isRemoveLineWhenBlank="true" printWhenGroupChanges="periodo" uuid="6de9fbc0-dda0-4238-9b8b-eea47f9eb11a"/>
+					<subreportParameter name="_year">
+						<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="_periodo">
+						<subreportParameterExpression><![CDATA[$F{periodo}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="_type">
+						<subreportParameterExpression><![CDATA[$P{P_NIVEL}]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "estadisticas_grado_grupo_perdidos_subreport.jasper"]]></subreportExpression>
+				</subreport>
+				<subreport>
+					<reportElement positionType="Float" x="3" y="70" width="262" height="33" isRemoveLineWhenBlank="true" printWhenGroupChanges="periodo" uuid="2255eab8-186b-40c7-82e4-3f754fc0b1c7"/>
+					<subreportParameter name="_year">
+						<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="_periodo">
+						<subreportParameterExpression><![CDATA[$F{periodo}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="_type">
+						<subreportParameterExpression><![CDATA[$P{P_NIVEL}]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "estadisticas_grado_perdidos_asig_subreport.jasper"]]></subreportExpression>
+				</subreport>
+			</band>
+		</groupFooter>
+	</group>
+	<group name="grado">
+		<groupExpression><![CDATA[$F{cod_grado}]]></groupExpression>
+		<groupHeader>
+			<band height="16">
+				<textField>
+					<reportElement positionType="Float" x="3" y="1" width="224" height="14" uuid="43f3ef37-a76f-4324-935a-e5c39b13a949"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="10" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{grado}.toUpperCase()]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band/>
+		</groupFooter>
+	</group>
+	<group name="grado y desempeño">
+		<groupExpression><![CDATA[$F{cod_grado}+$F{desempeño}]]></groupExpression>
+		<groupHeader>
+			<band height="12">
+				<staticText>
+					<reportElement x="3" y="1" width="74" height="11" uuid="4a8c631f-964b-4644-a0d8-2431c701f4f4"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="DejaVu Serif" size="6" isBold="true"/>
+					</textElement>
+					<text><![CDATA[N° ESTUDIANTES]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="77" y="1" width="72" height="11" uuid="42662915-5727-432c-a62b-e87bb7108a04"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="DejaVu Serif" size="6" isBold="true"/>
+					</textElement>
+					<text><![CDATA[N° ASIGNATURAS]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="153" y="1" width="68" height="11" uuid="c81abcf9-9971-4420-a0d4-683ba1fbc683"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="DejaVu Serif" size="6" isBold="true"/>
+					</textElement>
+					<text><![CDATA[DESEMPEÑO]]></text>
+				</staticText>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="14">
+				<textField>
+					<reportElement x="16" y="0" width="61" height="13" forecolor="#FF0000" uuid="be2d3ca6-0ab8-449c-9f6c-9ba013a02cf9"/>
+					<textElement textAlignment="Right">
+						<font size="10" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{totals_1}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement x="3" y="0" width="10" height="13" uuid="be936de7-3298-453a-97f0-351a1aeb9122"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[T]]></text>
+				</staticText>
+			</band>
+		</groupFooter>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="63" splitType="Stretch">
+			<subreport>
+				<reportElement positionType="Float" stretchType="ContainerHeight" x="-8" y="0" width="555" height="63" uuid="c2e10af4-4a58-432e-a55d-0900e9f8b174">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<subreportParameter name="AWS_PATH">
+					<subreportParameterExpression><![CDATA[$P{AWS_PATH}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "report_header.jasper"]]></subreportExpression>
+			</subreport>
+		</band>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="13" splitType="Stretch">
+			<rectangle>
+				<reportElement positionType="Float" x="3" y="0" width="262" height="13" isRemoveLineWhenBlank="true" uuid="e1174dde-ae67-4f49-8674-441db81e81e5"/>
+				<graphicElement>
+					<pen lineWidth="0.75"/>
+				</graphicElement>
+			</rectangle>
+			<textField textAdjust="StretchHeight">
+				<reportElement positionType="Float" x="77" y="0" width="72" height="13" isRemoveLineWhenBlank="true" uuid="af1898ad-9b3c-4d50-a83f-f73d4f042a78"/>
+				<textElement textAlignment="Right">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{total}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight">
+				<reportElement positionType="Float" x="16" y="0" width="61" height="13" isRemoveLineWhenBlank="true" uuid="fade7ff4-d72d-44ff-82d8-d30c21399c8b"/>
+				<textElement textAlignment="Right">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{totals}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight">
+				<reportElement positionType="Float" x="153" y="0" width="68" height="13" isRemoveLineWhenBlank="true" uuid="194a19f8-3369-4c53-a231-3c02b006037a"/>
+				<textElement textAlignment="Center">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{desempeño}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="221" y="0" width="42" height="13" uuid="c3ea9df7-f144-4656-8600-b9ad5d3797b3"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{porciento}+" %"]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="30" splitType="Stretch">
+			<textField>
+				<reportElement x="542" y="1" width="21" height="10" uuid="184a72c7-f142-4496-b933-89d1fe3009b0"/>
+				<textElement>
+					<font fontName="Arial" size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight">
+				<reportElement stretchType="RelativeToBandHeight" x="16" y="22" width="507" height="8" uuid="7829f300-5387-4522-b2ae-d6bf773009d8"/>
+				<textElement textAlignment="Center">
+					<font fontName="SansSerif" size="6" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{R_MARKETING}]]></textFieldExpression>
+			</textField>
+			<subreport>
+				<reportElement x="0" y="0" width="556" height="17" isRemoveLineWhenBlank="true" uuid="15e082dc-1d15-414d-8252-5db031118592">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "report_footer.jasper"]]></subreportExpression>
+			</subreport>
+		</band>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

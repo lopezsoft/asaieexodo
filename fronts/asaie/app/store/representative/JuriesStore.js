@@ -10,10 +10,10 @@ Ext.define('Admin.store.representative.JuriesStore',{
             pdbTable    : 'tp_juries'
         },
         api : {
-            create  : 'Master/insertData',
-            read    : 'representative/getJuries',
-            update  : 'Master/updateData',
-            destroy : 'Master/deleteData'
+            create  : 'crud',
+            read    : 'representative/juries',
+            update  : 'crud',
+            destroy : 'crud'
         }
     }
-});
+})

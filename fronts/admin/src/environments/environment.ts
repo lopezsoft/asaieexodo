@@ -5,8 +5,8 @@
 export const environment = {
   production  : false,
   hmr         : false,
-  APIURL      : 'http://asaie/api/v1',
-  APPURL      : 'http://asaie',
+  APIURL      : 'http://asaieexodo.test/api/v1',
+  APPURL      : 'http://asaieexodo.test',
   SOCKET_URL  : 'http://localhost:3001',
   APIJWT      : 'asaie-exodo-jwt',
   VERSION     : '2.1.1'

@@ -11,5 +11,6 @@ class GroupDirectorsController extends Controller
     public function getGroupDirectorByGrade(Request $request): array
     {
         return GroupDirectors::getGroupDirectorByGrade($request);
+
     }
 }

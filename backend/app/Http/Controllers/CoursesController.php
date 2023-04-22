@@ -21,4 +21,5 @@ class CoursesController extends Controller
     {
         return Courses::getSubjectsByCourses($request);
     }
+
 }

@@ -52,7 +52,7 @@ Ext.define('Admin.view.admin.forms.SaveAdmin' ,{
                         },
                         {
                             xtype       : 'CbRH',
-							name		: 'tipo_sangre'
+							name		: 'tipo_sangre'//cambio tipo_sangre
                         },
 						{
 							xtype       : 'CbSexo',
@@ -94,6 +94,11 @@ Ext.define('Admin.view.admin.forms.SaveAdmin' ,{
 							fieldLabel	: 'Correo electrónico',
 							vtype		: 'email',
 							allowBlank 	: true
+						},
+						{
+							name		: 'cod_denominacio',
+							fieldLabel	: 'codigo de denominación',
+							allowBlank 	: false
 						},
 						{
 							xtype		: 'customradiogroup',

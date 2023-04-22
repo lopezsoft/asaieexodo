@@ -5,10 +5,13 @@ namespace App\Reports;
 use App\Contracts\ReportProcessorContract;
 use App\Core\JReportModel;
 use App\Modules\School\SchoolQueries;
+use App\Traits\MessagesTrait;
+use GuzzleHttp\Psr7\MessageTrait;
 use Illuminate\Http\Request;
 
 class FamilyMembers implements  ReportProcessorContract
 {
+    use MessagesTrait;
     public function getReport(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
@@ -16,8 +19,8 @@ class FamilyMembers implements  ReportProcessorContract
             $format         = $school->format;
             $db	            = $school->db;
             $year	        = $school->year;
-            $pdbGrado	    = $request->input('pdbGrado')	;
-            $id_sede	    = $request->input('pdbSede')	;
+            $pdbGrado	    = $request->input('pdbGrado');
+            $id_sede	    = $request->input('pdbSede');
             $pdbAll		    = $request->input('pdbAll');
             $typeReport	    = $request->input('pdbType');
 

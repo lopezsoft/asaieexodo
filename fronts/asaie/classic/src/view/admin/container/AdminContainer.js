@@ -75,19 +75,19 @@ Ext.define('Admin.view.admin.container.AdminContainer',{
 					}
 				]
 			},
-			{
-				xtype   : 'containerButton',
-				disabled: !isRector,
-				hidden	: !isRector,
-				items   : [
-					{
-						xtype   : 'buttonPanel',
-						text    : 'Usuarios del sistema',
-						handler : 'onCreateUsers',
-						iconCls : 'fas fa-users-cog'
-					}
-				]
-			}
+			// {
+			// 	xtype   : 'containerButton',
+			// 	disabled: !isRector,
+			// 	hidden	: !isRector,
+			// 	items   : [
+			// 		{
+			// 			xtype   : 'buttonPanel',
+			// 			text    : 'Usuarios del sistema',
+			// 			handler : 'onCreateUsers',
+			// 			iconCls : 'fas fa-users-cog'
+			// 		}
+			// 	]
+			// }
 		];
 		this.callParent(arguments);
 	},

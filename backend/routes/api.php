@@ -13,7 +13,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-
 Route::prefix('v1')->group(function () {
     Route::controller('UserController')->group(function () {
        Route::prefix('email')->group(function () {
@@ -74,6 +73,7 @@ Route::prefix('v1')->group(function () {
         Route::prefix('group-director')->group(function () {
             Route::controller('Administrative\GroupDirectorsController')->group(function () {
                Route::get('getGroupDirectorByGrade', 'getGroupDirectorByGrade');
+
             });
         });
 
@@ -93,7 +93,7 @@ Route::prefix('v1')->group(function () {
 
         Route::prefix('academic')->group(function () {
            Route::controller('Academic\AcademicController')->group(function () {
-              Route::post('honor-frame', 'honorFrame');
+            Route::post('honorFrame', 'getHonorFrame');
            });
         });
 
@@ -104,6 +104,33 @@ Route::prefix('v1')->group(function () {
                Route::get('subjects-by-year', 'getSubjectsByYear');
            });
         });
+
+
+        Route::prefix('subject')->group(function () {
+            Route::controller('SubjectController')->group(function () {
+                Route::prefix('auxiliar-subjects')->group(function () {
+                    Route::get('/','getAuxiliarSubjects');
+                    Route::post('/','createAuxiliarSubjects');
+                });
+                Route::get('subject-certificate','getSubjectCertificate');
+            });
+         });
+
+         Route::prefix('representative')->group(function () {
+            Route::controller('RepresentativeController')->group(function () {
+                Route::get('votes-white-candidates','getCandidates');
+                Route::get('juries','getJuries');
+            });
+         });
+
+         Route::prefix('polling-station')->group(function () {
+            Route::controller('TableVoteController')->group(function () {
+                Route::get('headquarters','getTableHeadquarters');
+                Route::get('assigned-courses','getDegreesPerTable');
+            });
+         });
+
+
 
         Route::prefix('students')->group(function () {
             Route::controller('Academic\StudentController')->group(function () {
@@ -119,9 +146,6 @@ Route::prefix('v1')->group(function () {
                 Route::prefix('excel')->group(function () {
                     Route::post('template-enrollment', 'getTemplateEnrollment');
                 });
-                Route::prefix('student')->group(function () {
-                    Route::get('read-documents', 'readStudentDocuments');
-                });
                 Route::prefix('settings')->group(function () {
                     Route::get('read-school-logo', 'readSchoolLogo');
                     Route::get('read-signature', 'readSignature');
@@ -133,9 +157,6 @@ Route::prefix('v1')->group(function () {
                 Route::prefix('excel')->group(function () {
                     Route::post('template-enrollment', 'setTemplateEnrollment');
                 });
-                Route::prefix('student')->group(function () {
-                    Route::post('upload-documents', 'uploadStudentDocuments');
-                });
                 Route::prefix('settings')->group(function () {
                     Route::post('upload-school-logo', 'uploadSchoolLogo');
                     Route::post('upload-signature', 'uploadSignature');
@@ -144,8 +165,13 @@ Route::prefix('v1')->group(function () {
         });
 
         Route::prefix('files')->group(function () {
+            Route::controller('FileManagerController')->group(function () {
+                Route::get('read', 'get');
+                Route::post('upload', 'upload');
+                Route::delete('delete/{id}', 'delete');
+            });
             Route::controller('DeletingController')->group(function () {
-                Route::delete('delete/{path}', 'deleteFile');
+                Route::delete('delete-path/{path}', 'deleteFile');
                 Route::delete('delete-school-logo/{path}', 'deleteSchoolLogo');
                 Route::prefix('settings')->group(function () {
                     Route::delete('delete-signature/{path}', 'deleteSignature');

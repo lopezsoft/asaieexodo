@@ -16,16 +16,18 @@ class SchoolQueries
             $school     = self::getSchool($request->input('schoolId') ?? 0);
             $year       = $request->input('year') ?? Date('Y');
 
+
+
             return (object) [
                 'school'            => $school,
                 'db'                => "{$school->database_name}.",
                 'database_name'     => $school->database_name,
                 'year'              => $year,
-                'pdbYear'           => $request->input('pdbYear'),
-                'grade' 	        => $request->input('pdbGrado'),
-                'group'	            => $request->input('pdbGrupo'),
-                'headquarter'	    => $request->input('pdbSede'),
-                'workingDay'        => $request->input('pdbJorn'),
+                'pdbYear'           => $request->input('pdbYear'),#
+                'grade' 	        => $request->input('pdbGrado'),#
+                'group'	            => $request->input('pdbGrupo'),#
+                'headquarter'	    => $request->input('pdbSede'),#
+                'workingDay'        => $request->input('pdbJorn'),#
                 'format'		    => $request->input('pFormat') ?? 'pdf',
                 'schoolId'		    => $request->input('schoolId') ?? 0,
                 'page'		        => $request->input('page') ?? 0,

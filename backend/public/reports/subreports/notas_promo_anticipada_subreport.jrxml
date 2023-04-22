@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.8.0.final using JasperReports Library version 6.8.0-2ed8dfabb690ff337a5797129f2cd92902b0c87b  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="notas_certificado_per_subreport" pageWidth="556" pageHeight="792" whenNoDataType="NoDataSection" columnWidth="556" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="33974257-97b3-4498-8fe2-7887b59433ce">
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="35"/>
+	<property name="ireport.y" value="18"/>
+	<property name="ireport.callouts" value="##Sun Dec 13 17:00:36 COT 2015\ncallouts.1.text=Informe plantilla base para crear los dem\u00E1s informes\n\ncallouts.1.bounds=-12,404,240,51"/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="0"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="1000"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="asaie"/>
+	<property name="com.jaspersoft.studio.property.dataset.dialog.DatasetDialog.sash.w1" value="605"/>
+	<property name="com.jaspersoft.studio.property.dataset.dialog.DatasetDialog.sash.w2" value="383"/>
+	<parameter name="R_ESCALA" class="java.lang.String"/>
+	<parameter name="PID" class="java.lang.String"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["D:\\wamp\\www\\SME2017\\reports\\"]]></defaultValueExpression>
+	</parameter>
+	<queryString language="SQL">
+		<![CDATA[SELECT tp.*, a.`group_id`, a.grade_id, a.year, ta.asignatura, tmc.ih, d.nombre_escala, e.grado, e.cod_grado
+	FROM detail_promoted AS tp 
+	LEFT JOIN promoted_header AS a ON tp.promoted_id = a.id
+	LEFT JOIN asignaturas AS ta ON tp.subject_id = ta.id_pk
+	LEFT JOIN matcurso AS tmc ON (tmc.id_asig = ta.id_pk AND tmc.year = a.year AND tmc.id_grado = a.grade_id)
+	LEFT JOIN aux_grados_agrupados AS b ON b.id_grado = a.grade_id
+	LEFT JOIN `desempeños` AS c ON (c.id_grado_agrupado = b.id_grado_agrupado AND c.year = a.year)
+	LEFT JOIN escala_nacional AS d ON c.id_escala = d.id
+	LEFT JOIN grados AS e ON a.grade_id = e.id
+	WHERE a.id =  $P{PID}  AND c.id_grado_agrupado = b.id_grado_agrupado AND 
+	tp.final BETWEEN c.desde AND c.hasta]]>
+	</queryString>
+	<field name="id" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="id"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="detail_promoted"/>
+	</field>
+	<field name="promoted_id" class="java.lang.Long">
+		<property name="com.jaspersoft.studio.field.label" value="promoted_id"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="detail_promoted"/>
+	</field>
+	<field name="subject_id" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="subject_id"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="detail_promoted"/>
+	</field>
+	<field name="final" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="final"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="detail_promoted"/>
+	</field>
+	<field name="faults" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="faults"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="detail_promoted"/>
+	</field>
+	<field name="tiemestamp" class="java.sql.Timestamp">
+		<property name="com.jaspersoft.studio.field.label" value="tiemestamp"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="detail_promoted"/>
+	</field>
+	<field name="group_id" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="group_id"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="promoted_header"/>
+	</field>
+	<field name="grade_id" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="grade_id"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="promoted_header"/>
+	</field>
+	<field name="year" class="java.sql.Date">
+		<property name="com.jaspersoft.studio.field.label" value="year"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="promoted_header"/>
+	</field>
+	<field name="asignatura" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="asignatura"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="asignaturas"/>
+	</field>
+	<field name="ih" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="ih"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="matcurso"/>
+	</field>
+	<field name="nombre_escala" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="nombre_escala"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="escala_nacional"/>
+	</field>
+	<field name="grado" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="grado"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="grados"/>
+	</field>
+	<field name="cod_grado" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="cod_grado"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="grados"/>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<pageHeader>
+		<band height="13" splitType="Stretch">
+			<textField>
+				<reportElement positionType="Float" x="0" y="0" width="556" height="13" uuid="7a3e0567-48a9-4089-8735-cdc810342737">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box leftPadding="4" bottomPadding="1" rightPadding="4"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Arial" size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Obteniendo el siguiente registro valorativo."]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="24" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+			<staticText>
+				<reportElement positionType="Float" mode="Opaque" x="460" y="12" width="30" height="12" isRemoveLineWhenBlank="true" backcolor="#E8E8E8" uuid="abdb360a-b3b4-484c-8238-080af34fb857">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[NOTA]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" mode="Opaque" x="490" y="12" width="66" height="12" isRemoveLineWhenBlank="true" backcolor="#E8E8E8" uuid="8c21808b-1ac4-42be-b5e2-438c8f2a7475">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[DESEMPEÑO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" mode="Opaque" x="388" y="12" width="32" height="12" isRemoveLineWhenBlank="true" backcolor="#E8E8E8" uuid="8448d92c-d548-4461-9917-d05c9ec2f1ea">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[I/H]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" mode="Opaque" x="0" y="12" width="388" height="12" isRemoveLineWhenBlank="true" backcolor="#E8E8E8" uuid="5cda00f7-b2ac-411b-9158-66b6c1d5684c">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box leftPadding="3">
+					<pen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Arial" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[ÁREAS - ASIGNATURAS]]></text>
+			</staticText>
+			<rectangle>
+				<reportElement positionType="Float" mode="Transparent" x="0" y="0" width="556" height="12" uuid="094f2130-b5e0-4ed0-b293-cd68abfec527"/>
+				<graphicElement>
+					<pen lineWidth="0.75"/>
+				</graphicElement>
+			</rectangle>
+			<staticText>
+				<reportElement positionType="Float" x="2" y="0" width="36" height="12" uuid="e20a7007-cf52-46f1-bcbd-0c9e983c3645"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial" size="6" isBold="true"/>
+				</textElement>
+				<text><![CDATA[ESCALA:]]></text>
+			</staticText>
+			<textField>
+				<reportElement positionType="Float" x="38" y="1" width="517" height="9" uuid="9bae1df6-722d-4634-b5c3-3d356b53b0cf">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="6" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{R_ESCALA}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement positionType="Float" x="37" y="0" width="1" height="12" uuid="0f1ef4ce-7557-4e23-a3ea-67eda90f3810"/>
+				<graphicElement>
+					<pen lineWidth="0.75"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement positionType="Float" mode="Opaque" x="420" y="12" width="40" height="12" isRemoveLineWhenBlank="true" backcolor="#E8E8E8" uuid="aacbae22-ea59-46e6-928f-d53e757247fb">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[CURSO]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="12" splitType="Stretch">
+			<rectangle>
+				<reportElement positionType="Float" mode="Transparent" x="0" y="0" width="556" height="12" uuid="d5e05c59-1095-4877-b0d4-1535d6dfc89d"/>
+				<graphicElement>
+					<pen lineWidth="0.75"/>
+				</graphicElement>
+			</rectangle>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" mode="Transparent" x="460" y="0" width="30" height="12" isRemoveLineWhenBlank="true" uuid="a8c16e72-10fc-4743-a114-0f2384d97e42">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box leftPadding="2" rightPadding="2">
+					<pen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{final}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" mode="Transparent" x="0" y="0" width="388" height="12" isRemoveLineWhenBlank="true" uuid="c69e6c71-9c60-465c-9678-f4dc0c075bc3">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box leftPadding="3">
+					<pen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Arial" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{asignatura}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" mode="Transparent" x="388" y="0" width="32" height="12" isRemoveLineWhenBlank="true" uuid="8181a02f-23d1-4897-b548-fc19d55395fe">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box leftPadding="2" rightPadding="2">
+					<pen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{ih}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" mode="Transparent" x="490" y="0" width="66" height="12" isRemoveLineWhenBlank="true" uuid="f73a5cea-b2ad-4f70-aaa4-2ae6ee8b134c">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box leftPadding="2" rightPadding="2">
+					<pen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Arial" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nombre_escala}.trim()]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" mode="Transparent" x="420" y="0" width="40" height="12" isRemoveLineWhenBlank="true" uuid="def5e47f-7d82-41ed-b3f6-c42362c7270a">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box leftPadding="2" rightPadding="2">
+					<pen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{cod_grado}+" - "+$F{group_id}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

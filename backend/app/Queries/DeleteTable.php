@@ -29,7 +29,7 @@ class DeleteTable
             return self::getResponse(['records' => $delete]);
         } catch (\Exception $e) {
             DB::rollback();
-            return self::getResponse500(['error' => $e->getMessage()]);
+            return self::getResponse500(['error' => "Error al borrar el registro de la table $tb. Es posible que tenga relaciones con otras tablas."]);
         }
     }
 

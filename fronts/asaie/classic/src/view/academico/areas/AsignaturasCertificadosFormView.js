@@ -40,9 +40,6 @@ Ext.define('Admin.view.academico.AsignaturasCertificadosFormView' ,{
 		   }
 		}
 	},
-
-
-
     store: 'AsignaturaCertificadoStore',
     items : [
     	{
@@ -86,6 +83,6 @@ Ext.define('Admin.view.academico.AsignaturasCertificadosFormView' ,{
 					]
 				}
 			]
-		}		    
+		}
 	]
 });

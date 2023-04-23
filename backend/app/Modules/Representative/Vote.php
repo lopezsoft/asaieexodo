@@ -27,20 +27,16 @@ class Vote{
         $type = $request->input('type');
         $year = $request->input('year');
         $queryMesa = null;
-        $msg = "";
-        $msg6="";
-        $msg7="";
-        $msg5="";
+
 
         $query = DB::table("{$db}student_enrollment")
             ->where('id', $enrollment_id)
             ->get();
 
         if ($query->count() > 0) {
-            $mensaje = "El estudiante está matriculado";
+
             $query = DB::table("{$db}student_enrollment")->get();
-            if ($query->count() > 0) {
-                $msg = 1; // hay datos en la tabla
+            if ($query->count() > 0) {// hay datos en la tabla
 
                 //mesa existe
                 $queryMesa = DB::table("{$db}tp_polling_stations")
@@ -49,13 +45,13 @@ class Vote{
                 ->get();
 
                 if ($queryMesa) {
-                    $msg3 = "mesa existe";
+
 
                     $queryMesa = DB::table("{$db}tp_polling_stations")
                     ->where('state', 2)
                     ->get();
-                    if ($queryMesa) {
-                        $msg4 = "la mesa está activa";
+                    if ($queryMesa) {//mesa activa
+
                         $queryVoto = DB::table("{$db}tp_votes")
                         ->where('year', $year)
                         ->where('enrollment_id', $enrollment_id)//identificación de inscripción
@@ -63,68 +59,102 @@ class Vote{
                         ->get();
 
                         if ($queryVoto) {
-                            $msg5="pasó";
-                             /**
-						 * Se verifica si el votante no ha relizado el proceso del voto para evitar
-						 * duplicidad de votos y se realiza el proceso de insert.
-						 */
+
+
                             if($queryVoto->count() == 0) {
                                 if($type == 1) { // White vote
                                     $data = [
-                                        "year"                  => $year,
-                                        "white_vote_id"         => $candidate_id,
-                                        "enrollment_id"         => $enrollment_id,
-                                        "candidacy_id"          => $candidacy_id,
-                                        "polling_station_id"    => $polling_station_id,
+                                        "year" =>$year,
+                                        "white_vote_id" => $candidate_id,
+                                        "enrollment_id" => $enrollment_id,
+                                        "candidacy_id" => $candidacy_id,
+                                        "polling_station_id" => $polling_station_id,
                                     ];
                                     DB::table("{$db}tp_aux_white_vote")->insert($data);
-                                    return $msg6 = "voto en blanco?";
+                                } else {
+                                    $data = [
+                                        "year" =>$year,
+                                        "candidate_id" => $candidate_id,
+                                        "enrollment_id" => $enrollment_id,
+                                        "candidacy_id" => $candidacy_id,
+                                        "polling_station_id" => $polling_station_id,
+                                    ];
+                                    DB::table("{$db}tp_aux_candidate_votes")->insert($data);
                                 }
+                                $data = [
+                                    "year" =>$year,
+                                    "enrollment_id" => $enrollment_id,
+                                    "candidacy_id" => $candidacy_id,
+                                    "attempts" => 1,
+                                    "state" => 1,
+                                ];
+                                DB::table("{$db}tp_votes")->insert($data);
 
-                            } else {
+                                $request = array(
+                                    'success' => true,
+                                    'state' => 1,
+                                    'mensaje' => "Se realizó el proceso de voto correctamente"
+                                );
+                                $request = json_encode($request);
+                            } else { // Si el estudiante ya habia relizado el voto y lo intenta de nuevo
 
-                                return $msg6 = "que paso?";
+                                DB::table("{$db}tp_votes")->where('id', $queryVoto->first()->id)->limit(1)->increment('attempts');
+
+                                $request = array(
+                                    'success' => true,
+                                    'state' => 0, // Se realizó el proceso de voto correctamente
+                                    'mensaje' => "Usted ya habia relizado el voto"
+                                );
+                                $request = json_encode($request);
                             }
 
-                          } else {
-                            return $msg5 = "número de identificacion no corresponde con candidato y año";
-                          }
+
+                        } else {
+                            $request = array(
+                                'success' => true,
+                                'mensaje' => "numero de identificacion no corresponde con candidato y año"
+                            );
+                        }
 
 
                     } else {
+                        $request = array(
+                            'success' => true,
+                            'mensaje' =>"la mesa no esta activa"
+                        );
 
-                        $msg4 = "la mesa no está activa";
+
                     }
 
                 } else {
+                    $request = array(
+                        'success' => true,
+                        'mensaje' => "los datos de la mesa no concuerdan"
+                    );
 
-                    $msg3 = "los datos de la mesa no concuerdan";
+
                 }
 
             } else {
-                $msg = "Sin datos en el sistema"; // no hay datos en la tabla
+                $request = array(
+                    'success' => true,
+                    'mensaje' => "Sin datos en el sistema" // no hay datos en la tabla
+                );
+
             }
 
         } else {
-            $mensaje = "El estudiante no está matriculado";
+            $request = array(
+                'success' => true,
+                'mensaje' => "El estudiante por quien voto no esta matriculado"
+            );
+
         }
-
-        $data =[
-            // $mensaje,
-            // $msg,
-            // $msg3,
-            $msg4,
-            $msg5,
-            $msg6
-        ];
-
-
-
-
+        $request = json_encode($request);
 
 
         // return self::getResponse(['records' => $data,'success' => true]);
-        return self::getResponse(['records' => $data,'success' => true]);
+        return self::getResponse(['records' => $request,'success' => true]);
 
 
 
@@ -133,3 +163,4 @@ class Vote{
 
 	}
 }
+

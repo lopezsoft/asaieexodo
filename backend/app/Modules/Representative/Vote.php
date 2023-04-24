@@ -59,8 +59,6 @@ class Vote{
                         ->get();
 
                         if ($queryVoto) {
-
-
                             if($queryVoto->count() == 0) {
                                 if($type == 1) { // White vote
                                     $data = [
@@ -93,7 +91,7 @@ class Vote{
                                 $request = array(
                                     'success' => true,
                                     'state' => 1,
-                                    'mensaje' => "Se realizó el proceso de voto correctamente"
+                                    'mensaje' => "Se realizo el proceso de voto correctamente"
                                 );
                                 $request = json_encode($request);
                             } else { // Si el estudiante ya habia relizado el voto y lo intenta de nuevo
@@ -102,12 +100,11 @@ class Vote{
 
                                 $request = array(
                                     'success' => true,
-                                    'state' => 0, // Se realizó el proceso de voto correctamente
+                                    'state' => 0,
                                     'mensaje' => "Usted ya habia relizado el voto"
                                 );
                                 $request = json_encode($request);
                             }
-
 
                         } else {
                             $request = array(
@@ -116,14 +113,11 @@ class Vote{
                             );
                         }
 
-
                     } else {
                         $request = array(
                             'success' => true,
                             'mensaje' =>"la mesa no esta activa"
                         );
-
-
                     }
 
                 } else {
@@ -131,14 +125,12 @@ class Vote{
                         'success' => true,
                         'mensaje' => "los datos de la mesa no concuerdan"
                     );
-
-
                 }
 
             } else {
                 $request = array(
                     'success' => true,
-                    'mensaje' => "Sin datos en el sistema" // no hay datos en la tabla
+                    'mensaje' => "Sin datos en el sistema"
                 );
 
             }
@@ -152,14 +144,7 @@ class Vote{
         }
         $request = json_encode($request);
 
-
-        // return self::getResponse(['records' => $data,'success' => true]);
         return self::getResponse(['records' => $request,'success' => true]);
-
-
-
-
-
 
 	}
 }

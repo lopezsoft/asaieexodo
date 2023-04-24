@@ -22,34 +22,24 @@ class ElectionResults implements  ReportProcessorContract
             $format         = $school->format;
             $db	            = $school->db;
             $year	        = $school->year;
-            // $pdbGrado	    = $request->input('pdbGrado')	;
-            // $id_sede	    = $request->input('pdbSede')	;
-            $pdbAll		    = $request->input('pdbAll');
-            $typeReport	    = $request->input('pdbType');
-            // $pdbGrupo		= $request->input('pdbGrupo');
-            // $pdbJorn		= $request->input('pdbJorn');
-
             $report	        = $request->input('pdbReport');
-            // $report_export	= 'Lista directores de grupo';
+
             switch($report){
                 case '1':
                     //Reporte a Procesar : Este nombre es del reporte creado en JasReport
                     $report			=	'representative_results';
-
                     // Nombre dado al informe de salida
                     $report_export	= 'Resultado electoral por candidatos';
                     break;
                 case '2':
                     //Reporte a Procesar : Este nombre es del reporte creado en JasReport
                     $report			=	'representative_results_polling_stations';
-
                     // Nombre dado al informe de salida
                     $report_export	= 'Resultado electoral por mesas';
                     break;
                 case '3':
                     //Reporte a Procesar : Este nombre es del reporte creado en JasReport
                     $report			=	'representative_results_white_vote';
-
                     // Nombre dado al informe de salida
                     $report_export	= 'Resultado electoral por voto en blanco';
                     break;

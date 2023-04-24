@@ -18,5 +18,5 @@ ALTER TABLE `students_file_managers`
 
 DROP TABLE IF EXISTS teacher_file_managers;
 DROP TABLE  IF EXISTS students_file_managers;
--- Path: database\Scripts\21-04-2023.sql
+-- Path: database\Scripts\21.sql
 

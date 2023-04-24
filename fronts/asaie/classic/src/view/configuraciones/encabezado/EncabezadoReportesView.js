@@ -80,13 +80,16 @@ Ext.define('Admin.view.configuraciones.EncabezadoReportesView',{
 							const winApp = Ext.create({
 								xtype: 'FilesView',
 								title: 'Seleccionar escudo',
-								pathReadFile	: 'download/settings/read-school-logo',
-								pathDeleteFile	: 'files/delete-school-logo',
+								pathReadFile	: 'files/read',
 								pathUploadFile	: 'upload/settings/upload-school-logo',
 								titlePanelLoad	: 'Subir imagen',
 								titlePanelView	: 'Mis imágenes',
 								textButtonLoad	: 'Seleccionar una imagen en el equipo',
 								textButtonApply	: 'Establecer como  escudo',
+								extraParams: {
+									belongToId	: null,
+									fileProfile	: 'School'
+								},
 								listeners: {
 									afterselect: function (me, r) {
 										ts.down('#escudo').setValue(r.get('pathFile'));
@@ -114,35 +117,38 @@ Ext.define('Admin.view.configuraciones.EncabezadoReportesView',{
 						text	: 'Logo Escolar',
 						iconCls	:'x-fa fa-check',
 						handler	: function (btn) {
-                            var me  = Admin.getApplication(),
-                                ts  = btn.up('window');
+							const me = Admin.getApplication(),
+								ts = btn.up('window');
 							me.onStore('docs.ImageBrowserStore');
-							var winApp = Ext.create({
-								xtype           : 'FilesView',
-								title           : 'Seleccionar logo',
-								pathReadFile    : 'download/settings/read-school-logo',
-								pathUploadFile  : 'upload/settings/upload-school-logo',
-								pathDeleteFile	: 'files/delete-school-logo',
-								titlePanelLoad  : 'Subir imagen',
-								titlePanelView  : 'Mis imágenes',
-								textButtonLoad  : 'Seleccionar una imagen en el equipo',
-								textButtonApply : 'Establecer como  logo escolar',
-								listeners : {
-									afterselect : function (me, r) {
+							const winApp = Ext.create({
+								xtype: 'FilesView',
+								title: 'Seleccionar logo',
+								pathReadFile: 'files/read',
+								pathUploadFile: 'upload/settings/upload-school-logo',
+								titlePanelLoad: 'Subir imagen',
+								titlePanelView: 'Mis imágenes',
+								textButtonLoad: 'Seleccionar una imagen en el equipo',
+								textButtonApply: 'Establecer como  logo escolar',
+								extraParams: {
+									belongToId	: null,
+									fileProfile	: 'School'
+								},
+								listeners: {
+									afterselect: function (me, r) {
 										ts.down('#logo').setValue(r.get('pathFile'));
 										ts.down('#mime').setValue(r.get('mime'));
 									},
-									afterupload : function (me, r) {
+									afterupload: function (me, r) {
 										ts.down('#logo').setValue(r.foto);
 										ts.down('#mime').setValue(r.mime);
-									},                                    
-									cancel  : function (me) {
+									},
+									cancel: function (me) {
 										ts.down('#logo').reset();
 										ts.down('#mime').reset();
 									}
 								}
-                            });
-                            winApp.on('apply', function(me){
+							});
+							winApp.on('apply', function(me){
                                 winApp.close();
                             });
 							winApp.show();

@@ -434,7 +434,7 @@ Ext.define('Admin.view.representative.controller.RepresentativeController',{
     },
 
     onSetReport : function (btn) {
-        let url     = 'representative/getCertificate',
+        let url     = 'reports/reports-tab',
             param   = {},
             win     = btn.up('window');
 
@@ -445,7 +445,7 @@ Ext.define('Admin.view.representative.controller.RepresentativeController',{
 
             param = {
                 pdbGrado	: grado.get('id'),
-                pdbSede		: sede.get('ID'),
+                pdbSede		: sede.get('id'),
                 pdbReport	: report.get('id')
             };
 		}else if(win.alias == "widget.representativereportresultview"){

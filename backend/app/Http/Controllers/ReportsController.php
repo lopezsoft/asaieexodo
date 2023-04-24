@@ -25,6 +25,8 @@ use App\Reports\StudentsPerDay;
 use App\Reports\TeachersList;
 use App\Reports\GroupDirectors;
 use App\Reports\ElectionResults;
+use App\Reports\ReportsTab;
+
 use Illuminate\Http\Request;
 
 class ReportsController extends Controller
@@ -51,6 +53,12 @@ class ReportsController extends Controller
     public function getElectionResults(Request $request): \Illuminate\Http\JsonResponse
     {
         return ReportProcessor::runReport($request, new ElectionResults() );
+
+    }
+
+    public function getReportsTab(Request $request): \Illuminate\Http\JsonResponse
+    {
+        return ReportProcessor::runReport($request, new ReportsTab() );
 
     }
 

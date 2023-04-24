@@ -10,7 +10,6 @@ class DownloadController extends Controller
 {
     public function readSignature(Request $request): ?\Illuminate\Http\JsonResponse
     {
-
         $path   = "settings/signature";
         return UploadFiles::read($request, $path, 'public');
     }

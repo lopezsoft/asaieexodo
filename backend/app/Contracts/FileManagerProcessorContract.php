@@ -12,20 +12,20 @@ interface FileManagerProcessorContract
      * @param FileManagerContract $object
      * @return JsonResponse
      */
-    public static function get(Request $request, FileManagerContract $object): \Illuminate\Http\JsonResponse;
+    public static function get(Request $request, FileManagerContract $object): JsonResponse;
 
     /**
      * @param Request $request
      * @param FileManagerContract $object
      * @return JsonResponse
      */
-    public static function upload(Request $request, FileManagerContract $object): \Illuminate\Http\JsonResponse;
+    public static function upload(Request $request, FileManagerContract $object): JsonResponse;
 
     /**
      * @param Request $request
      * @param FileManagerContract $object
-     * @param $id
+     * @param mixed $id
      * @return JsonResponse
      */
-    public static function delete(Request $request, FileManagerContract $object, $id): \Illuminate\Http\JsonResponse;
+    public static function delete(Request $request, FileManagerContract $object, mixed $id): JsonResponse;
 }

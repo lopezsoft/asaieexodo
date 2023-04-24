@@ -2,24 +2,25 @@
 
 namespace App\Http\Controllers;
 
+use App\Modules\FileManagers;
 use App\Modules\Upload\StudentUploads;
-use App\Modules\Upload\UploadFiles;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class UploadController extends Controller
 {
-    public function uploadSignature(Request $request): ?\Illuminate\Http\JsonResponse
+    public function uploadSignature(Request $request): JsonResponse
     {
-        $path   = "settings/signature";
-        return UploadFiles::upload($request, $path, 'public');
+        $path           = "settings/signature";
+        return FileManagers::upload($request, $path, 'public');
     }
-    public function uploadSchoolLogo(Request $request): ?\Illuminate\Http\JsonResponse
+    public function uploadSchoolLogo(Request $request): JsonResponse
     {
         $path   = "settings/reports/header";
-        return UploadFiles::upload($request, $path, 'public');
+        return FileManagers::upload($request, $path, 'public');
     }
 
-    public function setTemplateEnrollment(Request $request): \Illuminate\Http\JsonResponse
+    public function setTemplateEnrollment(Request $request): JsonResponse
     {
         return StudentUploads::setTemplateEnrollment($request);
     }

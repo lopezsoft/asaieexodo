@@ -6,8 +6,6 @@ use App\Traits\MessagesTrait;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-
-
 class CrudProcess
 {
     use MessagesTrait;

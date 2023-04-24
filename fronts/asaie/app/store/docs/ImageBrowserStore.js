@@ -11,7 +11,7 @@ Ext.define('Admin.store.docs.ImageBrowserStore', {
 		    create  : '',
 		    read    : '',
 		    update  : '',
-		    destroy : 'reports/delete_file'
+		    destroy : 'files/delete'
 		}
     }
 });

@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Storage;
 class UploadFiles
 {
     use MessagesTrait;
-    public static function delete(Request $request, $path, String $disk = "s3"): \Illuminate\Http\JsonResponse
+    public static function delete(Request $request, string $path, String $disk = "s3"): \Illuminate\Http\JsonResponse
     {
         try {
             Storage::disk($disk)->delete($request->pathFile ?? $path);
@@ -35,14 +35,15 @@ class UploadFiles
                 $url            = Storage::disk($disk)->url($file);
                 $extension      = pathinfo($url, PATHINFO_EXTENSION);
                 $documents[] = [
-                    'name'          => pathinfo($url, PATHINFO_FILENAME),
-                    'format'        => $extension,
-                    'type'          => self::extensionToType($extension),
-                    'mime'			=> Storage::disk($disk)->mimeType($file),
-                    'url'           => $url,
-                    'pathFile'      => $file,
-                    'lastModified'  => date("m-d-Y H:i:s", Storage::disk($disk)->lastModified($file)),
-                    'size'			=> round((Storage::disk($disk)->size($file)/1024)/1024,3)
+                    'file_name'         => pathinfo($url, PATHINFO_FILENAME),
+                    'file_description'  => pathinfo($url, PATHINFO_FILENAME),
+                    'extension_file'    => $extension,
+                    'type'              => self::extensionToType($extension),
+                    'mime_type'		    => Storage::disk($disk)->mimeType($file),
+                    'file_path'         => $url,
+                    'path'              => $file,
+                    'last_modified'     => date("m-d-Y H:i:s", Storage::disk($disk)->lastModified($file)),
+                    'size_file'		    => round((Storage::disk($disk)->size($file)/1024)/1024,3)
                 ];
             }
             return self::getResponse([
@@ -57,7 +58,10 @@ class UploadFiles
         }
     }
 
-    public static function upload(Request $request, $path, $school, String $disk = "s3"): ?object
+    /**
+     * @throws \Exception
+     */
+    public static function upload(Request $request, string $path, object $school, string $disk = "s3"): object|null
     {
         try {
             $user       = $request->user();
@@ -86,7 +90,8 @@ class UploadFiles
                 'user_id'           =>  $user->id,
                 'file_name'         =>  $fileName,
                 'file_description'  =>  $fileDescription,
-                'file_path'         =>  $output,
+                'file_path'         =>  $filePath,
+                'url'               =>  $output,
                 'extension_file'    =>  $format,
                 'mime_type'         =>  $mimeType,
                 'size_file'         =>  $sizeFile,
@@ -94,15 +99,13 @@ class UploadFiles
                 'state'             =>  1,
             ]);
 
-            return (object) [
-                'fileManager'   => $fileManager,
-            ];
+            return (object)compact('fileManager');
         }catch(\Exception $e) {
             throw new \Exception($e->getMessage());
         }
     }
 
-    public static function extensionToType($extension): int
+    public static function extensionToType(string $extension): int
     {
         $ext	= strtoupper($extension);
         return match ($ext) {

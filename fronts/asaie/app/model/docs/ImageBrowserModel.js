@@ -5,6 +5,7 @@ Ext.define('Admin.model.docs.ImageBrowserModel', {
     	{ name: 'file_description' },
         { name: 'extension_file' },
         { name: 'file_path'},
+        { name: 'url'},
         { name: 'uuid'},
         { name: 'type'},
         { name: 'mime'},

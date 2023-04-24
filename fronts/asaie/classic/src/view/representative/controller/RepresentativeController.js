@@ -451,7 +451,8 @@ Ext.define('Admin.view.representative.controller.RepresentativeController',{
 		}else if(win.alias == "widget.representativereportresultview"){
 			const 
 				report  = win.down('#comboReport').getSelection();
-				url     = 'representative/getResults';
+				// url     = 'representative/getResults';
+				url     = 'reports/election-results';
 
 				param = {
 					pdbReport: report.get('id')

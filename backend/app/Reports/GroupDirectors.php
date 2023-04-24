@@ -22,10 +22,10 @@ class GroupDirectors implements  ReportProcessorContract
             $format         = $school->format;
             $db	            = $school->db;
             $year	        = $school->year;
-            $pdbGrado	    = $request->input('pdbGrado')	;
-            $id_sede	    = $request->input('pdbSede')	;
-            $pdbAll		    = $request->input('pdbAll');
-            $typeReport	    = $request->input('pdbType');
+            // $pdbGrado	    = $request->input('pdbGrado')	;
+            // $id_sede	    = $request->input('pdbSede')	;
+            // $pdbAll		    = $request->input('pdbAll');
+            // $typeReport	    = $request->input('pdbType');
             // $pdbGrupo		= $request->input('pdbGrupo');
             // $pdbJorn		= $request->input('pdbJorn');
 

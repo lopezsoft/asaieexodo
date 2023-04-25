@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.18.1.final using JasperReports Library version 6.18.1-9d75d1969e774d4f179fb3be8401e98a0e6d1611  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="carnets_docentes" columnCount="2" pageWidth="612" pageHeight="792" whenNoDataType="NoDataSection" columnWidth="278" leftMargin="28" rightMargin="28" topMargin="43" bottomMargin="20" uuid="33974257-97b3-4498-8fe2-7887b59433ce">
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="35"/>
+	<property name="ireport.y" value="18"/>
+	<property name="ireport.callouts" value="##Sun Dec 13 17:00:36 COT 2015\ncallouts.1.text=Informe plantilla base para crear los dem\u00E1s informes\n\ncallouts.1.bounds=-12,404,240,51"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="asaie "/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="0"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="1000"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<parameter name="SQL_PARAM" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="R_FOOTER" class="java.lang.String"/>
+	<parameter name="R_MARKETING" class="java.lang.String"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["D:\\wamp64\\www\\asaieexodo\\backend\\public\\reports\\subreports\\"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="HOME_DIR" class="java.lang.String"/>
+	<parameter name="P_USER" class="java.lang.String"/>
+	<parameter name="AWS_PATH" class="java.lang.String"/>
+	<queryString language="SQL">
+		<![CDATA[$P!{SQL_PARAM}]]>
+	</queryString>
+	<field name="documento" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="documento"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="docentes"/>
+	</field>
+	<field name="docente" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="docente"/>
+	</field>
+	<field name="tipo_sangre" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="tipo_sangre"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="docentes"/>
+	</field>
+	<field name="image" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="image"/>
+	</field>
+	<field name="movil" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="movil"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="docentes"/>
+	</field>
+	<field name="email" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="email"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="docentes"/>
+	</field>
+	<field name="year" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="year"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="aux_docentes"/>
+	</field>
+	<field name="abrev" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="abrev"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="documentos"/>
+	</field>
+	<field name="url" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="url"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="carnets"/>
+	</field>
+	<field name="name" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="name"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="carnets"/>
+	</field>
+	<field name="school" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="school"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="carnets"/>
+	</field>
+	<field name="info" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="info"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="carnets"/>
+	</field>
+	<field name="header" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="header"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="carnets"/>
+	</field>
+	<field name="qr" class="java.lang.Boolean">
+		<property name="com.jaspersoft.studio.field.label" value="qr"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="carnets"/>
+	</field>
+	<field name="school_img" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<detail>
+		<band height="182" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<rectangle>
+				<reportElement positionType="Float" stretchType="ContainerHeight" mode="Opaque" x="0" y="0" width="290" height="182" backcolor="#5A9CF2" uuid="d623d7f2-113b-4e39-9b94-abee1a41a36c">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<graphicElement>
+					<pen lineWidth="0.0"/>
+				</graphicElement>
+			</rectangle>
+			<image onErrorType="Blank">
+				<reportElement x="25" y="42" width="72" height="72" uuid="99099c8d-6f4f-4690-b49a-2510819296a3"/>
+				<imageExpression><![CDATA[$P{HOME_DIR} + $F{image}]]></imageExpression>
+			</image>
+			<image scaleImage="FillFrame">
+				<reportElement x="1" y="3" width="277" height="176" uuid="edb6e2a3-8cf7-4a26-b5fd-135a4f3588b9">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineColor="#A3A3A3"/>
+				</box>
+				<imageExpression><![CDATA[$P{HOME_DIR} + $F{url}]]></imageExpression>
+			</image>
+			<image onErrorType="Blank">
+				<reportElement x="189" y="80" width="72" height="72" uuid="ee577c3c-db30-44c0-a83a-18ba2ff088ed"/>
+				<imageExpression><![CDATA[$P{AWS_PATH} + $F{school_img}]]></imageExpression>
+			</image>
+			<textField>
+				<reportElement x="189" y="152" width="72" height="14" uuid="5e67e6fc-7568-43a8-9d43-13b94597bf4d">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["AÑO: " + $F{year}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight">
+				<reportElement x="69" y="17" width="192" height="30" uuid="d9a3e514-cf2e-491a-9bd7-a3149c8de0d9"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle" markup="html">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{header}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="19" y="152" width="130" height="14" uuid="eb077cba-49a4-4567-af63-e7a7fc5b1b13">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial" size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{school}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="19" y="141" width="130" height="11" uuid="5b2dedf6-33d7-4dda-bdec-049060b341d6"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial" size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{abrev}+ " " + $F{documento}+ " - RH " + $F{tipo_sangre}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="19" y="119" width="130" height="11" uuid="0215a773-298a-430b-9f05-c1d3eca226d5"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial" size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["DOCENTE"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="19" y="130" width="170" height="11" uuid="9f2981a2-0115-4d14-a219-8ab317da330c"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial" size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{docente}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

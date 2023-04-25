@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.18.1.final using JasperReports Library version 6.18.1-9d75d1969e774d4f179fb3be8401e98a0e6d1611  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report_header" pageWidth="572" pageHeight="842" columnWidth="572" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="5cdba6aa-d21f-4273-81be-aa654a7b64a4">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Asaie"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="0"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="1000"/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<queryString>
+		<![CDATA[SELECT *
+FROM encabezado_reportes
+LIMIT 1]]>
+	</queryString>
+	<field name="id" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="id"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="encabezado_reportes"/>
+		<property name="com.jaspersoft.studio.field.name" value="id"/>
+	</field>
+	<field name="encabezado" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="encabezado"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="encabezado_reportes"/>
+	</field>
+	<field name="dane" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="dane"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="encabezado_reportes"/>
+	</field>
+	<field name="dni" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="dni"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="encabezado_reportes"/>
+	</field>
+	<field name="resolucion" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="resolucion"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="encabezado_reportes"/>
+	</field>
+	<field name="logo" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="logo"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="encabezado_reportes"/>
+	</field>
+	<field name="escudo" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="escudo"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="encabezado_reportes"/>
+	</field>
+	<field name="mime" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="mime"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="encabezado_reportes"/>
+		<property name="com.jaspersoft.studio.field.name" value="mime"/>
+	</field>
+	<field name="mime_esc" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="mime_esc"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="encabezado_reportes"/>
+	</field>
+	<field name="pie" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="pie"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="encabezado_reportes"/>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<detail>
+		<band height="20" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<textField textAdjust="StretchHeight">
+				<reportElement x="26" y="0" width="507" height="17" isRemoveLineWhenBlank="true" uuid="8e2d0020-bbd8-44fa-8fc3-b0db86a31ff5">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<textElement markup="html">
+					<font fontName="Arial" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{pie}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

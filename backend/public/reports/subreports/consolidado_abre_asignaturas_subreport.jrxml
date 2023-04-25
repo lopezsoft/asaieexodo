@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.9.0.final using JasperReports Library version 6.9.0-cb8f9004be492ccc537180b49c026951f4220bf3  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="consolidado_abre_asignaturas_subreport" pageWidth="20" pageHeight="10" columnWidth="20" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="a8d75dc8-30e0-4d30-8ba9-7efb16d1baed">
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="ASAIE"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="0"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="1000"/>
+	<property name="com.jaspersoft.studio.property.dataset.dialog.DatasetDialog.sash.w1" value="570"/>
+	<property name="com.jaspersoft.studio.property.dataset.dialog.DatasetDialog.sash.w2" value="416"/>
+	<parameter name="_year" class="java.lang.Integer"/>
+	<parameter name="_id_asig" class="java.lang.Integer"/>
+	<parameter name="_type" class="java.lang.String"/>
+	<parameter name="_grade" class="java.lang.Integer"/>
+	<queryString>
+		<![CDATA[CALL `sp_abre_areas__asig`( $P{_year},$P{_id_asig}, $P{_grade},$P{_type})
+]]>
+	</queryString>
+	<field name="abrev" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="abrev"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<detail>
+		<band height="10">
+			<textField>
+				<reportElement positionType="Float" x="0" y="0" width="20" height="10" uuid="40c00d48-2336-4382-be68-3b7e7cb9132f"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Courier New" size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{abrev}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

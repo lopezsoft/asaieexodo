@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.9.0.final using JasperReports Library version 6.9.0-cb8f9004be492ccc537180b49c026951f4220bf3  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="estadisticas_grado_grupado_subreport" pageWidth="269" pageHeight="365" columnWidth="269" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" isIgnorePagination="true" uuid="3b010957-b137-4275-9c3d-fcfbb4295ba8">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="0"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="1000"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="ASAIE"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<style name="table">
+		<box>
+			<topPen lineWidth="1.0" lineColor="#000000"/>
+			<bottomPen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="Crosstab Data Text" hTextAlign="Center" hImageAlign="Center"/>
+	<parameter name="_year" class="java.lang.Integer"/>
+	<parameter name="_periodo" class="java.lang.String">
+		<defaultValueExpression><![CDATA[0]]></defaultValueExpression>
+	</parameter>
+	<parameter name="_grade" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[CALL `sp_estadistica_select_total_grados`($P{_year}, $P{_grade}, $P{_periodo})]]>
+	</queryString>
+	<field name="cod_grado" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="cod_grado"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="estadistica_grupo"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="totals" class="java.lang.Long">
+		<property name="com.jaspersoft.studio.field.label" value="totals"/>
+	</field>
+	<field name="id_desempeño" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="id_desempeño"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="estadistica_grupo"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="periodo" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="periodo"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="estadistica_grupo"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="year" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="year"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="estadistica_grupo"/>
+	</field>
+	<field name="grado" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="grado"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="grados"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="desempeño" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="desempeño"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="escala_nacional"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="total_niños" class="java.lang.Long">
+		<property name="com.jaspersoft.studio.field.label" value="total_niños"/>
+	</field>
+	<field name="porciento" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="porciento"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<summary>
+		<band height="281">
+			<bar3DChart>
+				<chart>
+					<reportElement positionType="Float" x="0" y="21" width="269" height="130" isRemoveLineWhenBlank="true" uuid="50f9b250-0d68-4546-b99d-619a11222cbb"/>
+					<chartTitle>
+						<titleExpression><![CDATA["Grafica totalizada grado "+$F{grado}]]></titleExpression>
+					</chartTitle>
+					<chartSubtitle/>
+					<chartLegend/>
+				</chart>
+				<categoryDataset>
+					<categorySeries>
+						<seriesExpression><![CDATA[$F{desempeño}]]></seriesExpression>
+						<categoryExpression><![CDATA[$F{totals}]]></categoryExpression>
+						<valueExpression><![CDATA[$F{totals}]]></valueExpression>
+						<labelExpression><![CDATA[$F{desempeño}]]></labelExpression>
+					</categorySeries>
+				</categoryDataset>
+				<bar3DPlot>
+					<plot/>
+					<itemLabel/>
+					<categoryAxisFormat>
+						<axisFormat/>
+					</categoryAxisFormat>
+					<valueAxisFormat>
+						<axisFormat/>
+					</valueAxisFormat>
+				</bar3DPlot>
+			</bar3DChart>
+			<bar3DChart>
+				<chart>
+					<reportElement positionType="Float" x="0" y="151" width="269" height="130" isRemoveLineWhenBlank="true" uuid="ed54d55f-36ad-4a51-8bf6-84df9c5f8cb3"/>
+					<chartTitle>
+						<titleExpression><![CDATA["Grafica porcentual grado "+$F{grado}]]></titleExpression>
+					</chartTitle>
+					<chartSubtitle/>
+					<chartLegend/>
+				</chart>
+				<categoryDataset>
+					<categorySeries>
+						<seriesExpression><![CDATA[$F{desempeño}]]></seriesExpression>
+						<categoryExpression><![CDATA[$F{porciento}]]></categoryExpression>
+						<valueExpression><![CDATA[$F{totals}]]></valueExpression>
+						<labelExpression><![CDATA[$F{desempeño}]]></labelExpression>
+					</categorySeries>
+				</categoryDataset>
+				<bar3DPlot>
+					<plot/>
+					<itemLabel/>
+					<categoryAxisFormat>
+						<axisFormat/>
+					</categoryAxisFormat>
+					<valueAxisFormat>
+						<axisFormat/>
+					</valueAxisFormat>
+				</bar3DPlot>
+			</bar3DChart>
+			<textField>
+				<reportElement x="0" y="1" width="269" height="20" uuid="1df4686d-a1a4-45f6-b97f-cf8a5281218e"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{total_niños}+" ESTUDIANTES"]]></textFieldExpression>
+			</textField>
+		</band>
+	</summary>
+</jasperReport>

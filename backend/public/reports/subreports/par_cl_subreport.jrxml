@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.5.1.final using JasperReports Library version 6.5.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="par_cl_subreport" pageWidth="265" pageHeight="802" columnWidth="265" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="e07bf389-19a7-4a7c-ac1a-9493db915cf6">
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="0"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="1000"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="SME"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<parameter name="id_parcelador" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="_type" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="_grado" class="java.lang.Integer"/>
+	<parameter name="id_inst" class="java.lang.Integer"/>
+	<queryString>
+		<![CDATA[CALL sp_select_par_cl($P{id_parcelador},$P{_type})]]>
+	</queryString>
+	<field name="id" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="id"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="parcelador_cli"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="id_parcelador" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="id_parcelador"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="parcelador_cli"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="id_competencia" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="id_competencia"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="parcelador_cli"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="id_escala" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="id_escala"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="parcelador_cli"/>
+	</field>
+	<field name="descripcion" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="descripcion"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="parcelador_cli"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="estra_apren" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="estra_apren"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="parcelador_cli"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="tipo" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="tipo"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="parcelador_cli"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="estado" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="estado"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="parcelador_cli"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="timestamp" class="java.sql.Timestamp">
+		<property name="com.jaspersoft.studio.field.label" value="timestamp"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="parcelador_cli"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="1" splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="14" splitType="Stretch">
+			<textField isStretchWithOverflow="true">
+				<reportElement positionType="Float" stretchType="ContainerBottom" x="0" y="0" width="265" height="14" uuid="652f7758-7c8f-4f08-9267-47c485d27ec5"/>
+				<box topPadding="2" leftPadding="3" bottomPadding="1" rightPadding="5">
+					<bottomPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Justified" verticalAlignment="Middle">
+					<font fontName="DejaVu Serif" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{descripcion}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

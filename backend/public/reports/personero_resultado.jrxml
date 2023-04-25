@@ -1,0 +1,561 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.5.1.final using JasperReports Library version 6.5.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="personero_resultado" language="groovy" pageWidth="595" pageHeight="842" columnWidth="539" leftMargin="28" rightMargin="28" topMargin="43" bottomMargin="20" uuid="33974257-97b3-4498-8fe2-7887b59433ce">
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="70"/>
+	<property name="ireport.y" value="0"/>
+	<property name="ireport.callouts" value="##Sat Feb 27 09:07:45 COT 2016\ncallouts.1.text=Informe plantilla base para crear los dem\u00E1s informes\n\ncallouts.1.bounds=-15,530,240,51"/>
+	<parameter name="FILTRO_AÑO" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="SQL_PARAM" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="R_TITLE" class="java.lang.String"/>
+	<parameter name="R_DANE" class="java.lang.String"/>
+	<parameter name="R_NIT" class="java.lang.String"/>
+	<parameter name="R_RESOL" class="java.lang.String"/>
+	<parameter name="R_FOOTER" class="java.lang.String"/>
+	<parameter name="R_DATE" class="java.lang.String"/>
+	<parameter name="R_IMG_LEFT" class="java.lang.String"/>
+	<parameter name="R_IMG_RIGHT" class="java.lang.String"/>
+	<parameter name="R_MARKETING" class="java.lang.String"/>
+	<parameter name="R_ESCUDO" class="java.lang.String"/>
+	<parameter name="R_ESCALA" class="java.lang.String"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["D:\\wamp\\www\\SME\\reports\\"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="P_CAP_ELECT" class="java.lang.String" isForPrompting="false"/>
+	<parameter name="P_VOTOS_EJEC" class="java.lang.String"/>
+	<parameter name="P_ABSTINENCIA" class="java.lang.String"/>
+	<parameter name="P_1" class="java.lang.String"/>
+	<parameter name="P_2" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="P_3" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="P_VOTOS_EJEC_C" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="P_ABSTINENCIA_C" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="P_4" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="P_5" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[$P!{SQL_PARAM}]]>
+	</queryString>
+	<field name="id" class="java.lang.Integer">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="id_inst" class="java.lang.Integer">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="id_matric" class="java.lang.Integer">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="nom_candidato" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="numero" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="estado" class="java.lang.Integer">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="cod_grado" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="grupo" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="año" class="java.lang.Integer">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="nombres" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="foto" class="java.lang.Object">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="mime" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="total_votos" class="java.lang.Long"/>
+	<field name="estado_v" class="java.lang.String"/>
+	<field name="tipo" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<variable name="total_votos_1" class="java.lang.Long" resetType="Group" resetGroup="estado" calculation="Sum">
+		<variableExpression><![CDATA[$F{total_votos}]]></variableExpression>
+	</variable>
+	<variable name="v_cap_elect" class="java.lang.Number" resetType="Group" resetGroup="estado" calculation="Sum">
+		<variableExpression><![CDATA[(($F{total_votos}*100)/new java.lang.Integer($P{P_CAP_ELECT}))]]></variableExpression>
+	</variable>
+	<group name="tipo" isStartNewPage="true">
+		<groupExpression><![CDATA[$F{tipo}]]></groupExpression>
+		<groupHeader>
+			<band height="29">
+				<textField>
+					<reportElement mode="Transparent" x="11" y="2" width="516" height="25" forecolor="#0033CC" backcolor="#FFFFFF" uuid="91020307-3e3f-4d01-abe7-2e3374a6eb11"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="14" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{tipo}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="4"/>
+		</groupFooter>
+	</group>
+	<group name="estado">
+		<groupExpression><![CDATA[$F{estado_v}]]></groupExpression>
+		<groupHeader>
+			<band height="35">
+				<textField>
+					<reportElement x="4" y="7" width="182" height="14" uuid="814b2a51-5813-43f9-8bee-264bab7e8be0"/>
+					<textElement>
+						<font size="10" isBold="true" isItalic="true" isUnderline="false" isStrikeThrough="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{estado_v}== "ACEPTADO" ? "VOTOS VALIDOS" : "VOTOS NULOS"]]></textFieldExpression>
+				</textField>
+				<rectangle>
+					<reportElement positionType="Float" mode="Opaque" x="3" y="22" width="490" height="13" backcolor="#CCCCFF" uuid="d707cc22-1c47-4e8e-9bd0-22a3927bef46"/>
+					<graphicElement>
+						<pen lineWidth="0.75"/>
+					</graphicElement>
+				</rectangle>
+				<staticText>
+					<reportElement positionType="Float" x="5" y="22" width="30" height="13" uuid="03c2843f-16b1-4702-8bfd-3a40919a4b3e"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="10" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Nº]]></text>
+				</staticText>
+				<staticText>
+					<reportElement positionType="Float" x="38" y="22" width="300" height="13" uuid="036f20fc-a6c9-4049-899d-bcc952097e97"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="10" isBold="true"/>
+					</textElement>
+					<text><![CDATA[NOMBRES]]></text>
+				</staticText>
+				<staticText>
+					<reportElement positionType="Float" x="341" y="22" width="39" height="13" uuid="d3b36fc9-ddbd-4e22-9f33-4ea14f051b81"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="10" isBold="true"/>
+					</textElement>
+					<text><![CDATA[VOTOS]]></text>
+				</staticText>
+				<staticText>
+					<reportElement positionType="Float" x="384" y="22" width="56" height="13" uuid="665c8349-9890-4854-97d1-a7d2cd3f61d1"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="10" isBold="true"/>
+					</textElement>
+					<text><![CDATA[%]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="446" y="22" width="48" height="13" uuid="7a7b7904-97df-40e6-a3bc-f7497718984e"/>
+					<textElement>
+						<font size="10" isBold="true"/>
+					</textElement>
+					<text><![CDATA[NÚMERO]]></text>
+				</staticText>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="150">
+				<rectangle>
+					<reportElement positionType="Float" mode="Opaque" x="3" y="0" width="440" height="18" backcolor="#FF9999" uuid="efc77de2-7502-473f-928f-b15e3f982e62"/>
+					<graphicElement>
+						<pen lineWidth="0.75"/>
+					</graphicElement>
+				</rectangle>
+				<textField>
+					<reportElement x="316" y="2" width="64" height="16" uuid="23181ffc-b955-44d0-8b39-01ea239c8ce8"/>
+					<textElement textAlignment="Right">
+						<font size="12" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{total_votos_1}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.00">
+					<reportElement x="384" y="2" width="56" height="16" uuid="69aad4b4-11a0-464d-bb1a-3f6c79692d00"/>
+					<textElement textAlignment="Right" verticalAlignment="Bottom">
+						<font size="12" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{v_cap_elect}]]></textFieldExpression>
+				</textField>
+				<bar3DChart>
+					<chart>
+						<reportElement positionType="Float" x="5" y="20" width="276" height="127" uuid="8b06bd55-15a7-41b6-a508-f6143de3eb78"/>
+						<chartTitle/>
+						<chartSubtitle/>
+						<chartLegend/>
+					</chart>
+					<categoryDataset>
+						<dataset resetType="Group" resetGroup="estado"/>
+						<categorySeries>
+							<seriesExpression><![CDATA[$F{numero}]]></seriesExpression>
+							<categoryExpression><![CDATA[$F{numero}]]></categoryExpression>
+							<valueExpression><![CDATA[$F{total_votos}]]></valueExpression>
+							<labelExpression><![CDATA[$F{nombres}]]></labelExpression>
+						</categorySeries>
+					</categoryDataset>
+					<bar3DPlot>
+						<plot/>
+						<itemLabel>
+							<font size="5"/>
+						</itemLabel>
+						<categoryAxisFormat>
+							<axisFormat>
+								<labelFont>
+									<font size="5"/>
+								</labelFont>
+								<tickLabelFont>
+									<font size="5"/>
+								</tickLabelFont>
+							</axisFormat>
+						</categoryAxisFormat>
+						<valueAxisFormat>
+							<axisFormat>
+								<labelFont>
+									<font size="5"/>
+								</labelFont>
+								<tickLabelFont>
+									<font size="5"/>
+								</tickLabelFont>
+							</axisFormat>
+						</valueAxisFormat>
+					</bar3DPlot>
+				</bar3DChart>
+				<pie3DChart>
+					<chart renderType="draw">
+						<reportElement x="291" y="20" width="176" height="127" uuid="dc08946a-26b1-46e3-883f-cd5538483b43"/>
+						<chartTitle>
+							<font size="8"/>
+						</chartTitle>
+						<chartSubtitle/>
+						<chartLegend>
+							<font size="5"/>
+						</chartLegend>
+					</chart>
+					<pieDataset>
+						<dataset resetType="Group" resetGroup="estado"/>
+						<keyExpression><![CDATA[$F{numero}]]></keyExpression>
+						<valueExpression><![CDATA[$F{total_votos}]]></valueExpression>
+						<labelExpression><![CDATA[$F{numero}]]></labelExpression>
+					</pieDataset>
+					<pie3DPlot>
+						<plot/>
+						<itemLabel>
+							<font size="8"/>
+						</itemLabel>
+					</pie3DPlot>
+				</pie3DChart>
+			</band>
+		</groupFooter>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="158" splitType="Stretch">
+			<image>
+				<reportElement x="0" y="1" width="72" height="72" uuid="050c12c3-77ad-4902-8576-a0ff82eaa249"/>
+				<imageExpression><![CDATA[$P{R_IMG_LEFT}]]></imageExpression>
+			</image>
+			<textField isStretchWithOverflow="true" pattern="">
+				<reportElement positionType="Float" isPrintRepeatedValues="false" mode="Transparent" x="74" y="38" width="390" height="10" isRemoveLineWhenBlank="true" uuid="d459e1bc-659f-4deb-afe7-a7a1aac81b84"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="6" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{R_RESOL}.trim()]]></textFieldExpression>
+			</textField>
+			<textField pattern="EEEEE dd MMMMM yyyy">
+				<reportElement positionType="Float" isPrintRepeatedValues="false" x="74" y="48" width="390" height="10" isRemoveLineWhenBlank="true" uuid="5e471478-f487-4d32-8e1d-ffcbb42bfd1b"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<image>
+				<reportElement x="467" y="1" width="72" height="72" uuid="055bb3e5-f3a2-4788-ab4c-77b839c36ef7"/>
+				<imageExpression><![CDATA[$P{R_IMG_RIGHT}]]></imageExpression>
+			</image>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement isPrintRepeatedValues="false" x="74" y="2" width="390" height="16" uuid="e4d7208d-1cc0-440d-a5b2-08e0e909ffed"/>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font fontName="SansSerif" size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{R_TITLE}.trim()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement positionType="Float" isPrintRepeatedValues="false" x="74" y="18" width="390" height="10" isRemoveLineWhenBlank="true" uuid="a3d36d25-2379-4228-9e53-1ea93f7f7a25"/>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font fontName="SansSerif" size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{R_DANE}.trim()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement positionType="Float" isPrintRepeatedValues="false" x="74" y="28" width="390" height="10" isRemoveLineWhenBlank="true" uuid="2042711c-b855-45da-833d-f7e2817cf1f8"/>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font fontName="SansSerif" size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{R_NIT}.trim()]]></textFieldExpression>
+			</textField>
+			<textField pattern="h.mm.ss a">
+				<reportElement positionType="Float" isPrintRepeatedValues="false" x="74" y="58" width="390" height="10" isRemoveLineWhenBlank="true" uuid="4ca50a72-ce42-4ad4-ae2f-d90aae91e172"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<rectangle>
+				<reportElement positionType="Float" mode="Transparent" x="9" y="106" width="182" height="49" uuid="a119ff35-5cb8-435b-868c-db7042b61b8a"/>
+				<graphicElement>
+					<pen lineWidth="0.75"/>
+				</graphicElement>
+			</rectangle>
+			<staticText>
+				<reportElement positionType="Float" x="18" y="110" width="100" height="14" uuid="94c9418d-9775-4291-ada1-9ed20e79a496"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Capacidad electoral:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="18" y="125" width="100" height="14" uuid="5db7f10f-474c-4c55-a977-05bfc9145f43"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Votos ejecutados:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="8" y="139" width="110" height="14" uuid="69c7f50f-4712-4294-b7a4-f82030fc82c7"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Abstención electoral:]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement positionType="Float" x="122" y="110" width="30" height="14" uuid="140dd713-f3c3-4d9c-a32d-2485f395bd2b"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$P{P_CAP_ELECT}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement positionType="Float" x="122" y="125" width="30" height="14" uuid="dccdab19-69d1-4ba2-af31-8497d6d0ed07"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$P{P_VOTOS_EJEC}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement positionType="Float" x="122" y="139" width="30" height="14" uuid="62213aac-268b-426f-a984-50e0e65bd0b1"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$P{P_ABSTINENCIA}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement positionType="Float" x="155" y="139" width="35" height="14" uuid="ea9f72d0-0a00-4802-afc0-aadad2139458"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$P{P_3}.toString()+'%']]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement positionType="Float" x="155" y="125" width="35" height="14" uuid="e94a2758-88f9-482b-862d-1ee664d24a15"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$P{P_2}.toString()+'%']]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement positionType="Float" x="155" y="110" width="35" height="14" uuid="e50ae807-a21b-482e-8007-3dba7bca8149"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$P{P_1}.toString()+'%']]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement positionType="Float" x="74" y="73" width="396" height="16" uuid="f0754503-0482-4bee-9fc1-cae61434bdc7"/>
+				<textElement textAlignment="Center">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["RESULTADO GLOBAL ELECCIONES DE PERSONERO "+$F{año}]]></textFieldExpression>
+			</textField>
+			<rectangle>
+				<reportElement positionType="Float" mode="Transparent" x="338" y="106" width="182" height="49" uuid="580fb23f-4775-4163-9a68-f9052143c2e8"/>
+				<graphicElement>
+					<pen lineWidth="0.75"/>
+				</graphicElement>
+			</rectangle>
+			<staticText>
+				<reportElement positionType="Float" x="347" y="110" width="100" height="14" uuid="4590b4e4-fa6b-4c5b-be5e-05b8f7d1f2be"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Capacidad electoral:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="337" y="139" width="110" height="14" uuid="73791e44-c102-4aef-a4dd-79340ecf9289"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Abstención electoral:]]></text>
+			</staticText>
+			<textField>
+				<reportElement positionType="Float" x="451" y="125" width="30" height="14" uuid="b4e0e17c-504a-4b55-ae34-033ee0a14415"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$P{P_VOTOS_EJEC_C}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement positionType="Float" x="484" y="139" width="35" height="14" uuid="685ca06f-e310-4fda-9ede-88eb34fc75f1"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$P{P_5}.toString()+'%']]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement positionType="Float" x="451" y="110" width="30" height="14" uuid="46191417-0ca6-4157-be30-dc9a2e484d8c"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$P{P_CAP_ELECT}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement positionType="Float" x="451" y="139" width="30" height="14" uuid="66678f33-e2c3-4c5d-bb1e-992be4304531"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$P{P_ABSTINENCIA_C}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement positionType="Float" x="484" y="110" width="35" height="14" uuid="4c9939c7-2a8c-4cfc-8d7a-9830a702159a"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$P{P_1}.toString()+'%']]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="Float" x="347" y="125" width="100" height="14" uuid="896ceb27-76d5-4fc0-acbe-0b18c35761fa"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Votos ejecutados:]]></text>
+			</staticText>
+			<textField>
+				<reportElement positionType="Float" x="484" y="125" width="35" height="14" uuid="59fd4316-84f1-4c46-8ab5-13ff9716fb68"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$P{P_4}.toString()+'%']]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="Float" x="11" y="90" width="180" height="16" uuid="5cd0470a-6413-4b08-98ee-bdea84c7ece8"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="12"/>
+				</textElement>
+				<text><![CDATA[PERSONERÍA]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="339" y="89" width="180" height="16" uuid="49a7a7ae-a81a-46fc-a41e-a1503e1c0955"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="12"/>
+				</textElement>
+				<text><![CDATA[CONSEJO]]></text>
+			</staticText>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="12" splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="16" splitType="Stretch">
+			<rectangle>
+				<reportElement positionType="Float" mode="Transparent" x="3" y="0" width="490" height="16" backcolor="#CCCCFF" uuid="d4659efe-39c0-443a-a456-058a213426df"/>
+				<graphicElement>
+					<pen lineWidth="0.75"/>
+				</graphicElement>
+			</rectangle>
+			<line>
+				<reportElement positionType="Float" stretchType="RelativeToBandHeight" x="36" y="0" width="1" height="16" isPrintWhenDetailOverflows="true" uuid="6f09862d-9aee-423b-8989-f1ca73d122c9"/>
+				<graphicElement>
+					<pen lineWidth="0.75"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement positionType="Float" stretchType="RelativeToBandHeight" x="340" y="0" width="1" height="16" isPrintWhenDetailOverflows="true" uuid="e9566d0b-d3bb-4d7a-8ff0-1a868da9bde4"/>
+				<graphicElement>
+					<pen lineWidth="0.75"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement positionType="Float" stretchType="RelativeToBandHeight" x="382" y="0" width="1" height="16" isPrintWhenDetailOverflows="true" uuid="48df8147-e80c-4e70-a7f7-89b80d176f09"/>
+				<graphicElement>
+					<pen lineWidth="0.75"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement positionType="Float" stretchType="RelativeToBandHeight" x="442" y="0" width="1" height="16" isPrintWhenDetailOverflows="true" uuid="0bbb5b36-c03d-470c-8dd3-01cd600a5682"/>
+				<graphicElement>
+					<pen lineWidth="0.75"/>
+				</graphicElement>
+			</line>
+			<textField>
+				<reportElement x="5" y="0" width="30" height="16" uuid="9e5e91e5-06ce-422d-955d-98c6996b8631"/>
+				<textElement textAlignment="Right">
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{estado_COUNT}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="38" y="0" width="300" height="16" uuid="6c02c47c-1869-4e5b-8eb0-2df14094cc4c"/>
+				<textElement textAlignment="Justified" verticalAlignment="Middle">
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nombres}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="341" y="0" width="39" height="16" uuid="4f712167-894c-4fe5-b212-7c888824f6ed"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{total_votos}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00">
+				<reportElement x="384" y="0" width="56" height="16" uuid="66ac1e76-1855-4711-a702-f70f0b637a80"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA[(($F{total_votos}*100)/new java.lang.Integer($P{P_CAP_ELECT}))]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="443" y="0" width="48" height="16" uuid="f4219688-5645-4d96-bafb-f3c28cfff4a3"/>
+				<textElement textAlignment="Right">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{numero}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="31" splitType="Stretch">
+			<textField isStretchWithOverflow="true">
+				<reportElement positionType="Float" x="16" y="10" width="507" height="11" uuid="60f4683a-0284-4fea-9cb7-bb6a102fcce2"/>
+				<textElement textAlignment="Center">
+					<font fontName="Arial" size="8" isItalic="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{R_FOOTER}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="542" y="1" width="21" height="10" uuid="184a72c7-f142-4496-b933-89d1fe3009b0"/>
+				<textElement>
+					<font fontName="Arial" size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement positionType="Float" x="16" y="23" width="507" height="8" uuid="7829f300-5387-4522-b2ae-d6bf773009d8"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="SansSerif" size="6" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{R_MARKETING}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

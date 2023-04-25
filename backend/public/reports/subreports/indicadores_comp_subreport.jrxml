@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.9.0.final using JasperReports Library version 6.9.0-cb8f9004be492ccc537180b49c026951f4220bf3  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="indicadores_comp_subreport" pageWidth="548" pageHeight="792" columnWidth="548" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="c00a4f93-9852-4c43-b275-ec0552177738">
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="0"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="1000"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="ASAIE"/>
+	<parameter name="id_grado" class="java.lang.Integer"/>
+	<parameter name="year" class="java.lang.Integer"/>
+	<parameter name="periodo" class="java.lang.String"/>
+	<parameter name="id_nota" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="type" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["D:\\wamp\\www\\SME2018\\reports\\"]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[CALL `sp_select_indicadores_estudiante_boletin_comp`(
+$P{year},
+$P{id_grado},
+$P{periodo},
+$P{id_nota},$P{type})]]>
+	</queryString>
+	<field name="descripcion" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="descripcion"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="competencia" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="competencia"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="tipo" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="tipo"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="logros_estandares"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="id_pk" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="id_pk"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="competencias"/>
+	</field>
+	<field name="nombre_proceso" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="nombre_proceso"/>
+	</field>
+	<field name="row_num" class="java.lang.Long">
+		<property name="com.jaspersoft.studio.field.label" value="row_num"/>
+	</field>
+	<field name="nota" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="nota"/>
+	</field>
+	<field name="tabla" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="tabla"/>
+	</field>
+	<group name="comp">
+		<groupExpression><![CDATA[$F{competencia}]]></groupExpression>
+		<groupHeader>
+			<band splitType="Stretch">
+				<line>
+					<reportElement positionType="Float" x="0" y="-1" width="548" height="1" forecolor="#E0E0E0" uuid="a97dd420-e744-4814-87d0-f6f559cd044e"/>
+					<graphicElement>
+						<pen lineWidth="0.65" lineColor="#000000"/>
+					</graphicElement>
+				</line>
+			</band>
+		</groupHeader>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="1" splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="11" splitType="Stretch">
+			<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true">
+				<reportElement positionType="Float" x="0" y="0" width="513" height="11" isRemoveLineWhenBlank="true" isPrintWhenDetailOverflows="true" uuid="b16a4cbd-9b82-4b8c-bb3d-9ee501fe75e9"/>
+				<box leftPadding="2" rightPadding="2">
+					<leftPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Justified" verticalAlignment="Middle" markup="none">
+					<font fontName="DejaVu Serif" size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{row_num}.intValue() > 1 ?  " • "+$F{descripcion} : " • "+$F{competencia}+": "+$F{descripcion}]]></textFieldExpression>
+			</textField>
+			<subreport>
+				<reportElement x="513" y="0" width="35" height="11" uuid="ffedda7f-c0f1-406c-b77f-14cf8f49a27d"/>
+				<subreportParameter name="SUBREPORT_DIR">
+					<subreportParameterExpression><![CDATA[$P{SUBREPORT_DIR}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="get_select">
+					<subreportParameterExpression><![CDATA["SELECT "+$F{nota}+" AS tn FROM "+$F{tabla}+" WHERE id="+$P{id_nota}.toString()+" LIMIT 1"]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "notas_competencia_subreport.jasper"]]></subreportExpression>
+			</subreport>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band height="1" splitType="Stretch">
+			<line>
+				<reportElement positionType="Float" x="0" y="0" width="548" height="1" uuid="f54c5c36-b950-4986-8b1b-9fd7db89a416"/>
+				<graphicElement>
+					<pen lineWidth="0.65" lineColor="#000000"/>
+				</graphicElement>
+			</line>
+		</band>
+	</summary>
+</jasperReport>

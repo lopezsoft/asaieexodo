@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.18.1.final using JasperReports Library version 6.18.1-9d75d1969e774d4f179fb3be8401e98a0e6d1611  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="firma_rector_subreport" pageWidth="180" pageHeight="792" columnWidth="180" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" whenResourceMissingType="Error" uuid="993ccd84-e11d-4930-85af-31ad8c1c895c">
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="0"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="1000"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Asaie"/>
+	<parameter name="AWS_PATH" class="java.lang.String"/>
+	<parameter name="R_PATH_DIR" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[SELECT firma1, firma_escaneada, usar_firma_escan, mime FROM firmas LIMIT 1]]>
+	</queryString>
+	<field name="firma1" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="firma1"/>
+		<property name="com.jaspersoft.studio.field.label" value="firma1"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="firmas"/>
+	</field>
+	<field name="firma_escaneada" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="firma_escaneada"/>
+		<property name="com.jaspersoft.studio.field.label" value="firma_escaneada"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="firmas"/>
+	</field>
+	<field name="usar_firma_escan" class="java.lang.Boolean">
+		<property name="com.jaspersoft.studio.field.name" value="usar_firma_escan"/>
+		<property name="com.jaspersoft.studio.field.label" value="usar_firma_escan"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="firmas"/>
+	</field>
+	<field name="mime" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="mime"/>
+		<property name="com.jaspersoft.studio.field.label" value="mime"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="firmas"/>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<detail>
+		<band height="10" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+			<image scaleImage="RealSize" onErrorType="Icon">
+				<reportElement positionType="Float" stretchType="ContainerHeight" x="0" y="0" width="180" height="10" isRemoveLineWhenBlank="true" uuid="d25dec25-43cb-47c5-96af-44446b010325">
+					<printWhenExpression><![CDATA[$F{usar_firma_escan}]]></printWhenExpression>
+				</reportElement>
+				<imageExpression><![CDATA[$P{R_PATH_DIR} + $F{firma_escaneada}]]></imageExpression>
+			</image>
+			<textField textAdjust="StretchHeight">
+				<reportElement positionType="Float" stretchType="ContainerHeight" x="0" y="0" width="180" height="10" isRemoveLineWhenBlank="true" uuid="2a6a4956-6606-4e3e-bc94-1ad03a33d4ec"/>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font fontName="Arial" size="8" isBold="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{firma1}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

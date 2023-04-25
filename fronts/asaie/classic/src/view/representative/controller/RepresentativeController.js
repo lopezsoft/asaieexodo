@@ -434,7 +434,7 @@ Ext.define('Admin.view.representative.controller.RepresentativeController',{
     },
 
     onSetReport : function (btn) {
-        let url     = 'reports/reports-tab',
+        let url     = 'reports/electoral-certificate',
             param   = {},
             win     = btn.up('window');
 

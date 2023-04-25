@@ -25,7 +25,7 @@ use App\Reports\StudentsPerDay;
 use App\Reports\TeachersList;
 use App\Reports\GroupDirectors;
 use App\Reports\ElectionResults;
-use App\Reports\ReportsTab;
+use App\Reports\RepresentativeReports;
 
 use Illuminate\Http\Request;
 
@@ -56,9 +56,9 @@ class ReportsController extends Controller
 
     }
 
-    public function getReportsTab(Request $request): \Illuminate\Http\JsonResponse
+    public function getElectoralCertificate(Request $request): \Illuminate\Http\JsonResponse
     {
-        return ReportProcessor::runReport($request, new ReportsTab() );
+        return ReportProcessor::runReport($request, new RepresentativeReports() );
 
     }
 

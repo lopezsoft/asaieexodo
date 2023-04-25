@@ -16,7 +16,7 @@ Route::prefix('reports')->group(function () {
 
         Route::post('election-results','getElectionResults');
 
-        Route::post('reports-tab','getReportsTab');
+        Route::post('electoral-certificate','getElectoralCertificate');
 
         #nueva
         Route::post('teachers-list', 'getTeachersList');

@@ -84,13 +84,13 @@ class Vote{
                                     "enrollment_id" => $enrollment_id,
                                     "candidacy_id" => $candidacy_id,
                                     "attempts" => 1,
-                                    "state" => 1,
+                                    "state" => 5,
                                 ];
                                 DB::table("{$db}tp_votes")->insert($data);
 
                                 $request = array(
                                     'success' => true,
-                                    'state' => 1,
+                                    'state' => 5,
                                     'mensaje' => "Se realizo el proceso de voto correctamente"
                                 );
                                 $request = json_encode($request);
@@ -108,21 +108,24 @@ class Vote{
 
                         } else {
                             $request = array(
-                                'success' => true,
+                                'success' => false,
+                                'state' => 2,
                                 'mensaje' => "numero de identificacion no corresponde con candidato y año"
+
                             );
                         }
 
                     } else {
                         $request = array(
-                            'success' => true,
+                            'success' => false,
+                            'state' => 3,
                             'mensaje' =>"la mesa no esta activa"
                         );
                     }
 
                 } else {
                     $request = array(
-                        'success' => true,
+                        'success' => false,
                         'mensaje' => "los datos de la mesa no concuerdan"
                     );
                 }
@@ -137,7 +140,8 @@ class Vote{
 
         } else {
             $request = array(
-                'success' => true,
+                'success' => false,
+                'state' => 0,
                 'mensaje' => "El estudiante por quien voto no esta matriculado"
             );
 

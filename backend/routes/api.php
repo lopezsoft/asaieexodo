@@ -79,12 +79,7 @@ Route::prefix('v1')->group(function () {
         });
 
 
-        Route::prefix('recoveries')->group(function () {
-            Route::controller('RecoveriesController')->group(function () {
-                Route::get('type-note', 'writeNote');
 
-            });
-        });
 
         Route::prefix('grades')->group(function () {
            Route::controller('GradesController')->group(function () {

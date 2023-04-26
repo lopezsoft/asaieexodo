@@ -78,6 +78,14 @@ Route::prefix('v1')->group(function () {
             });
         });
 
+
+        Route::prefix('recoveries')->group(function () {
+            Route::controller('RecoveriesController')->group(function () {
+                Route::get('type-note', 'writeNote');
+
+            });
+        });
+
         Route::prefix('grades')->group(function () {
            Route::controller('GradesController')->group(function () {
               Route::get('', 'getGrades');
@@ -202,6 +210,7 @@ Route::prefix('v1')->group(function () {
               Route::post('generate-final-savannas', 'generateFinalSavannas');
               Route::post('generate-support-activities', 'generateSupportActivities');
               Route::get('advance-promotion', 'getAdvancePromotion');
+
            });
         });
     });

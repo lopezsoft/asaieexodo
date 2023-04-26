@@ -22,27 +22,23 @@ class RepresentativeReports implements  ReportProcessorContract
 		    $headquarter_id	= $request->input('pdbSede');
             $year	        = $school->year;
             $type	        = $request->input('pdbReport');
-            // $report			='certificado_electoral';
-            // $report_export	= 'certificado electoral';
-            echo $type;
 
-            if($type == 1){
+            if($type == "1"){
                     $report	='certificado_electoral';
                     $report_export	= 'certificado electoral';
 
             }else{
                 $report	='respresentative_students';
                 $report_export	= 'listado_estudiantes';
+
             }
-
-
-            $query	=null;
             $params         = [
 
                 'P_YEAR'    => $year,
                 'P_GRADE_ID' => $grade_id,
                 'P_HEADQUARTER_ID'=>$headquarter_id
             ];
+            $query	=null;
             $path           = "{$school->path}";
             return (new JReportModel())->getReportExport($report, $report_export, $format,$query, $path, $school->school, $params);
         }catch (\Exception $e){
@@ -52,3 +48,4 @@ class RepresentativeReports implements  ReportProcessorContract
         }
     }
 }
+

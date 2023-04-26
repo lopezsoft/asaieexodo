@@ -26,35 +26,16 @@ class AdvancePromotion{
              ->orderBy("tp.grade_id")
              ->orderBy("nombres");
 
-
-
         return self::getResponse(['records' => $query->paginate($limit),'success' => true]);
-
         }catch (\Exception $e){
             return self::getResponse500([
                 "error" => $e->getMessage()
             ]);
         }
 
-
     }
-
-
 
 
 }
 
-// consulta buena
-// SELECT tp.*,
-//        CONCAT(RTRIM(te.apellido1), ' ', RTRIM(te.apellido2), ' ',
-//               RTRIM(te.nombre1), ' ', RTRIM(te.nombre2)) AS nombres,
-//        RTRIM(tg.grado) grado,
-//        RTRIM(tj.jornada) jornada,
-//        RTRIM(ts.headquarters_name) sede
-// FROM asaie_exodo.promoted_header AS tp
-// LEFT JOIN asaie_exodo.inscripciones AS te ON tp.student_id = te.id
-// LEFT JOIN asaie_exodo.grados AS tg ON tp.grade_id = tg.id
-// LEFT JOIN asaie_exodo.jornadas AS tj ON tp.studyday_id = tj.cod_jorn
-// LEFT JOIN asaie_exodo.sedes AS ts ON tp.headq_id = ts.ID
-// WHERE tp.year = 2018
-// ORDER BY tp.grade_id, nombres;
+

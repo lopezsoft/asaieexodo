@@ -11,7 +11,7 @@ Ext.define('Admin.store.promocion.PromovidosStore',{
         },
         api: {
             create  : 'master/insertData',
-            read    : 'General/get_select_promovidos',
+            read    : 'promotion/advance-promotion',
             update  : 'master/updateData',
             destroy : 'master/deleteData'
         }

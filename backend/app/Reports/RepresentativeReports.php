@@ -21,9 +21,21 @@ class RepresentativeReports implements  ReportProcessorContract
             $grade_id	= $request->input('pdbGrado');
 		    $headquarter_id	= $request->input('pdbSede');
             $year	        = $school->year;
-            // $type	        = $request->input('pdbReport');
-            $report			='certificado_electoral';
-            $report_export	= 'certificado electoral';
+            $type	        = $request->input('pdbReport');
+            // $report			='certificado_electoral';
+            // $report_export	= 'certificado electoral';
+            echo $type;
+
+            if($type == 1){
+                    $report	='certificado_electoral';
+                    $report_export	= 'certificado electoral';
+
+            }else{
+                $report	='respresentative_students';
+                $report_export	= 'listado_estudiantes';
+            }
+
+
             $query	=null;
             $params         = [
 

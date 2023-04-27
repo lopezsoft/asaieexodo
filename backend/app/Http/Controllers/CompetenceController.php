@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Modules\Academic\Competence;
+use App\Modules\Competences\Competence;
 use Illuminate\Http\Request;
 
 class CompetenceController extends Controller

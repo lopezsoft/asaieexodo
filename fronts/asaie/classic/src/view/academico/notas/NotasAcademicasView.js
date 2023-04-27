@@ -16,6 +16,9 @@ Ext.define('Admin.view.academico.NotasAcademicasView',{
         me.onStore('general.NotasAcademicasStore');
         this.callParent(arguments);
         this.setTitle(AppLang.getSTitleViewAcademicNotes() + ' - ' + Global.getYear());
+
+	
+		
     },
     alias       : 'widget.notasAcademicasView',
     type        : 'notasAcademicasView',
@@ -143,17 +146,31 @@ Ext.define('Admin.view.academico.NotasAcademicasView',{
                                                     me		= Admin.getApplication(),
                                                     result  = '',
                                                     winMask = btn.up('window'),
-                                                    data            = btn.up('grid').getSelection()[0],
-                                                    id_grade	    = data.get('id_grade'),
-                                                    // cUrl = Global.getUrlBase() + 'c_sql/get_competencias';
+                                                    info            = btn.up('grid').getSelection()[0],
+                                                    id_grade	    = info.get('id_grade');
+
+													let data = { 
+														id_grade: id_grade
+													  };
+													 
+													  
+
+													data = {...data,...Global.getSchoolParams()};
 													cUrl = Global.getApiUrl() + '/competence/competences';
                                                 winMask.mask(AppLang.getSMsgLoading());
                                                 Ext.Ajax.request({
+                                                    headers: {
+														'Authorization' : (AuthToken) ? AuthToken.authorization() : ''
+													},
                                                     url: cUrl,
-                                                    params : {
-                                                        idGrado: id_grade
-                                                    },
+                                                    params :data,
+													
+													  
                                                     success: function(response){
+														// let value = JSON.parse(response.responseText).records;
+														// value = JSON.parse(value);
+														// console.log(value);
+
                                                         result 	= Ext.decode(response.responseText);
                                                         Global.setCompetences(result.records_comp);
                                                         Global.setScale(result.records_des);		
@@ -165,6 +182,10 @@ Ext.define('Admin.view.academico.NotasAcademicasView',{
                                                         win.getController().onViewData(btn, win);
                                                         win.setTitle(cTitle);
                                                         win.show();
+														
+														
+														
+
                                                     },
                                                     failure: function (response) {
                                                         winMask.unmask();

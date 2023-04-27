@@ -93,7 +93,6 @@ Route::prefix('v1')->group(function () {
         });
 
 
-
         Route::prefix('grades')->group(function () {
            Route::controller('GradesController')->group(function () {
               Route::get('', 'getGrades');

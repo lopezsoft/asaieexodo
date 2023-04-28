@@ -18,7 +18,6 @@ yarn-error.log
 /.idea
 /.vscode
 /backend/nbproject/private/
+
 /backend/public/hot
 /backend/public/storage
-/backend/public/reports/*.jasper
-/backend/public/reports/subreports/*.jasper

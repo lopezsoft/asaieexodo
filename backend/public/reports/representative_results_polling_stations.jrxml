@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <!-- Created with Jaspersoft Studio version 6.18.1.final using JasperReports Library version 6.18.1-9d75d1969e774d4f179fb3be8401e98a0e6d1611  -->
+
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="representative_results" pageWidth="595" pageHeight="842" columnWidth="539" leftMargin="28" rightMargin="28" topMargin="43" bottomMargin="20" uuid="33974257-97b3-4498-8fe2-7887b59433ce">
 	<property name="ireport.zoom" value="1.5"/>
 	<property name="ireport.x" value="70"/>
@@ -9,6 +11,7 @@
 	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="1000"/>
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Asaie"/>
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+
 	<parameter name="P_YEAR" class="java.lang.String"/>
 	<parameter name="SQL_PARAM" class="java.lang.String">
 		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
@@ -21,6 +24,7 @@
 	<parameter name="HOME_DIR" class="java.lang.String"/>
 	<parameter name="P_USER" class="java.lang.String"/>
 	<parameter name="AWS_PATH" class="java.lang.String"/>
+
 	<queryString>
 		<![CDATA[(SELECT tp.id, tp.enrollment_id, tp.candidacy_id, 
 	tp.number, tp.image, tp.`type`,
@@ -97,6 +101,7 @@ UNION
 	</background>
 	<title>
 		<band height="89" splitType="Stretch">
+
 			<subreport>
 				<reportElement positionType="Float" stretchType="ContainerHeight" x="0" y="0" width="537" height="72" uuid="0bf175f1-6c45-4394-871a-09e8c6e57863">
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
@@ -265,6 +270,7 @@ UNION
 	</columnFooter>
 	<pageFooter>
 		<band height="31" splitType="Stretch">
+
 			<textField>
 				<reportElement x="542" y="1" width="21" height="10" uuid="184a72c7-f142-4496-b933-89d1fe3009b0"/>
 				<textElement>
@@ -272,7 +278,9 @@ UNION
 				</textElement>
 				<textFieldExpression><![CDATA[$V{PAGE_NUMBER}]]></textFieldExpression>
 			</textField>
+
 			<textField textAdjust="StretchHeight">
+
 				<reportElement positionType="Float" x="16" y="23" width="507" height="8" uuid="7829f300-5387-4522-b2ae-d6bf773009d8"/>
 				<textElement verticalAlignment="Middle">
 					<font fontName="SansSerif" size="6" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false"/>
@@ -286,6 +294,7 @@ UNION
 				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
 				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "report_footer.jasper"]]></subreportExpression>
 			</subreport>
+
 		</band>
 	</pageFooter>
 	<summary>

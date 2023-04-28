@@ -9,25 +9,24 @@ Ext.define('Admin.store.base.StoreUrl',{
 			'Authorization' : (AuthToken) ? AuthToken.authorization() : ''
 		},
 		extraParams: {
-			schoolId: (AuthToken.recoverParams()) ? AuthToken.recoverParams().school.id : 0,
-			profileId: (AuthToken.recoverParams()) ? AuthToken.recoverParams().profile.id : 0,
-			year: (AuthToken.recoverParams()) ? AuthToken.recoverParams().school.year : 0,
+			...Global.getSchoolParams(),
 		},
 	    reader	: {
 	        type			: 'json',
 	        rootProperty	: 'records.data',
-	        totalProperty	: 'total'  
+	        totalProperty	: 'total'
 	    },
 		timeout : 60000,
 		listeners: {
-	        exception: function(proxy, response, operation){
+	        exception: function(proxy, response){
+				const resp = JSON.parse(response.responseText);
 				Ext.create('Ext.window.MessageBox', {
 					alwaysOnTop	: true,
 					modal		: true,
 					closeAction	: 'destroy'
 				}).show({
 	                title: 'REMOTE EXCEPTION',
-	                msg: "Ha ocurrido un error en el Servidor: " +response.responseText,
+	                msg: "Ha ocurrido un error en el Servidor: " + resp.error || resp.message,
 	                icon: Ext.MessageBox.ERROR,
 	                buttons: Ext.Msg.OK
 	            });
@@ -49,12 +48,8 @@ Ext.define('Admin.store.base.StoreUrl',{
 		const 	baseUrlSys 	= Global.getApiUrl() + '/'; // Obtenemos la URL base
 		const 	proxy 		= me.getProxy(); // Obtenemos el PROXY de Ajax
 		const 	proxApi		= proxy.getApi();
-		const extraParams 	= proxy.getExtraParams();
-		const {school, profile}	= AuthToken.recoverParams();
-		const dt				= new Date();
-		extraParams.schoolId  	= school.id || 0;
-		extraParams.profileId   = profile.id || 0;
-		extraParams.year        = school.year || dt.getFullYear();
+		let 	extraParams = proxy.getExtraParams();
+		extraParams	= {...extraParams, ...Global.getSchoolParams()};
 		proxy.setExtraParams(extraParams);
 		if(me.urlCrtl.length === 0) {
 			if (proxy.url.length > 0) {
@@ -64,7 +59,7 @@ Ext.define('Admin.store.base.StoreUrl',{
 					create	: baseUrlSys + proxApi.create,
 					read	: baseUrlSys + proxApi.read,
 					update	: baseUrlSys + proxApi.update,
-					destroy	: baseUrlSys + proxApi.destroy 
+					destroy	: baseUrlSys + proxApi.destroy
 				});
 			}
 

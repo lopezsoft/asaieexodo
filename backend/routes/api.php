@@ -13,7 +13,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-
 Route::prefix('v1')->group(function () {
     Route::controller('UserController')->group(function () {
        Route::prefix('email')->group(function () {
@@ -112,7 +111,11 @@ Route::prefix('v1')->group(function () {
 
         Route::prefix('subject')->group(function () {
             Route::controller('SubjectController')->group(function () {
-                Route::get('subject-certificate','getSubject');
+                Route::prefix('auxiliar-subjects')->group(function () {
+                    Route::get('/','getAuxiliarSubjects');
+                    Route::post('/','createAuxiliarSubjects');
+                });
+                Route::get('subject-certificate','getSubjectCertificate');
             });
          });
 
@@ -154,9 +157,6 @@ Route::prefix('v1')->group(function () {
                 Route::prefix('excel')->group(function () {
                     Route::post('template-enrollment', 'getTemplateEnrollment');
                 });
-                Route::prefix('student')->group(function () {
-                    Route::get('read-documents', 'readStudentDocuments');
-                });
                 Route::prefix('settings')->group(function () {
                     Route::get('read-school-logo', 'readSchoolLogo');
                     Route::get('read-signature', 'readSignature');
@@ -168,9 +168,6 @@ Route::prefix('v1')->group(function () {
                 Route::prefix('excel')->group(function () {
                     Route::post('template-enrollment', 'setTemplateEnrollment');
                 });
-                Route::prefix('student')->group(function () {
-                    Route::post('upload-documents', 'uploadStudentDocuments');
-                });
                 Route::prefix('settings')->group(function () {
                     Route::post('upload-school-logo', 'uploadSchoolLogo');
                     Route::post('upload-signature', 'uploadSignature');
@@ -179,8 +176,13 @@ Route::prefix('v1')->group(function () {
         });
 
         Route::prefix('files')->group(function () {
+            Route::controller('FileManagerController')->group(function () {
+                Route::get('read', 'get');
+                Route::post('upload', 'upload');
+                Route::delete('delete/{id}', 'delete');
+            });
             Route::controller('DeletingController')->group(function () {
-                Route::delete('delete/{path}', 'deleteFile');
+                Route::delete('delete-path/{path}', 'deleteFile');
                 Route::delete('delete-school-logo/{path}', 'deleteSchoolLogo');
                 Route::prefix('settings')->group(function () {
                     Route::delete('delete-signature/{path}', 'deleteSignature');

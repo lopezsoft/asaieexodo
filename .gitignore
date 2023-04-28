@@ -18,6 +18,8 @@ yarn-error.log
 /.idea
 /.vscode
 /backend/nbproject/private/
+/fronts/asaie/classic.json
+/fronts/asaie/classic.jsonp
 /backend/public/hot
 /backend/public/storage
 /backend/public/reports/*.jasper

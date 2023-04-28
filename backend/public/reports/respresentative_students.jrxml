@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <!-- Created with Jaspersoft Studio version 6.18.1.final using JasperReports Library version 6.18.1-9d75d1969e774d4f179fb3be8401e98a0e6d1611  -->
-
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="respresentative_students" pageWidth="595" pageHeight="842" columnWidth="539" leftMargin="28" rightMargin="28" topMargin="43" bottomMargin="20" uuid="33974257-97b3-4498-8fe2-7887b59433ce">
 	<property name="ireport.zoom" value="1.5"/>
 	<property name="ireport.x" value="0"/>
@@ -12,7 +10,6 @@
 	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="0"/>
 	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="1000"/>
 	<subDataset name="dataset1" uuid="6ffdfc28-5c76-4e28-9770-1597c15cfe5e"/>
-
 	<parameter name="SQL_PARAM" class="java.lang.String">
 		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
 	</parameter>
@@ -29,7 +26,6 @@
 	<parameter name="P_HEADQUARTER_ID" class="java.lang.String"/>
 	<queryString>
 		<![CDATA[CALL sp_electoral_certificate( $P{P_YEAR} ,$P{P_GRADE_ID},  $P{P_HEADQUARTER_ID} )]]>
-
 	</queryString>
 	<field name="id" class="java.lang.Integer">
 		<property name="com.jaspersoft.studio.field.label" value="id"/>
@@ -143,7 +139,6 @@
 	</background>
 	<title>
 		<band height="75" splitType="Stretch">
-
 			<textField pattern="EEEEE dd MMMMM yyyy">
 				<reportElement positionType="Float" isPrintRepeatedValues="false" x="74" y="48" width="390" height="10" isRemoveLineWhenBlank="true" uuid="dcaf8245-71f2-45a2-a365-f50dee0b24ca"/>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
@@ -151,7 +146,6 @@
 				</textElement>
 				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
 			</textField>
-
 			<subreport>
 				<reportElement positionType="Float" stretchType="ContainerHeight" x="3" y="-14" width="537" height="53" uuid="5de7e65e-4d09-425a-b091-455ab80813c6">
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>

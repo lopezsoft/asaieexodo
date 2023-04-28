@@ -24,6 +24,9 @@ use App\Reports\StudentsEnrolled;
 use App\Reports\StudentsPerDay;
 use App\Reports\TeachersList;
 use App\Reports\GroupDirectors;
+use App\Reports\ElectionResults;
+use App\Reports\RepresentativeReports;
+
 use Illuminate\Http\Request;
 
 class ReportsController extends Controller
@@ -44,6 +47,18 @@ class ReportsController extends Controller
     public function getGroupDirectors(Request $request): \Illuminate\Http\JsonResponse
     {
         return ReportProcessor::runReport($request, new GroupDirectors() );
+
+    }
+
+    public function getElectionResults(Request $request): \Illuminate\Http\JsonResponse
+    {
+        return ReportProcessor::runReport($request, new ElectionResults() );
+
+    }
+
+    public function getElectoralCertificate(Request $request): \Illuminate\Http\JsonResponse
+    {
+        return ReportProcessor::runReport($request, new RepresentativeReports() );
 
     }
 

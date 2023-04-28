@@ -55,8 +55,9 @@ Ext.define('Admin.view.representative.VotingView', {
 			selected 	= selections[0],
             me      	= Admin.getApplication(),
            	ts   		= this,
-            url  		= Global.getUrlBase() + 'representative/insertVotes',
+            url  		= Global.getApiUrl() + '/vote/new-vote',
 			record		= ts.getRecord();
+			
 
         if (selected) {
             Ext.Msg.prompt('Código identidad', 'Por favor digite su código de votación:', function(btn, text){
@@ -64,7 +65,7 @@ Ext.define('Admin.view.representative.VotingView', {
                     if (!Ext.isEmpty(text)) {
                         ts.el.mask('Procesando voto...');
 
-                        const 
+                        let 
 							data = {
 								enrollment_id		: text,
 								id					: selected.get('id'),
@@ -73,34 +74,45 @@ Ext.define('Admin.view.representative.VotingView', {
 								candidacy_id		: selected.get('candidacy_id'),
 								type        		: selected.get('type')
 							};
+                            data = {...data,...Global.getSchoolParams()};
 
                         Ext.Ajax.request({
                             url     : url,
+                            headers: {
+                                'Authorization' : (AuthToken) ? AuthToken.authorization() : ''
+                            },
                             params  : data,
                             method  : 'POST',
                             success: function (response) {
-                                value   = Ext.decode(response.responseText);
+                                // value   = Ext.decode(response.responseText);
+								// console.log(value);
+								let value = JSON.parse(response.responseText).records;
+								value = JSON.parse(value);
+								console.log(value.mensaje);
+                                let msg = value.mensaje; 
+                                let msgt = ""; 
 
                                 switch ( parseInt(value.state)) {
                                     case 0 :
-                                        msg 	= "Ya habia realizado el proceso de votación";
+                                        // msg 	= "Ya habia realizado el proceso de votación";
 										msgt	= "warning";
                                         break;
-                                    case 1 :
-                                        msg 	= "Se realizó el proceso de voto correctamente";
+                                    case 5 :
+                                        // msg 	= "Se realizó el proceso de voto correctamente";
 										msgt	= "success";
                                         break;
                                     case 2 :
-                                        msg 	= "No se encontró registro de matricula para el código ingresado";
+                                        // msg 	= "No se encontró registro de matricula para el código ingresado";
 										msgt	= "error";
                                         break;
                                     case 3 :
-                                        msg 	= "No se realizó la operación de voto, ya que la mesa se encuentra cerrada";
+                                        // msg 	= "No se realizó la operación de voto, ya que la mesa se encuentra cerrada";
 										msgt	= "error";
                                         break;
                                 }
 
                                me.showResult(msg + '.', msgt);
+                               
                             },
 
                             failure: function (response) {

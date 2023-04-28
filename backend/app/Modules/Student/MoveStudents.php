@@ -12,6 +12,10 @@ use Illuminate\Support\Facades\DB;
 class MoveStudents
 {
     use SystemTablesTrait, MessagesTrait;
+
+    /**
+     * @throws Exception
+     */
     public static function move(Request $request): \Illuminate\Http\JsonResponse {
         $list       = json_decode($request->input('pdbList')) ?? [];
         $grado		= $request->input('pdbGrado');

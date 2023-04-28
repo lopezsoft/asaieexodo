@@ -22,3 +22,5 @@ yarn-error.log
 /fronts/asaie/classic.jsonp
 /backend/public/hot
 /backend/public/storage
+/backend/public/reports/*.jasper
+/backend/public/reports/subreports/*.jasper

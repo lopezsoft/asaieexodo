@@ -1,0 +1,1 @@
+sonar-scanner.bat -D"sonar.projectKey=ASAIE-BACK" -D"sonar.sources=." -D"sonar.host.url=http://localhost:9000" -D"sonar.login=650d6adab088d990758b59b6d2ed9d29d4b94255"

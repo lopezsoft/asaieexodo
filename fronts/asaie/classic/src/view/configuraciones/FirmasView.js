@@ -96,13 +96,16 @@ Ext.define('Admin.view.configuraciones.FirmasView',{
 							var win = Ext.create({
 								xtype       : 'FilesView',
 								title       : 'Seleccionar imagen para firma Escaneada',
-								pathReadFile    : 'download/settings/read-signature',
+								pathReadFile    : 'files/read',
 								pathUploadFile  : 'upload/settings/upload-signature',
-								pathDeleteFile  : 'files/settings/delete-signature',
 								titlePanelLoad  : 'Subir imagen',
-								titlePanelView  : 'Mis imagenes',
+								titlePanelView  : 'Mis imágenes',
 								textButtonLoad  : 'Seleccionar una imagen en el equipo',
 								textButtonApply : 'Establecer como firma escaneada',
+								extraParams: {
+									belongToId	: null,
+									fileProfile	: 'Signature'
+								},
 								listeners : {
 									afterselect : function (me, r) {
 										btn.up('window').down('#txtFirm').setValue(r.get('path_set'));

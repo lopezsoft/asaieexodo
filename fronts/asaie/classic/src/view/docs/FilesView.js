@@ -22,7 +22,8 @@ Ext.define('Admin.view.docs.FilesView',{
         titlePanelView  : AppLang.getSButtonMyFiles(),
         textButtonLoad  : AppLang.getSButtonSelectFile(),
         textButtonApply : AppLang.getSButtonApply(),
-        extraParams     : {}
+        extraParams     : {},
+		itemSelected	: null
     },
     constructor : function (config) {
 		const me = this;
@@ -274,7 +275,7 @@ Ext.define('Admin.view.docs.FilesView',{
                                         handler     : function (btn) {
                                             const cbtn = btn,
                                                 app	 = Admin.getApplication();
-
+											const fileId	= me.getItemSelected().id;
                                             Ext.Msg.show({
                                                 title	: 'Eliminar archivo',
                                                 message	: 'Desea eliminar el archivo?',
@@ -285,18 +286,15 @@ Ext.define('Admin.view.docs.FilesView',{
 														app.onMsgWait();
 														const grid = cbtn.up('window').down('#Browser'),
 															records = grid.getSelection()[0];
-														const {school, profile}	= AuthToken.recoverParams();
 														store 	= grid.getStore() ;
 														Ext.Ajax.request({
-															url     : Global.getApiUrl() + '/' + me.getPathDeleteFile() + '/1',
+															url     : Global.getApiUrl() + '/' + me.getPathDeleteFile() + '/' + fileId,
 															method	: 'DELETE',
 															headers: {
 																'Authorization' : (AuthToken) ? AuthToken.authorization() : ''
 															},
 															params: {
-																schoolId  	: school.id || 0,
-																profileId   : profile.id || 0,
-																year        : school.year || dt.getFullYear(),
+																...Global.getSchoolParams(),
 																pathFile	: records.id,
 															},
 															success : function (response) {
@@ -397,6 +395,7 @@ Ext.define('Admin.view.docs.FilesView',{
 			bd = this.down('#deletebutton');
 			bd.setDisabled(!selected);
             const me  = this;
+			this.setItemSelected(selected);
         if (selected) {
 			const size = parseInt(selected.get('size_file'));
 			selected.set('size_file', (size / 1024).toFixed(2));
@@ -412,6 +411,7 @@ Ext.define('Admin.view.docs.FilesView',{
      */
     fireImageSelected: function() {
 		const selectedImage = this.down('ImageBrowserView').selModel.getSelection()[0];
+		console.log(selectedImage);
 		if (selectedImage) {
             this.fireEvent('selected', selectedImage);
             this.hide();

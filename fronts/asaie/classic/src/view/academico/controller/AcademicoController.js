@@ -780,13 +780,13 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
     },
 
     onCreateAsignaturasCert : function (btn) {
-        var me = Admin.getApplication(),
-            record  = btn.up('form').down('grid').getSelection()[0];
-        param   = {
+		const me = Admin.getApplication(),
+			record = btn.up('form').down('grid').getSelection()[0];
+		const param   = {
             pdbTable : 'asignaturas_certificados',
             pdbId    : record.get('id_pk')
         };
-        me.setParamStore('AsignaturaCertificadoStore',param,false);
+        me.setParamStore('AsignaturaCertificadoStore',param, false);
         let win = Ext.create('Admin.view.academico.AsignaturasCertificadosView');
         win.setRecord(record.getData());
 		win.show();
@@ -866,21 +866,21 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
         });
 	},
     onViewArchivos : function (btn) {
-		const 	baseUrlSys 	= Global.getApiUrl() + '/';
-        var me  = Admin.getApplication(),
-            rec = btn.up('window').down('grid').getSelection()[0];
-        me.onStore('docs.ImageBrowserStore');
+		const me = Admin.getApplication(),
+			rec = btn.up('window').down('grid').getSelection()[0];
+		me.onStore('docs.ImageBrowserStore');
 		const win = Ext.create({
 			xtype: 'FilesView',
 			title: 'Seleccionar archivo',
-			pathReadFile	: 'download/student/read-documents',
-			pathUploadFile	: 'upload/student/upload-documents',
+			pathReadFile	: 'files/read',
+			pathUploadFile	: 'files/upload',
 			titlePanelLoad	: 'Subir archivos',
 			titlePanelView	: 'Mis archivos',
 			textButtonLoad	: 'Seleccionar una archivo en el equipo',
-			textButtonApply	: 'Aceptar',
+			textButtonApply	: AppLang.getSButtonAcept(),
 			extraParams: {
-				pdbStudentId: rec.get('id')
+				belongToId	: rec.get('id'),
+				fileProfile	: 'Student'
 			}
 		});
 		win.show();

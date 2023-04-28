@@ -4,7 +4,7 @@ Ext.define('Admin.view.academico.inscripciones.InscripcionesView',{
     xtype   : 'inscripcionesView',
     controller: 'academico',
     initComponent: function () {
-        var 
+        var
             me  = Admin.getApplication();
         me.onStore('general.DocumentosStore');
         me.onStore('general.CountryStore');
@@ -32,7 +32,7 @@ Ext.define('Admin.view.academico.inscripciones.InscripcionesView',{
         this.winObject = Ext.create('Admin.view.academico.inscripciones.forms.InscripcionesForm');
     },
     showWindow: function (btn) {
-        var 
+        var
             ts = this,
             data = ts.down('grid').getSelection()[0],
             form = [];
@@ -258,12 +258,6 @@ Ext.define('Admin.view.academico.inscripciones.InscripcionesView',{
                                             iconCls     : 'x-fa fa-book',
                                             handler     : 'onViewArchivos'
                                         },
-                                        /*{
-											xtype       : 'btnWebcam',
-											iconCls		: 'far fa-images',
-											tooltip		: 'Imágenes del estudiante',
-                                            handler		: 'onViewWebcam'
-                                        },*/
                                         {
                                             xtype   : 'customButton',
                                             ui      : 'soft-green',
@@ -284,14 +278,14 @@ Ext.define('Admin.view.academico.inscripciones.InscripcionesView',{
                                     xtype 		: 'pagination'
                                 }
                             ]
-                        }                        
+                        }
                     ]
                 },
                 {
                     title   : 'Matriculas',
                     itemId  : 'tab2',
                     disabled: true,
-                    items: [                        
+                    items: [
                         {
                             xtype       : 'customgrid',
                             store       : 'HistorialStore',

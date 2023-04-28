@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0479a1234106e1d7a937ebf762b59570",
+    "content-hash": "4b559ab5cf240057e742d34f8acb78a1",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -953,6 +953,53 @@
                 "source": "https://github.com/firebase/php-jwt/tree/v6.4.0"
             },
             "time": "2023-02-09T21:01:23+00:00"
+        },
+        {
+            "name": "free2one/php-accessor",
+            "version": "0.3.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/kkguan/php-accessor.git",
+                "reference": "33048706c5a8130399fe4acbbc259a568fd9dadd"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/kkguan/php-accessor/zipball/33048706c5a8130399fe4acbbc259a568fd9dadd",
+                "reference": "33048706c5a8130399fe4acbbc259a568fd9dadd",
+                "shasum": ""
+            },
+            "require": {
+                "nikic/php-parser": "^4.15",
+                "php": ">=8.0",
+                "phpstan/phpdoc-parser": "^1.20",
+                "symfony/console": "^5.4 || ^6.0",
+                "symfony/filesystem": "^5.4 || ^6.0",
+                "symfony/finder": "^5.4 || ^6.0"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3.0",
+                "phpunit/phpunit": "^9.0",
+                "symfony/var-dumper": "^6.0"
+            },
+            "bin": [
+                "php-accessor"
+            ],
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "PhpAccessor\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Generate getter and setter methods automatically",
+            "support": {
+                "issues": "https://github.com/kkguan/php-accessor/issues",
+                "source": "https://github.com/kkguan/php-accessor/tree/0.3.3"
+            },
+            "time": "2023-04-23T03:58:09+00:00"
         },
         {
             "name": "fruitcake/laravel-cors",
@@ -4381,6 +4428,51 @@
             "time": "2023-03-05T17:13:09+00:00"
         },
         {
+            "name": "phpstan/phpdoc-parser",
+            "version": "1.20.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/phpstan/phpdoc-parser.git",
+                "reference": "57f6787f0bb6431905a18aa7caea25dcd2bd59e0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/phpstan/phpdoc-parser/zipball/57f6787f0bb6431905a18aa7caea25dcd2bd59e0",
+                "reference": "57f6787f0bb6431905a18aa7caea25dcd2bd59e0",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.2 || ^8.0"
+            },
+            "require-dev": {
+                "php-parallel-lint/php-parallel-lint": "^1.2",
+                "phpstan/extension-installer": "^1.0",
+                "phpstan/phpstan": "^1.5",
+                "phpstan/phpstan-phpunit": "^1.1",
+                "phpstan/phpstan-strict-rules": "^1.0",
+                "phpunit/phpunit": "^9.5",
+                "symfony/process": "^5.2"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "PHPStan\\PhpDocParser\\": [
+                        "src/"
+                    ]
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "PHPDoc parser with support for nullable, intersection and generic types",
+            "support": {
+                "issues": "https://github.com/phpstan/phpdoc-parser/issues",
+                "source": "https://github.com/phpstan/phpdoc-parser/tree/1.20.1"
+            },
+            "time": "2023-04-22T09:05:52+00:00"
+        },
+        {
             "name": "psr/clock",
             "version": "1.0.0",
             "source": {
@@ -5600,6 +5692,69 @@
                 }
             ],
             "time": "2023-03-01T10:32:47+00:00"
+        },
+        {
+            "name": "symfony/filesystem",
+            "version": "v6.2.7",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/filesystem.git",
+                "reference": "82b6c62b959f642d000456f08c6d219d749215b3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/filesystem/zipball/82b6c62b959f642d000456f08c6d219d749215b3",
+                "reference": "82b6c62b959f642d000456f08c6d219d749215b3",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.1",
+                "symfony/polyfill-ctype": "~1.8",
+                "symfony/polyfill-mbstring": "~1.8"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\Filesystem\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Provides basic utilities for the filesystem",
+            "homepage": "https://symfony.com",
+            "support": {
+                "source": "https://github.com/symfony/filesystem/tree/v6.2.7"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2023-02-14T08:44:56+00:00"
         },
         {
             "name": "symfony/finder",

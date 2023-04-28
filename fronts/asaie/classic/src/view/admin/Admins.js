@@ -16,7 +16,7 @@ Ext.define('Admin.view.admin.Admins',{
         this.callParent(arguments);
         this.setTitle(AppLang.getSTitleViewAdmin());
     },
-    modalView   : 'Admin.view.admin.forms.SaveAdmin', 
+    modalView   : 'Admin.view.admin.forms.SaveAdmin',
     items   : [{
         xtype       : 'customgrid',
 		plugins		: [
@@ -120,46 +120,14 @@ Ext.define('Admin.view.admin.Admins',{
 								me.onStore('docs.ImageBrowserStore');
 							Ext.create({
 								xtype       	: 'FilesView',
-								pathReadFile    : 'c_admin/read_files_dig',
-								pathUploadFile  : 'c_admin/upload_files_dig',
+								pathReadFile    : 'files/read',
+								pathUploadFile  : 'files/upload',
 								textButtonApply : AppLang.getSButtonAcept(),
 								extraParams     : {
-									pdbDocumento: rec.get('numero_documento')
+									belongToId	: rec.get('numero_documento'),
+									fileProfile	: 'Admin'
 								}
 							}).show();
-						}
-					},'-',
-					{
-						xtype       : 'customButton',
-						tooltip     : 'Imagenes',
-						itemId      : 'btnWebcam',
-						disabled  	: true,
-						iconCls     : 'x-fa fa-picture-o',
-						handler     : function (btn) {
-							var me  = Admin.getApplication(),
-								view= btn.up('window') || btn.up('form'),
-								rec = btn.up('form').down('grid').getSelection()[0];
-								me.onStore('docs.ImageBrowserStore');
-								store   = view.down('grid').getStore();
-							Ext.create({
-								xtype           : 'FilesView',
-								title           : 'Imagenes',
-								pathReadFile    : 'c_admin/read_images',
-								pathUploadFile  : 'c_admin/upload_images',
-								titlePanelLoad  : 'Capturar',
-								titlePanelView  : 'Mis imágenes',
-								textButtonApply : 'Aceptar',
-								extraParams     : {
-									pdbDocumento: rec.get('numero_documento')
-								}
-							}).show().on('afterselect',function (me, select) {
-								rec.set('foto',select.data.path_set);
-							}).on('apply',function (me) {
-								store.sync();
-								this.close();
-							}).on('cancel',function (me) {
-								store.rejectChanges();
-							});
 						}
 					},'-',
 					{

@@ -1,24 +1,17 @@
 <?php
 
 namespace App\Modules\Representative;
-
 use App\Modules\School\SchoolQueries;
 use App\Traits\MessagesTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-
 class Vote{
-
     use MessagesTrait;
-
     public static function insertVotes($request) {
-
         $school    = SchoolQueries::getSchoolRequest($request);
         $db        = $school->db;
-
         $limit  = $request->input('limit') ?? 15;
-
         $enrollment_id = $request->input('enrollment_id');
         $id = $request->input('profileId');
         $candidate_id = $request->input('candidate_id');
@@ -27,37 +20,27 @@ class Vote{
         $type = $request->input('type');
         $year = $request->input('year');
         $queryMesa = null;
-
-
         $query = DB::table("{$db}student_enrollment")
             ->where('id', $enrollment_id)
             ->get();
-
         if ($query->count() > 0) {
-
             $query = DB::table("{$db}student_enrollment")->get();
             if ($query->count() > 0) {// hay datos en la tabla
-
                 //mesa existe
                 $queryMesa = DB::table("{$db}tp_polling_stations")
                 ->where('id', $polling_station_id)
                 ->where('year', $year)
                 ->get();
-
                 if ($queryMesa) {
-
-
                     $queryMesa = DB::table("{$db}tp_polling_stations")
                     ->where('state', 2)
                     ->get();
                     if ($queryMesa) {//mesa activa
-
                         $queryVoto = DB::table("{$db}tp_votes")
                         ->where('year', $year)
                         ->where('enrollment_id', $enrollment_id)//identificación de inscripción
                         ->where('candidacy_id', $candidacy_id)
                         ->get();
-
                         if ($queryVoto) {
                             if($queryVoto->count() == 0) {
                                 if($type == 1) { // White vote
@@ -87,7 +70,6 @@ class Vote{
                                     "state" => 5,
                                 ];
                                 DB::table("{$db}tp_votes")->insert($data);
-
                                 $request = array(
                                     'success' => true,
                                     'state' => 5,
@@ -95,9 +77,7 @@ class Vote{
                                 );
                                 $request = json_encode($request);
                             } else { // Si el estudiante ya habia relizado el voto y lo intenta de nuevo
-
                                 DB::table("{$db}tp_votes")->where('id', $queryVoto->first()->id)->limit(1)->increment('attempts');
-
                                 $request = array(
                                     'success' => true,
                                     'state' => 0,
@@ -105,16 +85,13 @@ class Vote{
                                 );
                                 $request = json_encode($request);
                             }
-
                         } else {
                             $request = array(
                                 'success' => false,
                                 'state' => 2,
                                 'mensaje' => "numero de identificacion no corresponde con candidato y año"
-
                             );
                         }
-
                     } else {
                         $request = array(
                             'success' => false,
@@ -122,34 +99,27 @@ class Vote{
                             'mensaje' =>"la mesa no esta activa"
                         );
                     }
-
                 } else {
                     $request = array(
                         'success' => false,
                         'mensaje' => "los datos de la mesa no concuerdan"
                     );
                 }
-
             } else {
                 $request = array(
                     'success' => true,
                     'mensaje' => "Sin datos en el sistema"
                 );
-
             }
-
         } else {
             $request = array(
                 'success' => false,
                 'state' => 0,
                 'mensaje' => "El estudiante por quien voto no esta matriculado"
             );
-
         }
         $request = json_encode($request);
-
         return self::getResponse(['records' => $request,'success' => true]);
-
 	}
 }
 

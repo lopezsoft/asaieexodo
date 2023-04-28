@@ -17,15 +17,12 @@ class GroupDirectors implements  ReportProcessorContract
             $school = SchoolQueries::getSchoolRequest($request);
             $format         = $school->format;
             $year	        = $school->year;
-
             $report	        = 'dir_grupo';
             $report_export	= 'Lista directores de grupo';
-
             $query	        = null;
             $params         = [
                 'P_YEAR'    => $year
             ];
-
             $path           = "{$school->path}";
             return (new JReportModel())->getReportExport($report, $report_export, $format,$query, $path, $school->school, $params);
         }catch (\Exception $e){
@@ -33,7 +30,5 @@ class GroupDirectors implements  ReportProcessorContract
                 "error" => $e->getMessage()
             ]);
         }
-
-
     }
 }

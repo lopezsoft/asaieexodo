@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Created with Jaspersoft Studio version 6.8.0.final using JasperReports Library version 6.8.0-2ed8dfabb690ff337a5797129f2cd92902b0c87b  -->
-<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="certificado_electoral" columnCount="2" pageWidth="595" pageHeight="842" columnWidth="269" leftMargin="28" rightMargin="28" topMargin="43" bottomMargin="20" uuid="33974257-97b3-4498-8fe2-7887b59433ce">
+<!-- Created with Jaspersoft Studio version 6.18.1.final using JasperReports Library version 6.18.1-9d75d1969e774d4f179fb3be8401e98a0e6d1611  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="certificado_electoral" columnCount="2" pageWidth="595" pageHeight="842" columnWidth="269" leftMargin="28" rightMargin="28" topMargin="43" bottomMargin="20" isSummaryNewPage="true" uuid="33974257-97b3-4498-8fe2-7887b59433ce">
+
 	<property name="ireport.zoom" value="1.5"/>
 	<property name="ireport.x" value="0"/>
 	<property name="ireport.y" value="0"/>
@@ -10,7 +11,6 @@
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Asaie"/>
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<subDataset name="dataset1" uuid="6ffdfc28-5c76-4e28-9770-1597c15cfe5e"/>
-<<<<<<< HEAD
 	<parameter name="FILTRO_AÑO" class="java.lang.String">
 		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
 	</parameter>
@@ -33,7 +33,7 @@
 	</parameter>
 	<queryString>
 		<![CDATA[$P!{SQL_PARAM}]]>
-=======
+
 	<parameter name="FILTRO_AÑO" class="java.lang.String" isForPrompting="false">
 		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
 	</parameter>
@@ -54,7 +54,7 @@
 	<parameter name="P_HEADQUARTER_ID" class="java.lang.String"/>
 	<queryString>
 		<![CDATA[CALL sp_electoral_certificate( $P{P_YEAR} ,$P{P_GRADE_ID},  $P{P_HEADQUARTER_ID} )]]>
->>>>>>> 1da26347782c673ccad62f63ae0401285e47a164
+
 	</queryString>
 	<field name="id" class="java.lang.Integer">
 		<property name="com.jaspersoft.studio.field.label" value="id"/>
@@ -156,9 +156,7 @@
 		</groupFooter>
 	</group>
 	<background>
-<<<<<<< HEAD
-		<band splitType="Stretch"/>
-=======
+
 		<band height="40" splitType="Stretch">
 			<staticText>
 				<reportElement isPrintRepeatedValues="false" x="10" y="10" width="70" height="10" uuid="8f9dd7fa-ff66-412a-8947-3e66a9b54d4d">
@@ -167,7 +165,7 @@
 				<text><![CDATA[Prueba:]]></text>
 			</staticText>
 		</band>
->>>>>>> 1da26347782c673ccad62f63ae0401285e47a164
+
 	</background>
 	<title>
 		<band splitType="Stretch"/>
@@ -179,29 +177,16 @@
 		<band splitType="Stretch"/>
 	</columnHeader>
 	<detail>
-<<<<<<< HEAD
-		<band height="91" splitType="Stretch">
-			<rectangle>
-				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Transparent" x="0" y="0" width="265" height="90" uuid="ada132c8-8de5-4228-8d02-5dd94332d72c"/>
-=======
+
 		<band height="119" splitType="Stretch">
 			<rectangle>
 				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Transparent" x="0" y="0" width="270" height="100" uuid="ada132c8-8de5-4228-8d02-5dd94332d72c"/>
->>>>>>> 1da26347782c673ccad62f63ae0401285e47a164
+
 				<graphicElement>
 					<pen lineWidth="0.75"/>
 				</graphicElement>
 			</rectangle>
-<<<<<<< HEAD
-			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement x="30" y="16" width="232" height="9" isRemoveLineWhenBlank="true" uuid="e4d7208d-1cc0-440d-a5b2-08e0e909ffed"/>
-				<textElement textAlignment="Center" verticalAlignment="Top" markup="html">
-					<font fontName="SansSerif" size="7" isBold="true"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$P{R_TITLE}.trim()]]></textFieldExpression>
-			</textField>
-=======
->>>>>>> 1da26347782c673ccad62f63ae0401285e47a164
+
 			<textField pattern="EEEEE dd MMMMM yyyy">
 				<reportElement positionType="Float" x="34" y="26" width="225" height="10" isRemoveLineWhenBlank="true" uuid="7a72684c-06da-4627-bba3-32c6d1497d59"/>
 				<textElement textAlignment="Center" verticalAlignment="Middle">

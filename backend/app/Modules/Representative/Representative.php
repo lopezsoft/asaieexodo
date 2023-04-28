@@ -22,6 +22,9 @@ class Representative
         $currentYear =  $request->input('year');
         $type   = $request->input('pdbType');
         $polingStationId = $request->input('pdbPolingStationId');
+        // $polingStationId = $request->input('polling_station_id');
+
+
         if($type == 2){
             $query = DB::table("{$db}tp_candidates as tp")
             ->selectRaw('tp.*, tc.candidacy_name, tm.id_grade AS grade_id, tm.id_group AS group_name,

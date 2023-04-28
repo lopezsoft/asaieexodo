@@ -77,6 +77,9 @@ Route::prefix('v1')->group(function () {
             });
         });
 
+
+
+
         Route::prefix('grades')->group(function () {
            Route::controller('GradesController')->group(function () {
               Route::get('', 'getGrades');
@@ -122,6 +125,14 @@ Route::prefix('v1')->group(function () {
                 Route::get('juries','getJuries');
             });
          });
+
+         Route::prefix('vote')->group(function () {
+            Route::controller('VotesController')->group(function () {
+                Route::post('new-vote','insertVotes');
+            });
+         });
+
+
 
          Route::prefix('polling-station')->group(function () {
             Route::controller('TableVoteController')->group(function () {
@@ -195,6 +206,8 @@ Route::prefix('v1')->group(function () {
               Route::post('generate-final-report', 'generateFinalReport');
               Route::post('generate-final-savannas', 'generateFinalSavannas');
               Route::post('generate-support-activities', 'generateSupportActivities');
+              Route::get('advance-promotion', 'getAdvancePromotion');
+
            });
         });
     });

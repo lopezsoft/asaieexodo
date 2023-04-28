@@ -19,6 +19,7 @@ class AssignedCourses{
         $limit  = $request->input('limit') ?? 15;
         // $id = $request->input('pdbPolingStationId');
         $id = $request->input('pdbPolling_stattion_id');
+
         $query = DB::table("{$db}tp_degrees_per_table AS tp")
             ->leftJoin("{$db}tp_polling_stations as tm", "tp.polling_station_id", "=", "tm.id")
             ->leftJoin("{$db}grados as tg", "tp.grade_id", "=", "tg.id")

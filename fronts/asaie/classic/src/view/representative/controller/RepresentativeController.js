@@ -434,7 +434,7 @@ Ext.define('Admin.view.representative.controller.RepresentativeController',{
     },
 
     onSetReport : function (btn) {
-        let url     = 'representative/getCertificate',
+        let url     = 'reports/electoral-certificate',
             param   = {},
             win     = btn.up('window');
 
@@ -445,13 +445,14 @@ Ext.define('Admin.view.representative.controller.RepresentativeController',{
 
             param = {
                 pdbGrado	: grado.get('id'),
-                pdbSede		: sede.get('ID'),
+                pdbSede		: sede.get('id'),
                 pdbReport	: report.get('id')
             };
 		}else if(win.alias == "widget.representativereportresultview"){
 			const 
 				report  = win.down('#comboReport').getSelection();
-				url     = 'representative/getResults';
+				// url     = 'representative/getResults';
+				url     = 'reports/election-results';
 
 				param = {
 					pdbReport: report.get('id')

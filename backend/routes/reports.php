@@ -14,6 +14,9 @@ Route::prefix('reports')->group(function () {
 
         Route::post('group-directors','getGroupDirectors');
 
+        Route::post('election-results','getElectionResults');
+
+        Route::post('electoral-certificate','getElectoralCertificate');
 
         #nueva
         Route::post('teachers-list', 'getTeachersList');

@@ -11,7 +11,7 @@ Ext.define('Admin.store.docentes.RecuperacionesFinalesStore',{
     proxy: {
         api: {
             create  : 'recuperaciones/get_recuperaciones_finales_b',
-            read    : 'recuperaciones/get_recuperaciones_finales',
+            read    : 'recoveries/get_recuperaciones_finales',
             update  : 'master/updateData',
             destroy : 'master/deleteData'
         },

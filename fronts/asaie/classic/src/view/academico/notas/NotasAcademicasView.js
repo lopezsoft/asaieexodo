@@ -143,11 +143,16 @@ Ext.define('Admin.view.academico.NotasAcademicasView',{
                                                     me		= Admin.getApplication(),
                                                     result  = '',
                                                     winMask = btn.up('window'),
-                                                    data            = btn.up('grid').getSelection()[0],
-                                                    id_grade	    = data.get('id_grade'),
-                                                    cUrl = Global.getUrlBase() + 'c_sql/get_competencias';
+                                                    info            = btn.up('grid').getSelection()[0],
+                                                    id_grade	    = info.get('id_grade'),
+                                                    cUrl = Global.getApiUrl() + '/competence/competences';
+													data ={...info,...Global.getSchoolParams()};
                                                 winMask.mask(AppLang.getSMsgLoading());
                                                 Ext.Ajax.request({
+
+													headers: {
+														'Authorization' : (AuthToken) ? AuthToken.authorization() : ''
+													},
                                                     url: cUrl,
                                                     params : {
                                                         idGrado: id_grade

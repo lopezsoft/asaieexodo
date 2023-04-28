@@ -77,6 +77,20 @@ Route::prefix('v1')->group(function () {
             });
         });
 
+        Route::prefix('academic-notes')->group(function () {
+            Route::controller('Academic\AcademicNotesController')->group(function () {
+               Route::get('academic-notes', 'getAcademicNotes');
+
+            });
+        });
+
+        Route::prefix('competence')->group(function () {
+            Route::controller('CompetenceController')->group(function () {
+               Route::post('competences', 'getCompetences');
+
+            });
+        });
+
 
 
 

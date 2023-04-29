@@ -4,12 +4,13 @@ namespace App\Http\Controllers\Academic;
 
 use App\Http\Controllers\Controller;
 use App\Modules\Academic\AcademicNotes;
+use App\Modules\Courses\Courses;
 use Illuminate\Http\Request;
 
 class AcademicNotesController extends Controller
 {
-    public function getAcademicNotes(Request $request): \Illuminate\Http\JsonResponse
+    public function getCoursesByNotes(Request $request): \Illuminate\Http\JsonResponse
     {
-        return AcademicNotes::getAcademicNotes($request);
+        return Courses::getCoursesByNotes($request);
     }
 }

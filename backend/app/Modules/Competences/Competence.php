@@ -11,17 +11,17 @@ use Illuminate\Http\Request;
 class Competence
 {
     use  MessagesTrait;
-    public static function getCompetences(Request $request)
+    public static function getCompetences(Request $request) : \Illuminate\Http\JsonResponse
     {
         try {
             $school     = SchoolQueries::getSchoolRequest($request);
-            $gradeId    = $request->input('id_grade');
+            $gradeId    = $request->input('idGrado');
 
             $competencies   = Competencies::getCompetenciesByGroupGrades($school, $gradeId);
             $ratingScale    = RatingScale::getGroupByGrades($school, $gradeId);
             $columnNotes    = ColumnNotes::getGroupByGrades($school, $gradeId);
             $generalSetting = GeneralSetting::getGeneralSettingByGrade($school, $gradeId);
-            self::getResponse([
+            return self::getResponse([
                 'competencies'      => $competencies,
                 'ratingScale'       => $ratingScale,
                 'columnNotes'       => $columnNotes,

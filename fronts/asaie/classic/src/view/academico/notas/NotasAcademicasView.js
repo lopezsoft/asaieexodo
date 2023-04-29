@@ -140,14 +140,12 @@ Ext.define('Admin.view.academico.NotasAcademicasView',{
                                             iconCls     : 'x-fa fa-eye',
                                             disabled    : true,
                                             handler     : function (btn) {
-												let cTitle = null,
-													me = Admin.getApplication(),
+												let me = Admin.getApplication(),
 													result = '',
 													winMask = btn.up('window'),
-													info = btn.up('grid').getSelection()[0],
-													id_grade = info.get('id_grade'),
+													data = btn.up('grid').getSelection()[0],
+													id_grade = data.get('id_grade'),
 													cUrl = Global.getApiUrl() + '/competence/competences';
-												let data = {...info, ...Global.getSchoolParams()};
                                                 winMask.mask(AppLang.getSMsgLoading());
                                                 Ext.Ajax.request({
 													headers: {
@@ -165,7 +163,7 @@ Ext.define('Admin.view.academico.NotasAcademicasView',{
                                                         Global.setColumnsNotes(result.columnNotes);
                                                         Global.setDbConfig(result.generalSetting);
                                                         winMask.unmask();
-                                                        cTitle = AppLang.getSTitleViewAcademicNotes() + ' - ' + data.get('nombres') + ': ' + Global.getYear();
+														const cTitle = AppLang.getSTitleViewAcademicNotes() + ' - ' + data.get('nombres') + ': ' + Global.getYear();
 														const win = me.getWindow(cTitle, 'Admin.view.academico.NotasSaveView');
 														win.getController().onViewData(btn, win);
                                                         win.setTitle(cTitle);

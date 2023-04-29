@@ -44,7 +44,7 @@ Ext.define('Admin.view.academico.NotasTransView',{
 							},
 							{
 								text		: 'GRUPO',
-								dataIndex	: 'grupo',
+								dataIndex	: 'id_group',
 								width		: 70,
 								locked   	: true,
 								menuDisabled: true,
@@ -87,12 +87,12 @@ Ext.define('Admin.view.academico.NotasTransView',{
 									{
 										text 	    : 'J',
 										dataIndex	: 'faltas',
-										tooltip     : 'Ingrese las faltas Justifcadas'
+										tooltip     : 'Ingrese las faltas Justificadas'
 									},
 									{
 										text 	    : 'I',
 										dataIndex	: 'injustificadas',
-										tooltip     : 'Ingrese las faltas Injustifcadas'
+										tooltip     : 'Ingrese las faltas Injustificadas'
 									},
 									{
 										text 	    : 'R',

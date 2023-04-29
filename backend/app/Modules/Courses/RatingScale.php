@@ -22,7 +22,7 @@ class RatingScale
             ->where('t1.year', '=', $year)
             ->where('t3.id_grado', '=', $gradeId)
             ->orderBy('t1.id')
-            ->get();;
+            ->get();
     }
     public static function getRatingScaleMin($school, $gradeId = 5): ?object
     {

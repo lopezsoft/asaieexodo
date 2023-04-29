@@ -8,12 +8,11 @@ Ext.define('Admin.store.general.NotasAcademicasStore', {
     pageSize	: 60,
     autoSync	: false,
     proxy: {
-	type	: 'ajax',
 	    api: {
-		    create  : 'c_notas/get_notas_insert',
-		    read    : 'academic/get_notas',
-		    update  : 'academic/get_notas_save',
-		    destroy : 'c_notas/notas_delete'
+		    create  : 'academic-notes',
+		    read    : 'academic-notes',
+		    update  : 'academic-notes',
+		    destroy : 'academic-notes'
 		}
 	}
 });

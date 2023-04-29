@@ -5,13 +5,35 @@ namespace App\Modules\Courses;
 use App\Modules\School\SchoolQueries;
 use App\Queries\CallExecute;
 use App\Traits\MessagesTrait;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class Courses
 {
     use MessagesTrait;
-    public static function getSubjectsByYear(Request $request): \Illuminate\Http\JsonResponse
+    public static function getCoursesByNotes(Request $request): JsonResponse
+    {
+        try {
+            $school     = SchoolQueries::getSchoolRequest($request);
+            $db	        = $school->db;
+            $year       = $request->input('year');
+            $grade      = $request->input('pdbGrado') ?? 0;
+            $group      = $request->input('pdbGrupo') ?? 0;
+            $jorn       = $request->input('pdbJorn') ?? 0;
+            $headquarter= $request->input('pdbSede') ?? 0;
+            $query      = DB::select("call {$db}sp_select_cursos_notas(?,?,?,?,?)", [$headquarter, $jorn, $grade, $group, $year]);
+            return self::getResponse([
+                'records' => [
+                    'data' => $query,
+                ]]);
+        }catch (\Exception $e){
+            return self::getResponse500([
+                "error" => $e->getMessage()
+            ]);
+        }
+    }
+    public static function getSubjectsByYear(Request $request): JsonResponse
     {
         $year   = $request->input('year') ?? Date('Y');
         $school = SchoolQueries::getSchool($request->input('schoolId') ?? 0);

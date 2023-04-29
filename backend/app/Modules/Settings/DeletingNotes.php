@@ -11,6 +11,10 @@ use Illuminate\Support\Facades\DB;
 class DeletingNotes
 {
     use MessagesTrait;
+
+    /**
+     * @throws Exception
+     */
     public static function notesZero(Request $request): \Illuminate\Http\JsonResponse
     {
         $school = SchoolQueries::getSchoolRequest($request);

@@ -10,6 +10,10 @@ use Illuminate\Support\Facades\DB;
 class FinalStudentState
 {
     use MessagesTrait;
+
+    /**
+     * @throws \Exception
+     */
     public static function getFinalStudentState(Request $request): \Illuminate\Http\JsonResponse
     {
         $school = SchoolQueries::getSchoolRequest($request);

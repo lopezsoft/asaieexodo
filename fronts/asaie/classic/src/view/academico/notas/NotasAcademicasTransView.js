@@ -5,7 +5,7 @@ Ext.define('Admin.view.academico.NotasAcademicasTransView',{
     extend      : 'Admin.base.CustomWindow',
     controller  : 'academico',
     initComponent: function () {
-        var me  = Admin.getApplication();
+        const me  = Admin.getApplication();
         me.onStore('general.GradosStore');
         me.onStore('general.MatCursoStore');
         me.onStore('general.PeriodosStore');
@@ -99,7 +99,7 @@ Ext.define('Admin.view.academico.NotasAcademicasTransView',{
                         },
                         {
                             text        : 'Grupo',
-                            dataIndex   : 'grupo',
+                            dataIndex   : 'id_group',
                             width       : 60,
                             filter      : 'list'
                         },
@@ -133,40 +133,44 @@ Ext.define('Admin.view.academico.NotasAcademicasTransView',{
                                     iconCls     : 'x-fa fa-eye',
                                     disabled    : true,
                                     handler     : function (btn) {
-                                        var cTitle 	= null,
-                                            me		= Admin.getApplication(),
-                                            result	= '',
-                                            winMask         = btn.up('window'),
-                                            data            = btn.up('grid').getSelection()[0],
-                                            id_grade	    = data.get('id_grade'),
-											cPeriodo		= winMask.down('#periodo').selection.get('periodo');
-                                        cUrl            = Global.getUrlBase()+'c_sql/get_competencias';   
+										let cTitle = null,
+											me = Admin.getApplication(),
+											result = '',
+											winMask = btn.up('window'),
+											data = btn.up('grid').getSelection()[0],
+											id_grade = data.get('id_grade'),
+											cPeriodo = winMask.down('#periodo').selection.get('periodo');
+										const cUrl = Global.getApiUrl() + '/competence/competences';
                                         winMask.mask(AppLang.getSMsgLoading());
                                         Ext.Ajax.request({
                                             url: cUrl,
+											headers: {
+												'Authorization' : (AuthToken) ? AuthToken.authorization() : ''
+											},
                                             params : {
+												...Global.getSchoolParams(),
                                                 idGrado: id_grade
                                             },
                                             success: function(response){
                                                 result = Ext.decode(response.responseText);
-                                                Global.setCompetences(result.records_comp);
-                                                Global.setScale(result.records_des);
-                                                Global.setColumnsNotes(result.records_colum);
-                                                Global.setDbConfig(result.records_config);
+												Global.setCompetences(result.competencies);
+												Global.setScale(result.ratingScale);
+												Global.setColumnsNotes(result.columnNotes);
+												Global.setDbConfig(result.generalSetting);
                                                 winMask.unmask();
                                                 cTitle = AppLang.getSTitleViewAcademicNotes() + ' - ' + data.get('nombres') + ': ' + Global.getYear();
                                                 var win = me.getWindow(null, 'Admin.view.academico.NotasTransView');
                                                 win.setTitle(cTitle);
                                                 win.show();
-												ExExParams = {
-													pdbCodGrado : id_grade,
-													pdbPeriodo	: cPeriodo,
-													pdbMatric   : data.get('id'),
-													pdbTable	: '1'
+												const ExExParams = {
+													pdbCodGrado: id_grade,
+													pdbPeriodo: cPeriodo,
+													pdbMatric: data.get('id'),
+													pdbTable: '1'
 												};
 												me.setParamStore('NotasAcademicasStore',ExExParams,true);
                                             },
-                                            failure: function (response) {
+                                            failure: function () {
                                                 winMask.unmask();
                                                 me.onAler('No se pueden cargar los datos');
                                             }

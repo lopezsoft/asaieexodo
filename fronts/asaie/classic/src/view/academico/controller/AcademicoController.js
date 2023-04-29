@@ -973,7 +973,7 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
                 break;
             case 'NotasReportadasView' :
                 var
-                    url     = 'reports/report_nota_reportada',
+                    url     = 'reports/reported-notes',
                     values  = win.down('#gridCarga').getSelection()[0],
                     param   = {
                         pdbDocente  : values.get('id_docente'),

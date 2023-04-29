@@ -5,20 +5,13 @@ Route::prefix('reports')->group(function () {
         Route::prefix('generate')->group(function () {
             Route::post('consolidated', 'generateConsolidated');
         });
+        Route::post('reported-notes', 'getReportedNotes');
         Route::post('family-members', 'getFamilyMembers');
         Route::post('birth-dates', 'getBirthDates');
         Route::post('school-carnes', 'getSchoolCarnes');
-        #nueva
-        // ejemplo
-        // Route::post('family-members', 'getFamilyMembers');
-
         Route::post('group-directors','getGroupDirectors');
-
         Route::post('election-results','getElectionResults');
-
         Route::post('electoral-certificate','getElectoralCertificate');
-
-        #nueva
         Route::post('teachers-list', 'getTeachersList');
         Route::post('academic-allocation', 'getAcademicAllocation');
         Route::post('lists-with-load', 'getListsWithLoad');

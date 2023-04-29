@@ -7,12 +7,12 @@
     "require": {
         "php": "^8.1",
         "cossou/jasperphp": "^2.8",
+        "doctrine/dbal": "^3.6.2",
         "free2one/php-accessor": "~0.3",
         "guzzlehttp/guzzle": "^7.5.0",
         "laravel/framework": "^v10.9.0",
         "laravel/passport": "^v11.8.4",
         "laravel/tinker": "^v2.8.1",
-        "doctrine/dbal": "^3.6.2",
         "laraveles/spanish": "^1.5",
         "league/flysystem-aws-s3-v3": "3.0",
         "maatwebsite/excel": "^3.1.48",

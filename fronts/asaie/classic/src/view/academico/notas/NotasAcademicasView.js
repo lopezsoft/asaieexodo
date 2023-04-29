@@ -6,8 +6,8 @@ Ext.define('Admin.view.academico.NotasAcademicasView',{
     controller  : 'academico',
     title       : 'Estudiantes',
     initComponent: function () {
-        var me  = Admin.getApplication();
-        me.onStore('general.GradosStore');
+		const me = Admin.getApplication();
+		me.onStore('general.GradosStore');
         me.onStore('general.MatCursoStore');
         me.onStore('general.PeriodosStore');
         me.onStore('general.AsignaturaStore');
@@ -160,10 +160,10 @@ Ext.define('Admin.view.academico.NotasAcademicasView',{
                                                     },
                                                     success: function(response){
                                                         result 	= Ext.decode(response.responseText);
-                                                        Global.setCompetences(result.records_comp);
-                                                        Global.setScale(result.records_des);		
-                                                        Global.setColumnsNotes(result.records_colum);
-                                                        Global.setDbConfig(result.records_config);
+                                                        Global.setCompetences(result.competencies);
+                                                        Global.setScale(result.ratingScale);
+                                                        Global.setColumnsNotes(result.columnNotes);
+                                                        Global.setDbConfig(result.generalSetting);
                                                         winMask.unmask();
                                                         cTitle = AppLang.getSTitleViewAcademicNotes() + ' - ' + data.get('nombres') + ': ' + Global.getYear();
 														const win = me.getWindow(cTitle, 'Admin.view.academico.NotasSaveView');
@@ -227,10 +227,9 @@ Ext.define('Admin.view.academico.NotasAcademicasView',{
                                 }
                             ],
                             listeners : {
-                                'selectionchange': function(grid, selected, eOpts) {
-                                    var me = this;
-
-                                    if (me.down('#addButton')) {
+                                'selectionchange': function(grid, selected) {
+									const me = this;
+									if (me.down('#addButton')) {
                                         me.down('#addButton').setDisabled(!selected.length);
                                     }
                                 }
@@ -242,8 +241,8 @@ Ext.define('Admin.view.academico.NotasAcademicasView',{
                                         {
                                             xtype       : 'addButton',
                                             iconAlign   : 'left',
-                                            text        : 'Agegar asignaturas',
-                                            tooltip     : 'Agegar asignaturas',
+                                            text        : 'Agregar asignaturas',
+                                            tooltip     : 'Agregar asignaturas',
                                             disabled    : true,
                                             handler     : 'addAsginaturas'
                                         }

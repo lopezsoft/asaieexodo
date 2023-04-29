@@ -31,35 +31,14 @@ class Competencies
      */
     public static function getColumnsNotesCompetenciesExists(Request $request): JsonResponse
     {
-        $school = SchoolQueries::getSchoolRequest($request);
-        $db     = $school->db;
-        $id     = $request->input('pdbGroupGradeId');
-        $query  = DB::table("{$db}competencias", "t1")
-                    ->selectRaw("t2.*")
-                    ->leftJoin("{$db}columnas_notas_competencias AS t2", "t2.id_competencia", "=", "t1.id_pk")
-                    ->whereRaw("t2.id_competencia = t1.id_pk")
-                    ->where("t1.id_grado_agrupado", $id)
-                    ->where("t1.year", $school->year);
-
-        return self::getResponse([
-            'records' => $query->paginate(30)
-        ]);
+        return ColumnNotes::getCompetenciesExists($request);
     }
     /**
      * @throws \Exception
      */
     public static function getColumnsNotesCompetencies(Request $request): JsonResponse
     {
-        $school = SchoolQueries::getSchoolRequest($request);
-        $db     = $school->db;
-        $id     = $request->input('pdbId');
-        $query  = DB::table("{$db}columnas_notas_competencias")
-                    ->selectRaw("*, CONCAT('#',numero_column) name")
-                    ->where("id_competencia", $id);
-
-        return self::getResponse([
-            'records' => $query->paginate()
-        ]);
+        return ColumnNotes::getCompetencies($request);
     }
     /**
      * @throws \Exception

@@ -18,12 +18,13 @@ yarn-error.log
 /.idea
 /.vscode
 /backend/nbproject/private/
-
+#public ignore
 /backend/public/hot
 /backend/public/storage
 /backend/public/reports/**/*.jasper
 backend/public/reports/**/*.jasper
 **.jasper
+#front ignore
 /fronts/asaie/*.json
 /fronts/asaie/*.json*
 /fronts/asaie/classic.*

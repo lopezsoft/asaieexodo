@@ -10,6 +10,6 @@ Ext.define('Admin.store.general.CargaNotasStore', {
     model		: 'Admin.model.general.CargaModel',
     pageSize  : 60,
     proxy: {
-        url  :  'academic-notes/academic-notes'
+        url  :  'academic-notes/courses-by-notes'
     }
 });

@@ -12,17 +12,16 @@ Ext.define('Admin.view.config.Configs', {
         // urlLocation	: "https://admin.asaie.co/",
 		// apiUrl		: "https://admin.asaie.co/api/v1",
 		year		: 0,
-        // hostSocket	: 'http://localhost:8081',
-		// urlBase		: "http://asaie/",
-		// urlLocation	: "http://asaie/",
-		// apiUrl		: "http://asaie/api/v1",
-		// reportUrl	: "http://asaie.rep",
 		hostSocket	: 'http://localhost:8081',
 		urlBase		: "http://asaieexodo.test/",
 		urlLocation	: "http://asaieexodo.test",
 		apiUrl		: "http://asaieexodo.test/api/v1",
 		reportUrl	: "http://asaie.rep",
-		
+		competences: [],
+		scale: [],
+		columnsNotes: [],
+		dbConfig: [],
+		period: '',
     },
     constructor: function(config) {
         this.initConfig(this.config, config);

@@ -10,6 +10,20 @@ use Illuminate\Support\Facades\DB;
 class RatingScale
 {
     use MessagesTrait;
+    public static function getGroupByGrades($school, $gradeId): \Illuminate\Support\Collection
+    {
+        $db     = $school->db;
+        $year   = $school->year;
+        return DB::table("{$db}desempeños AS t1")
+            ->select('t1.id', 't1.id_escala', 't1.desde', 't1.hasta', 't1.reprueba', 't4.color', 't4.nombre_escala', 't4.mensaje', 't4.abrev')
+            ->leftJoin("{$db}grados_agrupados AS t2", 't1.id_grado_agrupado', '=', 't2.id')
+            ->leftJoin("{$db}aux_grados_agrupados AS t3", 't3.id_grado_agrupado', '=', 't2.id')
+            ->leftJoin("{$db}escala_nacional AS t4", 't1.id_escala', '=', 't4.id')
+            ->where('t1.year', '=', $year)
+            ->where('t3.id_grado', '=', $gradeId)
+            ->orderBy('t1.id')
+            ->get();
+    }
     public static function getRatingScaleMin($school, $gradeId = 5): ?object
     {
         $db     = $school->db;

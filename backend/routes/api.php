@@ -79,8 +79,11 @@ Route::prefix('v1')->group(function () {
 
         Route::prefix('academic-notes')->group(function () {
             Route::controller('Academic\AcademicNotesController')->group(function () {
-               Route::get('academic-notes', 'getAcademicNotes');
-
+               Route::get('courses-by-notes', 'getCoursesByNotes');
+               Route::get('/', 'getNotes');
+               Route::post('/', 'createNotes');
+               Route::put('/{id}', 'updateNotes');
+               Route::delete('/{id}', 'deleteNotes');
             });
         });
 

@@ -6,8 +6,8 @@ Ext.define('Admin.view.academico.NotasAcademicasView',{
     controller  : 'academico',
     title       : 'Estudiantes',
     initComponent: function () {
-        var me  = Admin.getApplication();
-        me.onStore('general.GradosStore');
+		const me = Admin.getApplication();
+		me.onStore('general.GradosStore');
         me.onStore('general.MatCursoStore');
         me.onStore('general.PeriodosStore');
         me.onStore('general.AsignaturaStore');
@@ -45,24 +45,25 @@ Ext.define('Admin.view.academico.NotasAcademicasView',{
                                         this.down('#btnNotas').setDisabled(!selected.length);
                                     }
                                     this.down('#periodo').setDisabled(!selected.length);
-                                    if (!Ext.isEmpty(selected)) {
-                                        gdo = selected[0].get('id_grade');
-                                        extra = {
-                                            pdbTable: 'cursos',
-                                            pdbGrado: gdo,
-                                            pdbGrupo: selected[0].get('id_group'),
-                                            pdbJorn : selected[0].get('id_study_day'),
-                                            pdbSede: selected[0].get('id_headquarters')
-                                        };
+									let gdo;
+									if (!Ext.isEmpty(selected)) {
+										gdo = selected[0].get('id_grade');
+										extra = {
+											pdbTable: 'cursos',
+											pdbGrado: gdo,
+											pdbGrupo: selected[0].get('id_group'),
+											pdbJorn: selected[0].get('id_study_day'),
+											pdbSede: selected[0].get('id_headquarters')
+										};
 
-                                        me.setParamStore('CargaNotasStore', extra, true);
-                                        extra = {
-                                            pdbTable: 'periodos_academicos',
-                                            pdbGrado: gdo,
-                                            pdbType	: 0
-                                        };
-                                        me.setParamStore('PeriodosStore', extra);
-                                    }
+										me.setParamStore('CargaNotasStore', extra, true);
+										extra = {
+											pdbTable: 'periodos_academicos',
+											pdbGrado: gdo,
+											pdbType: 0
+										};
+										me.setParamStore('PeriodosStore', extra);
+									}
 
                                 }
                             },
@@ -139,34 +140,32 @@ Ext.define('Admin.view.academico.NotasAcademicasView',{
                                             iconCls     : 'x-fa fa-eye',
                                             disabled    : true,
                                             handler     : function (btn) {
-                                                var cTitle 	= null,
-                                                    me		= Admin.getApplication(),
-                                                    result  = '',
-                                                    winMask = btn.up('window'),
-                                                    info            = btn.up('grid').getSelection()[0],
-                                                    id_grade	    = info.get('id_grade'),
-                                                    cUrl = Global.getApiUrl() + '/competence/competences';
-													data ={...info,...Global.getSchoolParams()};
+												let me = Admin.getApplication(),
+													result = '',
+													winMask = btn.up('window'),
+													data = btn.up('grid').getSelection()[0],
+													id_grade = data.get('id_grade'),
+													cUrl = Global.getApiUrl() + '/competence/competences';
                                                 winMask.mask(AppLang.getSMsgLoading());
                                                 Ext.Ajax.request({
-
 													headers: {
 														'Authorization' : (AuthToken) ? AuthToken.authorization() : ''
 													},
                                                     url: cUrl,
                                                     params : {
+														...Global.getSchoolParams(),
                                                         idGrado: id_grade
                                                     },
                                                     success: function(response){
                                                         result 	= Ext.decode(response.responseText);
-                                                        Global.setCompetences(result.records_comp);
-                                                        Global.setScale(result.records_des);		
-                                                        Global.setColumnsNotes(result.records_colum);
-                                                        Global.setDbConfig(result.records_config);
+                                                        Global.setCompetences(result.competencies);
+                                                        Global.setScale(result.ratingScale);
+                                                        Global.setColumnsNotes(result.columnNotes);
+                                                        Global.setDbConfig(result.generalSetting);
                                                         winMask.unmask();
-                                                        cTitle = AppLang.getSTitleViewAcademicNotes() + ' - ' + data.get('nombres') + ': ' + Global.getYear();
-                                                        var win = me.getWindow(cTitle,'Admin.view.academico.NotasSaveView');
-                                                        win.getController().onViewData(btn, win);
+														const cTitle = AppLang.getSTitleViewAcademicNotes() + ' - ' + data.get('nombres') + ': ' + Global.getYear();
+														const win = me.getWindow(cTitle, 'Admin.view.academico.NotasSaveView');
+														win.getController().onViewData(btn, win);
                                                         win.setTitle(cTitle);
                                                         win.show();
                                                     },
@@ -226,10 +225,9 @@ Ext.define('Admin.view.academico.NotasAcademicasView',{
                                 }
                             ],
                             listeners : {
-                                'selectionchange': function(grid, selected, eOpts) {
-                                    var me = this;
-
-                                    if (me.down('#addButton')) {
+                                'selectionchange': function(grid, selected) {
+									const me = this;
+									if (me.down('#addButton')) {
                                         me.down('#addButton').setDisabled(!selected.length);
                                     }
                                 }
@@ -241,8 +239,8 @@ Ext.define('Admin.view.academico.NotasAcademicasView',{
                                         {
                                             xtype       : 'addButton',
                                             iconAlign   : 'left',
-                                            text        : 'Agegar asignaturas',
-                                            tooltip     : 'Agegar asignaturas',
+                                            text        : 'Agregar asignaturas',
+                                            tooltip     : 'Agregar asignaturas',
                                             disabled    : true,
                                             handler     : 'addAsginaturas'
                                         }

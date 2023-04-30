@@ -96,9 +96,6 @@ Route::prefix('v1')->group(function () {
             });
         });
 
-
-
-
         Route::prefix('grades')->group(function () {
            Route::controller('GradesController')->group(function () {
               Route::get('', 'getGrades');
@@ -115,10 +112,9 @@ Route::prefix('v1')->group(function () {
 
         Route::prefix('academic')->group(function () {
            Route::controller('Academic\AcademicController')->group(function () {
-            Route::post('honorFrame', 'getHonorFrame');
+            Route::post('honor-frame', 'honorFrame');
            });
         });
-
         Route::prefix('courses')->group(function () {
            Route::controller('CoursesController')->group(function () {
                Route::get('/', 'getCourses');
@@ -126,8 +122,6 @@ Route::prefix('v1')->group(function () {
                Route::get('subjects-by-year', 'getSubjectsByYear');
            });
         });
-
-
         Route::prefix('subject')->group(function () {
             Route::controller('SubjectController')->group(function () {
                 Route::prefix('auxiliar-subjects')->group(function () {
@@ -144,24 +138,17 @@ Route::prefix('v1')->group(function () {
                 Route::get('juries','getJuries');
             });
          });
-
          Route::prefix('vote')->group(function () {
             Route::controller('VotesController')->group(function () {
                 Route::post('new-vote','insertVotes');
             });
          });
-
-
-
          Route::prefix('polling-station')->group(function () {
             Route::controller('TableVoteController')->group(function () {
                 Route::get('headquarters','getTableHeadquarters');
                 Route::get('assigned-courses','getDegreesPerTable');
             });
          });
-
-
-
         Route::prefix('students')->group(function () {
             Route::controller('Academic\StudentController')->group(function () {
                 Route::get('academic-history', 'getAcademicHistory');
@@ -215,11 +202,9 @@ Route::prefix('v1')->group(function () {
             });
         });
 
-
         require __DIR__.'/exports.php';
         require __DIR__.'/reports.php';
         require __DIR__.'/settings.php';
-
         Route::prefix('promotion')->group(function () {
            Route::controller('PromotionController')->group(function () {
               Route::post('generate-final-report', 'generateFinalReport');

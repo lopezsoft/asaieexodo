@@ -53,21 +53,15 @@ Ext.define('Admin.view.academico.CuadroHonorView',{
 								win = btn.up('window'),
 								param = {
 									pdbPeriodo: win.down('#periodo').getValue(),
-									pdbCk: win.down('#ckFin').getValue() ? 1 : 0
+									pdbCk: win.down('#ckFin').getValue() ? 1 : 0,
+									...Global.getSchoolParams()
 								};
 							win.mask(AppLang.getSMsgLoading());
-							const {school, profile}	= AuthToken.recoverParams();
-							const dt			= new Date();
-							param.schoolId  	= school.id || 0;
-							param.profileId   	= profile.id || 0;
-							param.year        	= school.year || dt.getFullYear();
                             Ext.Ajax.request({
                                 url     : Global.getApiUrl() + '/academic/honor-frame',
                                 params  : param,
                                 timeout : 0,
-								headers: {
-									'Authorization' : (AuthToken) ? AuthToken.authorization() : ''
-								},
+								headers: Global.getHeaders(),
                                 success: function(response, opts) {
                                     me.showResult('Se ha generado el cuadro de honor');
                                 },

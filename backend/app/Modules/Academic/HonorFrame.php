@@ -10,6 +10,10 @@ use Illuminate\Http\Request;
 class HonorFrame
 {
     use  MessagesTrait;
+
+    /**
+     * @throws \Exception
+     */
     public static function getHonorFrame(Request $request): \Illuminate\Http\JsonResponse {
         $school     = SchoolQueries::getSchoolRequest($request);
         $db	        = $school->db;

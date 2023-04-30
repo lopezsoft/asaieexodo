@@ -82,6 +82,8 @@ Route::prefix('v1')->group(function () {
                Route::get('courses-by-notes', 'getCoursesByNotes');
                Route::get('/', 'getNotes');
                Route::post('/', 'createNotes');
+               Route::post('add-subjects', 'addSubjects');
+               Route::post('transfer-notes', 'transferNotes');
                Route::put('/{id}', 'updateNotes');
                Route::delete('/{id}', 'deleteNotes');
             });

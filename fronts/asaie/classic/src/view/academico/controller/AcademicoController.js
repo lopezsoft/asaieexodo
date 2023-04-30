@@ -609,8 +609,8 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
             pdbGrado	: 5,
             pdbType		: 0
         });
-        win  = Ext.create('Admin.view.academico.CuadroHonorView') ;
-        win.show();
+        Ext.create('Admin.view.academico.CuadroHonorView')
+			.show();
     },
 
     onCertificados : function (btn) {
@@ -622,17 +622,17 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
     },
 
     addAsginaturas : function (btn) {
-        var me  		= Admin.getApplication(),
-            win 		= btn.up('window'),
-            grid		= win.down('#gridCarga'),
-            select      = grid.getSelection(),
-            idMatric    = win.down('grid').getSelection()[0].get('id'),
-            store       = null,
-            grado       = win.down('grid').getSelection()[0].get('id_grade'),
-            data        = {},
-            per         = win.down('#periodo').value,
-            i           = 0;
-        if (select.length > 0 ) {
+		let me = Admin.getApplication(),
+			win = btn.up('window'),
+			grid = win.down('#gridCarga'),
+			select = grid.getSelection(),
+			idMatric = win.down('grid').getSelection()[0].get('id'),
+			store = null,
+			grado = win.down('grid').getSelection()[0].get('id_grade'),
+			data = {},
+			per = win.down('#periodo').value,
+			i = 0;
+		if (select.length > 0 ) {
             if (!Ext.isEmpty(per)) {
                 store = new Ext.create('Admin.store.base.StoreApi', {
                     fields: [
@@ -645,10 +645,10 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
                             pdbGrado: grado
                         },
                         api: {
-                            create		: 'academic/get_add_asignaturas',
-                            read		: 'General/get_select',
-                            update		: 'General/update_data',
-                            destroy		: 'General/delete_data'
+                            create		: 'academic-notes/add-subjects',
+                            read		: 'crud/index',
+                            update		: 'crud',
+                            destroy		: 'crud'
                         }
                     }
                 });

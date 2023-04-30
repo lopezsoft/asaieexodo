@@ -43,7 +43,8 @@ class InsertTable
             return self::getResponse(['record' => $data]);
         } catch (\Exception $e) {
             DB::rollback();
-            return self::getResponse500(['error'   => $e->getMessage()]);
+            $tb  = strtoupper($tb);
+            return self::getResponse500(['error' => "Error al crear el registro en la tabla $tb. Es posible que esté duplicado o tenga un error."]);
         }
     }
 }

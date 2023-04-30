@@ -8,7 +8,8 @@ use Illuminate\Support\Facades\DB;
 
 class AdvancePromotion{
     use MessagesTrait;
-    public static function getAdvancePromotion($request){
+    public static function getAdvancePromotion($request): \Illuminate\Http\JsonResponse
+    {
 
         try {
              $school = SchoolQueries::getSchoolRequest($request);

@@ -42,6 +42,12 @@ Ext.define('Admin.view.config.Configs', {
         };
     },
 
+	getHeaders: function() {
+		return {
+			'Authorization' : (AuthToken) ? AuthToken.authorization() : ''
+		}
+	},
+
 	getSchoolParams: function() {
 		const {school, profile}	= AuthToken.recoverParams();
 		const dt		= new Date();

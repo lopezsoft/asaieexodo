@@ -2,6 +2,7 @@
 
 namespace App\Modules\Promotion;
 
+use App\Modules\Courses\Courses;
 use App\Modules\School\SchoolQueries;
 use App\Modules\Settings\GeneralSetting;
 use App\Queries\CallExecute;
@@ -282,24 +283,6 @@ class GenerateFinalReport
     }
 
     private function activeCourse($courseId, $db){
-        $sql    = DB::table("{$db}cursos")->where('id', $courseId)->first();
-        $result	= $courseId;
-        if($sql){
-            if ($sql->estado == 0){
-                $qry	= DB::table("{$db}cursos")
-                            ->where('id_sede', $sql->id_sede)
-                            ->where('id_grado', $sql->id_grado)
-                            ->where('id_asig', $sql->id_asig)
-                            ->where('id_jorn', $sql->id_jorn)
-                            ->where('year', $sql->year)
-                            ->where('estado', 1)
-                            ->where('grupo', "{$sql->grupo}")
-                            ->first();
-                if ($qry){
-                    $result	= $qry->id;
-                }
-            }
-        }
-        return $result;
+        return Courses::getActiveCourse($courseId, $db);
     }
 }

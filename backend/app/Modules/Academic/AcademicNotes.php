@@ -98,8 +98,7 @@ class AcademicNotes
             foreach ($fields as $field) {
                 $course = Courses::getActiveCourse($field->id_curso, $db);
                 if (($course <> $field->id_curso) AND ($course > 0)) {
-                    $sqlUp = "UPDATE {$db}{$table} SET id_curso= {$course} WHERE id= {$field->id} LIMIT 1";
-                    DB::statement($sqlUp);
+                    DB::Table("{$db}{$table}")->where('id', $field->id)->update(['id_curso' => $course]);
                 }
             }
             DB::commit();

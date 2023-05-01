@@ -3,15 +3,18 @@
 namespace App\Modules\Promotion;
 
 use App\Modules\School\SchoolQueries;
+use App\Traits\MessagesTrait;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class AcademicPeriods
 {
+    use MessagesTrait;
     /**
      * @throws \Exception
      */
-    public static function getPeriods(Request $request): \Illuminate\Http\JsonResponse {
+    public static function getPeriods(Request $request): JsonResponse {
         $school = SchoolQueries::getSchoolRequest($request);
         $db	    = $school->db;
         $year   = $school->year;

@@ -282,67 +282,69 @@ Ext.define('Admin.view.configuraciones.controller.ConfiguracionesController',{
     },
 
     onCriterios : function (btn) {
-        var me  = this.app,
-            record  = null;
-        record  = btn.up('window').down('grid').getSelection()[0];
+		let me = this.app,
+			record = null;
+		record  = btn.up('window').down('grid').getSelection()[0];
         me.onStore('general.CriteriosAspectosObservadorStore');
-        extra = {
-            pdbTable    : 'obs_criterios',
-            where       : '{"id_item_modelo": ' + record.get('id') + '}'
-        };
+		let extra = {
+			pdbTable: 'obs_criterios',
+			where: '{"id_item_modelo": ' + record.get('id') + '}'
+		};
         me.setParamStore('CriteriosAspectosObservadorStore',extra,false);
-        win     = Ext.create('Admin.view.configuraciones.CriteriosAspectosObservadorView');
+		let win = Ext.create('Admin.view.configuraciones.CriteriosAspectosObservadorView');
         win.setTitle('Criterios del aspecto: '+record.get('descripcion'));
         win.setRecord(record);
         win.show();
     },
 
     onAspectosObservador : function (btn) {
-        var me  = this.app,
-            record  = null;
-        record  = btn.up('window').down('grid').getSelection()[0];
+		let me = this.app,
+			record = null;
+		record  = btn.up('window').down('grid').getSelection()[0];
         me.onStore('general.AspectosObservadorStore');
-        if (record.get('estado')==1){
-            extra = {
-                pdbTable    : 'obs_items_modelos',
-                where       : '{"id_modelo": ' + record.get('id') + '}'
-            };
-            me.setParamStore('AspectosObservadorStore',extra,false);
-            Ext.create('Admin.view.configuraciones.AspectosObservadorView',{
-                record  : record
-            }).show();
-        }else{
-            me.showResult('Elija un modelo activo');
-        }
+		let extra;
+		if (record.get('estado') == 1) {
+			extra = {
+				pdbTable: 'obs_items_modelos',
+				where: '{"id_modelo": ' + record.get('id') + ', "year": ' + Global.getSchoolParams().year + '}'
+			};
+			me.setParamStore('AspectosObservadorStore', extra, false);
+			Ext.create('Admin.view.configuraciones.AspectosObservadorView', {
+				record: record
+			}).show();
+		} else {
+			me.showResult('Elija un modelo activo');
+		}
     },
 
     onEncabezadoObservador : function (btn) {
-        var me  = this.app,
-            record  = null;
-            record  = btn.up('window').down('grid').getSelection()[0];
+		let me = this.app,
+			record = null;
+		record  = btn.up('window').down('grid').getSelection()[0];
             me.onStore('general.EncabezadoObservadorStore');
-            if (record.get('estado')==1){
-                btn.up('window').mask();
-                extra = {
-                    pdbTable : 'obs_modelos_observador_cuerpo',
-                    where    : '{"id_observador":'+record.get('id')+'}' 
-                };
-                me.setParamStore('EncabezadoObservadorStore',extra,false);
-                store   = Ext.getStore('EncabezadoObservadorStore');
-                store.reload({
-                    callback : function (r, e) {
-                        btn.up('window').unmask();
-                        win     = Ext.create('Admin.view.configuraciones.EncabezadoObservadorView');
-                        if (r.length > 0) {
-                            form = win.down('form');
-                            form.loadRecord(r[0]);
-                        }
-                        win.show();
-                    }
-                })
-            }else{
-                me.showResult('Elija un modelo activo');
-            }
+		let extra;
+		if (record.get('estado') == 1) {
+			btn.up('window').mask();
+			extra = {
+				pdbTable: 'obs_modelos_observador_cuerpo',
+				where: '{"id_observador":' + record.get('id') + '}'
+			};
+			me.setParamStore('EncabezadoObservadorStore', extra, false);
+			store = Ext.getStore('EncabezadoObservadorStore');
+			store.reload({
+				callback: function (r, e) {
+					btn.up('window').unmask();
+					let win = Ext.create('Admin.view.configuraciones.EncabezadoObservadorView');
+					if (r.length > 0) {
+						form = win.down('form');
+						form.loadRecord(r[0]);
+					}
+					win.show();
+				}
+			})
+		} else {
+			me.showResult('Elija un modelo activo');
+		}
     },
 
     onModelosObservador : function (btn) {
@@ -352,20 +354,20 @@ Ext.define('Admin.view.configuraciones.controller.ConfiguracionesController',{
     },
 
     onCompetencias : function (btn) {
-        var me  = this.app;
-        me.onStore('general.GradosAgrupadosStore');
+		const me = this.app;
+		me.onStore('general.GradosAgrupadosStore');
         me.onStore('general.DimensionesStore');
-        ex = {
-            pdbTable    : 'competencias',
-            pdbType     : 1
-        };
+		let ex = {
+			pdbTable: 'competencias',
+			pdbType: 1
+		};
         me.setParamStore('DimensionesStore',ex,false);
         Ext.create('Admin.view.configuraciones.CompetenciasView').show();
     },
 
     onEscala    : function (btn) {
-        var me  = this.app;
-            me.onStore('general.EscalaStore');
+		const me = this.app;
+		me.onStore('general.EscalaStore');
 			me.onStore('general.GradosAgrupadosStore');
             me.onStore('general.EscalaNacionalStore');
             me.setParamStore('EscalaNacionalStore',{
@@ -375,8 +377,8 @@ Ext.define('Admin.view.configuraciones.controller.ConfiguracionesController',{
             Ext.create('Admin.view.configuraciones.EscalaView').show();
     },
     onGeneral : function (btn) {
-        var me  = this.app;
-        me.onStore('general.ConfiguracionesStore');
+		const me = this.app;
+		me.onStore('general.ConfiguracionesStore');
         me.onStore('general.GradosAgrupadosStore');
         Ext.create('Admin.view.configuraciones.Configuraciones').show();
     }

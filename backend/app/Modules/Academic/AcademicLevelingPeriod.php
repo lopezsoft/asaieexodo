@@ -129,7 +129,7 @@ class AcademicLevelingPeriod
     /**
      * @throws Exception
      */
-    private static function getGradeId(Request $request, $db, $level) {
+    public static function getGradeId(Request $request, $db, $level) {
         $gradeId    = $request->input('pdbGrado') ?? null;
         if ($level > 0) {
             $grade = DB::Table("{$db}grados")

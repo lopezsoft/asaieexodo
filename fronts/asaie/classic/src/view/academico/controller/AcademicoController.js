@@ -944,7 +944,7 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
 				param  = {
                     pdbNivel    : win.down('#CbNivelAcademico').getValue(),
                     pdbGrado 	: '',
-                    pdbType     : select.get('id_docente'),
+                    pdbTeacherId: select.get('id_docente'),
                     pdbPeriodo  : select.get('periodo')
                 };
                 break;

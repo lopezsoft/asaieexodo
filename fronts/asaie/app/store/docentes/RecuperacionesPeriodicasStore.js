@@ -11,10 +11,10 @@ Ext.define('Admin.store.docentes.RecuperacionesPeriodicasStore',{
     model		: 'Admin.model.docentes.RecuperacionesPeriodicasModel',
     proxy: {
         api: {
-            create  : 'recuperaciones/get_Recuperaciones_b',
-            read    : 'recuperaciones/get_Recuperaciones',
-            update  : 'recuperaciones/get_Recuperaciones_b',
-            destroy : 'recuperaciones/get_Recuperaciones_b'
+            create  : 'academic-leveling/period/create',
+            read    : 'academic-leveling/period/by-teacher',
+            update  : 'academic-leveling/period/update',
+            destroy : 'academic-leveling/period/destroy'
         }
     }
 });

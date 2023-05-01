@@ -205,6 +205,7 @@ Route::prefix('v1')->group(function () {
         require __DIR__.'/exports.php';
         require __DIR__.'/reports.php';
         require __DIR__.'/settings.php';
+        require __DIR__.'/academic-leveling.php';
         Route::prefix('promotion')->group(function () {
            Route::controller('PromotionController')->group(function () {
               Route::post('generate-final-report', 'generateFinalReport');

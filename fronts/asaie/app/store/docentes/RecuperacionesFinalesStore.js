@@ -10,10 +10,10 @@ Ext.define('Admin.store.docentes.RecuperacionesFinalesStore',{
     model		: 'Admin.model.docentes.RecuperacionesFinalesModel',
     proxy: {
         api: {
-            create  : 'recuperaciones/get_recuperaciones_finales_b',
-            read    : 'recoveries/get_recuperaciones_finales',
-            update  : 'master/updateData',
-            destroy : 'master/deleteData'
+            create  : 'crud',
+            read    : 'promotion/final-leveling',
+            update  : 'crud',
+            destroy : 'crud'
         },
         extraParams : {
             pdbTable    : 'respeciales'

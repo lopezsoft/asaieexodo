@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Modules\Promotion;
-
 use App\Modules\Courses\RatingScale;
 use App\Modules\School\SchoolQueries;
 use App\Modules\Settings\GeneralSetting;
@@ -13,12 +12,10 @@ use Illuminate\Support\Facades\DB;
 class FinalSupportActivities
 {
     use MessagesTrait;
-
     private int $porcentaje_areas = 0;
     private int $areas_pierde = 0;
     private int $t_año_lectivo = 0;
     private int $promocion = 0;
-
     /**
      * @throws \Exception
      */
@@ -52,9 +49,7 @@ class FinalSupportActivities
                'error'      => $e->getMessage()
             ]);
         }
-
     }
-
     private function generateAct(int $teacherId, $nro, $school, $type = 0): void {
         $query  = DB::table("{$school->db}cursos")
                     ->where('estado', 1)
@@ -141,11 +136,6 @@ class FinalSupportActivities
         }else {
             $queryResp->whereBetween("tc.id_grado", [18, 23]);
         }
-
         return $queryResp;
     }
-
-
-
-
 }

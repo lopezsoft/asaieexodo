@@ -20,13 +20,15 @@ Ext.define('Admin.store.base.StoreUrl',{
 		listeners: {
 	        exception: function(proxy, response){
 				const resp = JSON.parse(response.responseText);
+				let msg	= resp.message ? resp.message : resp.error || 'Error desconocido';
+
 				Ext.create('Ext.window.MessageBox', {
 					alwaysOnTop	: true,
 					modal		: true,
 					closeAction	: 'destroy'
 				}).show({
 	                title: 'REMOTE EXCEPTION',
-	                msg: "Ha ocurrido un error en el Servidor: " + resp.error || resp.message,
+	                msg: "Ha ocurrido un error en el Servidor: " + msg,
 	                icon: Ext.MessageBox.ERROR,
 	                buttons: Ext.Msg.OK
 	            });

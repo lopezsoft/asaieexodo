@@ -19,7 +19,7 @@ Ext.define('Admin.view.academico.controller.NotasController',{
 	 * @constructor
 	 */
 	onClickTans	:  function(btn, e, eOpts) {
-		var win 	= btn.up('window'),
+		let win 	= btn.up('window'),
 			sel 	= win.down('grid').getSelection(),
 			grid 	= win.down('grid'),
 			store 	= grid.getStore(),
@@ -28,13 +28,9 @@ Ext.define('Admin.view.academico.controller.NotasController',{
 
 		if(sel.length > 0){
 			grid.mask('Transfiriendo notas...');
-			var
-				values = [],
-				param = {
-					pdbList: sel
-				};
-			for (cCount = 0; cCount < sel.length; cCount++) {
-				data = {
+			let values = [];
+			for (let cCount = 0; cCount < sel.length; cCount++) {
+				const data = {
 					id			: sel[cCount].get('id'),
 					id_curso 	: sel[cCount].get('id_curso'),
 					periodo		: sel[cCount].get('periodo')
@@ -42,21 +38,23 @@ Ext.define('Admin.view.academico.controller.NotasController',{
 				id_matric	= sel[cCount].get('id_matric');
 				Ext.Array.push(values, data);
 			}
-			param = {
+			const param = {
 				pdbList : Ext.encode(values),
-				pdbId	: id_matric
+				pdbId	: id_matric,
+				...Global.getSchoolParams()
 			};
 
 			Ext.Ajax.request({
-				url: Global.getUrlBase() + 'academic/get_transferir_notas',
-				params: param,
-				success: function (response, opts) {
+				url		: Global.getApiUrl() + '/academic-notes/transfer-notes',
+				params	: param,
+				headers	: Global.getHeaders(),
+				success: function () {
 					store.reload();
 					grid.unmask();
 					me.showResult('Se han guardado los cambios.');
 				},
 				failure: function (response, opts) {
-					me.onError('Error en el servidor, codigo del estado ' + response.status);
+					me.onError('Error en el servidor, código del estado ' + response.status);
 				},
 				callback    : function (r, e) {
 					grid.unmask();

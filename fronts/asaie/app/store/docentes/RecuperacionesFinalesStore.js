@@ -3,6 +3,7 @@
  */
 Ext.define('Admin.store.docentes.RecuperacionesFinalesStore',{
     extend:	'Admin.store.base.StoreApi',
+	pageSize	: 0,
     storeId	: 'RecuperacionesFinalesStore',
     requires: [
         'Admin.model.docentes.RecuperacionesFinalesModel'

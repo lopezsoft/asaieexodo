@@ -3,11 +3,13 @@
 namespace App\Modules\Grades;
 
 use App\Modules\School\SchoolQueries;
+use App\Traits\MessagesTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class GroupsAcademic
 {
+    use MessagesTrait;
     /**
      * @throws \Exception
      */
@@ -15,8 +17,8 @@ class GroupsAcademic
     {
         $school = SchoolQueries::getSchoolRequest($request);
         $db     = $school->db;
-        $year   = $request->input('year') ?? Date('Y');
-        $query  = DB::table("{$db}.config001")->where('year', $year)->first();
+        $year   = $school->year;
+        $query  = DB::table("{$db}config001")->where('year', $year)->first();
         $value  = [];
         if ($query) {
             if ($query->grupo == 1) {

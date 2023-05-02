@@ -6,6 +6,7 @@ use App\Core\JReportModel;
 use App\Modules\Courses\RatingScale;
 use App\Modules\Grades\SchoolLevel;
 use App\Modules\School\SchoolQueries;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -14,7 +15,7 @@ class FinalReport
     /**
      * @throws \Exception
      */
-    public static function getFinalCertificate(Request $request): \Illuminate\Http\JsonResponse
+    public static function getFinalCertificate(Request $request): JsonResponse
     {
         $school     = SchoolQueries::getSchoolRequest($request);
         $year       = $school->year;
@@ -108,7 +109,7 @@ class FinalReport
         return (new JReportModel())->getReportExport($report,$report_export,$school->format,$query,$school->path, $school->school, $params);
     }
 
-    public static function getFinalReport(Request $request): \Illuminate\Http\JsonResponse
+    public static function getFinalReport(Request $request): JsonResponse
     {
         $school     = SchoolQueries::getSchoolRequest($request);
         $year       = $school->year;

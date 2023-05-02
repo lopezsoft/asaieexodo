@@ -8,6 +8,7 @@ use App\Modules\Settings\GeneralSetting;
 use App\Queries\CallExecute;
 use App\Traits\MessagesTrait;
 use App\Traits\SystemTablesTrait;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -22,7 +23,7 @@ class GenerateFinalReport
     private int $_t_año_lectivo = 0;
 
     use MessagesTrait, SystemTablesTrait;
-    public function generateFinalSavannas(Request $request): \Illuminate\Http\JsonResponse {
+    public function generateFinalSavannas(Request $request): JsonResponse {
         $all	= $request->input('pdbAll') ?? 0;
         $school = SchoolQueries::getSchoolRequest($request);
         $db	    = $school->db;
@@ -47,7 +48,7 @@ class GenerateFinalReport
     /**
      * @throws \Exception
      */
-    public function generateReport(Request $request): \Illuminate\Http\JsonResponse
+    public function generateReport(Request $request): JsonResponse
     {
         $Grado 	= $request->input('pdbGrado');
         $Grupo	= $request->input('pdbGrupo');

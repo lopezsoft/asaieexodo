@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use App\Queries\TablesQuery;
 use Illuminate\Support\Facades\DB;
 
 trait SystemTablesTrait

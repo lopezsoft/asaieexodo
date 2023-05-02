@@ -4,7 +4,7 @@ namespace App\Modules\Promotion;
 use App\Modules\Courses\RatingScale;
 use App\Modules\School\SchoolQueries;
 use App\Modules\Settings\GeneralSetting;
-use App\Queries\CallExecute;
+use App\Queries\TablesQuery;
 use App\Traits\MessagesTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -12,10 +12,6 @@ use Illuminate\Support\Facades\DB;
 class FinalSupportActivities
 {
     use MessagesTrait;
-    private int $porcentaje_areas = 0;
-    private int $areas_pierde = 0;
-    private int $t_año_lectivo = 0;
-    private int $promocion = 0;
     /**
      * @throws \Exception
      */
@@ -27,14 +23,7 @@ class FinalSupportActivities
         $gradeId    = ($type == 0) ? 5 : 24;
         try {
             $queryConfig    = GeneralSetting::getGeneralSettingByGrade($school, $gradeId);
-            if ($queryConfig){
-                $this->porcentaje_areas = $queryConfig->porcentaje_areas;
-                $this->areas_pierde		= $queryConfig->areas_pierde;
-                $this->promocion 		= $queryConfig->promocion;
-                $this->t_año_lectivo	= $queryConfig->t_año_lectivo;
-            }
-
-            $queryResp  = $this->getQueryResp($school, $type);
+            $queryResp      = $this->getQueryResp($school, $type);
 
             $queryResp->where("tc.id_docente", $teacherId);
             $queryResp  = $queryResp->first();
@@ -42,15 +31,15 @@ class FinalSupportActivities
                 $queryResp  = $this->getQueryResp($school, $type)->first();
             }
             $nro        = ($queryResp) ? $queryResp->nro_acta + 1 : 1;
-            $this->generateAct($teacherId, $nro, $school, $type);
+            $this->generateAct($teacherId, $nro, $school, $type, $queryConfig);
             return self::getResponse([]);
         }catch (\Exception $e){
             return self::getResponse500([
-               'error'      => $e->getMessage()
+               'message'      => $e->getMessage()
             ]);
         }
     }
-    private function generateAct(int $teacherId, $nro, $school, $type = 0): void {
+    private function generateAct(int $teacherId, $nro, $school, $type = 0, $setting): void {
         $query  = DB::table("{$school->db}cursos")
                     ->where('estado', 1)
                     ->where('year', $school->year)
@@ -66,11 +55,11 @@ class FinalSupportActivities
         foreach($query as $row){
             $range      = RatingScale::getRatingScaleReproved($school, $row->id_grado);
             $lastPeriod = AcademicPeriods::getLastPeriod($school, $row->id_grado);
-            $this->notes($row, $nro, $school, $range, $lastPeriod);
+            $this->notes($row, $nro, $school, $range, $lastPeriod, $setting);
         }
     }
 
-    private function notes($row, $nro, $school, $range, $lastPeriod): void {
+    private function notes($row, $nro, $school, $range, $lastPeriod, $setting): void {
         $db     = $school->db;
         $query	= DB::table($db."student_enrollment","tm")
             ->select('id')
@@ -81,46 +70,65 @@ class FinalSupportActivities
             ->where("tm.id_study_day", $row->id_jorn)
             ->where("tm.id_state", 2)
             ->get();
+        $table  = TablesQuery::getTableNotes($row->id_grado);
+        $desde  = $range->desde;
+        $hasta  = $range->hasta;
+        $year   = $school->year;
         $curso  = $row->id;
         $asig   = $row->id_asig;
         $grado  = $row->id_grado;
-        foreach ($query as $row) {
-            $call   = "";
-            $params = [
-                $school->year,
-                $row->id,
-                $curso,
-                $asig,
-                $nro,
-                $grado,
-                $range->desde,
-                $range->hasta,
-                $this->areas_pierde
-            ];
-
-            if ($this->porcentaje_areas == 1) { // Si se está trabajando el año lectivo con porcentajes en las áreas
-                switch($this->promocion){
-                    case 1 : // Promoción por promedios
-                        $call	= "{$db}sp_prom_por_area_porcentaje(?, ?, ?, ?, ?, ?, ?, ?, ?)";
-                        break;
-                    case 3 : // Quinta nota, Ultimo periodo
-                        $call	= "{$db}sp_prom_por_area_porcentaje_quinta(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-                        $params[] = $lastPeriod->periodo;
-                        break;
-                }
+        $extraName  = "";
+        $where      = "";
+        if($setting->promocion == 3) {
+            $where	    = " AND a.periodo ='{$lastPeriod->periodo}' ";
+            $extraName	= "_periodos";
+        }
+        foreach ($query as $enrollment) {
+            if ($setting->porcentaje_areas == 1) { // Si se está trabajando el año lectivo con porcentajes en las áreas
+                $view       = "_view_porcentaje_areas";
+                $queryAreas = DB::select("
+                        SELECT a.id_matric, a.id_area, SUM(a.final) AS final
+                        FROM {$db}{$table}{$view}{$extraName} AS a
+                        WHERE a.id_matric = {$enrollment->id} AND a.id_grado = {$grado}
+                            AND a.year = {$year}{$where}
+                        GROUP BY a.id_matric, a.id_area
+                        HAVING final BETWEEN {$desde} AND {$hasta}
+                        ORDER BY a.id_area
+                    ");
             }else{
-                switch($this->promocion){
-                    case 1 : // Promoción por promedios
-                        $call	= "{$db}sp_prom_por_area(?, ?, ?, ?, ?, ?, ?, ?, ?)";
-                        break;
-                    case 3 : // Quinta nota, Ultimo periodo
-                        $call	= "{$db}sp_prom_por_area_quinta(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-                        $params[] = $lastPeriod->periodo;
-                        break;
+                $view       = "_view_prom_por_area";
+                $queryAreas = DB::select("
+                        SELECT a.id_matric, a.id_area, AVG(a.final) AS final
+                        FROM {$db}{$table}{$view}{$extraName} AS a
+                        WHERE a.id_matric = {$enrollment->id} AND a.id_grado = {$grado}
+                            AND a.year = {$year}{$where}
+                        GROUP BY a.id_matric, a.id_area
+                        HAVING final BETWEEN {$desde} AND {$hasta}
+                        ORDER BY a.id_area
+                    ");
+            }
+            $totalAreas = count($queryAreas);
+            if ($totalAreas > 0 && ($totalAreas < $setting->areas_pierde)) {
+                foreach ($queryAreas as $area) {
+                    $querySubjects = DB::select("
+                        SELECT a.id_matric, a.id_asig, a.id_area, a.final
+                        FROM {$db}{$table}{$view}{$extraName} AS a
+                        WHERE a.id_matric = {$area->id_matric} AND a.prom BETWEEN {$desde} AND {$hasta}
+                            AND a.id_area = {$area->id_area} AND a.id_asig = {$asig}
+                    ");
+
+                    foreach ($querySubjects as $subject) {
+                        $final = $subject->final;
+                        if ($setting->nota_redondeo > 0 && $setting->aplicar_redondeo_fin_año > 0 && ($final === $setting->nota_final_redondeo)) {
+                            continue;
+                        }
+
+                        $call = "{$db}sp_insert_respeciales";
+                        $params = "{$area->id_matric},{$nro},{$curso},'{$final}'";
+                         DB::select("CALL {$call}({$params})");
+                    }
                 }
             }
-
-            CallExecute::execute($call, $params);
         }
     }
 

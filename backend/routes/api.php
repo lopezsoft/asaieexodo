@@ -1,4 +1,5 @@
 <?php
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 /*
 |--------------------------------------------------------------------------
@@ -11,6 +12,11 @@ use Illuminate\Support\Facades\Route;
 |
 */
 Route::prefix('v1')->group(function () {
+    Route::middleware('auth:api')->get('/user', function (Request $request) {
+        return response()->json([
+            'records'   => $request->user()
+        ]);
+    });
     require_once __DIR__.'/authentication.php';
     Route::group(['middleware' => 'auth:api'], function () {
         Route::apiResource('crud', 'SchoolMasterController');

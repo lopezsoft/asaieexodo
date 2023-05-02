@@ -9,8 +9,8 @@ Ext.define('Admin.view.promocion.PromotionContainer',{
 		this.items   = [
 			{
 				xtype   : 'containerButton',
-				disabled: isSecretary,
-				hidden	: isSecretary,
+				disabled: isSecretary || isCoordinador,
+				hidden	: isSecretary || isCoordinador,
 				items   : [
 					{
 						xtype   : 'buttonPanel',
@@ -79,6 +79,8 @@ Ext.define('Admin.view.promocion.PromotionContainer',{
 			},
 			{
 				xtype   : 'containerButton',
+				disabled: isCoordinador,
+				hidden	: isCoordinador,
 				items   : [
 					{
 						xtype   : 'buttonPanel',

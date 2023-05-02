@@ -5,6 +5,7 @@ Route::prefix('reports')->group(function () {
         Route::prefix('generate')->group(function () {
             Route::post('consolidated', 'generateConsolidated');
         });
+        Route::post('periodic-leveling', 'getPeriodicLeveling');
         Route::post('reported-notes', 'getReportedNotes');
         Route::post('family-members', 'getFamilyMembers');
         Route::post('birth-dates', 'getBirthDates');

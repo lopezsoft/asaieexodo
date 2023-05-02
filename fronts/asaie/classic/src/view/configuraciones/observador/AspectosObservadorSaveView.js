@@ -23,6 +23,11 @@ Ext.define('Admin.view.configuraciones.AspectosObservadorSaveView',{
                     itemId  : 'id_modelo',
                     name    : 'id_modelo'
                 },
+				{
+                    xtype   : 'hidden',
+                    itemId  : 'yearId',
+                    name    : 'year'
+                },
                 {
                     xtype   : 'customtextarea',
                     name    : 'descripcion',

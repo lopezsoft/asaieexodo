@@ -1,12 +1,9 @@
 <?php
-
 namespace App\Modules\Settings;
-
 use App\Modules\School\SchoolQueries;
 use App\Traits\MessagesTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-
 class GeneralSetting
 {
     use MessagesTrait;

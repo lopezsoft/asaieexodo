@@ -1,18 +1,16 @@
 /**
  * Created by LOPEZSOFT2 on 31/03/2017.
  */
-
-var
-    defaultEditor   = {
-        allowBlank		: false,
-        selectOnFocus 	: true,
-        emptyText		: '00.00',
-        maskRe			: /[\d\.]/
-    },
-    editor  = {
-        allowBlank		: false,
-        selectOnFocus 	: true
-    };
+var defaultEditor = {
+		allowBlank: false,
+		selectOnFocus: true,
+		emptyText: '00.00',
+		maskRe: /[\d\.]/
+	},
+	editor = {
+		allowBlank: false,
+		selectOnFocus: true
+	};
 
 Ext.define('Admin.view.configuraciones.EscalaView',{
     extend  : 'Admin.base.WindowCrud',
@@ -182,11 +180,11 @@ Ext.define('Admin.view.configuraciones.EscalaView',{
 						}
                     ],
 					listeners :{
-						beforeedit : function (editor, e, eOpts){
+						beforeedit : function (editor, e){
 							e.grid.focus(true, true);
-							var	win		= e.grid.up('window'),
-								btn1	= win.down('#btnSave'),
-								btn2	= win.down('#btnUndoAs');
+							const win = e.grid.up('window'),
+								btn1 = win.down('#btnSave'),
+								btn2 = win.down('#btnUndoAs');
 							if (btn1.isDisabled()) {
 								btn1.setDisabled(false);
 							}
@@ -216,12 +214,10 @@ Ext.define('Admin.view.configuraciones.EscalaView',{
 							handler		: function (btn) {
 								const win = btn.up('window'),
 									store = win.down('grid').getStore();
-								const {school} 	= AuthToken.recoverParams();
-								const dt		= new Date();
 								const data		= {
 									id 		: 0,
 									periodo : '1',
-									year	: school.year || dt.getFullYear
+									year	: Global.getSchoolParams().year
 								};
 								store.insert(0, data);
 								win.down('grid').setSelection(0);
@@ -232,15 +228,15 @@ Ext.define('Admin.view.configuraciones.EscalaView',{
 							itemId	: 'btnSave',
 							iconAlign	: 'left',
 							handler : function (btn) {
-								var
-									win     = btn.up('window'),
-									store   = win.down('grid').getStore(),
-									me      = Admin.getApplication();
+								const win = btn.up('window'),
+									store = win.down('grid').getStore(),
+									me = Admin.getApplication();
 								if (store.getModifiedRecords().length > 0) {
 									store.sync({
-										success : function (res) {
+										success : function () {
 											win.down('#btnUndoAs').setDisabled(true);
 											me.showResult('Se han guardado los cambios');
+											store.reload();
 										}
 									});
 								}else {
@@ -253,9 +249,8 @@ Ext.define('Admin.view.configuraciones.EscalaView',{
 							itemId		: 'btnUndoAs',
 							iconAlign	: 'left',
 							handler		: function (btn) {
-								var
-									win     = btn.up('window'),
-									store   = win.down('grid').getStore();
+								const win = btn.up('window'),
+									store = win.down('grid').getStore();
 								win.down('#btnUndoAs').setDisabled(true);
 								win.down('#btnSave').setDisabled(true);
 								if (store.getModifiedRecords().length > 0) {

@@ -31,4 +31,3 @@ backend/public/reports/**/*.jasper
 /fronts/asaie/classic.jsonp
 fronts/asaie/.*
 fronts/asaie/$*
-fronts/students

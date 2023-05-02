@@ -5,5 +5,5 @@ export const environment = {
   APPURL      : 'https://admin.asaie.co',
   SOCKET_URL  : 'http://localhost:3001',
   APIJWT      : 'asaie-exodo-jwt',
-  VERSION     : '2.1.1'
+  VERSION     : '2.1.2'
 };

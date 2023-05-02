@@ -98,11 +98,11 @@ Ext.define('Admin.view.docentes.controller.RecuperacionesController',{
                 break;
             default :
                 var
-                    url     = 'reports/nivelaciones_per',
+                    url     = 'reports/periodic-leveling',
                     select	= win.down('grid').getSelection()[0],
                     param   = {
                         pdbGrado 	: select.get('id_grado'),
-                        pdbType     : 0,
+						pdbTeacherId: 0,
                         pdbNivel    : 0,
                         pdbReport   : 0,
                         pdbPeriodo  : select.get('periodo')

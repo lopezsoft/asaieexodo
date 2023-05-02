@@ -13,14 +13,16 @@ Ext.define('Admin.view.configuraciones.AspectosObservadorView',{
     },
     store       : 'AspectosObservadorStore',
     showWindow  : function(btn){
-        win     = Ext.create('Admin.view.configuraciones.AspectosObservadorSaveView');
+		let win = Ext.create('Admin.view.configuraciones.AspectosObservadorSaveView');
         form    = win.down('form');
         form.reset(true);
-        if(btn.itemId == 'editButton'){
-            record  = btn.up('window').down('grid').getSelection()[0];
-            form.loadRecord(record);
-        }
+		let record;
+		if (btn.itemId == 'editButton') {
+			record = btn.up('window').down('grid').getSelection()[0];
+			form.loadRecord(record);
+		}
         win.down('#id_modelo').setValue(this.getRecord().get('id'));
+        win.down('#yearId').setValue(Global.getSchoolParams().year);
         win.show();
     },
     items       : [

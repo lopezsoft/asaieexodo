@@ -442,19 +442,19 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
     onFichaObservador : function (btn) {
         this.redirectTo('fichaseguimiento',true);
     },
-    onSaveActApoyo : function(btn, e, eOpts) {
-        var win 	= btn.up('window'),
-            grid 	= win.down('grid'),
-            store 	= Ext.getStore('RecuperacionesPeriodicasStore'),
-            me		= this,
-            btn1	= win.down('#saveButton'),
-            btn2	= win.down('#btnUndoAs');
-        modified = store.getModifiedRecords();
+    onSaveActApoyo : function(btn) {
+		const win = btn.up('window'),
+			grid = win.down('grid'),
+			store = Ext.getStore('RecuperacionesPeriodicasStore'),
+			me = this,
+			btn1 = win.down('#saveButton'),
+			btn2 = win.down('#undoButton');
+		let modified = store.getModifiedRecords();
         if(!Ext.isEmpty(modified)){
             grid.el.mask('Guardando…', 'x-mask-loading');
 
             store.sync({
-                success: function(response){
+                success: function(){
                     grid.el.unmask();
                     grid.getStore().commitChanges();
                     btn1.setDisabled(true);
@@ -462,9 +462,8 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
                     grid.getStore().reload();
                     me.app.showResult('Se han guardado los daros correctamente');
                 },
-                failure: function (response) {
+                failure: function () {
                     grid.el.unmask();
-                    Admin.getApplication().onError(response.responseText);
                 }
             });
 
@@ -475,20 +474,18 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
     },
 
     onLisActApoyo : function (btn) {
-        var win		= btn.up('window'),
-            select	= win.getRecord(),
-            app	    = Admin.getApplication(),
-            btn1	= win.down('#printButton');
-        if (!btn1.isDisabled()) {
+		const win = btn.up('window'),
+			select = win.getRecord(),
+			app = Admin.getApplication(),
+			btn1 = win.down('#printButton');
+		if (!btn1.isDisabled()) {
             btn1.setDisabled(true);
         }
-        param	= {
-            pdbGrado 	: '',
-			pdbAsig		: '',
-            pdbPeriodo	: win.down('#periodo').value,
-            pdbType     : select.get('id_docente'),
-            pdbNivel    : win.down('#CbNivelAcademico').getValue()
-        };
+		let param = {
+			pdbPeriodo	: win.down('#periodo').value,
+			pdbTeacherId: select.get('id_docente'),
+			pdbNivel	: win.down('#CbNivelAcademico').getValue()
+		};
         app.setParamStore('RecuperacionesPeriodicasStore',param, true);
     },
 
@@ -917,111 +914,104 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
      * @param btn
      */
     onSetReport: function(btn){
-        var url     = '',
-            win     = btn.up('window') || btn.up('form'),
-            name = win.getItemId();
-        switch (name){
+		let url = '';
+		var win = btn.up('window') || btn.up('form'),
+			name = win.getItemId();
+		switch (name){
             case 'PreMatriculaNuevosView' :
-                var
-                    url     = 'reports/get_pre_matricula_nuevos',
-                    param   = {
-                        pdbTable : 'pre_matricula_nuevos'
-                    };
-                break;
+				url = 'reports/get_pre_matricula_nuevos';
+				var param = {
+					pdbTable: 'pre_matricula_nuevos'
+				};
+				break;
             case 'fichaseguimiento' :
-                var
-                    url     = 'reports/observer-sheet',
-                    values  = win.down('grid').getSelection()[0],
-                    param   = {
-                        pdbGrado    : values.get('id_grade'),
-                        pdbGrupo    : values.get('id_group'),
-                        pdbJorn     : values.get('id_study_day'),
-                        pdbMatric   : values.get('id'),
-                        pdbSede     : values.get('id_headquarters'),
-                        pdbImage    : values.get('foto'),
-                        pdbEstudian : values.get('nombres')
-                    };
-                break;
+				url = 'reports/observer-sheet';
+				var values = win.down('grid').getSelection()[0],
+					param = {
+						pdbGrado: values.get('id_grade'),
+						pdbGrupo: values.get('id_group'),
+						pdbJorn: values.get('id_study_day'),
+						pdbMatric: values.get('id'),
+						pdbSede: values.get('id_headquarters'),
+						pdbImage: values.get('foto'),
+						pdbEstudian: values.get('nombres')
+					};
+				break;
             case 'nivelacionesperiodicasview' :
-                var
-                    grid	= btn.up('window').down('grid'),
-                    select	= grid.getSelection()[0],
-                	url		= 'reports/nivelaciones_per/';
-                param  = {
+				let grid = btn.up('window').down('grid'),
+					select = grid.getSelection()[0];
+				url = 'reports/periodic-leveling';
+				param  = {
                     pdbNivel    : win.down('#CbNivelAcademico').getValue(),
                     pdbGrado 	: '',
-                    pdbType     : select.get('id_docente'),
+                    pdbTeacherId: select.get('id_docente'),
                     pdbPeriodo  : select.get('periodo')
                 };
                 break;
             case 'CuadroHonorView' :
-                var
-                    url     = 'reports/honor-frame',
-                    param   = {
-                        pdbGrado    : win.down('#comboGrados').getValue(),
-                        pdbGrupo    : win.down('#comboGrupo').getValue(),
-                        pdbSede     : win.down('#comboSedes').getValue(),
-                        pdbPeriodo  : win.down('#per').getValue(),
-                        pdbPhoto    : win.down('#ckPhoto').getValue() ? 1 : 0,
-                        pdbCkGrado  : win.down('#ckGrado').getValue() ? 1 : 0,
-                        pdbCkSede   : win.down('#ckSede').getValue()  ? 1 : 0,
-                        pdbCkNivel  : win.down('#ckNivel').getValue() ? 1 : 0,
-                        pdbLimit    : win.down('#limit').getValue(),
-                        pdbNiv      : win.down('#CbNivelAcademico').getValue(),
-						pdbCk		: win.down('#ckFin').getValue() ? 1 : 0
-                    };
-                break;
+				url = 'reports/honor-frame';
+				var param = {
+					pdbGrado: win.down('#comboGrados').getValue(),
+					pdbGrupo: win.down('#comboGrupo').getValue(),
+					pdbSede: win.down('#comboSedes').getValue(),
+					pdbPeriodo: win.down('#per').getValue(),
+					pdbPhoto: win.down('#ckPhoto').getValue() ? 1 : 0,
+					pdbCkGrado: win.down('#ckGrado').getValue() ? 1 : 0,
+					pdbCkSede: win.down('#ckSede').getValue() ? 1 : 0,
+					pdbCkNivel: win.down('#ckNivel').getValue() ? 1 : 0,
+					pdbLimit: win.down('#limit').getValue(),
+					pdbNiv: win.down('#CbNivelAcademico').getValue(),
+					pdbCk: win.down('#ckFin').getValue() ? 1 : 0
+				};
+				break;
             case 'NotasReportadasView' :
-                var
-                    url     = 'reports/reported-notes',
-                    values  = win.down('#gridCarga').getSelection()[0],
-                    param   = {
-                        pdbDocente  : values.get('id_docente'),
-                        pdbPeriodo  : win.down('#periodo').selection.get('periodo'),
-                        pdbType     : 1
-                    };
-                break;
+				url = 'reports/reported-notes';
+				var values = win.down('#gridCarga').getSelection()[0],
+					param = {
+						pdbDocente: values.get('id_docente'),
+						pdbPeriodo: win.down('#periodo').selection.get('periodo'),
+						pdbType: 1
+					};
+				break;
             case 'ConstanciasView' :
-                var
-                    url     = 'reports/certificate',
-                    values  = win.down('grid').getSelection()[0],
-                    rbVal   = win.down('#rdGroup').getValue(),
-                    param   = {
-                        pdbGrado    : values.get('id_grade'),
-                        pdbGrupo    : values.get('id_group'),
-                        pdbJorn     : values.get('id_study_day'),
-                        pdbMatric   : values.get('id'),
-                        pdbSede     : values.get('id_headquarters'),
-                        pdbType     : rbVal.modelo,
-                        pdbEstudian : values.get('nombres')
-                    };
-                break;
+				url = 'reports/certificate';
+				var values = win.down('grid').getSelection()[0],
+					rbVal = win.down('#rdGroup').getValue(),
+					param = {
+						pdbGrado: values.get('id_grade'),
+						pdbGrupo: values.get('id_group'),
+						pdbJorn: values.get('id_study_day'),
+						pdbMatric: values.get('id'),
+						pdbSede: values.get('id_headquarters'),
+						pdbType: rbVal.modelo,
+						pdbEstudian: values.get('nombres')
+					};
+				break;
             case 'CertificadosView' :
-                var
-                    url     = 'reports/periodic-certificate',
-                    values  = win.down('grid').getSelection()[0],
-                    rbVal   = win.down('#rdGroup').getValue(),
-                    param   = {
-                        pdbGrado    : values.get('id_grade'),
-                        pdbGrupo    : values.get('id_group'),
-                        pdbJorn     : values.get('id_study_day'),
-                        pdbMatric   : values.get('id'),
-                        pdbSede     : values.get('id_headquarters'),
-                        pdbType     : rbVal.modelo,
-                        pdbEstudian : values.get('nombres'),
-                        pdbPeriodo  : win.down('#periodo').getValue()
-                    };
-                break;
+				url = 'reports/periodic-certificate';
+				var values = win.down('grid').getSelection()[0],
+					rbVal = win.down('#rdGroup').getValue(),
+					param = {
+						pdbGrado: values.get('id_grade'),
+						pdbGrupo: values.get('id_group'),
+						pdbJorn: values.get('id_study_day'),
+						pdbMatric: values.get('id'),
+						pdbSede: values.get('id_headquarters'),
+						pdbType: rbVal.modelo,
+						pdbEstudian: values.get('nombres'),
+						pdbPeriodo: win.down('#periodo').getValue()
+					};
+				break;
             default :
-                   var url     = 'reports/enrollment-sheet',
-                    values = win.down('#gridMat').getSelection()[0],
-                    param   = {
-                        pdbId     : values.get('id'),
-                        pdbYear   : values.get('year'),
-                        pdbGrado  : values.get('id_grade'),
-                        pdbType   : 1
-                    };
-                break;
+				url = 'reports/enrollment-sheet';
+				var values = win.down('#gridMat').getSelection()[0],
+					param = {
+						pdbId: values.get('id'),
+						pdbYear: values.get('year'),
+						pdbGrado: values.get('id_grade'),
+						pdbType: 1
+					};
+				break;
         }
 
         this.onGenReport(btn,url,param);

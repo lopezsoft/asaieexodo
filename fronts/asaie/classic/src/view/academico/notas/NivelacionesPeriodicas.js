@@ -9,7 +9,6 @@ Ext.define('Admin.view.academico.NivelacionesPeriodicas',{
         this.callParent(arguments);
         this.setTitle('Actividades de apoyo periódicas - '+ Global.getYear());
     },
-    
     items   : [
         {
             xtype	: 'customgrid',
@@ -46,8 +45,8 @@ Ext.define('Admin.view.academico.NivelacionesPeriodicas',{
             ],
             listeners : {
                 'selectionchange': function(grid, selected, eOpts) {
-                    var me = this;
-                    if (me.up('window').down('#btnActa')) {
+					const me = this;
+					if (me.up('window').down('#btnActa')) {
                         me.up('window').down('#btnActa').setDisabled(!selected.length);
                     }
                     if (me.up('window').down('#btnNotas')) {
@@ -56,6 +55,10 @@ Ext.define('Admin.view.academico.NivelacionesPeriodicas',{
                 }
             },
             dockedItems : [
+				{
+					xtype       : 'pagination',
+					showPrint   : false,
+				},
                 {
                     xtype   : 'customToolbar',
                     dock    : 'bottom',

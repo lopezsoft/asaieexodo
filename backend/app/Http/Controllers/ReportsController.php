@@ -17,6 +17,7 @@ use App\Reports\ListsWithoutLoad;
 use App\Reports\MinutesPromotion;
 use App\Reports\ObserverReports;
 use App\Reports\PeriodicBulletinReport;
+use App\Reports\PeriodicLeveling;
 use App\Reports\ReportedNotes;
 use App\Reports\SchoolCarnes;
 use App\Reports\StatisticsByAges;
@@ -33,6 +34,10 @@ use Illuminate\Http\Request;
 
 class ReportsController extends Controller
 {
+    public function getPeriodicLeveling(Request $request): JsonResponse
+    {
+        return ReportProcessor::runReport($request, new PeriodicLeveling());
+    }
     public function getReportedNotes(Request $request): JsonResponse
     {
         return ReportProcessor::runReport($request, new ReportedNotes());

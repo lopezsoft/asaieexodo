@@ -8,6 +8,9 @@ use Illuminate\Http\Request;
 
 class AcademicController extends Controller
 {
+    /**
+     * @throws \Exception
+     */
     public function honorFrame(Request $request): \Illuminate\Http\JsonResponse
     {
         return HonorFrame::getHonorFrame($request);

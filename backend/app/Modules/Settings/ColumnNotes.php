@@ -3,12 +3,14 @@
 namespace App\Modules\Settings;
 
 use App\Modules\School\SchoolQueries;
+use App\Traits\MessagesTrait;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class ColumnNotes
 {
+    use MessagesTrait;
     public static function getGroupByGrades($school, $gradeId): \Illuminate\Support\Collection
     {
         $db     = $school->db;

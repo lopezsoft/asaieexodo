@@ -7,10 +7,10 @@ Ext.define('Admin.store.general.AuxGradosAgrupadosStore', {
     model		: 'Admin.model.general.AuxGradosAgrupadosModel',
     proxy: {
 		api: {
-			create  : 'General/insert_data',
-			read    : 'General/get_aux_grados_agrupados',
-			update  : 'General/update_data',
-			destroy : 'General/delete_data'
+			create  : 'crud',
+			read    : 'grades/auxiliary-grades-grouped',
+			update  : 'crud',
+			destroy : 'crud'
 		},
 		extraParams : {
 			pdbTable : 'aux_grados_agrupados'

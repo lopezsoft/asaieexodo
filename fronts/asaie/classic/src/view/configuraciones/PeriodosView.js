@@ -67,10 +67,9 @@ Ext.define('Admin.view.configuraciones.PeriodosView',{
 						dell: {
 							tooltip: 'Eliminar',
 							iconCls: 'x-fa fa-minus',
-							handler: function (grid, rowIndex, colIndex) {
-								var	win		= grid.up('window'),
-									rec 	= grid.getStore().getAt(rowIndex),
-									me	= Admin.getApplication();
+							handler: function (grid, rowIndex) {
+								const rec = grid.getStore().getAt(rowIndex),
+									me = Admin.getApplication();
 								me.onRecordDelete(rec,'PeriodosStore');
 							}
 						}
@@ -250,11 +249,11 @@ Ext.define('Admin.view.configuraciones.PeriodosView',{
                     ],
 					listeners :{
 						cellkeydown : function ( grid, td, cellIndex, record, tr, rowIndex, e, eOpts ) {
-							var campo 	= grid.grid.columns[cellIndex].dataIndex,
-								aIndex 	= -1,
-								win		= grid.up('window'),
-								btn1	= win.down('#btnSave'),
-								btn2	= win.down('#btnUndoAs');
+							let campo = grid.grid.columns[cellIndex].dataIndex,
+								aIndex = -1,
+								win = grid.up('window'),
+								btn1 = win.down('#btnSave'),
+								btn2 = win.down('#btnUndoAs');
 							switch(e.getKey()){
 								case 46 :      // Si presionan la tecla DEL O SUP, se borra el dato.
 									if (cellIndex == 4 || cellIndex == 5){
@@ -269,15 +268,17 @@ Ext.define('Admin.view.configuraciones.PeriodosView',{
 									}
 									break;
 								case 65 :		// Si presionan la letra A, reemplaza todos los valores
-									if (cellIndex == 4 || cellIndex == 5){
-										aValue 	= record.get(campo);
+									let aValue;
+									let aStore;
+									if (cellIndex == 4 || cellIndex == 5) {
+										aValue = record.get(campo);
 
-										aStore 	= grid.getStore();
+										aStore = grid.getStore();
 
-										Ext.each(aStore.data, function() {
-												aIndex = aIndex+1;
-												aRecord	= aStore.getAt(aIndex) ; // obtenesmos el registros
-												aRecord.set(campo, aValue);        // Seteamos los valores de la columna
+										Ext.each(aStore.data, function () {
+												aIndex = aIndex + 1;
+											let aRecord = aStore.getAt(aIndex);
+												aRecord.set(campo, aValue);
 											}
 										);
 
@@ -343,13 +344,13 @@ Ext.define('Admin.view.configuraciones.PeriodosView',{
 							handler		: function (btn) {
 								const win = btn.up('window'),
 									store = win.down('grid').getStore();
-
-								const {school} 	= AuthToken.recoverParams();
-								const dt		= new Date();
 								const data		= {
 									descripcion_periodo	: "DESCRIPCIÓN",
 									periodo 			: '1',
-									year				: school.year || dt.getFullYear
+									porciento 			: 100,
+									estado 				: 1,
+									calificable			: 1,
+									year				: Global.getSchoolParams().year,
 								};
 									store.insert(0,data);
 								win.down('grid').setSelection(0);
@@ -379,9 +380,8 @@ Ext.define('Admin.view.configuraciones.PeriodosView',{
 							xtype		: 'undoButton',
 							itemId		: 'btnUndoAs',
 							handler		: function (btn) {
-								var
-									win     = btn.up('window'),
-									store   = win.down('grid').getStore();
+								const win = btn.up('window'),
+									store = win.down('grid').getStore();
 								win.down('#btnUndoAs').setDisabled(true);
 								win.down('#btnSave').setDisabled(true);
 								if (store.getModifiedRecords().length > 0) {

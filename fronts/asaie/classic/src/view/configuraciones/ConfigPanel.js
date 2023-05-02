@@ -101,13 +101,13 @@ Ext.define('Admin.view.configuraciones.ConfigPanel',{
 			},
 			{
 				xtype   : 'containerButton',
-				disabled: isSecretary,
-				hidden	: isSecretary,
+				disabled: !isRector,
+				hidden	: !isRector,
 				items   : [
 					{
 						xtype   : 'buttonPanel',
 						iconCls : 'x-fa fa-wrench',
-						text    : 'Periódos académicos',
+						text    : 'Periodos académicos',
 						handler : 'onPeriodos'
 					}
 				]

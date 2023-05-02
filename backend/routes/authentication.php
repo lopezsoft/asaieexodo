@@ -1,9 +1,4 @@
 <?php
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return response()->json([
-        'records'   => $request->user()
-    ]);
-});
 Route::controller('UserController')->group(function () {
     Route::prefix('email')->group(function () {
         Route::get('/verify/{id}/{hash}', 'verify')

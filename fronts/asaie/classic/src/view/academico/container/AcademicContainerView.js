@@ -6,7 +6,7 @@ Ext.define('Admin.view.academico.container.AcademicContainerView',{
     reference   : 'academicContainerView',
     layout      : 'responsivecolumn' ,
 	initComponent: function () {
-		const { isSecretary } = AuthToken.profileSettings();
+		const { isSecretary, isCoordinador } = AuthToken.profileSettings();
 		this.items	= [
 			{
 				xtype   : 'containerButton',
@@ -62,8 +62,6 @@ Ext.define('Admin.view.academico.container.AcademicContainerView',{
 			},
 			{
 				xtype   : 'containerButton',
-				disabled: isSecretary,
-				hidden	: isSecretary,
 				items   : [
 					{
 						xtype   : 'buttonPanel',
@@ -75,8 +73,8 @@ Ext.define('Admin.view.academico.container.AcademicContainerView',{
 			},
 			{
 				xtype   : 'containerButton',
-				disabled: isSecretary,
-				hidden	: isSecretary,
+				disabled: isSecretary || isCoordinador,
+				hidden	: isSecretary || isCoordinador,
 				items   : [
 					{
 						xtype   : 'buttonPanel',
@@ -88,8 +86,6 @@ Ext.define('Admin.view.academico.container.AcademicContainerView',{
 			},
 			{
 				xtype   : 'containerButton',
-				disabled: isSecretary,
-				hidden	: isSecretary,
 				items   : [
 					{
 						xtype   : 'buttonPanel',
@@ -170,6 +166,7 @@ Ext.define('Admin.view.academico.container.AcademicContainerView',{
 				xtype   : 'containerButton',
 				disabled: isSecretary,
 				hidden	: isSecretary,
+				disabled: true,
 				items   : [
 					{
 						xtype   : 'buttonPanel',
@@ -184,8 +181,8 @@ Ext.define('Admin.view.academico.container.AcademicContainerView',{
 			},
 			{
 				xtype   : 'containerButton',
-				disabled: isSecretary,
-				hidden	: isSecretary,
+				disabled: isSecretary || isCoordinador,
+				hidden	: isSecretary || isCoordinador,
 				items   : [
 					{
 						xtype   : 'buttonPanel',
@@ -199,6 +196,7 @@ Ext.define('Admin.view.academico.container.AcademicContainerView',{
 				xtype   : 'containerButton',
 				disabled: isSecretary,
 				hidden	: isSecretary,
+				disabled: true,
 				items: [
 					{
 						xtype   : 'buttonPanel',

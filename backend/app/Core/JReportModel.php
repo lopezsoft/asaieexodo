@@ -67,7 +67,7 @@ class JReportModel  extends MasterModel {
         $format         = strtolower($fmt);
         //Reporte a Procesar: Este nombre es del reporte creado en JasReport
         $pathRoot           =  public_path().$this->path_delim;
-        $realName           =  Str::random(40);
+        $realName           =  Str::random(12);
 		$reportName			=  "{$pathRoot}reports{$this->path_delim}{$reportName}";
 
 		//Parámetro en caso de que el reporte no este parametrizado
@@ -112,7 +112,7 @@ class JReportModel  extends MasterModel {
 			// Compile a JRXML to Jasper
 			$jasper->compile($reportName.'.jrxml')->execute();
 
-            $saveTo     = "{$output_report}{$realName}_{$date}";
+            $saveTo     = "{$output_report}{$fileDescription}_{$realName}_{$date}";
             $storage    = Storage::disk('public')->path($saveTo);
 			$jasper->process(
 				$reportName.'.jasper',
@@ -128,7 +128,7 @@ class JReportModel  extends MasterModel {
 					'port' 		=> $this->port
 				)
             )->execute();
-            $filename   = "{$realName}_{$date}.{$format}";
+            $filename   = "{$fileDescription}_{$realName}_{$date}.{$format}";
             $filePath   = "{$saveTo}.{$format}";
             // Local Storage
             Storage::disk('public')->url("{$saveTo}.{$format}");

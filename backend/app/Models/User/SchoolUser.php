@@ -6,6 +6,9 @@ use App\Models\School\School;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @method static create(array $array)
+ */
 class SchoolUser extends Model
 {
     use HasFactory;

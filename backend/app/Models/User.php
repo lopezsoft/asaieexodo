@@ -10,6 +10,9 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
 use Illuminate\Auth\Passwords\CanResetPassword;
 
+/**
+ * @method static create(array $array)
+ */
 class User extends Authenticatable implements MustVerifyEmail
 {
     use HasApiTokens, HasFactory, Notifiable, CanResetPassword;

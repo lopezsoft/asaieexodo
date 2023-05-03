@@ -10,8 +10,7 @@ Route::controller('UserController')->group(function () {
 });
 Route::prefix('auth')->group(function () {
     Route::controller('Auth\AuthController')->group(function () {
-        Route::post('signup',                   'signup');
-        Route::get('signup/activate/{token}',   'signupActivate');
+        Route::post('register',                   'signup');
         Route::post('login',                    'login');
         Route::group(['middleware' => 'auth:api'], function () {
             Route::put('user/update/{id}', 'updateAccount');

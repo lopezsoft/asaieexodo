@@ -4,14 +4,20 @@ namespace App\Modules\Auth;
 
 use App\Jobs\User\RegisterJob;
 use App\Models\User;
+use App\Notifications\VerifiedEmailNotification;
 use App\Traits\MessagesTrait;
-use Illuminate\Auth\Events\Verified;
+use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Str;
+
 class UserRegister
 {
     use MessagesTrait;
 
-    public static function verify(Request $request, $user_id, $hash): \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
+    public static function verify(Request $request, $user_id, $hash): JsonResponse|\Illuminate\Http\RedirectResponse
     {
         if (!$request->hasValidSignature()) {
             return response()->json([
@@ -19,21 +25,21 @@ class UserRegister
                 "message"   => "Enlace inválido o caducado."
             ], 401);
         }
-
         $user = User::findOrFail($user_id);
-
         if (!$user->hasVerifiedEmail()) {
             $user->markEmailAsVerified();
-            event(new Verified($user));
             $user->active = 1;
             $user->save();
+            $data  = (object) [
+                'fullName' => $user->name,
+            ];
+            Notification::send($user, new VerifiedEmailNotification($data));
         }
 
-
-        return redirect()->to(env('MAIL_REDIRECT', 'APP_URL'));
+        return redirect()->to(env('FRONTEND_URL', 'APP_URL'));
     }
 
-    public static function resend($user_id): \Illuminate\Http\JsonResponse
+    public static function resend($user_id): JsonResponse
     {
         $user = User::find($user_id);
         if(!$user) {
@@ -53,28 +59,24 @@ class UserRegister
             'message'   => 'Enlace de verificación de correo electrónico enviado.'
         ]);
     }
-    public static function register(Request $request): \Illuminate\Http\JsonResponse
+    public static function register(Request $request): JsonResponse
     {
+        $request->validate([
+            'email'      => 'required|string|email|unique:users',
+            'profile_id' => ['required','array', 'exists:user_profiles,id'],
+            'school_id'  => ['required','integer', 'exists:schools,id'],
+            'first_name' => 'required|string',
+            'last_name'  => 'required|string',
+        ]);
         try {
-            $request->validate([
-                'email'      => 'required|string|email|unique:users',
-                'profile_id' => ['required','array', 'exists:user_profiles,id'],
-                'school_id'  => ['required','integer', 'exists:schools,id'],
-                'first_name' => 'required|string',
-                'last_name'  => 'required|string',
-            ]);
-
-            $user = User::create([
-                'first_name'        => $request->first_name,
-                'last_name'         => $request->last_name,
-                'email'             => $request->email,
-                'password'          => bcrypt($request->email),
-                'active'            => 0
-            ]);
-            $user->sendEmailVerificationNotification();
+            DB::beginTransaction();
+            $request->password  = Str::random(8);
+            $user               = RegisteredUser::store($request);
+            DB::commit();
             RegisterJob::dispatch($user->id, $request->school_id, $request->profile_id );
             return self::getResponse201();
         } catch (Exception $e) {
+            DB::rollBack();
             return self::getResponse500(['error' => $e->getMessage()]);
         }
     }

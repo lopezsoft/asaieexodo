@@ -3,77 +3,38 @@
 namespace App\Modules\Auth;
 
 use App\Contracts\Auth\Authentication;
-use App\Mail\SignupActivate;
-use App\Models\User;
 use App\Traits\MessagesTrait;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Str;
+use Illuminate\Validation\Rules;
 
 class UsersAccess implements Authentication
 {
     use MessagesTrait;
-    public function signupActivate($token)
+    public function signup($request): JsonResponse
     {
-        $user = User::where('remember_token', $token)->first();
-        if ($user) {
-            /**
-             * Se activa el usuario
-             */
-            $user->active           = true;
-            $user->remember_token   = null;
-            $user->email_verified_at= date('Y-m-d H:i:s');
-            $user->save();
-        }
-
-        return redirect('/');
-    }
-
-    public function signup($request): \Illuminate\Http\JsonResponse
-    {
+        $request->validate([
+            'email'     => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'password'  => ['required', 'confirmed', Rules\Password::defaults()],
+            'first_name'=> 'required|string',
+            'last_name' => 'required|string',
+        ]);
         DB::beginTransaction();
         try {
-            $request->validate([
-                'email'     => 'required|string|email',
-                'password'  => ['required','string', 'confirmed','min:6'],
-                'first_name'=> 'required|string',
-                'last_name' => 'required|string',
-            ]);
-            $password   = $request->password ?? bin2hex(random_bytes(6));
-            $token      = Str::random(80);
-            $credentials = request(['email', 'password']);
-            if (Auth::attempt($credentials)) {
-                return self::getResponse302(['message' => 'Ya se encuentra registrado en nuestra base de datos.']);
-            }
-
-            $user = User::create([
-                'first_name'        => $request->first_name,
-                'last_name'         => $request->last_name,
-                'email'             => $request->email,
-                'password'          => bcrypt($password),
-                'remember_token'    => $token,
-                'active'            => 0
-            ]);
-            $user->save();
-
+            RegisteredUser::store($request);
             DB::commit();
-
-            $this->sendMail($request, $password, $token);
-
             return self::getResponse201();
-
         } catch (Exception $e) {
             DB::rollBack();
             return self::getResponse500(['error' => $e->getMessage()]);
         }
-
     }
 
-    public function login(Request $request): \Illuminate\Http\JsonResponse
+    public function login(Request $request): JsonResponse
     {
         $request->validate([
             'email'       => 'required|string|email',
@@ -113,7 +74,7 @@ class UsersAccess implements Authentication
 
     }
 
-    public function logout(Request $request): \Illuminate\Http\JsonResponse
+    public function logout(Request $request): JsonResponse
     {
         try {
             $request->user()->token()->revoke();
@@ -123,18 +84,5 @@ class UsersAccess implements Authentication
                 'message' => $e->getMessage(),
             ]);
         }
-
-    }
-
-    public function sendMail(Request $request, $password, $token): void {
-        $message    = (Object)[
-            'userName'              => "{$request->first_name} {$request->last_name}",
-            'password'              => $password,
-            'url'                   => url('/api/v1/auth/signup/activate/'.$token),
-            'email'                 => $request->email
-        ];
-
-        Mail::to($request->email)->queue(new SignupActivate($message));
-        Mail::to('registro@matias.com.co')->send(new SignupActivate($message));
     }
 }

@@ -95,7 +95,7 @@ export class RegisterPageComponent extends FormComponent implements OnInit {
       this.gService.msg.errorMessage('Registro de usuarios', 'Las contraseñas no coinciden.');
       return;
     }
-    this.gService.http.post('/auth/signup', me.value)
+    this.gService.http.post('/auth/register', me.value)
       .subscribe({
         next: (resp) => {
             this.onResetForm(me);

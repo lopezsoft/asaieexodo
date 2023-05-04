@@ -121,7 +121,7 @@ const Register = () => {
           }}
         >
           <Box sx={{ width: '100%', maxWidth: 400 }}>
-            <svg width={34} height={23.375} viewBox='0 0 32 22' fill='none' xmlns='http://www.w3.org/2000/svg'>
+            {/* <svg width={34} height={23.375} viewBox='0 0 32 22' fill='none' xmlns='http://www.w3.org/2000/svg'>
               <path
                 fillRule='evenodd'
                 clipRule='evenodd'
@@ -148,18 +148,59 @@ const Register = () => {
                 fill={theme.palette.primary.main}
                 d='M7.77295 16.3566L23.6563 0H32V6.88383C32 6.88383 31.8262 9.17836 30.6591 10.4057L19.7824 22H13.6938L7.77295 16.3566Z'
               />
-            </svg>
-            <Box sx={{ my: 6 }}>
-              <Typography sx={{ mb: 1.5, fontWeight: 500, fontSize: '1.625rem', lineHeight: 1.385 }}>
-                Adventure starts here 🚀
+            </svg> */}
+            <Box sx={{ my: 2 }}>
+              <Typography
+                sx={{
+                  margin: 0,
+                  fontFamily:
+                    'Public Sans, sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"',
+                  fontWeight: 500,
+                  fontSize: '1.286rem',
+                  lineHeight: 1.385,
+                  textAlign: 'center',
+                  color: 'rgba(51, 48, 60, 0.87)'
+                }}
+                variant='subtitle1'
+              >
+                Crear cuenta
               </Typography>
-              <Typography sx={{ color: 'text.secondary' }}>Make your app management easy and fun!</Typography>
+              <Typography
+                sx={{ color: 'text.secondary', textAlign: 'left', variant: 'subtitle1', margin: '0px 0px 14px' }}
+              >
+                Complete el siguiente formulario para crear una nueva cuenta.
+              </Typography>
+              <Typography
+                sx={{
+                  fontWeight: 400,
+                  fontSize: '2rem',
+                  lineHeight: 1.2,
+                  textAlign: 'center',
+                  variant: 'subtitle1'
+                }}
+              >
+                Formulario de Registro
+              </Typography>
             </Box>
+            <Typography
+              variant='subtitle1'
+              sx={{ textAlign: 'center', fontSize: '0.9rem', textTransform: 'uppercase', variant: 'subtitle1' }}
+            >
+              Datos del usuario
+            </Typography>
+            <Divider
+              sx={{
+                fontSize: '0.875rem',
+                color: 'text.disabled',
+                '& .MuiDivider-wrapper': { px: 9 },
+                my: theme => `${theme.spacing(3)} !important`
+              }}
+            ></Divider>
             <form noValidate autoComplete='off' onSubmit={e => e.preventDefault()}>
-              <TextField autoFocus fullWidth sx={{ mb: 4 }} label='Username' placeholder='johndoe' />
+              <TextField autoFocus fullWidth sx={{ mb: 4 }} label='Nombre' placeholder='johndoe' />
               <TextField fullWidth label='Email' sx={{ mb: 4 }} placeholder='user@email.com' />
               <FormControl fullWidth>
-                <InputLabel htmlFor='auth-login-v2-password'>Password</InputLabel>
+                <InputLabel htmlFor='auth-login-v2-password'>Contraseña</InputLabel>
                 <OutlinedInput
                   label='Password'
                   id='auth-login-v2-password'
@@ -177,42 +218,32 @@ const Register = () => {
                   }
                 />
               </FormControl>
-
               <FormControlLabel
                 control={<Checkbox />}
                 sx={{ mb: 4, mt: 1.5, '& .MuiFormControlLabel-label': { fontSize: '0.875rem' } }}
                 label={
                   <>
                     <Typography variant='body2' component='span'>
-                      I agree to{' '}
+                      Estoy de acuerdo{' '}
                     </Typography>
                     <LinkStyled href='/' onClick={e => e.preventDefault()}>
-                      privacy policy & terms
+                      política de privacidad y términos
                     </LinkStyled>
                   </>
                 }
               />
               <Button fullWidth size='large' type='submit' variant='contained' sx={{ mb: 4 }}>
-                Sign up
+                Registrarse
               </Button>
               <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
-                <Typography sx={{ color: 'text.secondary', mr: 2 }}>Already have an account?</Typography>
+                <Typography sx={{ color: 'text.secondary', mr: 2 }}>¿Ya tienes cuenta?</Typography>
                 <Typography variant='body2'>
                   <LinkStyled href='/login' sx={{ fontSize: '1rem' }}>
-                    Sign in instead
+                    iniciar sesión
                   </LinkStyled>
                 </Typography>
               </Box>
-              <Divider
-                sx={{
-                  fontSize: '0.875rem',
-                  color: 'text.disabled',
-                  '& .MuiDivider-wrapper': { px: 6 },
-                  my: theme => `${theme.spacing(6)} !important`
-                }}
-              >
-                or
-              </Divider>
+
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <IconButton href='/' component={Link} sx={{ color: '#497ce2' }} onClick={e => e.preventDefault()}>
                   <Icon icon='mdi:facebook' />

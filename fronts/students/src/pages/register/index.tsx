@@ -105,7 +105,7 @@ const Register = () => {
         >
           <RegisterIllustration
             alt='register-illustration'
-            src={`/images/pages/${imageSource}-${theme.palette.mode}.png`}
+            src={`/images/pages/${imageSource}-${theme.palette.mode}.svg`}
           />
           <FooterIllustrationsV2 />
         </Box>

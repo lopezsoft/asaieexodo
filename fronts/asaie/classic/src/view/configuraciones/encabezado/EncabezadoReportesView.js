@@ -92,8 +92,8 @@ Ext.define('Admin.view.configuraciones.EncabezadoReportesView',{
 								},
 								listeners: {
 									afterselect: function (me, r) {
-										ts.down('#escudo').setValue(r.get('pathFile'));
-										ts.down('#mime_esc').setValue(r.get('mime'));
+										ts.down('#escudo').setValue(r.get('file_path'));
+										ts.down('#mime_esc').setValue(r.get('mime_type'));
 									},
 									afterupload: function (me, r) {
 										ts.down('#escudo').setValue(r.foto);
@@ -135,8 +135,8 @@ Ext.define('Admin.view.configuraciones.EncabezadoReportesView',{
 								},
 								listeners: {
 									afterselect: function (me, r) {
-										ts.down('#logo').setValue(r.get('pathFile'));
-										ts.down('#mime').setValue(r.get('mime'));
+										ts.down('#logo').setValue(r.get('file_path'));
+										ts.down('#mime').setValue(r.get('mime_type'));
 									},
 									afterupload: function (me, r) {
 										ts.down('#logo').setValue(r.foto);

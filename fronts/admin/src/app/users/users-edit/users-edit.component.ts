@@ -54,7 +54,7 @@ export class UsersEditComponent extends FormComponent implements OnInit, AfterVi
       const ts    = this;
       super.ngOnInit();
       ts.PutURL   = '/user';
-      ts.PostURL  = '/auth/signup';
+      ts.PostURL  = '/user/register';
       ts.showSpinner();
       ts.usersSer.getUserTypes()
 	      .subscribe((resp) => {
@@ -83,7 +83,7 @@ export class UsersEditComponent extends FormComponent implements OnInit, AfterVi
 						school_id   : this.school_id,
 						profile_id  : [],
 					});
-					ts.imgData    = resp[0].avatar ? `${ts.gService.http.getAppUrl()}${resp[0].avatar}` : '';
+					ts.imgData    = resp[0].avatar ? `${resp[0].avatar}` : '';
 					const school  = resp[0].schools.find(s => s.school_id == this.school_id);
 					let profile   = [];
 					if(school) {

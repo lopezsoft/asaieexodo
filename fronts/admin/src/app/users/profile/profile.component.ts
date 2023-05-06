@@ -54,8 +54,8 @@ export class ProfileComponent extends FormComponent implements OnInit, AfterView
 
     ngOnInit(): void {
         super.ngOnInit();
-        this.PutURL   = '/auth/user/update/';
-        this.PostURL  = '/auth/user/create';
+        this.PutURL   = '/user/update/';
+        this.PostURL  = '/user/create';
 		this.loadData();
   }
     ngAfterViewInit(): void {
@@ -79,7 +79,7 @@ export class ProfileComponent extends FormComponent implements OnInit, AfterView
 					active      : resp.active,
 					email       : resp.email,
 				});
-                this.imgData    = `${this.gService.http.getAppUrl()}${resp.avatar}`;
+                this.imgData    = `${resp.avatar}`;
 			},
 			error: ()=> { 
 				this.hideSpinner();
@@ -104,9 +104,9 @@ export class ProfileComponent extends FormComponent implements OnInit, AfterView
         avatar    : resp.user.avatar,
         id        : resp.user.id,
         email     : resp.user.email,
-        lastName  : this.currentUser.lastName,
-        firstName : this.currentUser.firstName,
-        role      : this.currentUser.role
+        lastName  : resp.user.first_name,
+        firstName : resp.user.last_name,
+        role      : this?.currentUser?.role || null,
     });
     setTimeout(() => {
         window.location.reload();

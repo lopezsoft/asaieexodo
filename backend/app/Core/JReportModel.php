@@ -111,9 +111,10 @@ class JReportModel  extends MasterModel {
 			$jasper = new JasperPHP;
 			// Compile a JRXML to Jasper
 			$jasper->compile($reportName.'.jrxml')->execute();
+            $slugDescription = Str::slug($fileDescription, '_');
+            $saveTo     = "{$output_report}{$slugDescription}_{$realName}_{$date}";
+            $storage    = public_path("storage/{$saveTo}");
 
-            $saveTo     = "{$output_report}{$fileDescription}_{$realName}_{$date}";
-            $storage    = Storage::disk('public')->path($saveTo);
 			$jasper->process(
 				$reportName.'.jasper',
                 $storage,
@@ -128,7 +129,7 @@ class JReportModel  extends MasterModel {
 					'port' 		=> $this->port
 				)
             )->execute();
-            $filename   = "{$fileDescription}_{$realName}_{$date}.{$format}";
+            $filename   = "{$slugDescription}_{$realName}_{$date}.{$format}";
             $filePath   = "{$saveTo}.{$format}";
             // Local Storage
             Storage::disk('public')->url("{$saveTo}.{$format}");

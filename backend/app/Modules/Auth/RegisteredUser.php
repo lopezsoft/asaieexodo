@@ -23,8 +23,12 @@ class RegisteredUser
             'fullName' => "{$request->first_name} {$request->last_name}",
             'password' => $request->password
         ];
+        self::sendEmail($user, $data);
+        return $user;
+    }
+    public static function sendEmail($user, $data): void
+    {
         Auth::login($user);
         Notification::send($user, new VerifyEmailNotification($data));
-        return $user;
     }
 }

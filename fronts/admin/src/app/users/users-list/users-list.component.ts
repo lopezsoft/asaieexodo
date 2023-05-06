@@ -61,7 +61,10 @@ export class UsersListComponent extends JqxCustomGridComponent implements OnInit
 					const name  = row.first_name;
 					const email = row.email || '@';
 					const abre  = row.first_name;
-					const avatar = `${this.gService.http.getAppUrl()}${row.avatar}`;
+					let avatar = `${row.avatar}`;
+					if(avatar && avatar.length > 10) {
+						avatar = `/assets/avatars/unknown.png`;
+					}
 					const html  = `<div class="d-flex align-items-center">
                 <div class="avatar mr-1 ml-0 ${row.active ? 'bg-light-success' : 'bg-light-danger'}">
                     <div class="avatar-content"> <img

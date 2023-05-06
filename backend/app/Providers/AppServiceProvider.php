@@ -15,7 +15,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        // app()->usePublicPath( $_SERVER['DOCUMENT_ROOT']); TODO: uncomment this line in production
     }
 
     protected $policies = [

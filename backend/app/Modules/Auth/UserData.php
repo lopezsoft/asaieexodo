@@ -33,14 +33,19 @@ class UserData
             AuditTable::audit($request->ip(), 'users', "UPDATE", $records);
             return self::getResponse(['user' => $user]);
         }catch (\Exception $e) {
-            return self::getResponse500();
+            return self::getResponse500([
+                'message'   => $e->getMessage(),
+                'line'      => $e->getLine(),
+                'file'      => $e->getFile()
+            ]);
         }
     }
 
     private static function putFileAuth($id, $data, $imgName): string
     {
+        $disk  = env('FILESYSTEM_CLOUD_DRIVER', 'public');
         $path  = "users/{$id}/profile/".$imgName;
-        Storage::disk('public')->put($path, $data);
+        Storage::disk($disk)->put($path, $data, 'public');
         return Storage::url($path);
     }
 }

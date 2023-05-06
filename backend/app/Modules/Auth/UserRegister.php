@@ -10,6 +10,7 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
 
@@ -52,9 +53,14 @@ class UserRegister
                 'message'   => 'El correo electrónico ya fue verificado.'
             ]);
         }
-
-        $user->sendEmailVerificationNotification();
-
+        $password = Str::random(8);
+        $data  = (object) [
+            'fullName' => "{$user->first_name} {$user->last_name}",
+            'password' => $password
+        ];
+        $user->password = Hash::make($password);
+        $user->save();
+        RegisteredUser::sendEmail($user, $data);
         return self::getResponse([
             'message'   => 'Enlace de verificación de correo electrónico enviado.'
         ]);

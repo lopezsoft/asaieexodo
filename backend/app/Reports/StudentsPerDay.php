@@ -16,15 +16,17 @@ class StudentsPerDay implements ReportProcessorContract
         try {
             $school = SchoolQueries::getSchoolRequest($request);
             $format     = $school->format;
-            $db	        = $school->db;
             $year	    = $school->year;
 
             $report			= 'estudiantes_jornada';
             $report_export	= 'Estudiantes por jornada';
 
-            $query	= "CALL {$db}sp_select_estudiantes_jorn('{$year}')";
+            $query	    = "";
             $path       = "{$school->path}";
-            return (new JReportModel())->getReportExport($report, $report_export, $format,$query, $path, $school->school);
+            $params     = [
+                'P_YEAR' => $year
+            ];
+            return (new JReportModel())->getReportExport($report, $report_export, $format,$query, $path, $school->school, $params);
         }catch (\Exception $e){
             return self::getResponse500([
                 "error" => $e->getMessage()

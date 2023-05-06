@@ -108,8 +108,8 @@ Ext.define('Admin.view.configuraciones.FirmasView',{
 								},
 								listeners : {
 									afterselect : function (me, r) {
-										btn.up('window').down('#txtFirm').setValue(r.get('path_set'));
-										btn.up('window').down('#txtMime').setValue(r.get('mime'));
+										btn.up('window').down('#txtFirm').setValue(r.get('file_path'));
+										btn.up('window').down('#txtMime').setValue(r.get('mime_type'));
 									},
 									afterupload : function (me, r) {
 										btn.up('window').down('#txtFirm').setValue(r.foto);

@@ -8,8 +8,8 @@ Ext.define('Admin.model.docs.ImageBrowserModel', {
         { name: 'url'},
         { name: 'uuid'},
         { name: 'type'},
-        { name: 'mime'},
-        { name: 'size'},
-        { name: 'lastModified'}
+        { name: 'mime_type'},
+        { name: 'size_file'},
+        { name: 'last_modified'}
    	]
 });

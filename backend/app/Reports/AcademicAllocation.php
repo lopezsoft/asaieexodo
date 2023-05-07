@@ -25,7 +25,7 @@ class AcademicAllocation implements ReportProcessorContract
             }else{
                 $report	= 'carga_academica2';
             }
-            $report_export	= 'Asignacion_academica';
+            $report_export	= 'asignacion_academica';
 
             $query	        = "CALL {$db}sp_select_carga_report('{$year}','{$id_sede}','{$pdbGrado}','{$pdbDocente}')";
             $path           = "{$school->path}";

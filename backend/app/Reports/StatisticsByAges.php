@@ -14,12 +14,15 @@ class StatisticsByAges implements ReportProcessorContract
             $format         = $school->format;
             $db	            = $school->db;
             $year	        = $school->year;
-            $report	        = 'estadistica_edades';
+            $report	        = 'test';
             $report_export	= 'Estadistica por edades';
 
             $query	        = "CALL {$db}sp_select_estadistica_edades('{$year}')";
             $path           = "{$school->path}";
-            return (new JReportModel())->getReportExport($report, $report_export, $format,$query, $path, $school->school);
+            $params         = [
+                'P_YEAR' => $year
+            ];
+            return (new JReportModel())->getReportExport($report, $report_export, $format,$query, $path, $school->school, $params);
         }catch (\Exception $e){
             return self::getResponse500([
                 "error" => $e->getMessage()

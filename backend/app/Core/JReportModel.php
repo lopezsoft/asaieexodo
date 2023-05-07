@@ -7,7 +7,7 @@ use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use JasperPHP\JasperPHP;
+use Lopezsoft\JasperPHP\JasperPHP\JasperPHP;
 
 class JReportModel  extends MasterModel {
     private string $driver	        = "com.mysql.jdbc.Driver";
@@ -18,7 +18,7 @@ class JReportModel  extends MasterModel {
 	private mixed $password_db	    = NULL;
 
 	/**
-	* Propiedades para almacenar las rutas de los informes en sus respentivos formatos
+	* Propiedades para almacenar las rutas de los informes en sus respectivos formatos
 	*/
 	public $path_folder_pdf;
 	public $path_folder_doc;
@@ -165,7 +165,8 @@ class JReportModel  extends MasterModel {
                 'success'   => false,
                 'error'     => $output_error[0] ?? "",
                 'message'   => $e->getMessage(),
-                'e'         => $e
+                'line'         => $e->getLine(),
+                'file'         => $e->getFile(),
             ], 500);
 		}
     }

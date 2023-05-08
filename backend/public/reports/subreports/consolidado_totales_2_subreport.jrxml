@@ -1,13 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Created with Jaspersoft Studio version 6.9.0.final using JasperReports Library version 6.9.0-cb8f9004be492ccc537180b49c026951f4220bf3  -->
+<!-- Created with Jaspersoft Studio version 6.18.1.final using JasperReports Library version 6.18.1-9d75d1969e774d4f179fb3be8401e98a0e6d1611  -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="consolidado_totales_2_subreport" pageWidth="842" pageHeight="595" orientation="Landscape" columnWidth="814" leftMargin="0" rightMargin="28" topMargin="0" bottomMargin="0" uuid="4c69dae3-e689-4737-96b1-d92f42759f57">
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="SME"/>
 	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="0"/>
 	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="1000"/>
-	<parameter name="Table" class="java.lang.String"/>
+	<parameter name="P_GRADE" class="java.lang.String"/>
+	<parameter name="P_GROUP" class="java.lang.String"/>
+	<parameter name="P_STUDY_DAY" class="java.lang.String"/>
+	<parameter name="P_HEADQ" class="java.lang.String"/>
+	<parameter name="P_YEAR" class="java.lang.String"/>
+	<parameter name="P_TYPE" class="java.lang.String"/>
 	<queryString language="SQL">
-		<![CDATA[$P!{Table}]]>
+		<![CDATA[CALL `sp_select_consolidated_totas`($P{P_HEADQ},$P{P_STUDY_DAY},$P{P_GRADE},$P{P_GROUP},$P{P_YEAR} ,$P{P_TYPE})]]>
 	</queryString>
 	<field name="id_sede" class="java.lang.Integer">
 		<property name="com.jaspersoft.studio.field.label" value="id_sede"/>

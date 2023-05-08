@@ -89,6 +89,6 @@ class RatingScale
             }
         }
 
-        return $request;
+        return  utf8_decode(utf8_encode($request));
     }
 }

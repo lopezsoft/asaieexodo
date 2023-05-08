@@ -67,14 +67,14 @@ LIMIT 1]]>
 	<detail>
 		<band height="20" splitType="Stretch">
 			<property name="com.jaspersoft.studio.unit.height" value="px"/>
-			<textField textAdjust="StretchHeight">
-				<reportElement x="26" y="0" width="507" height="17" isRemoveLineWhenBlank="true" uuid="8e2d0020-bbd8-44fa-8fc3-b0db86a31ff5">
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="ContainerHeight" x="26" y="0" width="507" height="17" isRemoveLineWhenBlank="true" isPrintWhenDetailOverflows="true" uuid="8e2d0020-bbd8-44fa-8fc3-b0db86a31ff5">
 					<property name="com.jaspersoft.studio.unit.y" value="px"/>
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 					<property name="com.jaspersoft.studio.unit.width" value="px"/>
 					<property name="com.jaspersoft.studio.unit.x" value="px"/>
 				</reportElement>
-				<textElement markup="html">
+				<textElement textAlignment="Center" markup="html">
 					<font fontName="Arial" size="8"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{pie}]]></textFieldExpression>

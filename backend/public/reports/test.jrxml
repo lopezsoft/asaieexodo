@@ -115,9 +115,9 @@ LIMIT 1]]>
 		</band>
 	</columnHeader>
 	<detail>
-		<band height="36" splitType="Stretch">
+		<band height="66" splitType="Stretch">
 			<textField>
-				<reportElement x="0" y="0" width="280" height="30" uuid="2de56efd-d995-4e6f-891b-e9205f6573e6">
+				<reportElement x="0" y="0" width="555" height="30" uuid="2de56efd-d995-4e6f-891b-e9205f6573e6">
 					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="f3fdbcbc-b29c-46e3-b35f-18adb960d15b"/>
 				</reportElement>
 				<box padding="1">
@@ -129,13 +129,18 @@ LIMIT 1]]>
 				<textFieldExpression><![CDATA[$F{escudo}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="280" y="0" width="275" height="36" uuid="3d96ed81-a652-4d96-822e-1da0937277ed"/>
+				<reportElement x="0" y="30" width="555" height="36" uuid="3d96ed81-a652-4d96-822e-1da0937277ed"/>
 				<textFieldExpression><![CDATA[$P{SQL_PARAM}]]></textFieldExpression>
 			</textField>
 		</band>
 	</detail>
 	<columnFooter>
-		<band height="45" splitType="Stretch"/>
+		<band height="30" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="0" width="555" height="30" uuid="32e1eaf8-542e-41f1-8d2c-17de66c9ddd8"/>
+				<textFieldExpression><![CDATA[$P{SUBREPORT_DIR}]]></textFieldExpression>
+			</textField>
+		</band>
 	</columnFooter>
 	<pageFooter>
 		<band height="69" splitType="Stretch">
@@ -158,6 +163,14 @@ LIMIT 1]]>
 		</band>
 	</pageFooter>
 	<summary>
-		<band height="42" splitType="Stretch"/>
+		<band height="17" splitType="Stretch">
+			<subreport>
+				<reportElement x="0" y="0" width="572" height="17" isRemoveLineWhenBlank="true" uuid="5c2aaef4-ecba-4bf9-8508-b278f074414e">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "report_footer.jasper"]]></subreportExpression>
+			</subreport>
+		</band>
 	</summary>
 </jasperReport>

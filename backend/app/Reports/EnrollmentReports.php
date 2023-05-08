@@ -5,6 +5,7 @@ namespace App\Reports;
 use App\Core\JReportModel;
 use App\Modules\Courses\RatingScale;
 use App\Modules\School\SchoolQueries;
+use App\Modules\Settings\GeneralSetting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -94,38 +95,30 @@ class EnrollmentReports
         return (new JReportModel())->getReportExport($report,$report,$format,$query,$path, $school, $params);
     }
 
+    /**
+     * @throws \Exception
+     */
     public static function getEnrollmentSheet (Request $request): \Illuminate\Http\JsonResponse
     {
-        $school = SchoolQueries::getSchool($request->input('schoolId') ?? 0);
-        $db     = "{$school->database_name}.";
+        $school = SchoolQueries::getSchoolRequest($request);
+        $db     = $school->db;
         $id	    = $request->input('pdbId') ?? 0;
-        $year	= $request->input('pdbYear');
+        $year	= $school->year;
         $format	= $request->input('pFormat');
         $type	= $request->input('pdbType');
         $Grado 	= $request->input('pdbGrado');
         $Grupo	= $request->input('pdbGrupo');
         $Jorn 	= $request->input('pdbJorn');
         $Sede	= $request->input('pdbSede');
-
         if(!$id > 0 ){
             $year	= $request->input('year');
         }
-
-        $query = DB::table($db.'config001', 't1')
-                ->select('ficha_mat_x_año')
-                ->leftJoin($db.'grados_agrupados AS t2', 't1.id_grupo_grados', '=', 't2.id')
-                ->leftJoin($db.'aux_grados_agrupados AS t3', 't3.id_grado_agrupado','=' ,'t2.id')
-                ->leftJoin($db.'grados AS tg', 't3.id_grado','=' ,'tg.id')
-                ->where('t1.year', $year)
-                ->where('tg.id', $Grado)
-                ->first();
-
+        $setting = GeneralSetting::getGeneralSettingByGrade($school, $Grado);
         $ficha = 0;
-        if ($query){
-            $ficha = $query->ficha_mat_x_año;
+        if ($setting){
+            $ficha = $setting->ficha_mat_x_año;
         }
         //Reporte a Procesar: Este nombre es del reporte creado en JasReport
-
         if ($ficha > 0){
             $report			=	'ficha_matricula';
         }else{
@@ -133,16 +126,12 @@ class EnrollmentReports
         }
         // Nombre dado al informe de salida
         $report_export	= 'Ficha de matricula';
-
         //Extension de Salida
         if ($id > 0){
-            $m_SQL	= "CALL ".$db."sp_select_ficha_matricula('".$year."','".$id."',0,'".$Grupo."',1,1,".$type.")";
+            $query	= "CALL {$db}sp_select_ficha_matricula({$year},{$id},0,'{$Grupo}',1,1,{$type})";
         }else{
-            $m_SQL	= "CALL ".$db."sp_select_ficha_matricula('".$year."',0,'".$Grado."','".$Grupo."','".$Sede."','".$Jorn."',".$type.")";
+            $query	= "CALL {$db}sp_select_ficha_matricula({$year},0,{$Grado},'{$Grupo}',{$Sede},{$Jorn},{$type})";
         }
-
-        $query	    = $m_SQL;
-        $path       = "{$school->folder_name}";
-        return (new JReportModel())->getReportExport($report,$report_export,$format,$query,$path, $school);
+        return (new JReportModel())->getReportExport($report,$report_export,$format,$query,$school->path, $school->school);
     }
 }

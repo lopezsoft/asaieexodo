@@ -159,11 +159,11 @@ class JReportModel  extends MasterModel {
 
 		} catch (Exception $e) {
 			// Depuración de errores
-            exec($jasper->output().' 2>&1', $output_error);
+            exec($jasper->output(), $output_error);
 
             return response()->json([
                 'success'   => false,
-                'error'     => $output_error[0] ?? "",
+                'error'     => $output_error ?? "",
                 'message'   => $e->getMessage(),
                 'line'         => $e->getLine(),
                 'file'         => $e->getFile(),

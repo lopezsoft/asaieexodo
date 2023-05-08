@@ -142,9 +142,6 @@
 		<defaultValueExpression><![CDATA[0.0]]></defaultValueExpression>
 	</parameter>
 	<parameter name="P_HASTA" class="java.lang.String"/>
-	<parameter name="SQL_TOTALES" class="java.lang.String">
-		<defaultValueExpression><![CDATA[0]]></defaultValueExpression>
-	</parameter>
 	<parameter name="SQL_PARAM" class="java.lang.String">
 		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
 	</parameter>
@@ -156,8 +153,15 @@
 	<parameter name="HOME_DIR" class="java.lang.String"/>
 	<parameter name="P_USER" class="java.lang.String"/>
 	<parameter name="AWS_PATH" class="java.lang.String"/>
+	<parameter name="P_GRADE" class="java.lang.String"/>
+	<parameter name="P_GROUP" class="java.lang.String"/>
+	<parameter name="P_STUDY_DAY" class="java.lang.String"/>
+	<parameter name="P_HEADQ" class="java.lang.String"/>
+	<parameter name="P_YEAR" class="java.lang.String"/>
+	<parameter name="P_PERIOD" class="java.lang.String"/>
+	<parameter name="P_TYPE" class="java.lang.String"/>
 	<queryString>
-		<![CDATA[$P!{SQL_PARAM}]]>
+		<![CDATA[CALL sp_select_consolidado_asig($P{P_HEADQ},$P{P_STUDY_DAY}, $P{P_GRADE},$P{P_GROUP}, $P{P_YEAR},$P{P_PERIOD}, $P{P_TYPE} )]]>
 	</queryString>
 	<field name="year" class="java.lang.Integer">
 		<property name="com.jaspersoft.studio.field.label" value="year"/>
@@ -588,14 +592,6 @@
 				<line>
 					<reportElement x="0" y="0" width="539" height="1" isRemoveLineWhenBlank="true" forecolor="#8A2827" uuid="f752b525-4280-4d91-9b02-41cf0c42a56d"/>
 				</line>
-				<subreport>
-					<reportElement x="0" y="12" width="480" height="11" uuid="a54aa377-2d38-4905-9c87-ca193cae7869"/>
-					<subreportParameter name="Table">
-						<subreportParameterExpression><![CDATA[$P{SQL_TOTALES}]]></subreportParameterExpression>
-					</subreportParameter>
-					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
-					<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_totales_subreport.jasper"]]></subreportExpression>
-				</subreport>
 				<line>
 					<reportElement positionType="Float" x="0" y="23" width="539" height="1" isRemoveLineWhenBlank="true" forecolor="#8A2827" uuid="3c6a03d0-4f9f-4e16-bb23-350728944844"/>
 				</line>
@@ -878,6 +874,29 @@
 					</subreportParameter>
 					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
 					<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_abre_asignaturas_subreport.jasper"]]></subreportExpression>
+				</subreport>
+				<subreport>
+					<reportElement x="0" y="12" width="480" height="11" uuid="523834a1-56de-42f4-921b-a30a4403b2bb"/>
+					<subreportParameter name="P_STUDY_DAY">
+						<subreportParameterExpression><![CDATA[$P{P_STUDY_DAY}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="P_GRADE">
+						<subreportParameterExpression><![CDATA[$P{P_GRADE}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="P_GROUP">
+						<subreportParameterExpression><![CDATA[$P{P_GROUP}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="P_TYPE">
+						<subreportParameterExpression><![CDATA[$P{P_TYPE}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="P_YEAR">
+						<subreportParameterExpression><![CDATA[$P{P_YEAR}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="P_HEADQ">
+						<subreportParameterExpression><![CDATA[$P{P_HEADQ}]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_totales_subreport.jasper"]]></subreportExpression>
 				</subreport>
 			</band>
 		</groupFooter>
@@ -1379,7 +1398,7 @@
 	<title>
 		<band height="72" splitType="Stretch">
 			<subreport>
-				<reportElement positionType="Float" stretchType="ContainerHeight" x="0" y="0" width="537" height="72" uuid="f344f58b-5017-4250-92f4-a4340c74ad1f">
+				<reportElement positionType="Float" stretchType="ContainerHeight" x="0" y="0" width="539" height="72" uuid="f344f58b-5017-4250-92f4-a4340c74ad1f">
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
 				<subreportParameter name="AWS_PATH">
@@ -1947,21 +1966,14 @@
 	<pageFooter>
 		<band height="30" splitType="Stretch">
 			<textField>
-				<reportElement x="542" y="1" width="21" height="10" uuid="184a72c7-f142-4496-b933-89d1fe3009b0"/>
+				<reportElement x="517" y="1" width="21" height="10" uuid="184a72c7-f142-4496-b933-89d1fe3009b0"/>
 				<textElement>
 					<font fontName="DejaVu Serif" size="8" isBold="true"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$V{PAGE_NUMBER}]]></textFieldExpression>
 			</textField>
-			<textField textAdjust="StretchHeight">
-				<reportElement stretchType="RelativeToBandHeight" x="16" y="22" width="507" height="8" uuid="7829f300-5387-4522-b2ae-d6bf773009d8"/>
-				<textElement textAlignment="Center">
-					<font fontName="SansSerif" size="6" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$P{R_MARKETING}]]></textFieldExpression>
-			</textField>
 			<subreport>
-				<reportElement x="0" y="0" width="556" height="17" isRemoveLineWhenBlank="true" uuid="fb1f2c0a-dd3c-40ce-b37a-7e271d567634">
+				<reportElement x="0" y="0" width="539" height="30" isRemoveLineWhenBlank="true" uuid="fb1f2c0a-dd3c-40ce-b37a-7e271d567634">
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
 				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>

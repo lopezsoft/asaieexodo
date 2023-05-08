@@ -317,16 +317,10 @@
 				</textElement>
 				<textFieldExpression><![CDATA[$V{PAGE_NUMBER}]]></textFieldExpression>
 			</textField>
-			<textField textAdjust="StretchHeight">
-				<reportElement positionType="Float" x="16" y="22" width="507" height="8" isRemoveLineWhenBlank="true" forecolor="#052E85" uuid="7829f300-5387-4522-b2ae-d6bf773009d8"/>
-				<textElement textAlignment="Center">
-					<font fontName="DejaVu Serif" size="6" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$P{R_MARKETING}]]></textFieldExpression>
-			</textField>
 			<subreport>
-				<reportElement x="0" y="2" width="556" height="17" isRemoveLineWhenBlank="true" uuid="58ffb0f9-3179-40bf-bb7c-1076d1bf2d50">
+				<reportElement x="0" y="0" width="556" height="30" isRemoveLineWhenBlank="true" uuid="58ffb0f9-3179-40bf-bb7c-1076d1bf2d50">
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
 				</reportElement>
 				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
 				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "report_footer.jasper"]]></subreportExpression>

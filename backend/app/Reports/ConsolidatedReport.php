@@ -39,17 +39,11 @@ class ConsolidatedReport
                 }else{
                     $report			=	'consolidado_asignaturas_horz';
                 }
-                $tableTotal	    = $db.'consolidado_totales';
                 $report_export	= 'consolidado_asignaturas ';
-                $xtype	= 1;
             }else{
                 $report			= 'consolidado_areas';
                 $report_export	= 'consolidado_areas';
-                $xtype	= 2;
-                $tableTotal	    = $db.'consolidado_areas_totales';
             }
-
-            $m_SQL	= "CALL sp_select_consolidado_asig(".$sede.",".$jorn.",'".$c_gdo."','".$gpo."',".$year.",'".$z_per."',".$xtype.")";
 
             $desde	    = 0;
             $hasta	    = 0;
@@ -67,19 +61,23 @@ class ConsolidatedReport
                 $NotaMinB	= $scale->desde;
             }
 
-            $query	= $m_SQL;
+            $query	= "";
             $escala	= RatingScale::getScaleString($c_gdo, $year, $db);
-            $queryTotales	= "SELECT * FROM ".$tableTotal." WHERE id_grado = ".$c_gdo." AND id_sede=".$sede.
-                " AND year = ".$year." AND id_jorn=".$jorn." AND grupo= '".$gpo."' AND periodo <> 0";
 
-            $params	= array(
+            $params	= [
+                'P_GRADE'		=> $c_gdo,
+                'P_GROUP'		=> $gpo,
+                'P_STUDY_DAY'   => $jorn,
+                'P_HEADQ'		=> $sede,
+                'P_YEAR'		=> $year,
+                'P_PERIOD'		=> $z_per,
+                'P_TYPE'		=> $type,
                 'R_ESCALA'		=> $escala,
                 'P_DESDE'		=> $desde,
                 'P_HASTA'		=> $hasta,
                 'P_NotaMin'		=> $NotaMin,
                 'P_NotaMinB'	=> $NotaMinB,
-                'SQL_TOTALES'	=> $queryTotales
-            );
+            ];
 
             $path       = "{$school->path}";
             return (new JReportModel())->getReportExport($report, $report_export, $format,$query, $path, $school->school, $params);

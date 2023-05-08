@@ -176,7 +176,6 @@
 	</parameter>
 	<parameter name="P_NotaMinB" class="java.lang.String"/>
 	<parameter name="P_HASTA" class="java.lang.String"/>
-	<parameter name="SQL_TOTALES" class="java.lang.String"/>
 	<parameter name="SQL_PARAM" class="java.lang.String">
 		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
 	</parameter>
@@ -188,8 +187,15 @@
 		<defaultValueExpression><![CDATA["D:\\wamp64\\www\\asaieexodo\\backend\\public\\reports\\subreports\\"]]></defaultValueExpression>
 	</parameter>
 	<parameter name="R_FOOTER" class="java.lang.String"/>
+	<parameter name="P_GRADE" class="java.lang.String"/>
+	<parameter name="P_GROUP" class="java.lang.String"/>
+	<parameter name="P_STUDY_DAY" class="java.lang.String"/>
+	<parameter name="P_HEADQ" class="java.lang.String"/>
+	<parameter name="P_YEAR" class="java.lang.String"/>
+	<parameter name="P_PERIOD" class="java.lang.String"/>
+	<parameter name="P_TYPE" class="java.lang.String"/>
 	<queryString>
-		<![CDATA[$P!{SQL_PARAM}]]>
+		<![CDATA[CALL sp_select_consolidado_asig($P{P_HEADQ},$P{P_STUDY_DAY}, $P{P_GRADE},$P{P_GROUP}, $P{P_YEAR},$P{P_PERIOD}, $P{P_TYPE} )]]>
 	</queryString>
 	<field name="year" class="java.lang.Integer">
 		<property name="com.jaspersoft.studio.field.label" value="year"/>
@@ -601,8 +607,23 @@
 				</line>
 				<subreport>
 					<reportElement positionType="Float" stretchType="ContainerHeight" x="0" y="11" width="680" height="11" uuid="5e77eda3-f083-4d8f-817c-9f37c4d42d41"/>
-					<subreportParameter name="Table">
-						<subreportParameterExpression><![CDATA[$P{SQL_TOTALES}]]></subreportParameterExpression>
+					<subreportParameter name="P_GRADE">
+						<subreportParameterExpression><![CDATA[$P{P_GRADE}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="P_GROUP">
+						<subreportParameterExpression><![CDATA[$P{P_GROUP}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="P_YEAR">
+						<subreportParameterExpression><![CDATA[$P{P_YEAR}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="P_HEADQ">
+						<subreportParameterExpression><![CDATA[$P{P_HEADQ}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="P_TYPE">
+						<subreportParameterExpression><![CDATA[$P{P_TYPE}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="P_STUDY_DAY">
+						<subreportParameterExpression><![CDATA[$P{P_STUDY_DAY}]]></subreportParameterExpression>
 					</subreportParameter>
 					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
 					<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "consolidado_totales_2_subreport.jasper"]]></subreportExpression>
@@ -2632,21 +2653,14 @@
 	<pageFooter>
 		<band height="30" splitType="Stretch">
 			<textField>
-				<reportElement x="780" y="0" width="21" height="10" uuid="184a72c7-f142-4496-b933-89d1fe3009b0"/>
+				<reportElement x="762" y="0" width="21" height="10" uuid="184a72c7-f142-4496-b933-89d1fe3009b0"/>
 				<textElement>
 					<font fontName="Arial" size="8" isBold="true"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$V{PAGE_NUMBER}]]></textFieldExpression>
 			</textField>
-			<textField textAdjust="StretchHeight">
-				<reportElement stretchType="RelativeToBandHeight" x="16" y="22" width="763" height="8" uuid="7829f300-5387-4522-b2ae-d6bf773009d8"/>
-				<textElement textAlignment="Center">
-					<font fontName="SansSerif" size="6" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$P{R_MARKETING}]]></textFieldExpression>
-			</textField>
 			<subreport>
-				<reportElement x="115" y="0" width="556" height="17" isRemoveLineWhenBlank="true" uuid="13dc8e06-fa9a-4e70-aaea-4c05efedbac4">
+				<reportElement x="115" y="0" width="556" height="30" isRemoveLineWhenBlank="true" uuid="13dc8e06-fa9a-4e70-aaea-4c05efedbac4">
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
 				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>

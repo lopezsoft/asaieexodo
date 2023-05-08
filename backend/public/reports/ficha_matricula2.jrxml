@@ -191,11 +191,134 @@
 	<background>
 		<band splitType="Stretch"/>
 	</background>
-	<title>
-		<band height="72" splitType="Stretch">
+	<pageHeader>
+		<band height="162" splitType="Stretch">
 			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<staticText>
+				<reportElement positionType="Float" x="72" y="77" width="428" height="17" isRemoveLineWhenBlank="true" uuid="b5b798b0-3d4a-4e82-922b-61cbc9d7b873"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[FICHA DE MATRICULA]]></text>
+			</staticText>
+			<textField>
+				<reportElement positionType="Float" x="74" y="94" width="424" height="11" uuid="70c82599-207c-4778-a50a-661bd4714c7d"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["LIBRO Nº. "+$F{book}.toString()+" FOLIO Nº. "+$F{folio}.toString()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="Float" x="18" y="108" width="536" height="13" isRemoveLineWhenBlank="true" uuid="16b8db89-1ea6-44ce-b3a7-613fd8939a21"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[DATOS PERSONALES]]></text>
+			</staticText>
+			<rectangle radius="1">
+				<reportElement positionType="Float" x="17" y="123" width="538" height="39" isRemoveLineWhenBlank="true" isPrintWhenDetailOverflows="true" uuid="56f19c54-0153-413d-b3ff-976d4e4bcd4d"/>
+				<graphicElement>
+					<pen lineWidth="0.75"/>
+				</graphicElement>
+			</rectangle>
+			<line>
+				<reportElement positionType="Float" x="17" y="135" width="538" height="1" uuid="50c8bcf5-ac8c-4fb3-a67e-b2b36a22fa77"/>
+				<graphicElement>
+					<pen lineWidth="0.75"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement positionType="Float" x="17" y="148" width="538" height="1" uuid="2b8a1df3-0228-46cd-ac82-320b3d13eef8"/>
+				<graphicElement>
+					<pen lineWidth="0.75"/>
+				</graphicElement>
+			</line>
+			<textField>
+				<reportElement positionType="Float" mode="Transparent" x="67" y="124" width="276" height="11" uuid="6540e5ca-da8b-4308-be0b-791c1e4e2fe5"/>
+				<textElement>
+					<font fontName="SansSerif" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{apellido1}.trim()+" "+$F{apellido2}.trim()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="Float" x="19" y="124" width="48" height="11" uuid="d3ae9c14-0b2d-4a3a-b6cd-2aa9de20f52b"/>
+				<textElement>
+					<font fontName="SansSerif" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Apellidos:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="19" y="137" width="48" height="11" uuid="2a1d2078-95de-43e0-a1e0-ed800b6cb339"/>
+				<textElement>
+					<font fontName="SansSerif" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Nombres:]]></text>
+			</staticText>
+			<textField>
+				<reportElement positionType="Float" mode="Transparent" x="67" y="137" width="276" height="11" uuid="3a1695f1-b35e-46be-a76b-0bb7dbaf4afc"/>
+				<textElement>
+					<font fontName="SansSerif" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{nombre1}.trim()+" "+$F{nombre2}.trim()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="Float" x="19" y="150" width="48" height="11" uuid="72d47e01-9516-4500-9458-01542c675d59"/>
+				<textElement>
+					<font fontName="SansSerif" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Dirección:]]></text>
+			</staticText>
+			<textField>
+				<reportElement positionType="Float" mode="Transparent" x="67" y="150" width="276" height="11" uuid="9279a7de-8358-4968-8047-743758adc237"/>
+				<textElement>
+					<font fontName="SansSerif" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{direccion}.trim()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="Float" x="343" y="137" width="48" height="11" uuid="ff62f858-7070-4803-947a-c75fd84d9a6d"/>
+				<textElement>
+					<font fontName="SansSerif" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Estado:]]></text>
+			</staticText>
+			<textField>
+				<reportElement positionType="Float" mode="Transparent" x="391" y="137" width="158" height="11" uuid="5ae95e66-c724-4832-a5e6-126eaecb71a4"/>
+				<textElement>
+					<font fontName="SansSerif" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{name_state}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement positionType="Float" mode="Transparent" x="391" y="150" width="158" height="11" uuid="290ce8ee-f5e3-4072-9bcf-36b81f9395f1"/>
+				<textElement>
+					<font fontName="SansSerif" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{telefono}.trim()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement positionType="Float" mode="Transparent" x="343" y="124" width="110" height="11" uuid="1fd3332c-edf9-42cf-bed5-4742d12a1fe1"/>
+				<textElement>
+					<font fontName="SansSerif" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Matricula Nº. "+$F{registration_number}.toString()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="Float" x="343" y="150" width="48" height="11" uuid="0b0e5a68-bc54-48fb-9072-35b5084ed59e"/>
+				<textElement>
+					<font fontName="SansSerif" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Teléfono:]]></text>
+			</staticText>
+			<textField>
+				<reportElement positionType="Float" mode="Transparent" x="454" y="124" width="100" height="11" uuid="5054b0b8-741c-4100-8356-05a8cc4f140c"/>
+				<textElement>
+					<font fontName="SansSerif" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Año escolar: "+$F{year}.toString()]]></textFieldExpression>
+			</textField>
 			<subreport>
-				<reportElement positionType="Float" stretchType="ContainerHeight" x="0" y="0" width="572" height="72" uuid="389f18ca-6eae-4d11-9b05-045f27cffdb0">
+				<reportElement positionType="Float" stretchType="ContainerHeight" x="0" y="3" width="572" height="72" uuid="55752a14-aefc-4f4d-8a4c-f9546f8427b9">
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
 				<subreportParameter name="AWS_PATH">
@@ -204,134 +327,6 @@
 				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
 				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "report_header.jasper"]]></subreportExpression>
 			</subreport>
-		</band>
-	</title>
-	<pageHeader>
-		<band height="85" splitType="Stretch">
-			<property name="com.jaspersoft.studio.unit.height" value="px"/>
-			<staticText>
-				<reportElement positionType="Float" x="72" y="0" width="428" height="17" isRemoveLineWhenBlank="true" uuid="b5b798b0-3d4a-4e82-922b-61cbc9d7b873"/>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Arial" size="12" isBold="true"/>
-				</textElement>
-				<text><![CDATA[FICHA DE MATRICULA]]></text>
-			</staticText>
-			<textField>
-				<reportElement positionType="Float" x="74" y="17" width="424" height="11" uuid="70c82599-207c-4778-a50a-661bd4714c7d"/>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="SansSerif" size="8" isBold="true"/>
-				</textElement>
-				<textFieldExpression><![CDATA["LIBRO Nº. "+$F{book}.toString()+" FOLIO Nº. "+$F{folio}.toString()]]></textFieldExpression>
-			</textField>
-			<staticText>
-				<reportElement positionType="Float" x="18" y="31" width="536" height="13" isRemoveLineWhenBlank="true" uuid="16b8db89-1ea6-44ce-b3a7-613fd8939a21"/>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="SansSerif" size="10" isBold="true"/>
-				</textElement>
-				<text><![CDATA[DATOS PERSONALES]]></text>
-			</staticText>
-			<rectangle radius="1">
-				<reportElement positionType="Float" x="17" y="46" width="538" height="39" isRemoveLineWhenBlank="true" isPrintWhenDetailOverflows="true" uuid="56f19c54-0153-413d-b3ff-976d4e4bcd4d"/>
-				<graphicElement>
-					<pen lineWidth="0.75"/>
-				</graphicElement>
-			</rectangle>
-			<line>
-				<reportElement positionType="Float" x="17" y="58" width="538" height="1" uuid="50c8bcf5-ac8c-4fb3-a67e-b2b36a22fa77"/>
-				<graphicElement>
-					<pen lineWidth="0.75"/>
-				</graphicElement>
-			</line>
-			<line>
-				<reportElement positionType="Float" x="17" y="71" width="538" height="1" uuid="2b8a1df3-0228-46cd-ac82-320b3d13eef8"/>
-				<graphicElement>
-					<pen lineWidth="0.75"/>
-				</graphicElement>
-			</line>
-			<textField>
-				<reportElement positionType="Float" mode="Transparent" x="67" y="47" width="276" height="11" uuid="6540e5ca-da8b-4308-be0b-791c1e4e2fe5"/>
-				<textElement>
-					<font fontName="SansSerif" size="8"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$F{apellido1}.trim()+" "+$F{apellido2}.trim()]]></textFieldExpression>
-			</textField>
-			<staticText>
-				<reportElement positionType="Float" x="19" y="47" width="48" height="11" uuid="d3ae9c14-0b2d-4a3a-b6cd-2aa9de20f52b"/>
-				<textElement>
-					<font fontName="SansSerif" size="8" isBold="true"/>
-				</textElement>
-				<text><![CDATA[Apellidos:]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="Float" x="19" y="60" width="48" height="11" uuid="2a1d2078-95de-43e0-a1e0-ed800b6cb339"/>
-				<textElement>
-					<font fontName="SansSerif" size="8" isBold="true"/>
-				</textElement>
-				<text><![CDATA[Nombres:]]></text>
-			</staticText>
-			<textField>
-				<reportElement positionType="Float" mode="Transparent" x="67" y="60" width="276" height="11" uuid="3a1695f1-b35e-46be-a76b-0bb7dbaf4afc"/>
-				<textElement>
-					<font fontName="SansSerif" size="8"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$F{nombre1}.trim()+" "+$F{nombre2}.trim()]]></textFieldExpression>
-			</textField>
-			<staticText>
-				<reportElement positionType="Float" x="19" y="73" width="48" height="11" uuid="72d47e01-9516-4500-9458-01542c675d59"/>
-				<textElement>
-					<font fontName="SansSerif" size="8" isBold="true"/>
-				</textElement>
-				<text><![CDATA[Dirección:]]></text>
-			</staticText>
-			<textField>
-				<reportElement positionType="Float" mode="Transparent" x="67" y="73" width="276" height="11" uuid="9279a7de-8358-4968-8047-743758adc237"/>
-				<textElement>
-					<font fontName="SansSerif" size="8"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$F{direccion}.trim()]]></textFieldExpression>
-			</textField>
-			<staticText>
-				<reportElement positionType="Float" x="343" y="60" width="48" height="11" uuid="ff62f858-7070-4803-947a-c75fd84d9a6d"/>
-				<textElement>
-					<font fontName="SansSerif" size="8" isBold="true"/>
-				</textElement>
-				<text><![CDATA[Estado:]]></text>
-			</staticText>
-			<textField>
-				<reportElement positionType="Float" mode="Transparent" x="391" y="60" width="158" height="11" uuid="5ae95e66-c724-4832-a5e6-126eaecb71a4"/>
-				<textElement>
-					<font fontName="SansSerif" size="8"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$F{name_state}]]></textFieldExpression>
-			</textField>
-			<textField>
-				<reportElement positionType="Float" mode="Transparent" x="391" y="73" width="158" height="11" uuid="290ce8ee-f5e3-4072-9bcf-36b81f9395f1"/>
-				<textElement>
-					<font fontName="SansSerif" size="8"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$F{telefono}.trim()]]></textFieldExpression>
-			</textField>
-			<textField>
-				<reportElement positionType="Float" mode="Transparent" x="343" y="47" width="110" height="11" uuid="1fd3332c-edf9-42cf-bed5-4742d12a1fe1"/>
-				<textElement>
-					<font fontName="SansSerif" size="8"/>
-				</textElement>
-				<textFieldExpression><![CDATA["Matricula Nº. "+$F{registration_number}.toString()]]></textFieldExpression>
-			</textField>
-			<staticText>
-				<reportElement positionType="Float" x="343" y="73" width="48" height="11" uuid="0b0e5a68-bc54-48fb-9072-35b5084ed59e"/>
-				<textElement>
-					<font fontName="SansSerif" size="8" isBold="true"/>
-				</textElement>
-				<text><![CDATA[Teléfono:]]></text>
-			</staticText>
-			<textField>
-				<reportElement positionType="Float" mode="Transparent" x="454" y="47" width="100" height="11" uuid="5054b0b8-741c-4100-8356-05a8cc4f140c"/>
-				<textElement>
-					<font fontName="SansSerif" size="8"/>
-				</textElement>
-				<textFieldExpression><![CDATA["Año escolar: "+$F{year}.toString()]]></textFieldExpression>
-			</textField>
 		</band>
 	</pageHeader>
 	<detail>
@@ -970,24 +965,10 @@
 		<band splitType="Stretch"/>
 	</columnFooter>
 	<pageFooter>
-		<band height="26" splitType="Stretch">
-			<textField>
-				<reportElement x="538" y="1" width="34" height="10" uuid="184a72c7-f142-4496-b933-89d1fe3009b0"/>
-				<box topPadding="0" leftPadding="0" bottomPadding="0" rightPadding="0"/>
-				<textElement textAlignment="Right">
-					<font fontName="Arial" size="8" isBold="true"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$V{PAGE_NUMBER}]]></textFieldExpression>
-			</textField>
-			<textField textAdjust="StretchHeight">
-				<reportElement stretchType="RelativeToBandHeight" x="26" y="18" width="507" height="8" uuid="7829f300-5387-4522-b2ae-d6bf773009d8"/>
-				<textElement textAlignment="Center">
-					<font fontName="SansSerif" size="6" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$P{R_MARKETING}]]></textFieldExpression>
-			</textField>
+		<band height="30" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
 			<subreport>
-				<reportElement x="0" y="0" width="572" height="17" isRemoveLineWhenBlank="true" uuid="5f8e3907-056a-4791-b0e9-70c0e3aa0a34">
+				<reportElement x="0" y="0" width="572" height="30" isRemoveLineWhenBlank="true" uuid="5f8e3907-056a-4791-b0e9-70c0e3aa0a34">
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
 				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>

@@ -18,128 +18,88 @@ class PeriodicBulletinReport
             $format	    = $school->format;
             $db         = $school->db;
             $year       = $school->year;
-            $c_grado	= $request->input('pdbCodGrado')	;
-            $id_sede	= $request->input('pdbIdSede')	;
-            $periodo	= $request->input('pdbPeriodo');
-            $grupo		= $request->input('pdbGrupo');
-            $cod_jorn	= $request->input('pdbIdJorn');
+            $gradoId	= $request->input('pdbCodGrado')	;
+            $headquarterId	= $request->input('pdbIdSede')	;
+            $period	= $request->input('pdbPeriodo');
+            $groupCode  = $request->input('pdbGrupo');
+            $studyDayId	= $request->input('pdbIdJorn');
             $matric		= $request->input('pdbMatric');
             $hojaReport	= $request->input('pHojaReport');
             $typeReport	= $request->input('pTypeReport');
 
-            $get_prees	= GradesQuery::getGradeCount($school, $c_grado);
-
-            if($get_prees){
-                $notaPrees = $get_prees->notas_num_prees;
+            $gradesCount= GradesQuery::getGradeCount($school, $gradoId);
+            $notaPrees	= 0;
+            if($gradesCount){
+                $notaPrees = $gradesCount->notas_num_prees;
             }
-            if(($c_grado <=4) AND ($notaPrees == 0)) {
+            if(($gradoId <=4) AND ($notaPrees == 0)) {
                 if($hojaReport == 1){
-                    $report			= 'boletin_oficio_preescolar';
-                    $report_export	= 'boletin oficio preescolar periodo'.$periodo;
+                    $reportName			= 'boletin_oficio_preescolar';
+                    $reportDescription	= 'boletin oficio preescolar periodo'.$period;
                 }else{
-                    $report			= 'boletin_carta_preescolar';
-                    $report_export	= 'boletin carta preescolar periodo'.$periodo;
+                    $reportName			= 'boletin_carta_preescolar';
+                    $reportDescription	= 'boletin carta preescolar periodo'.$period;
                 }
             }else{
-                switch($typeReport){
-                    case 2 :   				// Modelo 2
-                        if($hojaReport == 1){
-                            $report			= 'boletin_oficio_asig';
-                            $report_export	= 'boletin oficio asignaturas'.$periodo;
-                        }else{
-                            $report			= 'boletin_carta_asig';
-                            $report_export	= 'boletin carta asignaturas'.$periodo;
-                        }
-                        break;
-                    case 3 :   				// Modelo 3
-                        if($hojaReport == 1){
-                            $report			= 'boletin_oficio_areas_comp';
-                            $report_export	= 'boletin oficio areas competencia'.$periodo;
-                        }else{
-                            $report			= 'boletin_carta_areas_comp';
-                            $report_export	= 'boletin carta areas competencia'.$periodo;
-                        }
-                        break;
-                    case 4 :   				// Modelo 4
-                        if($hojaReport == 1){
-                            $report			= 'boletin_oficio_areas_proy';
-                            $report_export	= 'boletin oficio proy transversales'.$periodo;
-                        }else{
-                            $report			= 'boletin_carta_areas_proy';
-                            $report_export	= 'boletin carta proy transversales'.$periodo;
-                        }
-                        break;
-                    case 5 :   				// Modelo 5
-                        if($hojaReport == 1){
-                            $report			= 'boletin_oficio_areas2';
-                            $report_export	= 'boletin oficio areas'.$periodo;
-                        }else{
-                            $report			= 'boletin_carta_areas2';
-                            $report_export	= 'boletin carta areas'.$periodo;
-                        }
-                        break;
-                    case 6 :   				// Modelo 6
-                        if($hojaReport == 1){
-                            $report			= 'boletin_oficio_asig2';
-                            $report_export	= 'boletin oficio asignaturas'.$periodo;
-                        }else{
-                            $report			= 'boletin_carta_asig2';
-                            $report_export	= 'boletin carta asignaturas'.$periodo;
-                        }
-                        break;
-                    case 9	: // Modelo áreas samac
-                        if($hojaReport == 1){
-                            $report			= 'boletin_oficio_areas3';
-                            $report_export	= 'boletin oficio areas'.$periodo;
-                        }else{
-                            $report			= 'boletin_carta_areas3';
-                            $report_export	= 'boletin carta areas'.$periodo;
-                        }
-                        break;
-                    case 10	: // Modelo áreas samac
-                        if($hojaReport == 1){
-                            $report			= 'preinforme_oficio';
-                            $report_export	= 'preinforme '.$periodo;
-                        }else{
-                            $report			= 'preinforme_carta';
-                            $report_export	= ' preinforme '.$periodo;
-                        }
-                        break;
-                    case 11	: // Modelo áreas samac
-                        if($hojaReport == 1){
-                            $report			= 'boletin_oficio_sin_notas';
-                            $report_export	= 'Boletin sin notas '.$periodo;
-                        }else{
-                            $report			= 'boletin_oficio_sin_notas_carta';
-                            $report_export	= ' Boletin sin notas '.$periodo;
-                        }
-                        break;
-                    default: 		// Modelo 1
-                        if($hojaReport == 1){
-                            $report			= 'boletin_oficio_areas';
-                            $report_export	= 'boletin oficio areas'.$periodo;
-                        }else{
-                            $report			= 'boletin_carta_areas';
-                            $report_export	= 'boletin carta areas'.$periodo;
-                        }
-                        break;
+                $report_mapping = array(
+                    2 => array(
+                        1 => array('boletin_oficio_asig', 'boletin oficio asignaturas'.$period),
+                        2 => array('boletin_carta_asig', 'boletin carta asignaturas'.$period),
+                    ),
+                    3 => array(
+                        1 => array('boletin_oficio_areas_comp', 'boletin oficio areas competencia'.$period),
+                        2 => array('boletin_carta_areas_comp', 'boletin carta areas competencia'.$period),
+                    ),
+                    4 => array(
+                        1 => array('boletin_oficio_areas_proy', 'boletin oficio proy transversales'.$period),
+                        2 => array('boletin_carta_areas_proy', 'boletin carta proy transversales'.$period),
+                    ),
+                    5 => array(
+                        1 => array('boletin_oficio_areas2', 'boletin oficio areas'.$period),
+                        2 => array('boletin_carta_areas2', 'boletin carta areas'.$period),
+                    ),
+                    6 => array(
+                        1 => array('boletin_oficio_asig2', 'boletin oficio asignaturas'.$period),
+                        2 => array('boletin_carta_asig2', 'boletin carta asignaturas'.$period),
+                    ),
+                    9 => array(
+                        1 => array('boletin_oficio_areas3', 'boletin oficio areas'.$period),
+                        2 => array('boletin_carta_areas3', 'boletin carta areas'.$period),
+                    ),
+                    10 => array(
+                        1 => array('preinforme_oficio', 'preinforme '.$period),
+                        2 => array('preinforme_carta', ' preinforme '.$period),
+                    ),
+                    11 => array(
+                        1 => array('boletin_oficio_sin_notas', 'Boletin sin notas '.$period),
+                        2 => array('boletin_oficio_sin_notas_carta', ' Boletin sin notas '.$period),
+                    ),
+                    'default' => array(
+                        1 => array('boletin_oficio_areas', 'boletin oficio areas'.$period),
+                        2 => array('boletin_carta_areas', 'boletin carta areas'.$period),
+                    ),
+                );
+
+                if (isset($report_mapping[$typeReport])) {
+                    $reportName = $report_mapping[$typeReport][$hojaReport][0];
+                    $reportDescription = $report_mapping[$typeReport][$hojaReport][1];
+                } else {
+                    $reportName = $report_mapping['default'][$hojaReport][0];
+                    $reportDescription = $report_mapping['default'][$hojaReport][1];
                 }
             }
 
-            $query  = "CALL ".$db."`sp_boletines_reportes`(".$id_sede.",'".$c_grado."','".$grupo."',".$cod_jorn.",".$year.",".$periodo.",".$matric.")";
-            $queryp = DB::Table("{$db}configboletin")
-                        ->first();
-            $active		= $queryp->activeindica ?? 0;
-            $active_msg	= $queryp->activamsg ?? 0;
-            $escala	    = RatingScale::getScaleString($c_grado, $year, $db);
-            $params = array(
+            $query  = "CALL {$db}sp_boletines_reportes({$headquarterId},{$gradoId},'{$groupCode}',{$studyDayId},{$year},{$period},{$matric})";
+            $queryp = DB::Table("{$db}configboletin")->first();
+            $escala	    = RatingScale::getScaleString($gradoId, $year, $db);
+            $params = [
                 'R_ESCALA'		=> $escala,
-                'R_MSG_IND'		=> $active,
-                'R_MSG_ACT'		=> $active_msg
-            );
+                'R_MSG_IND'		=> $queryp->activeindica ?? 0,
+                'R_MSG_ACT'		=> $queryp->activamsg ?? 0
+            ];
 
             $path       = "{$school->path}";
-            return (new JReportModel())->getReportExport($report,$report_export,$format,$query,$path, $school->school, $params);
+            return (new JReportModel())->getReportExport($reportName,$reportDescription,$format,$query,$path, $school->school, $params);
         } catch (\Exception $e) {
             return self::getResponse500([
                 'error' => $e->getMessage()

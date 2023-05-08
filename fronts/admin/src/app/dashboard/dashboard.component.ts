@@ -37,8 +37,6 @@ export class DashboardComponent implements OnInit {
               params.profile    = role.profile;
               localStorage.setItem(this._http.getApiJwt(), JSON.stringify(params));
           }
-          console.log(school);
-          console.log(role);
           this.blockUI.stop(); // Stop blocking
           const url = `${this._http.getAppUrl()}/admin`;
           window.open(url,'_blank');

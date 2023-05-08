@@ -20,7 +20,7 @@ class SchoolQueries
                 'db'                => "{$school->database_name}.",
                 'database_name'     => $school->database_name,
                 'year'              => $year,
-                'pdbYear'           => $request->input('pdbYear'),#
+                'pdbYear'           => $request->input('pdbYear'),
                 'grade' 	        => $request->input('pdbGrado'),#
                 'group'	            => $request->input('pdbGrupo'),#
                 'headquarter'	    => $request->input('pdbSede'),#

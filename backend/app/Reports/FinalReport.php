@@ -23,7 +23,6 @@ class FinalReport
         $one	    = $request->input('pdbMatric');
         $h		    = $request->input('pdbHoja');
         $tp		    = $request->input('pdbType');
-        $per	    = $request->input('pdbPer');
         $mod	    = $request->input('pdbModelo');
         $dist	    = $request->input('pdbDistrib');
         $levelId    = SchoolLevel::getLevelId($db, $school->grade);
@@ -34,7 +33,7 @@ class FinalReport
                 }else{
                     $report	= 'certificado_final_carta_distri';
                 }
-                $query	= "CALL `sp_select_areasf`(".$year.",".$school->headquarter.",'".$school->grade."','".$school->group."',".$school->workingDay.",".$one.",".$dist.")";
+                $query	= "CALL {$db}sp_select_areasf(".$year.",".$school->headquarter.",'".$school->grade."','".$school->group."',".$school->workingDay.",".$one.",".$dist.")";
             }else{
                 // Solo Áreas
                 if ($tp == 1){
@@ -43,21 +42,21 @@ class FinalReport
                     }else{
                         $report	= 'certificado_final_areas_carta';
                     }
-                    $query	= "CALL `sp_select_areasf_agrupada`(".$year.",".$school->headquarter.",'".$school->grade."','".$school->group."',".$school->workingDay.",".$one.")";
+                    $query	= "CALL {$db}sp_select_areasf_agrupada(".$year.",".$school->headquarter.",'".$school->grade."','".$school->group."',".$school->workingDay.",".$one.")";
                 }else{
                     if ($h == '1'){
                         $report	= 'certificado_final';
                     }else{
                         $report	= 'certificado_final_carta';
                     }
-                    $query	= "CALL `sp_select_areasf`(".$year.",".$school->headquarter.",'".$school->grade."','".$school->group."',".$school->workingDay.",".$one.",0)";
+                    $query	= "CALL {$db}sp_select_areasf(".$year.",".$school->headquarter.",'".$school->grade."','".$school->group."',".$school->workingDay.",".$one.",0)";
                 }
             }
         }else{
             $periodo = 5;
             $query	= sprintf("SELECT periodo FROM %speriodos_academicos AS td "."
-                            LEFT JOIN %sgrados_agrupados AS t1 ON td.id_grado_agrupado = t1.id "."
-                            LEFT JOIN %saux_grados_agrupados AS t2 ON t2.id_grado_agrupado = t1.id "."
+                            JOIN %sgrados_agrupados AS t1 ON td.id_grado_agrupado = t1.id "."
+                            JOIN %saux_grados_agrupados AS t2 ON t2.id_grado_agrupado = t1.id "."
                             WHERE td.year = %s AND t2.id_grado = %s "."
                             ORDER BY td.periodo DESC LIMIT 1", $db, $db, $db, $year, $school->grade);
             $query	= DB::select($query);
@@ -71,7 +70,7 @@ class FinalReport
             }else{
                 $report	= 'certificado_final_carta_preescolar';
             }
-            $query	= 	"CALL `sp_boletines_reportes`(".$school->headquarter.",'".$school->grade."','".$school->group."',".$school->workingDay.",".$year.",'".$periodo."',".$one.")";
+            $query	= 	"CALL {$db}sp_boletines_reportes(".$school->headquarter.",'".$school->grade."','".$school->group."',".$school->workingDay.",".$year.",'".$periodo."',".$one.")";
         }
 
         if($school->grade > 15){
@@ -87,8 +86,8 @@ class FinalReport
 
         $sql	= "SELECT t.*, RIGHT(CONCAT('0000000',t2.total),7) cons, t2.year, r.logo, r.escudo, r.pie ".
                         "FROM ".$db."config_const_cert_end AS t ".
-                        "LEFT JOIN ".$db."certificate_numbers AS t2 ON t2.id_parent = t.id ".
-                        "LEFT JOIN ".$db."encabezado_reportes AS r ON r.id > 0 ".
+                        "JOIN ".$db."certificate_numbers AS t2 ON t2.id_parent = t.id ".
+                        "JOIN ".$db."encabezado_reportes AS r ON r.id > 0 ".
                         " WHERE ".$year." BETWEEN t.year_from AND t.year_until AND t2.year =".$year." AND t.type = ".
                         $type." LIMIT 1";
         $sql	= DB::select($sql);
@@ -109,6 +108,9 @@ class FinalReport
         return (new JReportModel())->getReportExport($report,$report_export,$school->format,$query,$school->path, $school->school, $params);
     }
 
+    /**
+     * @throws \Exception
+     */
     public static function getFinalReport(Request $request): JsonResponse
     {
         $school     = SchoolQueries::getSchoolRequest($request);
@@ -133,7 +135,7 @@ class FinalReport
                     $report	= 'libro_final_carta';
                 }
             }
-            $query	= "CALL `sp_select_areasf`(".$year.",".$school->headquarter.",'".$school->grade."','".$school->group."',".$school->workingDay.",".$one.",0)";
+            $query	= "CALL {$db}sp_select_areasf(".$year.",".$school->headquarter.",'".$school->grade."','".$school->group."',".$school->workingDay.",".$one.",0)";
         }else{
             $periodo = 5;
             $query	= sprintf("SELECT periodo FROM %speriodos_academicos AS td "."
@@ -150,7 +152,7 @@ class FinalReport
             }else{
                 $report	= 'libro_carta_prescolar';
             }
-            $query	= "CALL `sp_boletines_reportes`(".$school->headquarter.",'".$school->grade."','".$school->group."',".$school->workingDay.",".$year.",'".$periodo."',".$one.")";
+            $query	= "CALL {$db}sp_boletines_reportes(".$school->headquarter.",'".$school->grade."','".$school->group."',".$school->workingDay.",".$year.",'".$periodo."',".$one.")";
         }
         $report_export	= 'Informe final';
         $params         = [

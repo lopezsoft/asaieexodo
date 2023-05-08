@@ -1,8 +1,8 @@
 import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
-import { UserTypes } from './../../models/users-model';
-import { FormComponent } from './../../core/components/forms/form.component';
+import { UserTypes } from '../../models/users-model';
+import { FormComponent } from '../../core/components/forms';
 import { UsersService } from '../../services/users/users.service';
 import {GlobalService} from "../../core/common/global.service";
 import {ActivatedRoute} from "@angular/router";

@@ -23,8 +23,10 @@ import InputAdornment from '@mui/material/InputAdornment'
 import MuiFormControlLabel, { FormControlLabelProps } from '@mui/material/FormControlLabel'
 
 //login
-import { useRouter } from 'next/router'
-import { signIn } from 'next-auth/react'
+// import { useRouter } from 'next/router'
+// import { signIn } from 'next-auth/react'
+
+import { AuthClient } from '../../common/auth/AuthClient'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
@@ -95,8 +97,8 @@ const schema = yup.object().shape({
 })
 
 const defaultValues = {
-  password: 'admin',
-  email: 'admin@vuexy.com'
+  password: '101384',
+  email: 'lopezsoft.com@gmail.com'
 }
 
 interface FormData {
@@ -130,32 +132,35 @@ const LoginPage = () => {
     resolver: yupResolver(schema)
   })
 
-  //login
-  const router = useRouter()
-
   const onSubmit = (data: FormData) => {
     const { email, password } = data
-    signIn('credentials', { email, password, redirect: false }).then(res => {
-      if (res && res.ok) {
-        const returnUrl = router.query.returnUrl
-        const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/dashboard'
-
-        router.replace(redirectURL as string)
-      } else {
-        setError('email', {
-          type: 'manual',
-          message: 'Email o contraseña inválidos'
-        })
-      }
-    })
+    AuthClient.login({ email, password })
+      .then(response => {
+        if (response && response.data.success) {
+          const redirectURL = '/dashboard'
+          window.location.href = redirectURL
+        } else {
+          setError('email', {
+            type: 'manual',
+            message: 'Email o contraseña inválidos'
+          })
+        }
+      })
+      .catch(error => {
+        if (error.response && error.response.status === 401) {
+          console.log('Usuario no autenticado')
+        } else {
+          console.error(error)
+        }
+      })
   }
+
 
   const imageSource = skin === 'bordered' ? 'auth-v2-login-illustration-bordered' : 'auth-v2-login-illustration'
 
   return (
     <Box className='content-right' sx={{ backgroundColor: 'background.paper' }}>
-      {/* <LoginIllustration alt='logo' src={`/images/pages/logo.png`} />
-      <Typography sx={{ color: 'text.secondary' }}>asaie éxodo</Typography> */}
+
       {!hidden ? (
         <Box
           sx={{

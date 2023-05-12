@@ -12,7 +12,7 @@ interface AuthGuardProps {
   fallback: ReactElement | null
 }
 
-const AuthGuard = (props: AuthGuardProps) => {
+const AuthGuard1 = (props: AuthGuardProps) => {
   const { children, fallback } = props
   const auth = useAuth()
   const router = useRouter()
@@ -45,4 +45,4 @@ const AuthGuard = (props: AuthGuardProps) => {
   return <>{children}</>
 }
 
-export default AuthGuard
+export default AuthGuard1

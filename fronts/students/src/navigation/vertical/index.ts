@@ -1,6 +1,9 @@
 // ** Type import
 import { VerticalNavItemsType } from 'src/@core/layouts/types'
 
+
+
+
 const navigation = (): VerticalNavItemsType => {
   return [
     {
@@ -21,8 +24,8 @@ const navigation = (): VerticalNavItemsType => {
       icon: 'tabler:shield'
     },
     {
-      title: 'granjas',
-      path: '/granjas',
+      title: 'dashboard',
+      path: '/dashboard',
       icon: 'tabler:mail'
     }
   ]

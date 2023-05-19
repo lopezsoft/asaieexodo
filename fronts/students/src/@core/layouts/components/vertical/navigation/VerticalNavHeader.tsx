@@ -36,7 +36,8 @@ const MenuHeaderWrapper = styled(Box)<BoxProps>(({ theme }) => ({
   justifyContent: 'space-between',
   paddingRight: theme.spacing(4.5),
   transition: 'padding .25s ease-in-out',
-  minHeight: theme.mixins.toolbar.minHeight
+  minHeight: theme.mixins.toolbar.minHeight,
+  backgroundColor: '#2556a3'
 }))
 
 const HeaderTitle = styled(Typography)<TypographyProps>(({ theme }) => ({
@@ -45,12 +46,16 @@ const HeaderTitle = styled(Typography)<TypographyProps>(({ theme }) => ({
   fontSize: '1.375rem !important',
   color: theme.palette.text.primary,
   transition: 'opacity .25s ease-in-out, margin .25s ease-in-out'
+
+
 }))
 
 const LinkStyled = styled(Link)({
   display: 'flex',
   alignItems: 'center',
-  textDecoration: 'none'
+  textDecoration: 'none',
+
+
 })
 
 const VerticalNavHeader = (props: Props) => {
@@ -96,7 +101,7 @@ const VerticalNavHeader = (props: Props) => {
       sx={{
         pl: menuHeaderPaddingLeft(),
         '& .MuiTypography-root, & .MuiIconButton-root': {
-          color: 'text.primary'
+          color: '#FFF',
         }
       }}
     >
@@ -158,6 +163,7 @@ const VerticalNavHeader = (props: Props) => {
           onClick={() => saveSettings({ ...settings, navCollapsed: !navCollapsed })}
           sx={{
             p: 0,
+
             backgroundColor: 'transparent !important',
             '& svg': {
               fontSize: '1.25rem',

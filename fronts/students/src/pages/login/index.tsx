@@ -28,6 +28,9 @@ import MuiFormControlLabel, { FormControlLabelProps } from '@mui/material/FormCo
 
 import { AuthClient } from '../../common/auth/AuthClient'
 
+// import {  AuthController as Auth } from '../../common/controllers/AuthController';
+
+
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
 
@@ -133,27 +136,43 @@ const LoginPage = () => {
   })
 
   const onSubmit = (data: FormData) => {
-    const { email, password } = data
+    const { email, password } = data;
     AuthClient.login({ email, password })
       .then(response => {
         if (response && response.data.success) {
-          const redirectURL = '/dashboard'
-          window.location.href = redirectURL
+          // const token = Auth.token;
+          // const userCredentials ={ ...data, token };
+          // console.log(userCredentials);
+          console.log("dentrando a submit");
+
+          // const base =process.env.NEXT_PUBLIC_API_URL
+
+          // const redirectURL = `${base}/dashboard`;
+
+           const redirectURL = '/dashboard';
+
+          window.location.href = redirectURL;
+
+          // window.location.replace(redirectURL);
+
+
+
         } else {
           setError('email', {
             type: 'manual',
             message: 'Email o contraseña inválidos'
-          })
+          });
         }
       })
       .catch(error => {
         if (error.response && error.response.status === 401) {
-          console.log('Usuario no autenticado')
+          console.log('Usuario no autenticado');
         } else {
-          console.error(error)
+          console.error(error);
         }
-      })
-  }
+      });
+  };
+
 
 
   const imageSource = skin === 'bordered' ? 'auth-v2-login-illustration-bordered' : 'auth-v2-login-illustration'

@@ -1,9 +1,6 @@
 // ** Type import
 import { VerticalNavItemsType } from 'src/@core/layouts/types'
 
-
-
-
 const navigation = (): VerticalNavItemsType => {
   return [
     {
@@ -11,22 +8,30 @@ const navigation = (): VerticalNavItemsType => {
       path: '/home',
       icon: 'tabler:smart-home'
     },
-    {
-      title: 'Second Page',
-      path: '/second-page',
-      icon: 'tabler:mail'
-    },
-    {
-      path: '/acl',
-      action: 'read',
-      subject: 'acl-page',
-      title: 'Access Control',
-      icon: 'tabler:shield'
-    },
+
+    // {
+    //   title: 'Second Page',
+    //   path: '/second-page',
+    //   icon: 'tabler:mail'
+    // },
+    // {
+    //   path: '/acl',
+    //   action: 'read',
+    //   subject: 'acl-page',
+    //   title: 'Access Control',
+    //   icon: 'tabler:shield'
+    // },
     {
       title: 'dashboard',
       path: '/dashboard',
-      icon: 'tabler:mail'
+      icon: 'tabler:smart-home',
+
+    },
+    {
+      title: 'usuario',
+      path: '/profile',
+      icon: 'tabler:user',
+
     }
   ]
 }

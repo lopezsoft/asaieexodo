@@ -42,14 +42,14 @@ const Error401 = () => {
       <Box sx={{ p: 5, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
         <BoxWrapper>
           <Typography variant='h4' sx={{ mb: 1.5 }}>
-            You are not authorized!
+          No estas autorizado!
           </Typography>
           <Typography sx={{ color: 'text.secondary' }}>
-            You do not have permission to view this page using the credentials that you have provided while login.
+          No tiene permiso para ver esta página con las credenciales que proporcionó al iniciar sesión.
           </Typography>
-          <Typography sx={{ mb: 6, color: 'text.secondary' }}>Please contact your site administrator.</Typography>
-          <Button href='/' component={Link} variant='contained'>
-            Back to Home
+          <Typography sx={{ mb: 6, color: 'text.secondary' }}>Póngase en contacto con el administrador de su sitio</Typography>
+          <Button href='/login' component={Link} variant='contained'>
+            Atrás
           </Button>
         </BoxWrapper>
         <Img height='500' alt='error-illustration' src='/images/pages/401.png' />

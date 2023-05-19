@@ -25,6 +25,7 @@ export class AuthClient {
   }
 
 
+
   public static async reset(params: {}, token: string) {
     const baseUrl = `${AuthClient.apiUrl}/forgot-password/${token}`
     const response = await axios.post(baseUrl, params)

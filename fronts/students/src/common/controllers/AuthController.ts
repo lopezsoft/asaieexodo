@@ -64,7 +64,7 @@ export class AuthController {
     }
   }
 
-  private static getAccessToken(): string {
+  public static getAccessToken(): string {
     this.verifyAccessToken()
 
     const dataStr = localStorage.getItem(this.jwtName)
@@ -76,6 +76,14 @@ export class AuthController {
 
     return data ? data.access_token : ''
   }
+
+
+  // public static getAccessTokenForRequest(): string {
+  //   return this.getAccessToken();
+  // }
+
+
+
 
   public static getInstance(): AuthController {
     this._instance = AuthController.createInstance()

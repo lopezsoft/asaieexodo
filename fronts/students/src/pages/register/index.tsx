@@ -32,6 +32,8 @@ import { useSettings } from 'src/@core/hooks/useSettings'
 // ** Demo Imports
 import FooterIllustrationsV2 from 'src/views/pages/auth/FooterIllustrationsV2'
 
+import { useForm} from 'react-hook-form'
+
 // ** Styled Components
 const RegisterIllustration = styled('img')(({ theme }) => ({
   zIndex: 2,
@@ -74,6 +76,16 @@ const FormControlLabel = styled(MuiFormControlLabel)<FormControlLabelProps>(({ t
   }
 }))
 
+const defaultValues = {
+  first_name: '101384',
+
+}
+
+interface FormData {
+
+  first_name: string
+}
+
 const Register = () => {
   // ** States
   const [showPassword, setShowPassword] = useState<boolean>(false)
@@ -85,6 +97,42 @@ const Register = () => {
 
   // ** Vars
   const { skin } = settings
+
+
+  const {
+    // control,
+
+    handleSubmit,
+
+  } = useForm({
+    defaultValues,
+    mode: 'onBlur',
+
+  })
+
+  const onSubmit = (data: FormData) => {
+    const { email, password } = data
+    AuthClient.login({ email, password })
+      .then(response => {
+        if (response && response.data.success) {
+          const redirectURL = '/dashboard'
+          window.location.href = redirectURL
+        } else {
+          setError('email', {
+            type: 'manual',
+            message: 'Email o contraseña inválidos'
+          })
+        }
+      })
+      .catch(error => {
+        if (error.response && error.response.status === 401) {
+          console.log('Usuario no autenticado')
+        } else {
+          console.error(error)
+        }
+      })
+  }
+
 
   const imageSource = skin === 'bordered' ? 'auth-v2-register-illustration-bordered' : 'auth-v2-register-illustration'
 
@@ -168,7 +216,7 @@ const Register = () => {
                 my: theme => `${theme.spacing(3)} !important`
               }}
             ></Divider>
-            <form noValidate autoComplete='off' onSubmit={e => e.preventDefault()}>
+            <form noValidate autoComplete='off'  onSubmit={handleSubmit(onSubmit)}>
               <TextField autoFocus fullWidth sx={{ mb: 4 }} name='firstname' label='Nombre' placeholder='johndoe' />
               <TextField autoFocus fullWidth sx={{ mb: 4 }} name='last_name' label='apellidos' placeholder='torres' />
               <TextField fullWidth label='Email' sx={{ mb: 4 }} name='email' placeholder='user@email.com' />

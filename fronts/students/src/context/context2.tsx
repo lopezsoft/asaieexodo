@@ -7,20 +7,14 @@ import { useRouter } from 'next/router'
 // ** Axios
 import axios from 'axios'
 
-// import { AuthController } from 'src/common/controllers/AuthController'
+import { AuthController } from 'src/common/controllers/AuthController'
 
 // import {  AuthController as Auth } from '../common/controllers/AuthController'
 
-//  import  authConfig from '../configs/auth'
+ import  authConfig from '../configs/auth'
 
 // ** Types
 import { AuthValuesType, LoginParams, ErrCallbackType, UserDataType } from './types'
-import { AvrApiServerUrl } from '../common/core/Settings'
-
-export const axiosInstance = axios.create({
-  baseURL: `${AvrApiServerUrl}`,
-  withCredentials: false
-})
 
 // ** Defaults
 const defaultProvider: AuthValuesType = {
@@ -45,64 +39,74 @@ const AuthProvider = ({ children }: Props) => {
 
   // ** Hooks
   const router = useRouter()
-  const storageTokenKeyName= 'AvrJwtApi'
 
   useEffect(() => {
-
+    console.log('AuthContext');
     const initAuth = async (): Promise<void> => {
-      const storedToken = window.localStorage.getItem('AvrJwtApi');
 
-      // const userT = storedToken ? JSON.parse(storedToken).user : null
-      // const expired = storedToken ? JSON.parse(storedToken).expires_at : null;
-      // const success = storedToken ? JSON.parse(storedToken).success : null;
+
+      // const storedToken = window.localStorage.getItem(AuthController.storageTokenKeyName);
+
+      const storedToken = window.localStorage.getItem('AvrJwtApi');
+      const userT = storedToken ? JSON.parse(storedToken).user : null
+      const expired = storedToken ? JSON.parse(storedToken).expires_at : null;
+      const success = storedToken ? JSON.parse(storedToken).success : null;
+
+
+
+
+      console.log(expired);
+      console.log(userT);
+      console.log(storedToken);
+      console.log(success);
 
       if (storedToken) {
-        setLoading(true);
-        axiosInstance.defaults.headers.common['Authorization'] = storedToken;
-        const userT = storedToken ? JSON.parse(storedToken).user : null //->se obtiene usuario autenticado
-        headers: {
+        setLoading(true)
+        await axios
+
+          // .get(authConfig.meEndpoint, {
+          //   headers: {
+          //     Authorization: storedToken
+          //   }
+          // })
+          .get(authConfig.meEndpoint, {
+            headers: {
               Authorization: storedToken
             }
-        setLoading(false);
-        const role = 'admin';
+          })
 
-         setUser({ ...userT,role});
-        router.replace('/dashboard');
-      }else{
-        localStorage.removeItem('userData')
-        localStorage.removeItem('refreshToken')
-        localStorage.removeItem('accessToken')
-        setUser(null)
-        setLoading(false)
-        const expired = storedToken ? JSON.parse(storedToken).expires_at : null;
-        const currentDate = new Date();
-
-        if (expired > currentDate) {
-          router.replace('/logout');
-            } else if (!router.pathname.includes('login')) {
+          .then(async response => {
+            setLoading(false)
+            setUser({ ...response.data.userData })
+          })
+          .catch(() => {
+            localStorage.removeItem('userData')
+            localStorage.removeItem('refreshToken')
+            localStorage.removeItem('accessToken')
+            setUser(null)
+            setLoading(false)
+            if (authConfig.onTokenExpiration === 'logout' && !router.pathname.includes('login')) {
               router.replace('/login')
             }
-
-
+          })
+      } else {
+        setLoading(false)
       }
-      setLoading(false)}
+    }
 
     initAuth()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL
-
   const handleLogin = (params: LoginParams, errorCallback?: ErrCallbackType) => {
     axios
-
-      // .post(authConfig.loginEndpoint, params)
-      .post(`${apiUrl}/auth/login`, params)
+      .post(authConfig.loginEndpoint, params)
       .then(async response => {
         params.rememberMe
-          ? window.localStorage.setItem(storageTokenKeyName, response.data.storedToken)
+          ? window.localStorage.setItem(authConfig.storageTokenKeyName, response.data.accessToken)
           : null
         const returnUrl = router.query.returnUrl
+
         setUser({ ...response.data.userData })
         params.rememberMe ? window.localStorage.setItem('userData', JSON.stringify(response.data.userData)) : null
 
@@ -116,12 +120,10 @@ const AuthProvider = ({ children }: Props) => {
       })
   }
 
-
   const handleLogout = () => {
     setUser(null)
     window.localStorage.removeItem('userData')
-    const storageTokenKeyName= 'AvrJwtApi'
-    window.localStorage.removeItem(storageTokenKeyName)
+    window.localStorage.removeItem(authConfig.storageTokenKeyName)
     router.push('/login')
   }
 

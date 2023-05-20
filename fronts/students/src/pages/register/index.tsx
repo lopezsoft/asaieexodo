@@ -32,7 +32,12 @@ import { useSettings } from 'src/@core/hooks/useSettings'
 // ** Demo Imports
 import FooterIllustrationsV2 from 'src/views/pages/auth/FooterIllustrationsV2'
 
-import { useForm} from 'react-hook-form'
+import { useForm,Controller} from 'react-hook-form'
+import { AuthUser } from 'src/common/user/AuthUser'
+
+// import { SubmitHandler } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup'
+import * as yup from 'yup'
 
 // ** Styled Components
 const RegisterIllustration = styled('img')(({ theme }) => ({
@@ -76,15 +81,29 @@ const FormControlLabel = styled(MuiFormControlLabel)<FormControlLabelProps>(({ t
   }
 }))
 
-const defaultValues = {
-  first_name: '101384',
+const schema = yup.object().shape({
+  email: yup.string().email().required(),
+  password: yup.string().min(5).required()
+})
 
+// const defaultValues = {
+//   first_name: 'Roberto',
+//   last_name:'moncada',
+//   email:'moncada1234@gmal.com',
+//   password:'123456784',
+//   password_confirmation:'123456784'
+
+
+// }
+
+interface FormDataRegister {
+  first_name: string;
+  last_name: string;
+  email: string;
+  password: string;
+  password_confirmation: string;
 }
 
-interface FormData {
-
-  first_name: string
-}
 
 const Register = () => {
   // ** States
@@ -99,39 +118,71 @@ const Register = () => {
   const { skin } = settings
 
 
+  // const {
+  //   // control,
+
+  //   handleSubmit,
+
+  // } = useForm({
+  //   // defaultValues,
+  //   mode: 'onBlur',
+  //   resolver: yupResolver(schema)
+
+  // })
   const {
-    // control,
-
+    control,
+    setError,
     handleSubmit,
-
+    formState: { errors }
   } = useForm({
-    defaultValues,
+    // defaultValues,
     mode: 'onBlur',
-
+    resolver: yupResolver(schema)
   })
 
-  const onSubmit = (data: FormData) => {
-    const { email, password } = data
-    AuthClient.login({ email, password })
-      .then(response => {
+  // const onSubmit: SubmitHandler<FormData> = (data) => {
+  //   const { first_name, last_name, email, password, password_confirmation } = data;
+
+  //   AuthUser.registerPersonUser({ first_name, last_name, email, password, password_confirmation })
+  //     .then((response) => {
+  //       if (response && response.data.success) {
+  //         const redirectURL = '/login';
+  //         window.location.href = redirectURL;
+  //         console.log("usuario registrado correctamente")
+  //       } else {
+  //         console.error('Error en el registro');
+  //       }
+  //     })
+  //     .catch((error) => {
+  //       console.error(error);
+  //     });
+  // };
+
+
+  // const { first_name, last_name, email, password, password_confirmation } = data;
+
+  //   AuthUser.registerPersonUser({ first_name, last_name, email, password, password_confirmation })
+
+  const onSubmit = (data: FormDataRegister) => {
+    const { first_name, last_name, email, password, password_confirmation } = data;
+
+    AuthUser.registerPersonUser({ first_name, last_name, email, password, password_confirmation })
+      .then((response) => {
         if (response && response.data.success) {
-          const redirectURL = '/dashboard'
-          window.location.href = redirectURL
+          const redirectURL = '/login';
+          window.location.href = redirectURL;
+          console.log("usuario registrado correctamente")
         } else {
-          setError('email', {
-            type: 'manual',
-            message: 'Email o contraseña inválidos'
-          })
+          console.error('Error en el registro');
         }
       })
-      .catch(error => {
-        if (error.response && error.response.status === 401) {
-          console.log('Usuario no autenticado')
-        } else {
-          console.error(error)
-        }
-      })
-  }
+      .catch((error) => {
+        console.error(error);
+      });
+  };
+
+
+
 
 
   const imageSource = skin === 'bordered' ? 'auth-v2-register-illustration-bordered' : 'auth-v2-register-illustration'
@@ -216,85 +267,108 @@ const Register = () => {
                 my: theme => `${theme.spacing(3)} !important`
               }}
             ></Divider>
-            <form noValidate autoComplete='off'  onSubmit={handleSubmit(onSubmit)}>
-              <TextField autoFocus fullWidth sx={{ mb: 4 }} name='firstname' label='Nombre' placeholder='johndoe' />
-              <TextField autoFocus fullWidth sx={{ mb: 4 }} name='last_name' label='apellidos' placeholder='torres' />
-              <TextField fullWidth label='Email' sx={{ mb: 4 }} name='email' placeholder='user@email.com' />
-              <FormControl fullWidth sx={{ mb: 4 }}>
-                <InputLabel htmlFor='auth-login-v2-password'>Contraseña</InputLabel>
-                <OutlinedInput
-                  label='Password'
-                  id='auth-login-v2-password'
-                  name='password'
-                  type={showPassword ? 'text' : 'password'}
-                  endAdornment={
-                    <InputAdornment position='end'>
-                      <IconButton
-                        edge='end'
-                        onMouseDown={e => e.preventDefault()}
-                        onClick={() => setShowPassword(!showPassword)}
-                      >
-                        <Icon icon={showPassword ? 'tabler:eye' : 'tabler:eye-off'} fontSize={20} />
-                      </IconButton>
-                    </InputAdornment>
-                  }
+
+              <form noValidate autoComplete='off' onSubmit={handleSubmit(onSubmit)}>
+                <Controller
+                  name='first_name'
+                  control={control}
+                  rules={{ required: true }}
+                  render={({ field }) => (
+                    <TextField
+                      autoFocus
+                      fullWidth
+                      sx={{ mb: 4 }}
+                      label='Nombre'
+                      placeholder='johndoe'
+                      {...field}
+                      error={Boolean(errors.first_name)}
+                    />
+                  )}
                 />
-              </FormControl>
-              <TextField
-                fullWidth
-                type='password'
-                label='confirmar contraseña'
-                sx={{ mb: 4 }}
-                name='password_confirmation'
-                placeholder='contraseña'
-              />
 
-              <FormControlLabel
-                control={<Checkbox />}
-                sx={{ mb: 4, mt: 1.5, '& .MuiFormControlLabel-label': { fontSize: '0.875rem' } }}
-                label={
-                  <>
-                    <Typography variant='body2' component='span'>
-                      Estoy de acuerdo{' '}
-                    </Typography>
-                    <LinkStyled href='/' onClick={e => e.preventDefault()}>
-                      política de privacidad y términos
-                    </LinkStyled>
-                  </>
-                }
-              />
+                <Controller
+                  name='last_name'
+                  control={control}
+                  rules={{ required: true }}
+                  render={({ field }) => (
+                    <TextField
+                      autoFocus
+                      fullWidth
+                      sx={{ mb: 4 }}
+                      label='Apellidos'
+                      placeholder='torres'
+                      {...field}
+                      error={Boolean(errors.last_name)}
+                    />
+                  )}
+                />
+
+                <Controller
+                  name='email'
+                  control={control}
+                  rules={{ required: true }}
+                  render={({ field }) => (
+                    <TextField
+                      fullWidth
+                      label='Email'
+                      sx={{ mb: 4 }}
+                      placeholder='user@email.com'
+                      {...field}
+                      error={Boolean(errors.email)}
+                    />
+                  )}
+                />
+
+                <Controller
+                  name='password'
+                  control={control}
+                  rules={{ required: true }}
+                  render={({ field }) => (
+                    <FormControl fullWidth sx={{ mb: 4 }}>
+                      <InputLabel htmlFor='auth-login-v2-password'>Contraseña</InputLabel>
+                      <OutlinedInput
+                        label='Password'
+                        id='auth-login-v2-password'
+                        type={showPassword ? 'text' : 'password'}
+                        endAdornment={
+                          <InputAdornment position='end'>
+                            <IconButton
+                              edge='end'
+                              onMouseDown={(e) => e.preventDefault()}
+                              onClick={() => setShowPassword(!showPassword)}
+                            >
+                              <Icon icon={showPassword ? 'tabler:eye' : 'tabler:eye-off'} fontSize={20} />
+                            </IconButton>
+                          </InputAdornment>
+                        }
+                        {...field}
+                        error={Boolean(errors.password)}
+                      />
+                    </FormControl>
+                  )}
+                />
+
+                <Controller
+                  name='password_confirmation'
+                  control={control}
+                  rules={{ required: true }}
+                  render={({ field }) => (
+                    <TextField
+                      fullWidth
+                      type='password'
+                      label='Confirmar contraseña'
+                      sx={{ mb: 4 }}
+                      placeholder='contraseña'
+                      {...field}
+                      error={Boolean(errors.password_confirmation)}
+                    />
+                  )}
+                />
+
               <Button fullWidth size='large' type='submit' variant='contained' sx={{ mb: 4 }}>
-                Registrarse
+                              Registrarse
               </Button>
-              <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
-                <Typography sx={{ color: 'text.secondary', mr: 2 }}>¿Ya tienes cuenta?</Typography>
-                <Typography variant='body2'>
-                  <LinkStyled href='/login' sx={{ fontSize: '1rem' }}>
-                    iniciar sesión
-                  </LinkStyled>
-                </Typography>
-              </Box>
-
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <IconButton href='/' component={Link} sx={{ color: '#497ce2' }} onClick={e => e.preventDefault()}>
-                  <Icon icon='mdi:facebook' />
-                </IconButton>
-                <IconButton href='/' component={Link} sx={{ color: '#1da1f2' }} onClick={e => e.preventDefault()}>
-                  <Icon icon='mdi:twitter' />
-                </IconButton>
-                <IconButton
-                  href='/'
-                  component={Link}
-                  onClick={e => e.preventDefault()}
-                  sx={{ color: theme => (theme.palette.mode === 'light' ? '#272727' : 'grey.300') }}
-                >
-                  <Icon icon='mdi:github' />
-                </IconButton>
-                <IconButton href='/' component={Link} sx={{ color: '#db4437' }} onClick={e => e.preventDefault()}>
-                  <Icon icon='mdi:google' />
-                </IconButton>
-              </Box>
-            </form>
+              </form>
           </Box>
         </Box>
       </RightWrapper>

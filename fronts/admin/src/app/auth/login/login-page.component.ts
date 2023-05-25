@@ -11,7 +11,7 @@ import { ViewChild } from '@angular/core';
 // Singletons
 import {GlobalService} from "../../core/common/global.service";
 import {TranslateService} from "@ngx-translate/core";
-
+  
 @Component({
   selector: 'app-login-page',
   templateUrl: './login-page.component.html',

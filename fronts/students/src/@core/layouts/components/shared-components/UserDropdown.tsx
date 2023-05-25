@@ -80,6 +80,8 @@ const UserDropdown = (props: Props) => {
       color: 'text.primary'
     }
   }
+  const storedToken = window.localStorage.getItem('AvrJwtApi');
+  const userT = storedToken ? JSON.parse(storedToken).user : null;
 
   const handleLogout = () => {
     logout()
@@ -126,16 +128,17 @@ const UserDropdown = (props: Props) => {
               <Avatar alt='John Doe' src='/images/avatars/1.png' sx={{ width: '2.5rem', height: '2.5rem' }} />
             </Badge>
             <Box sx={{ display: 'flex', ml: 2.5, alignItems: 'flex-start', flexDirection: 'column' }}>
-              <Typography sx={{ fontWeight: 500 }}>Usuario</Typography>
+              <Typography sx={{ fontWeight: 500 }}>{userT.fullname}</Typography>
               <Typography variant='body2'>Admin</Typography>
             </Box>
           </Box>
         </Box>
+
         <Divider sx={{ my: theme => `${theme.spacing(2)} !important` }} />
         <MenuItemStyled sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
           <Box sx={styles}>
-            <Icon icon='tabler:user-check' />
-            Perfil
+            <Icon icon='tabler:eye-closed' />
+            Cerrar
           </Box>
         </MenuItemStyled>
 

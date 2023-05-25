@@ -9,18 +9,6 @@ const navigation = (): VerticalNavItemsType => {
       icon: 'tabler:smart-home'
     },
 
-    // {
-    //   title: 'Second Page',
-    //   path: '/second-page',
-    //   icon: 'tabler:mail'
-    // },
-    // {
-    //   path: '/acl',
-    //   action: 'read',
-    //   subject: 'acl-page',
-    //   title: 'Access Control',
-    //   icon: 'tabler:shield'
-    // },
     {
       title: 'dashboard',
       path: '/dashboard',
@@ -32,7 +20,21 @@ const navigation = (): VerticalNavItemsType => {
       path: '/profile',
       icon: 'tabler:user',
 
-    }
+      children: [
+        {
+          title: 'perfil',
+          path: '/edit',
+          icon: 'tabler:eye-edit'
+        },]
+
+    },
+
+    // {
+    //   title: 'edit',
+    //   path: '/edit',
+    //   icon: 'tabler:eye-edit'
+    // },
+
   ]
 }
 

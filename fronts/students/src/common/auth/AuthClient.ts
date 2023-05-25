@@ -45,6 +45,22 @@ export class AuthClient {
     return response
   }
 
+  public static TokenUserId() {
+    const storedToken = window.localStorage.getItem('AvrJwtApi');
+    let response = null;
+
+    if (storedToken) {
+      const tokenData = JSON.parse(storedToken);
+      const id = tokenData.user.id;
+      response = id;
+    } else {
+      response = null;
+      console.log('No se encontró el token en el LocalStorage');
+    }
+
+    return response;
+  }
+
   // public static async email(data: Record<string, any>) {
   //   return await Http.post('/auth/password/email', data)
   // }

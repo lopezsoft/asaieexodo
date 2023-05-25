@@ -7,7 +7,6 @@ import Link from 'next/link'
 // ** MUI Components
 import Button from '@mui/material/Button'
 import Divider from '@mui/material/Divider'
-import Checkbox from '@mui/material/Checkbox'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import InputLabel from '@mui/material/InputLabel'
@@ -18,7 +17,8 @@ import useMediaQuery from '@mui/material/useMediaQuery'
 import OutlinedInput from '@mui/material/OutlinedInput'
 import { styled, useTheme } from '@mui/material/styles'
 import InputAdornment from '@mui/material/InputAdornment'
-import MuiFormControlLabel, { FormControlLabelProps } from '@mui/material/FormControlLabel'
+
+// import MuiFormControlLabel, { FormControlLabelProps } from '@mui/material/FormControlLabel'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
@@ -66,25 +66,16 @@ const RightWrapper = styled(Box)<BoxProps>(({ theme }) => ({
   }
 }))
 
-const LinkStyled = styled(Link)(({ theme }) => ({
-  fontSize: '0.875rem',
-  textDecoration: 'none',
-  color: theme.palette.primary.main
-}))
-
-const FormControlLabel = styled(MuiFormControlLabel)<FormControlLabelProps>(({ theme }) => ({
-  marginTop: theme.spacing(1.5),
-  marginBottom: theme.spacing(1.75),
-  '& .MuiFormControlLabel-label': {
-    fontSize: '0.875rem',
-    color: theme.palette.text.secondary
-  }
-}))
 
 const schema = yup.object().shape({
   email: yup.string().email().required(),
   password: yup.string().min(5).required()
 })
+const LinkStyled = styled(Link)(({ theme }) => ({
+  fontSize: '0.875rem',
+  textDecoration: 'none',
+  color: theme.palette.primary.main
+}))
 
 // const defaultValues = {
 //   first_name: 'Roberto',
@@ -102,6 +93,8 @@ interface FormDataRegister {
   email: string;
   password: string;
   password_confirmation: string;
+  active:string;
+
 }
 
 
@@ -117,21 +110,10 @@ const Register = () => {
   // ** Vars
   const { skin } = settings
 
-
-  // const {
-  //   // control,
-
-  //   handleSubmit,
-
-  // } = useForm({
-  //   // defaultValues,
-  //   mode: 'onBlur',
-  //   resolver: yupResolver(schema)
-
-  // })
   const {
     control,
-    setError,
+
+    // setError,
     handleSubmit,
     formState: { errors }
   } = useForm({
@@ -139,29 +121,6 @@ const Register = () => {
     mode: 'onBlur',
     resolver: yupResolver(schema)
   })
-
-  // const onSubmit: SubmitHandler<FormData> = (data) => {
-  //   const { first_name, last_name, email, password, password_confirmation } = data;
-
-  //   AuthUser.registerPersonUser({ first_name, last_name, email, password, password_confirmation })
-  //     .then((response) => {
-  //       if (response && response.data.success) {
-  //         const redirectURL = '/login';
-  //         window.location.href = redirectURL;
-  //         console.log("usuario registrado correctamente")
-  //       } else {
-  //         console.error('Error en el registro');
-  //       }
-  //     })
-  //     .catch((error) => {
-  //       console.error(error);
-  //     });
-  // };
-
-
-  // const { first_name, last_name, email, password, password_confirmation } = data;
-
-  //   AuthUser.registerPersonUser({ first_name, last_name, email, password, password_confirmation })
 
   const onSubmit = (data: FormDataRegister) => {
     const { first_name, last_name, email, password, password_confirmation } = data;
@@ -369,9 +328,16 @@ const Register = () => {
                               Registrarse
               </Button>
               </form>
+              <Typography sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', '& svg': { mr: 1 } }}>
+                <LinkStyled href='/login'>
+                  <Icon fontSize='1.25rem' icon='tabler:arrow-autofit-left' />
+                    <span>volver a login</span>
+                </LinkStyled>
+              </Typography>
           </Box>
         </Box>
       </RightWrapper>
+
     </Box>
   )
 }

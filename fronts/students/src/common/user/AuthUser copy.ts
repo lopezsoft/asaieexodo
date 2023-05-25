@@ -7,7 +7,7 @@ import  {HttpController as Http}  from '../controllers/HttpController';
 import axios, { AxiosResponse } from 'axios'
 import { JsonResponse } from '../contracts/JsonResponseContract'
 import { AvrApiServerUrl } from '../core/Settings'
-
+import DataUpdate from '../../common/contracts/AuthContract'
 
 
 export const axiosInstance = axios.create({
@@ -34,30 +34,21 @@ export class AuthUser {
 
 
 
-  // public static async updateUser(id: number, userData: Record<string, any>) {
-  public static async updateUser(id: number, userData: UserContract) {
+  public static async updateUser(id: number, data: Record<string, any>) {
 
-    console.log("peticion Http "+id);
+    const baseUrl    = `/auth/user/update/${id}`;
 
-    console.log("info que se recoge",userData);
-
-    const baseUrl    = `${AuthUser.apiUrl}/auth/user/update/${id}`;
-    const response   = await Http.put(baseUrl, userData);
-
-    const dataU      = response.data as unknown as UserContract;
-    console.log(dataU);
+    const response   = await Http.put(baseUrl, data);
 
 
+    const dataU      = response.data as unknown as DataUpdate;
     if (response.data.success) {
-        Auth.updateUserAuthData(userData);
-        Auth.setUserUpdatedAction(this.updateUser);
-
-
+     console.log(1);
+      console.log(dataU);
     }
 
     return response;
   }
-
 
 
 

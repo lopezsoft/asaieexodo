@@ -3,6 +3,8 @@ import { toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import axios from 'axios'
 
+
+
 const apiUrl = process.env.NEXT_PUBLIC_API_URL
 
 export class AuthController {
@@ -55,9 +57,11 @@ export class AuthController {
 
   private static verifyAccessToken() {
     const data = JSON.parse(localStorage.getItem(this.jwtName) ?? 'null') as LoginContract
+    console.log(data);
     if (data && data.expires_at) {
       const dt = new Date()
       const expires_at = parseInt(data?.expires_at)
+
       if (dt.getTime() > expires_at) {
         this.clearAuthData()
       }
@@ -78,12 +82,6 @@ export class AuthController {
   }
 
 
-  // public static getAccessTokenForRequest(): string {
-  //   return this.getAccessToken();
-  // }
-
-
-
 
   public static getInstance(): AuthController {
     this._instance = AuthController.createInstance()
@@ -91,13 +89,18 @@ export class AuthController {
     return this._instance
   }
 
+  // actualizar usuario en el storage
   public static updateUserAuthData(userData: UserContract) {
+    console.log("última funcion AuthController");
+    console.log(userData);
     this._user = { ...this._user, ...userData }
+    console.log("esto es el usuario: "+JSON.stringify(this._user));
     if (this._loginData) {
       this._loginData.user = this._user
+      console.log("esto es _loginData: "+JSON.stringify(this._loginData.user));
     }
-
     const jwtData: any = JSON.parse(localStorage.getItem(this.jwtName) ?? 'null')
+    console.log("jwtData: "+JSON.stringify(jwtData));
     if (this._loginData && jwtData) {
       localStorage.setItem(this.jwtName, JSON.stringify(this._loginData))
     }
@@ -107,24 +110,29 @@ export class AuthController {
     }
   }
 
+
+
+
   public static setUserUpdatedAction(callback: Function) {
     this._userUpdatedAction = callback
   }
 
-  // public static setUserUpdatedAction(callback: (user: UserContract) => void) {
-  //   this._userUpdatedAction = callback
-  // }
 
   public static isAuthenticated(): boolean {
     return this.getAccessToken().length > 20
   }
 
+
+
+
+
+
   public static clearAuthData(): void {
-    localStorage.removeItem(this.jwtName)
-    localStorage.removeItem('classMenu')
-    this._token = ''
-    this._user = {} as UserContract
-    this._loginData = {} as LoginContract
+    // localStorage.removeItem(this.jwtName)
+   //  localStorage.removeItem('classMenu')
+   // this._token = ''
+   // this._user = {} as UserContract
+   // this._loginData = {} as LoginContract
   }
 
   public static redirect() {
@@ -168,4 +176,6 @@ export class AuthController {
 
     return this.user?.roles[0]?.name === role
   }
+
+
 }

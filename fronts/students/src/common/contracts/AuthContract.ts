@@ -23,3 +23,7 @@ export default interface LoginContract {
   message: string
   success: boolean
 }
+
+
+
+

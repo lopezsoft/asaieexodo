@@ -122,11 +122,6 @@ export class AuthController {
     return this.getAccessToken().length > 20
   }
 
-
-
-
-
-
   public static clearAuthData(): void {
     // localStorage.removeItem(this.jwtName)
    //  localStorage.removeItem('classMenu')

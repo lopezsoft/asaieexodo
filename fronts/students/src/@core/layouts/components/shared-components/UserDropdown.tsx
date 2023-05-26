@@ -14,6 +14,7 @@ import { styled } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 import MenuItem, { MenuItemProps } from '@mui/material/MenuItem'
 
+
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
 
@@ -46,6 +47,7 @@ const UserDropdown = (props: Props) => {
   // ** Props
   const { settings } = props
 
+
   // ** States
   const [anchorEl, setAnchorEl] = useState<Element | null>(null)
 
@@ -66,6 +68,13 @@ const UserDropdown = (props: Props) => {
     }
     setAnchorEl(null)
   }
+
+  const handleDropdownProfile = (url?: string) => {
+    if (url) {
+      router.push(url);
+    }
+    setAnchorEl(null);
+  };
 
   const styles = {
     px: 4,
@@ -100,10 +109,16 @@ const UserDropdown = (props: Props) => {
           horizontal: 'right'
         }}
       >
-        <Avatar
-          alt='John Doe'
+      <Box sx={{ display: 'flex', ml: 2.7, mr: 2.7, alignItems: 'left', flexDirection: 'column',Height: '40px' }}>
+
+        <Typography sx={{ fontWeight: 520 }}>{userT.fullname.toUpperCase()}</Typography>
+        <Typography variant='body2' sx={{ textAlign: 'right' }}>Panel de Accesos</Typography>
+      </Box>
+
+      <Avatar
+          alt='logo_profile'
           onClick={handleDropdownOpen}
-          sx={{ width: 40, height: 40 }}
+          sx={{ width: 40, height: 40 ,ml: 2.5}}
           src='/images/avatars/1.png'
         />
       </Badge>
@@ -115,30 +130,12 @@ const UserDropdown = (props: Props) => {
         anchorOrigin={{ vertical: 'bottom', horizontal: direction === 'ltr' ? 'right' : 'left' }}
         transformOrigin={{ vertical: 'top', horizontal: direction === 'ltr' ? 'right' : 'left' }}
       >
-        <Box sx={{ py: 1.75, px: 6 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Badge
-              overlap='circular'
-              badgeContent={<BadgeContentSpan />}
-              anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'right'
-              }}
-            >
-              <Avatar alt='John Doe' src='/images/avatars/1.png' sx={{ width: '2.5rem', height: '2.5rem' }} />
-            </Badge>
-            <Box sx={{ display: 'flex', ml: 2.5, alignItems: 'flex-start', flexDirection: 'column' }}>
-              <Typography sx={{ fontWeight: 500 }}>{userT.fullname}</Typography>
-              <Typography variant='body2'>Admin</Typography>
-            </Box>
-          </Box>
-        </Box>
 
-        <Divider sx={{ my: theme => `${theme.spacing(2)} !important` }} />
-        <MenuItemStyled sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
+
+        <MenuItemStyled sx={{ p: 0 }} onClick={() => handleDropdownProfile('/edit')}>
           <Box sx={styles}>
-            <Icon icon='tabler:eye-closed' />
-            Cerrar
+            <Icon icon='tabler:user' />
+            perfil
           </Box>
         </MenuItemStyled>
 

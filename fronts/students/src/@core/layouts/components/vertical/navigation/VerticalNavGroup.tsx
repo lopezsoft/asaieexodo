@@ -52,6 +52,7 @@ interface Props {
 }
 
 const MenuItemTextWrapper = styled(Box)<BoxProps>(({ theme }) => ({
+  // color item
   width: '100%',
   display: 'flex',
   alignItems: 'center',

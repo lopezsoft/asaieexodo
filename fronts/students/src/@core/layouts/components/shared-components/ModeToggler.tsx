@@ -21,16 +21,16 @@ const ModeToggler = (props: Props) => {
     saveSettings({ ...settings, mode: mode })
   }
 
-  const handleModeToggle = () => {
-    if (settings.mode === 'light') {
-      handleModeChange('dark' as Mode)
-    } else {
-      handleModeChange('light' as Mode)
-    }
-  }
+  // const handleModeToggle = () => {
+  //   if (settings.mode === 'light') {
+  //     handleModeChange('dark' as Mode)
+  //   } else {
+  //     handleModeChange('light' as Mode)
+  //   }
+  // }
 
   return (
-    <IconButton color='inherit' aria-haspopup='true' onClick={handleModeToggle}>
+    <IconButton  /*color='inherit' aria-haspopup='true' onClick={handleModeToggle}*/>
       {/* <Icon fontSize='1.5rem' icon={settings.mode === 'dark' ? 'tabler:sun' : 'tabler:moon-stars'} /> */}
     </IconButton>
   )

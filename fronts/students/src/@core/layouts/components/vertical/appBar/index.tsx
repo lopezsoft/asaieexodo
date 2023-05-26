@@ -26,8 +26,8 @@ const AppBar = styled(MuiAppBar)<AppBarProps>(({ theme }) => ({
   color: theme.palette.text.primary,
   minHeight: theme.mixins.toolbar.minHeight,
   [theme.breakpoints.up('sm')]: {
-    paddingLeft: theme.spacing(6),
-    paddingRight: theme.spacing(6)
+    // paddingLeft: theme.spacing(6),
+    // paddingRight: theme.spacing(6)
   },
   [theme.breakpoints.down('sm')]: {
     paddingLeft: theme.spacing(4),
@@ -37,8 +37,10 @@ const AppBar = styled(MuiAppBar)<AppBarProps>(({ theme }) => ({
 
 const Toolbar = styled(MuiToolbar)<ToolbarProps>(({ theme }) => ({
   width: '100%',
-  marginTop: theme.spacing(4),
+
+  // marginTop: theme.spacing(4),
   borderRadius: theme.shape.borderRadius,
+
   padding: `${theme.spacing(0, 6)} !important`
 }))
 

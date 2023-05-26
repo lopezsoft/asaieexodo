@@ -133,7 +133,7 @@ const Customizer = () => {
             <Typography
               component='p'
               variant='caption'
-              sx={{ mb: 5, color: 'text.disabled', textTransform: 'uppercase' }}
+              sx={{ mb: 5, color: 'red', textTransform: 'uppercase' }}
             >
               Theming
             </Typography>

@@ -27,6 +27,7 @@ import MuiFormControlLabel, { FormControlLabelProps } from '@mui/material/FormCo
 // import { signIn } from 'next-auth/react'
 
 import { AuthClient } from '../../common/auth/AuthClient'
+import Avatar from '@mui/material/Avatar'
 
 // import {  AuthController as Auth } from '../../common/controllers/AuthController';
 
@@ -99,15 +100,15 @@ const schema = yup.object().shape({
   password: yup.string().min(5).required()
 })
 
-const defaultValues = {
-  password: '101384',
-  email: 'lopezsoft.com@gmail.com'
-}
-
 // const defaultValues = {
-//   password: '12345678',
-//   email: 'ema123@gmal.com'
+//   password: '101384',
+//   email: 'lopezsoft.com@gmail.com'
 // }
+
+const defaultValues = {
+  password: '12345678',
+  email: 'ema123@gmal.com'
+}
 
 interface FormData {
   email: string
@@ -148,7 +149,7 @@ const LoginPage = () => {
           // const token = Auth.token;
           // const userCredentials ={ ...data, token };
           // console.log(userCredentials);
-          console.log("dentrando a submit");
+          console.log("entrando a submit");
 
           // const base =process.env.NEXT_PUBLIC_API_URL
 
@@ -183,21 +184,32 @@ const LoginPage = () => {
   const imageSource = skin === 'bordered' ? 'auth-v2-login-illustration-bordered' : 'auth-v2-login-illustration'
 
   return (
-    <Box className='content-right' sx={{ backgroundColor: 'background.paper' }}>
 
+    <Box className='content-right' sx={{ backgroundColor: 'background.paper' }}>
       {!hidden ? (
         <Box
-          sx={{
-            flex: 1,
-            display: 'flex',
-            position: 'relative',
-            alignItems: 'center',
-            borderRadius: '20px',
-            justifyContent: 'center',
-            backgroundColor: 'customColors.bodyBg',
-            margin: theme => theme.spacing(8, 0, 8, 8)
-          }}
+        sx={{
+          position: 'relative',
+          width: '100%',
+          height: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'flex-start',
+          backgroundColor: 'customColors.bodyBg',
+
+          // margin: theme => theme.spacing(8, 0, 8, 8)
+        }}
+
         >
+        <Box sx={{ position: 'absolute', top: 0, left: 0, display: 'flex', alignItems: 'center', marginTop: 5 }}>
+          <Avatar
+            alt='John Doe'
+            sx={{ width: 30, height: 30, ml: 2.5 }}
+            src='/images/logo-asaie.png'
+          />
+          <Typography variant='body2'sx={{ marginLeft: 1, color: '#2556a3 !important' ,fontSize: '1.286rem',fontWeight: 'bold'}}>ASAIE ÉXODO</Typography>
+        </Box>
+
           <LoginIllustration alt='login-illustration' src={`/images/pages/${imageSource}-${theme.palette.mode}.svg`} />
           <FooterIllustrationsV2 />
         </Box>

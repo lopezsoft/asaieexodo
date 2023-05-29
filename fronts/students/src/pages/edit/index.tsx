@@ -23,13 +23,11 @@ const schema = yup.object().shape({
 });
 
 const defaultValues = {
-  id:6,
+
   first_name: 'sebastian',
   last_name:'aguirre',
   email:'sebastianactualizado@gmal.com',
 
-  // password:'12345678',
-  // password_confirmation:'12345678',
   fullname:  'sebastian' + ' ' + 'aguirre'
 
 

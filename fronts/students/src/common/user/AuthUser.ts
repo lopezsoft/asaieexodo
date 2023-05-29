@@ -4,6 +4,8 @@ import UserContract from '../contracts/AuthContract'
 // import DataUpdate  from '../contracts/AuthContract';
 
 import  {HttpController as Http}  from '../controllers/HttpController';
+
+// import  {HttpController}  from '../controllers/HttpController';
 import axios, { AxiosResponse } from 'axios'
 import { JsonResponse } from '../contracts/JsonResponseContract'
 import { AvrApiServerUrl } from '../core/Settings'
@@ -17,6 +19,8 @@ export const axiosInstance = axios.create({
 
 export class AuthUser {
   private static apiUrl = process.env.NEXT_PUBLIC_API_URL
+
+
 
   public static async registerPersonUser(data: Record<string, any>) {
     console.log(data);
@@ -34,7 +38,7 @@ export class AuthUser {
 
 
 
-  // public static async updateUser(id: number, userData: Record<string, any>) {
+ // public static async updateUser(id: number, userData: Record<string, any>) {
   public static async updateUser(id: number, userData: UserContract) {
 
     console.log("peticion Http "+id);
@@ -45,6 +49,7 @@ export class AuthUser {
     const response   = await Http.put(baseUrl, userData);
 
     const dataU      = response.data as unknown as UserContract;
+
     console.log(dataU);
 
 
@@ -58,11 +63,13 @@ export class AuthUser {
     return response;
   }
 
-
-
-
-
-
 }
+
+
+
+
+
+
+
 
 

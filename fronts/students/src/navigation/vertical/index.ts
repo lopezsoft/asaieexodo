@@ -35,7 +35,9 @@ const navigation = (): VerticalNavItemsType => {
     //   icon: 'tabler:eye-edit'
     // },
 
+
   ]
+
 }
 
 export default navigation

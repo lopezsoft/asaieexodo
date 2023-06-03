@@ -140,9 +140,7 @@ class StudentEnrollment
         }
         if($search) {
             $query->where(function ($row) use ($search) {
-                $row->where('ti.apellido1', 'like' , "%{$search}%")
-                    ->orWhere('ti.apellido2', 'like' , "%{$search}%")
-                    ->orWhere('ti.nombre1', 'like' , "%{$search}%")
+                $row->whereRaw("CONCAT(rtrim(ti.nombre1),' ',rtrim(ti.apellido1),' ',rtrim(ti.apellido2)) LIKE '%{$search}%'")
                     ->orWhere('ts.headquarters_name', 'like' , "%{$search}%")
                     ->orWhere('tg.grado', 'like' , "%{$search}%")
                     ->orWhere('tm.id_group', 'like' , "%{$search}%");

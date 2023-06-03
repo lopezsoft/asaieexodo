@@ -31,3 +31,10 @@ backend/public/reports/**/*.jasper
 /fronts/asaie/classic.jsonp
 fronts/asaie/.*
 fronts/asaie/$*
+fronts/teachers/.idea
+fronts/teachers/.vscode
+fronts/teachers/node_modules
+fronts/teachers_old
+#local
+/db/*.sql
+/documentacion

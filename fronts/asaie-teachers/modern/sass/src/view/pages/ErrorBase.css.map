@@ -1,0 +1,9 @@
+{
+    "version": 3,
+    "mappings": "AAAA,AAAA,qBAAqB,CAAA;EACjB,gBAAgB,EAAC,uCAAuC;EACxD,eAAe,EAAC,KAAK;EACrB,KAAK,EAAE,IAAI;CACd;;AAED,AAAA,oBAAoB,CAAA;EAChB,SAAS,EAAE,KAAK;EAChB,WAAW,EAAE,KAAK;CACrB;;AACD,AAAA,gBAAgB,CAAA;EACZ,UAAU,EAAC,MAAM;EACjB,SAAS,EAAE,MAAM;CACpB",
+    "sources": [
+        "ErrorBase.scss"
+    ],
+    "names": [],
+    "file": "ErrorBase.css"
+}

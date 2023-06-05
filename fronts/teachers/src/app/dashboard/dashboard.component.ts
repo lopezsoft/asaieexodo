@@ -2,7 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import {HttpServerService} from "../utils";
 import { BlockUI, NgBlockUI } from 'ng-block-ui';
 import {UsersService} from "../services/users/users.service";
-
+import {SchoolContract} from "../models/school-contract";
+import {RolContract} from "../models/users-model";
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
@@ -18,7 +19,7 @@ export class DashboardComponent implements OnInit {
     this.user.getUserSchools();
   }
 
-  clickOnModule(school: any, role: any): void {
+  clickOnModule(school: SchoolContract, role: RolContract): void {
       this.blockUI.start('Cargando módulo...'); // Start blocking
       const params  = <any>this._http.getToken();
       const dt      = new Date();
@@ -38,7 +39,7 @@ export class DashboardComponent implements OnInit {
               localStorage.setItem(this._http.getApiJwt(), JSON.stringify(params));
           }
           this.blockUI.stop(); // Stop blocking
-          const url = `${this._http.getAppUrl()}/admin`;
+          const url = `${this._http.getAppUrl()}/teacher`;
           window.open(url,'_blank');
       }, 2000);
   }

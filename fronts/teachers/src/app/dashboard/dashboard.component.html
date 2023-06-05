@@ -1,12 +1,12 @@
 <section>
     <div class="card">
-        <div class="card-header">ESTIMADO USUARIO USTED TIENE ACCESO A:</div>
+        <div class="card-header">ESTIMADO DOCENTE USTED TIENE ACCESO A:</div>
         <div class="card-body" *ngIf="!(user.schools.length > 0)">NO TIENE ACCESOS</div>
     </div>
 </section>
 <section *ngFor="let school of user.schools">
     <div class="row">
-        <div class="col-12 col-md-4" *ngFor="let role of school.school.roles">
+        <div class="col-12 col-md-4" *ngFor="let role of school.roles">
             <div class="card">
                 <div class="card-module" (click)="clickOnModule(school.school, role)">
                     <div class="card-icon"><i [class]="role.profile.font"></i></div>

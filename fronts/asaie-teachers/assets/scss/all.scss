@@ -1,0 +1,136 @@
+$widget-first-container-background:#468fd3;
+$widget-second-container-background:#8dc153;
+$widget-third-container-background:#607d8b;
+$follow-button-color:#82c748;
+$follower-toolbar-background:#fafafa;
+$sale-container-color:#458fd2;
+$message-container-color:#4caf50;
+$code-container-color:#9c27b0;
+$user-container-color:#e91e63;
+$server-container-color:#ffc107;
+$file-container-color:#673ab7;
+$lightest-color:#fff;
+.widget-top-first-container {
+    background-color: $widget-first-container-background;
+}
+
+.widget-bottom-first-container {
+    background-color: $lightest-color;
+}
+
+.postion-class {
+    position: relative;
+}
+
+.widget-name-text {
+    font-family: "Open Sans";
+    font-weight: Bold;
+    font-size: 16px;
+    line-height: 16px;
+}
+
+.widget-top-second-container {
+    background-color: $widget-second-container-background;
+}
+
+.widget-top-first-third-container {
+    background-color: $widget-third-container-background;
+}
+
+.widget-top-second-panel .x-fa {
+    color: $lightest-color;
+}
+
+
+.info-card-items {
+    text-align: center;
+    background: $lightest-color;
+    padding-top: 15px  !important;
+    font-size: 44px;
+    &.info-card-small-wrap {
+        h2 {
+            font-size: 48px;
+            line-height: 48px;
+        }
+        span.fas {
+            height: 45px;
+            width: 45px;
+            border-radius: 28px;
+            color: $lightest-color;
+            font-size: 24px;
+            line-height: 35px;
+            margin: 5px 0;
+
+            &.fa-user-graduate {
+                background-color: $sale-container-color;
+            }
+
+            &.fa-graduation-cap {
+                background-color: $message-container-color;
+            }
+
+            &.fa-chalkboard-teacher{
+                background-color: $code-container-color;
+            }
+
+            &.fa-file-text {
+                background-color: $user-container-color;
+            }
+        }
+
+        .infodiv {
+            font-size: 14px;
+            line-height: 16px;
+        }
+    }
+
+    &.cornflower-blue:before {
+        background: $sale-container-color;
+    }
+
+    &.green:before {
+        background: $message-container-color;
+    }
+
+    &.magenta:before {
+        background: $code-container-color;
+    }
+
+    &.pink:before {
+        background: $user-container-color;
+    }
+
+    &.orange:before {
+        background: $server-container-color;
+    }
+
+    &.blue:before {
+        background: $file-container-color;
+    }
+
+    h2 {
+        font-size: 30px;
+        font-weight: normal;
+        margin: 0;
+        margin: 0;
+        line-height: 12px;
+    }
+
+    div {
+        line-height: 12px;
+    }
+
+    span {
+        font-size: 24px;
+        line-height: 12px;
+    }
+}
+
+.info-card-items:before {
+    width: 100%;
+    position: absolute;
+    height: 15px;
+    content: "";
+    top: 0;
+    left: 0
+}

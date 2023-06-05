@@ -2,9 +2,10 @@
 
 namespace App\Contracts;
 
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 interface ReadContract
 {
-    public function read(Request $request): \Illuminate\Http\JsonResponse;
+    public function read(Request $request): JsonResponse;
 }

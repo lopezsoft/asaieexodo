@@ -1,7 +1,7 @@
 <?php
 namespace App\Models\School;
 
-use App\Contracts\CrudInterface;
+use App\Contracts\UpdateContract;
 use App\Models\User;
 use App\Modules\School\SchoolQueries;
 use App\Queries\QueryTable;
@@ -13,13 +13,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
-class Schools Implements CrudInterface
+class Schools Implements UpdateContract
 {
     use  MessagesTrait;
-    public static function create(Request $request)
-    {
-        throw new Exception("No implements", 1);
-    }
 
     /**
      * @throws Exception
@@ -57,7 +53,7 @@ class Schools Implements CrudInterface
         ]);
     }
 
-    public static function read(Request $request, $id): JsonResponse
+    public static function read(Request $request): JsonResponse
     {
         $school = SchoolQueries::getSchool($request->input('schoolId') ?? 0);
         $table  = "{$school->database_name}.school";
@@ -96,9 +92,5 @@ class Schools Implements CrudInterface
                 'message' => $e->getMessage(),
             ]);
         }
-    }
-
-    public static function delete(Request $request, $id){
-        throw new Exception("No implements", 1);
     }
 }

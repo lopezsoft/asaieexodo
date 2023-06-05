@@ -1,0 +1,124 @@
+.widget-top-first-container {
+  background-color: #468fd3;
+}
+
+.widget-bottom-first-container {
+  background-color: #fff;
+}
+
+.postion-class {
+  position: relative;
+}
+
+.widget-name-text {
+  font-family: "Open Sans";
+  font-weight: Bold;
+  font-size: 16px;
+  line-height: 16px;
+}
+
+.widget-top-second-container {
+  background-color: #8dc153;
+}
+
+.widget-top-first-third-container {
+  background-color: #607d8b;
+}
+
+.widget-top-second-panel .x-fa {
+  color: #fff;
+}
+
+.info-card-items {
+  text-align: center;
+  background: #fff;
+  padding-top: 15px  !important;
+  font-size: 44px;
+}
+
+.info-card-items.info-card-small-wrap h2 {
+  font-size: 48px;
+  line-height: 48px;
+}
+
+.info-card-items.info-card-small-wrap span.fas {
+  height: 45px;
+  width: 45px;
+  border-radius: 28px;
+  color: #fff;
+  font-size: 24px;
+  line-height: 35px;
+  margin: 5px 0;
+}
+
+.info-card-items.info-card-small-wrap span.fas.fa-user-graduate {
+  background-color: #458fd2;
+}
+
+.info-card-items.info-card-small-wrap span.fas.fa-graduation-cap {
+  background-color: #4caf50;
+}
+
+.info-card-items.info-card-small-wrap span.fas.fa-chalkboard-teacher {
+  background-color: #9c27b0;
+}
+
+.info-card-items.info-card-small-wrap span.fas.fa-file-text {
+  background-color: #e91e63;
+}
+
+.info-card-items.info-card-small-wrap .infodiv {
+  font-size: 14px;
+  line-height: 16px;
+}
+
+.info-card-items.cornflower-blue:before {
+  background: #458fd2;
+}
+
+.info-card-items.green:before {
+  background: #4caf50;
+}
+
+.info-card-items.magenta:before {
+  background: #9c27b0;
+}
+
+.info-card-items.pink:before {
+  background: #e91e63;
+}
+
+.info-card-items.orange:before {
+  background: #ffc107;
+}
+
+.info-card-items.blue:before {
+  background: #673ab7;
+}
+
+.info-card-items h2 {
+  font-size: 30px;
+  font-weight: normal;
+  margin: 0;
+  margin: 0;
+  line-height: 12px;
+}
+
+.info-card-items div {
+  line-height: 12px;
+}
+
+.info-card-items span {
+  font-size: 24px;
+  line-height: 12px;
+}
+
+.info-card-items:before {
+  width: 100%;
+  position: absolute;
+  height: 15px;
+  content: "";
+  top: 0;
+  left: 0;
+}
+/*# sourceMappingURL=all.css.map */

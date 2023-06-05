@@ -3,6 +3,7 @@ import { FormBuilder } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClient, HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { NgSelectModule } from '@ng-select/ng-select';
 
 import 'hammerjs';
 import { NgFallimgModule } from 'ng-fallimg';
@@ -47,6 +48,7 @@ import {UsersModule} from "./users/users.module";
     NgbModule,
     ToastrModule.forRoot(),
     AppRoutingModule,
+    NgSelectModule,
     // Core modules
     CoreModule.forRoot(coreConfig),
     CoreCommonModule,

@@ -62,11 +62,9 @@
                   <div class="col-12 col-md-8">
                       <label>Escuela</label>
                       <ng-select formControlName="school_id" [readonly]="editing">
-                          <ng-container *ngFor="let school of usersSer.schoolList">
-                              <ng-option  [value]="school.id">
-                                  {{ school.statecode }} - {{ school.nameschool }}
-                              </ng-option>
-                          </ng-container>
+                          <ng-option *ngFor="let school of usersSer.schoolList" [value]="school.id">
+                              {{ school.statecode }} - {{ school.nameschool }}
+                          </ng-option>
                       </ng-select>
                     </div>
                 </div>

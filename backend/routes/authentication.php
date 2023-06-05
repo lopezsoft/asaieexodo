@@ -16,6 +16,7 @@ Route::controller('UserController')->group(function () {
 });
 Route::prefix('auth')->group(function () {
     Route::controller('Auth\AuthController')->group(function () {
+        Route::post('teachers/register',        'teachersRegister');
         Route::post('register',                 'signup');
         Route::post('login',                    'login');
         Route::group(['middleware' => 'auth:api'], function () {

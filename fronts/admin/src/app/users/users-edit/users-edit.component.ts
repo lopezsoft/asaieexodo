@@ -43,13 +43,13 @@ export class UsersEditComponent extends FormComponent implements OnInit, AfterVi
     get invalidLastName(): boolean{
       return this.isInvalid('last_name');
     }
-		get invalidEmail() {
-			return this.isInvalid('email');
-		}
-		// placeholder
-		get placeholderEmail(): string {
-			return this.translate.instant('placeholder.email');
-		}
+    get invalidEmail() {
+        return this.isInvalid('email');
+    }
+    // placeholder
+    get placeholderEmail(): string {
+        return this.translate.instant('placeholder.email');
+    }
     ngOnInit(): void {
       const ts    = this;
       super.ngOnInit();
@@ -60,7 +60,7 @@ export class UsersEditComponent extends FormComponent implements OnInit, AfterVi
 	      .subscribe((resp) => {
           ts.userTypes  = resp;
       });
-			this.usersSer.getUserSchools();
+      this.usersSer.getUserSchools();
     }
     ngAfterViewInit(): void {
       super.ngAfterViewInit();
@@ -74,17 +74,18 @@ export class UsersEditComponent extends FormComponent implements OnInit, AfterVi
       ts.usersSer.getUserById( id)
 			.subscribe({
 				next: (resp) => {
+                    const data = resp[0];
 					ts.hideSpinner();
 					frm.setValue({
-						first_name  : resp[0].first_name,
-						last_name   : resp[0].last_name,
-						active      : resp[0].active,
-						email       : resp[0].email,
-						school_id   : this.school_id,
+						first_name  : data.first_name,
+						last_name   : data.last_name,
+						active      : data.active,
+						email       : data.email,
+                        school_id   : this.school_id,
 						profile_id  : [],
 					});
-					ts.imgData    = resp[0].avatar ? `${resp[0].avatar}` : '';
-					const school  = resp[0].schools.find(s => s.school_id == this.school_id);
+					ts.imgData    = data.avatar ? `${resp[0].avatar}` : '';
+					const school  = data.schools.find(s => s.school_id == this.school_id);
 					let profile   = [];
 					if(school) {
 						school.school.roles.forEach((rol) => {

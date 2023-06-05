@@ -6,12 +6,8 @@ use Illuminate\Http\Request;
 class ProcessAuthorization
 {
 
-    public static function signup(Request $request, Authentication $auth) {
-        return $auth->signup($request);
-    }
-
-    public static function signupActivate($token, Authentication $auth) {
-        return $auth->signupActivate($token);
+    public static function register(Request $request, AuthenticationRegisterContract $auth) {
+        return $auth->register($request);
     }
 
     public static function login(Request $request, Authentication $auth) {

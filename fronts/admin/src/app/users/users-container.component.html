@@ -11,4 +11,10 @@
             Lista de usuarios
         </button>
     </div>
+    <div class="col-6 col-sm-4 col-md-2" *ngIf="user.isRolAccess()" title="Permite crear el perfil de acceso a los docentes que aun no lo tienen.">
+        <button type="button" class="btn btn-custom" (click)="goRoute('user/teachers/profile')">
+            <i class="fas fa-chalkboard-teacher"></i>
+            Crear perfil docente
+        </button>
+    </div>
 </div>

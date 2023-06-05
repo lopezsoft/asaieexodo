@@ -2,7 +2,7 @@ import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 
 import {
-    ProfileComponent, UsersEditComponent,
+    ProfileComponent, TeachersProfileComponent, UsersEditComponent,
     UsersListComponent,
 } from "./index";
 import { UsersContainerComponent } from "./users-container.component";
@@ -26,6 +26,10 @@ const routes: Routes = [
     {
         path: 'edit/:id/:schoolId',
         component: UsersEditComponent
+    },
+    {
+        path: 'teachers/profile',
+        component: TeachersProfileComponent
     }
 ];
 

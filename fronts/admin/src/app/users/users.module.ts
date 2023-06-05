@@ -11,7 +11,8 @@ import {BlockUIModule} from "ng-block-ui";
 import {
   UsersEditComponent,
   ProfileComponent,
-  UsersListComponent
+  UsersListComponent,
+    TeachersProfileComponent
 } from "./index";
 
 
@@ -21,7 +22,8 @@ import {
     ProfileComponent,
     UsersContainerComponent,
     UsersListComponent,
-    UsersEditComponent
+    UsersEditComponent,
+    TeachersProfileComponent
   ],
   imports: [
     CommonModule,

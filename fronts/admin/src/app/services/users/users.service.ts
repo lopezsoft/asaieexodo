@@ -18,6 +18,22 @@ export class UsersService {
     public mask: LoadMaskService,
     public msg: MessagesService,
   ){}
+
+  createTeacherProfile(data: any = {}) {
+    this.mask.showBlockUI('Creando perfiles de usuario docente...');
+    this._http.post('/auth/teachers/register', data)
+      .subscribe({
+        next: () => {
+          this.mask.hideBlockUI();
+          this.msg.toastMessage('', 'Perfiles de usuario docente creado exitosamente.');
+        },
+        error: (err) => {
+          this.mask.hideBlockUI();
+          console.error(err);
+          this.msg.toastMessage('', err, 3);
+        }
+      })
+  }
   
   resendEmail(id: number) {
     this.mask.showBlockUI();

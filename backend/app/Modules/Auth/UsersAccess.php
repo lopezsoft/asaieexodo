@@ -15,7 +15,7 @@ use Illuminate\Validation\Rules;
 class UsersAccess implements Authentication
 {
     use MessagesTrait;
-    public function signup($request): JsonResponse
+    public function register($request): JsonResponse
     {
         $request->validate([
             'email'     => ['required', 'string', 'email', 'max:255', 'unique:users'],

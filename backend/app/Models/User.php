@@ -12,6 +12,8 @@ use Illuminate\Auth\Passwords\CanResetPassword;
 
 /**
  * @method static create(array $array)
+ * @property mixed $first_name
+ * @property mixed $last_name
  */
 class User extends Authenticatable implements MustVerifyEmail
 {

@@ -49,7 +49,7 @@ export class UsersListComponent extends JqxCustomGridComponent implements OnInit
 				width: '50%',
 			},
 			{
-				text: 'Correo',
+				text: 'Correo/Nombre de usuario',
 				dataIndex: 'email',
 				width: '50%',
 			},

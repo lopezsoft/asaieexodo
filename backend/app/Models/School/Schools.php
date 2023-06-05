@@ -8,6 +8,7 @@ use App\Queries\QueryTable;
 use App\Queries\UpdateTable;
 use App\Traits\MessagesTrait;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -20,17 +21,25 @@ class Schools Implements CrudInterface
         throw new Exception("No implements", 1);
     }
 
-    public static function user(Request $request, $id = null): \Illuminate\Http\JsonResponse
+    /**
+     * @throws Exception
+     */
+    public static function user(Request $request, $id = null): JsonResponse
     {
         $user   = Auth::user();
+        $school = SchoolQueries::getSchoolRequest($request);
         $query  = User::query()
                     ->whereNot('id', $user->id)
-                    ->where('id', $id);
+                    ->where('id', $id)
+                    ->whereHas('schools', function ($row) use ($school) {
+                        $row->where('school_id', $school->school->id ?? 0);
+                        $row->where('state', 1);
+                    });
         return self::getResponse([
             'dataRecords'   => $query->paginate()
         ]);
     }
-    public static function users(Request $request, $id = null): \Illuminate\Http\JsonResponse
+    public static function users(Request $request, $id = null): JsonResponse
     {
         $user   = Auth::user();
         $school = SchoolQueries::getSchool($request->input('schoolId') ?? 0);
@@ -48,14 +57,14 @@ class Schools Implements CrudInterface
         ]);
     }
 
-    public static function read(Request $request, $id): \Illuminate\Http\JsonResponse
+    public static function read(Request $request, $id): JsonResponse
     {
         $school = SchoolQueries::getSchool($request->input('schoolId') ?? 0);
         $table  = "{$school->database_name}.school";
         return QueryTable::table($table);
     }
 
-    public static function update(Request $request, $id): \Illuminate\Http\JsonResponse
+    public static function update(Request $request, $id): JsonResponse
     {
         try {
             $records    = json_decode($request->records) ?? null;

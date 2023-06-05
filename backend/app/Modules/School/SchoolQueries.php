@@ -10,6 +10,10 @@ use Illuminate\Support\Facades\DB;
 class SchoolQueries
 {
     use MessagesTrait;
+
+    /**
+     * @throws \Exception
+     */
     public static function getSchoolRequest(Request $request): ?object
     {
         try{

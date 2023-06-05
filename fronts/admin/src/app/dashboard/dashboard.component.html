@@ -6,7 +6,7 @@
 </section>
 <section *ngFor="let school of user.schools">
     <div class="row">
-        <div class="col-12 col-md-4" *ngFor="let role of school.school.roles">
+        <div class="col-12 col-md-4" *ngFor="let role of school.roles">
             <div class="card">
                 <div class="card-module" (click)="clickOnModule(school.school, role)">
                     <div class="card-icon"><i [class]="role.profile.font"></i></div>

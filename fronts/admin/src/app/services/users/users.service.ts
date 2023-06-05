@@ -83,26 +83,18 @@ export class UsersService {
       }));
   }
 
-  getUserById(id: number): Observable<Users[]> {
+  getUserById(id: number, schoolId: number): Observable<Users[]> {
     const ts  = this;
-    return ts._http.get(`/school/user/${id}`)
+    return ts._http.get(`/school/user/${id}?schoolId=${schoolId}`)
       .pipe( map ( (resp: JsonResponse ) => {
         return resp.dataRecords.data;
-      }));
-  }
-  
-  getData(params: any): Observable<Users[]> {
-    const ts  = this;
-    return ts._http.get(`/users/read`, params)
-      .pipe( map ( (resp: JsonResponse ) => {
-        return resp.records;
       }));
   }
 
     isRolAccess(): boolean {
         let visible = false;
         this.schools.forEach((school) => {
-            school.school.roles.forEach((role) => {
+            school.roles.forEach((role) => {
                 if(role.profile.id === 2) {
                     visible = true;
                 }
@@ -114,7 +106,7 @@ export class UsersService {
     get schoolList(): SchoolContract[] {
       let schools: SchoolContract[] = [];
         this.schools.forEach((school) => {
-            school.school.roles.forEach((role) => {
+            school.roles.forEach((role) => {
                 if(role.profile.id === 2) {
                     schools.push(school.school);
                 }

@@ -71,7 +71,7 @@ export class UsersEditComponent extends FormComponent implements OnInit, AfterVi
       const ts    = this;
       const frm   = ts.customForm;
       ts.editing  = true;
-      ts.usersSer.getUserById( id)
+      ts.usersSer.getUserById(id, this.school_id)
 			.subscribe({
 				next: (resp) => {
                     const data = resp[0];
@@ -88,7 +88,7 @@ export class UsersEditComponent extends FormComponent implements OnInit, AfterVi
 					const school  = data.schools.find(s => s.school_id == this.school_id);
 					let profile   = [];
 					if(school) {
-						school.school.roles.forEach((rol) => {
+						school.roles.forEach((rol) => {
 							profile = [...profile, rol.profile_id];
 						});
 					}
@@ -104,12 +104,12 @@ export class UsersEditComponent extends FormComponent implements OnInit, AfterVi
       const frm   = ts.customForm;
       super.onResetForm(frm);
       frm.setValue({
-        profile_id  : [],
-	      school_id   : this.school_id,
-        first_name  : '',
-        last_name   : '',
-        active      : true,
-        email       : '',
+          profile_id  : [],
+          school_id   : this.school_id,
+          first_name  : '',
+          last_name   : '',
+          active      : true,
+          email       : '',
       });
       ts.imgData = null;
     }

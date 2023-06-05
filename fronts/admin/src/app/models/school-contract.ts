@@ -6,6 +6,7 @@ export interface Schools {
     school_id: number;
     state: number;
     school: SchoolContract;
+    roles: RolContract[];
 }
 export interface SchoolContract {
     id: number;
@@ -17,5 +18,4 @@ export interface SchoolContract {
     lockdate: string;
     state: number;
     active: boolean;
-    roles: RolContract[];
 }

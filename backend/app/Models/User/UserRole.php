@@ -4,6 +4,9 @@ namespace App\Models\User;
 
 use App\Core\CoreModel;
 
+/**
+ * @method static where(array $array)
+ */
 class UserRole extends CoreModel
 {
     public $table   = "user_roles";

@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import {HttpServerService} from "../utils";
 import { BlockUI, NgBlockUI } from 'ng-block-ui';
 import {UsersService} from "../services/users/users.service";
+import {SchoolContract} from "../models/school-contract";
+import {RolContract} from "../models/users-model";
 
 @Component({
   selector: 'app-dashboard',
@@ -18,7 +20,7 @@ export class DashboardComponent implements OnInit {
     this.user.getUserSchools();
   }
 
-  clickOnModule(school: any, role: any): void {
+  clickOnModule(school: SchoolContract, role: RolContract): void {
       this.blockUI.start('Cargando módulo...'); // Start blocking
       const params  = <any>this._http.getToken();
       const dt      = new Date();

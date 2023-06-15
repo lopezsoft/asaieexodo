@@ -3,14 +3,15 @@
  */
 
 function addField(btn) {
-	var
-		db		= Global.getScale(),
-		form	= btn.up('window').down('form'),
-		cbValue	= form.down('cbtipoprocesos').getValue();
+	const db = Global.getScale(),
+		form = btn.up('window').down('form'),
+		cbValue = form.down('cbtipoprocesos').getValue();
 	Ext.each(db,function (rec) {
-		if (rec.id > 0){
-			comp    = Ext.create('Admin.container.ContainerDescriptoresEscala',{
-				itemId  : 'op'+rec.id_escala
+		let comp;
+		let txt2;
+		if (rec.id > 0) {
+			comp = Ext.create('Admin.container.ContainerDescriptoresEscala', {
+				itemId: 'op' + rec.id_escala
 			});
 			txt2 = comp.down('textarea');
 			txt2.setValue(rec.mensaje);
@@ -20,7 +21,7 @@ function addField(btn) {
 			txt2.setValue(rec.id_escala);
 			comp.down('cbtipoprocesos').setValue(cbValue);
 			form.add(comp);
-			form.setScrollY(form.height/2, true);
+			form.setScrollY(form.height / 2, true);
 			form.down('#indicador').focus();
 		}
 	});
@@ -28,30 +29,31 @@ function addField(btn) {
 }
 
 function outField(btn) {
-	var
-		db		= Global.getScale(),
-		form	= btn.up('window').down('form');
+	const db = Global.getScale(),
+		form = btn.up('window').down('form');
 	Ext.each(db,function (rec) {
-		if (rec.id > 0){
-			comp    = Ext.create('Admin.container.ContainerDescriptoresEscala',{
-				itemId  : 'op'+rec.id_escala
+		let comp;
+		if (rec.id > 0) {
+			comp = Ext.create('Admin.container.ContainerDescriptoresEscala', {
+				itemId: 'op' + rec.id_escala
 			});
 			form.remove(comp);
-			form.setScrollY(form.height/2, true);
+			form.setScrollY(form.height / 2, true);
 		}
 	});
 }
 
 function  setTextFields(btn) {
-	var
-		db		= Global.getScale(),
-		form	= btn.up('window').down('form'),
-		value	= form.down('#indicador').getValue();
+	const db = Global.getScale(),
+		form = btn.up('window').down('form'),
+		value = form.down('#indicador').getValue();
 	Ext.each(db,function (rec) {
-		if (rec.id > 0){
-			comp	= 'op'+rec.id_escala;
-			comp	= form.down('#'+comp);
-			txt2 	= comp.down('textarea');
+		let comp;
+		let txt2;
+		if (rec.id > 0) {
+			comp = 'op' + rec.id_escala;
+			comp = form.down('#' + comp);
+			txt2 = comp.down('textarea');
 			txt2.setValue(rec.mensaje + value);
 			form.down('#indicador').focus();
 		}
@@ -59,15 +61,16 @@ function  setTextFields(btn) {
 }
 
 function setType(btn, value) {
-	var
-		db		= Global.getScale(),
-		form	= btn.up('window').down('form');
+	const db = Global.getScale(),
+		form = btn.up('window').down('form');
 	Ext.each(db,function (rec) {
-		if (rec.id > 0){
-			comp	= 'op'+rec.id_escala;
-			comp	= form.down('#'+comp);
-			if(comp){
-				txt2 	= comp.down('cbtipoprocesos');
+		let txt2;
+		let comp;
+		if (rec.id > 0) {
+			comp = 'op' + rec.id_escala;
+			comp = form.down('#' + comp);
+			if (comp) {
+				txt2 = comp.down('cbtipoprocesos');
 				txt2.setValue(value);
 			}
 		}
@@ -107,13 +110,14 @@ Ext.define('Admin.view.docentes.DescriptoresSave',{
 							minHeight	: 30,
 							flex		: 1,
 							margin		: '0 1 1 1',
+							readOnly	: !Global.isEnabledYear(),
 							listeners	: {
 								change : function (txtA, newValue, oldValue, eOpts ) {
-									var win		= txtA.up('window'),
-										cValue 	= win.down('#estado').getValue(),
-										form	= win.down('form');
+									const win = txtA.up('window'),
+										cValue = win.down('#estado').getValue(),
+										form = win.down('form');
 									if (!form.getRecord()) { // Si se está realizando una nueva inserción de datos.
-										if (cValue.estado == '1') {
+										if (parseInt(cValue.estado) === 1) {
 											setTextFields(txtA);
 										}
 									}
@@ -123,9 +127,10 @@ Ext.define('Admin.view.docentes.DescriptoresSave',{
 						{
 							xtype		: 'cbtipoprocesos',
 							height		: '100%',
+							disabled	: !Global.isEnabledYear(),
 							listeners	: {
 								change	: function(cb, nv, ov){
-									if(nv != ov){
+									if(nv !== ov){
 										setType(cb,nv);
 									}
 								}
@@ -138,6 +143,7 @@ Ext.define('Admin.view.docentes.DescriptoresSave',{
 					xtype		: 'customradiogroup',
 					itemId		: 'estado',
 					fieldLabel	: 'Estado',
+					disabled	: !Global.isEnabledYear(),
 					defaults	: {
 						name	  	: 'estado'
 					},
@@ -157,10 +163,10 @@ Ext.define('Admin.view.docentes.DescriptoresSave',{
 					],
 					listeners : {
 						change : function (radiogroup, newValue) {
-							var win		= radiogroup.up('window'),
-								form	= win.down('form');
+							const win = radiogroup.up('window'),
+								form = win.down('form');
 							if (!form.getRecord()) { // Si se está realizando una nueva inserción de datos.
-								if (newValue.estado == 1){
+								if (parseInt(newValue.estado) === 1){
 									addField(radiogroup);
 								}else{
 									outField(radiogroup);
@@ -171,15 +177,18 @@ Ext.define('Admin.view.docentes.DescriptoresSave',{
 				},
                 {
                     xtype 		: 'CbEscalaNacional',
+					disabled	: !Global.isEnabledYear(),
                     hidden		: true,
                     autoLoadOnValue: true,
 					allowBlank	: true
                 },
                 {
-                    xtype 		: 'CbPeriodos'
+                    xtype 		: 'CbPeriodos',
+					disabled	: !Global.isEnabledYear(),
                 },
                 {
                     xtype       : 'customComboBox',
+					disabled	: !Global.isEnabledYear(),
 					pageSize    : 0,
                     fieldLabel  : 'Competencia',
                     store       : 'CompetenciasDocentesStore',
@@ -192,13 +201,14 @@ Ext.define('Admin.view.docentes.DescriptoresSave',{
         }
 	],
 	saveData: function (storeName, reload) {
-        var win 	= this,
-            form 	= win.down('form'),
-            values 	= form.getValues(),
-            record 	= form.getRecord(),
-            me      = Admin.getApplication(),
-            store 	= Ext.getStore('LogrosStore'),
-			extra   = me.getParamStore('LogrosStore');
+		let win = this,
+			form 		= win.down('form'),
+			values 		= form.getValues(),
+			record 		= form.getRecord(),
+			me 			= Admin.getApplication(),
+			store 		= Ext.getStore('LogrosStore'),
+			extra 		= me.getParamStore('LogrosStore');
+
 		extra.pdbPeriodo	= values.periodo;
 		me.setParamStore('LogrosStore',extra,false);
         if (record) { //Edición
@@ -206,19 +216,21 @@ Ext.define('Admin.view.docentes.DescriptoresSave',{
             store.sync({
 				callback	: function(){
 					win.close();
+					delete extra.pdbPeriodo;
+					me.setParamStore('LogrosStore', extra, false);
 				}
 			});
 		}else{ // Insertar
 			win.mask();
-            if (values.estado == 1){ // El usuario eligió por desempeños
+            if (parseInt(values.estado) === 1){ // El usuario eligió por desempeños
                 Ext.each(values.descriptor,function (rec,index) {
-					var data = {
-						descripcion			: rec,
-						estado				: values.estado,
-						id_escala			: values.id[index],
-						periodo 			: values.periodo,
-						id_competencia      : values.id_competencia,
-						tipo                : values.tipo_des[index]
+					const data = {
+						descripcion		: rec,
+						estado			: values.estado,
+						id_escala		: values.id[index],
+						periodo			: values.periodo,
+						id_competencia	: values.id_competencia,
+						tipo			: values.tipo_des[index]
 					};
 					store.insert(0,data);
 				});
@@ -232,15 +244,15 @@ Ext.define('Admin.view.docentes.DescriptoresSave',{
 					}
 				});
             }else{
-                var data = {
-                    descripcion			: values.descripcion,
-                    estado				: values.estado,
-					id_escala			: '0',
-                    periodo 			: values.periodo,
-                    id_competencia      : values.id_competencia,
-                    tipo                : values.tipo
-                };
-                store.insert(0,data);
+				const data = {
+					descripcion		: values.descripcion,
+					estado			: values.estado,
+					id_escala		: '0',
+					periodo			: values.periodo,
+					id_competencia	: values.id_competencia,
+					tipo			: values.tipo
+				};
+				store.insert(0,data);
                 store.sync({
 					callback	: function () {
 						extra   = me.getParamStore('LogrosStore');
@@ -251,6 +263,6 @@ Ext.define('Admin.view.docentes.DescriptoresSave',{
 					}
 				});
             }
-        };
+        }
     }
 });

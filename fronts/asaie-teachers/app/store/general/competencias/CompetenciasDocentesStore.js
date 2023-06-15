@@ -14,10 +14,10 @@ Ext.define('Admin.store.general.CompetenciasDocentesStore', {
 			pdbGrado	: 5
         },
 		api: {
-			create  : 'General/insert_data',
-			read    : 'General/get_select_com_grado',
-			update  : 'General/update_data',
-			destroy : 'General/delete_data'
+			create  : 'crud',
+			read    : 'competence/by-group-grades',
+			update  : 'crud',
+			destroy : 'crud'
 		}
     }
 });

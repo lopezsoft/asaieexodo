@@ -28,45 +28,11 @@ Ext.define('Admin.view.main.Main', {
             me          = this,
             treeStore   = 'NavigationTree',
             nameApp     = AppLang.getSMainMenu(),
-            reports     = [],
             user  		= params.user,
             schoolData  = params.school;
 			Global.setYear(schoolData.year);
 		const {profile}	= params;
         me.items = [
-            {
-                xtype   : 'toolbar',
-                cls     : 'sencha-dash-dash-headerbar-blue',
-                height  : 64,
-                items   : [
-					{
-						xtype       : 'tbtext',
-						cls			: 'membership-icon',
-						html		: '<i class="fas fa-award"></i>'
-					},
-					{
-						xtype       : 'label',
-						cls			: (schoolData.state === 1) ? 'membership-text-active' : 'membership-text-inactive',
-						text 		: (schoolData.state === 1) ? 'cuenta activa hasta: ' + schoolData.lockdate : 'cuenta inactiva'
-					},
-                    '->',
-                    {
-                        xtype   : 'tbtext',
-                        cls     : 'name-text',
-                        text    : (schoolData && schoolData.nameschool) ? schoolData.nameschool : 'Escuela Demo'
-                    },
-                    {
-                        xtype   : 'image',
-                        cls     : 'header-right-profile-image',
-                        height  : 32,
-                        width   : 32,
-                        alt     : 'Logo institucional',
-                        src     : (Ext.isEmpty(reports.logo)) ? Global.getAvatarUnknoun() : reports.logo,
-                        imgCls  : 'avatar-background',
-                        tooltip : 'Logo institucional'
-                    }
-                ]
-            },
             {
                 xtype   : 'toolbar',
                 cls     : 'sencha-dash-dash-headerbar shadow',
@@ -98,7 +64,7 @@ Ext.define('Admin.view.main.Main', {
                         tooltip     : AppLang.getSToolTipChangeYear(),
                         itemId      : 'nfYear',
 						listeners	: {
-							change( ob , newValue , oldValue , eOpts ) {
+							change( ob , newValue ) {
 								const ts  		= ob.up('viewport');
 								AuthToken.changeYear(newValue);
 								ts.getController().redirectTo((localStorage.getItem('currentRoute')) ? localStorage.getItem('currentRoute') : 'dashboard',true);
@@ -113,11 +79,10 @@ Ext.define('Admin.view.main.Main', {
                         badgeCls    : 'x-btn-badgeCls-green',
                         itemId      : 'emailButton',
                         visible     : false,
-                        tooltip     : 'Correos recividos',
+                        tooltip     : 'Correos recibidos',
                         handler     : function (btn) {
-                            var
-                                e  = Ext.getElementById('notif_email');
-                            if (e) {
+							const e = Ext.getElementById('notif_email');
+							if (e) {
                                 e.play();
                             }
                         },
@@ -156,11 +121,6 @@ Ext.define('Admin.view.main.Main', {
                         ui      : 'header',
                         iconCls :'x-fa fa-navicon',
                         menu    : [
-                            {
-                                text    : 'Perfíl',
-                                iconCls : 'far fa-id-badge',
-                                handler : 'onProfile'
-                            },'-',
                             {
                                 text    : 'Salir',
                                 iconCls : 'fas fa-sign-out-alt',  

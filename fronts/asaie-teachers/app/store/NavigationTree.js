@@ -11,47 +11,68 @@ Ext.define('Admin.store.NavigationTree', {
         expanded: true,
         children:
             [
-                {
-                    text        : 'Dashboard',
-                    iconCls     : 'x-fa fa-desktop',
-                    viewType    : 'admindashboard',
-                    routeId     : 'dashboard', // routeId defaults to viewType
-                    leaf        : true
-                },
-                {
-                    text    : 'Administrativo',
-                    iconCls : 'x-fa fa-home',
-                    leaf    : true,
-                    viewType: 'admincontainer',
-                    routeId : 'administrative'
-                },
-                {
-                    text    : 'Académico',
-                    iconCls : 'x-fa fa-briefcase',
-                    leaf    : true,
-                    viewType: 'academicContainerView',
-                    routeId : 'academico'
-                },
-                {
-                    text    : 'Promoción',
-                    iconCls : 'x-fa fa-graduation-cap',
-                    leaf    : true,
-                    routeId : 'promocion'
-                },
-                {
-                    text    : 'Elecciones escolares',
-                    iconCls : 'x-fa fa-group',
-                    leaf    : true,
-					viewType: "representativeContainerView",
-                    routeId : 'representative'
-                },
-                {
-                    text    : 'Configuraciones',
-                    iconCls : 'x-fa fa-wrench',
-                    leaf    : true,
-                    viewType: 'configPanel',
-                    routeId : 'configuraciones'
-                }
+				{
+					text        : 'Dashboard',
+					iconCls     : 'x-fa fa-desktop',
+					viewType    : 'teacherdashboard',
+					routeId     : 'dashboard', // routeId defaults to viewType
+					leaf        : true
+				},
+				{
+					text        : 'Notas académicas',
+					iconCls     : 'fas fa-edit',
+					viewType    : 'notasacademicasdocentes',
+					routeId     : 'registronotas',
+					leaf        : true
+				},
+				/*{
+					text    : 'Plan de formación',
+					iconCls : 'x-fa fa-book',
+					leaf    : true
+				},*/
+				{
+					text    : 'Descriptores',
+					iconCls : 'x-fa fa-star-half-o',
+					leaf    : true,
+					viewType: 'asignaciondescriptores',
+					routeId : 'descriptores'
+				},
+				{
+					text    : 'Sugerencias',
+					iconCls : 'x-fa fa-commenting',
+					leaf    : true,
+					viewType: 'sugerenciasform',
+					routeId : 'sugerencias'
+				},
+				/*{
+					text    : 'Nivelaciones',
+					iconCls : 'x-fa fa-thumbs-up',
+					leaf    : true,
+					viewType: 'planmejoramiento',
+					routeId : 'nivelaciones'
+				},
+				{
+					text    : 'Seguimiento académico',
+					iconCls : 'x-fa fa-eye',
+					viewType: 'seguimientoacademico',
+					routeId : 'seguimiento',
+					leaf    : true
+				},*/
+				/*{
+					text    : 'Informes',
+					iconCls : 'x-fa fa-newspaper-o nav-tree-change-new',
+					cls     : 'parpadea chat-button',
+					viewType: 'informesdocentes',
+					routeId : 'informes',
+					leaf    : true
+				},*/
+				/*{
+					text    : 'Actividades académicas',
+					iconCls : 'x-fa fa-spinner',
+					viewType: 'actividadesacademicas',
+					routeId : 'actividades',
+					leaf    : true
+				}*/
             ]
     }
 });

@@ -13,6 +13,6 @@ Ext.define('Admin.store.docentes.ImportarDescriptoresStore', {
     model : 'Admin.model.docentes.ParceladorCliModel',
 
     proxy: {
-        url : 'c_logros/get_importar_logros_ind'
+        url : 'educational-processes/by-teacher/last-year',
     }
 });

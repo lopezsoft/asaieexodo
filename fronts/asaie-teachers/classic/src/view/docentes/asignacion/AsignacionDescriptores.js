@@ -59,24 +59,23 @@ Ext.define('Admin.view.docentes.AsignacionDescriptores' ,{
         {
             xtype	: 'customButton',
             text    : 'Descriptores',
-            tooltip : 'Permite digitar los logro e indicadores o estandares de desempeño',
+            tooltip : 'Permite digitar los logro e indicadores o estándares de desempeño',
             disabled : true,
             iconCls : 'x-fa fa-spinner',
             itemId	: 'btnIndicadores',
             handler : function (btn) {
-                var
-                    record = btn.up('grid').getSelection()[0],
-                    me = Admin.getApplication();
-                extP = {
-                    pdbGrado    : record.get('id_grado'),
-                    pdbAsig     : record.get('id_asig'),
-                    pdbGrupo    : '',
-                    pdbSede     : record.get('id_sede'),
-                    pdbJorn     : record.get('id_jorn'),
-                    pdbType     : 0,
-                    pdbCurso    : 0,
-                    pdbTable    : 'logros_estandares'
-                };
+				const record = btn.up('grid').getSelection()[0],
+					me = Admin.getApplication();
+				let extP = {
+					pdbGrado: record.get('id_grado'),
+					pdbAsig: record.get('id_asig'),
+					pdbGrupo: '',
+					pdbSede: record.get('id_sede'),
+					pdbJorn: record.get('id_jorn'),
+					pdbType: 0,
+					pdbCurso: 0,
+					pdbTable: 'logros_estandares'
+				};
                 me.setParamStore('LogrosStore', extP);
                 Ext.create('Admin.view.docentes.Descriptores', {
                     record: record,

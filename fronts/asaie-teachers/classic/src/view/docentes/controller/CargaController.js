@@ -15,120 +15,117 @@ Ext.define('Admin.view.docentes.controller.CargaController',{
     },
 
     onDownloadExcel : function (btn) {
-        var
-            me  = this,
-            win = btn.up('form'),
-            rc	= win.down('#CbCarga').getSelection(),
-            rp	= win.down('#periodo').getSelection(),
-            cUrl= Global.getUrlBase() + 'excel_manager/exportar_notas_asignatura';
-        extra	= {
-            pdbIdAsig	: rc.get('id_asig'),
-            pdbGrado	: rc.get('id_grado'),
-            pdbGrupo	: rc.get('grupo'),
-            pdbPeriodo  : rp.get('periodo'),
-            pdbJornada  : rc.get('id_jorn'),
-            pdbSede     : rc.get('id_sede'),
-            pdbCurso    : rc.get('id')
-        };
-        me.onStopTimer(btn);
-        Ext.Ajax.request({
-            url     : cUrl,
-            params  : extra,
-            timeout : 0,
-            success : function(response, opts) {
-                var obj = Ext.decode(response.responseText);
-                me.onOpenUrl(obj.pathFile);
-            },
-            failure: function(response, opts) {
-                me.app.onError('Ocurrio un error al tratar de exportar la plantilla');
-            }
-        });
+		const me = this,
+			win = btn.up('form'),
+			rc = win.down('#CbCarga').getSelection(),
+			rp = win.down('#periodo').getSelection(),
+			cUrl = Global.getUrlBase() + 'excel_manager/exportar_notas_asignatura';
+		let extra = {
+			pdbIdAsig: rc.get('id_asig'),
+			pdbGrado: rc.get('id_grado'),
+			pdbGrupo: rc.get('grupo'),
+			pdbPeriodo: rp.get('periodo'),
+			pdbJornada: rc.get('id_jorn'),
+			pdbSede: rc.get('id_sede'),
+			pdbCurso: rc.get('id')
+		};
+		me.onStopTimer(btn);
+		Ext.Ajax.request({
+			url     : cUrl,
+			params  : extra,
+			timeout : 0,
+			success : function(response, opts) {
+				var obj = Ext.decode(response.responseText);
+				me.onOpenUrl(obj.pathFile);
+			},
+			failure: function(response, opts) {
+				me.app.onError('Ocurrio un error al tratar de exportar la plantilla');
+			}
+		});
     },
 
     onLoadExcel : function (btn) {
-        var win 	= btn.up('form'),
-            me		= this,
-            glo     = Global,
-            addLind = glo.getData().config_bol[0].permi_ind,
-            rerult  = false,
-            msg     = '';
-        me.onStopTimer(btn);
-        if(addLind == '5'){
-            rerult = true;
+		let win = btn.up('form'),
+			me = this,
+			addLind = parseInt(Global.getBulletinSetting().permi_ind),
+			result = false,
+			msg = '';
+		me.onStopTimer(btn);
+        if(addLind === 5){
+            result = true;
         }else{
-            if (glo.getIndicatorsRecord().length > 0 && glo.getRecordAchievements().length > 0) {
-                rerult = true;
-            }else if(glo.getIndicatorsRecord().length > 0 && !glo.getRecordAchievements().length > 0){
+            if (Global.getIndicatorsRecord().length > 0 && Global.getRecordAchievements().length > 0) {
+                result = true;
+            }else if(Global.getIndicatorsRecord().length > 0 && !Global.getRecordAchievements().length > 0){
                 switch (addLind) {
-                    case   '1' :
-                        rerult  = true;
+                    case   1 :
+                        result  = true;
                         break;
-                    case   '2' :
-                        rerult  = false;
+                    case   2 :
+                        result  = false;
                         msg     = 'Debe digitar primero los INDICADORES - DESEMPEÑOS - LOGROS para poder generar los desempeños.';
                         break;
-                    case   '3' :
-                        rerult  = true;
+                    case   3 :
+                        result  = true;
                         break;
-                    case   '4' :
-                        rerult  = false;
+                    case   4 :
+                        result  = false;
                         msg     = 'Le falta digitar los DESEMPEÑOS - LOGROS para poder generar los desempeños.';
                         break;
                     default :
-                        rerult  = true;
+                        result  = true;
                         break;
                 }
-            }else if(!glo.getIndicatorsRecord().length > 0 && glo.getRecordAchievements().length > 0){
+            }else if(!Global.getIndicatorsRecord().length > 0 && Global.getRecordAchievements().length > 0){
                 switch (addLind) {
-                    case   '1' :
-                        rerult  = true;
+                    case   1 :
+                        result  = true;
                         break;
-                    case   '2' :
-                        rerult  = false;
+                    case   2 :
+                        result  = false;
                         msg     = 'Debe digitar primero los INDICADORES - DESEMPEÑOS - LOGROS para poder generar los desempeños.';
                         break;
-                    case   '3' :
-                        rerult  = false;
+                    case   3 :
+                        result  = false;
                         msg     = 'Le falta digitar los indicadores de DESEMPEÑO para poder generar los desempeños.';
                         break;
-                    case   '4' :
-                        rerult  = true;
+                    case   4 :
+                        result  = true;
                         break;
                     default :
-                        rerult  = true;
+                        result  = true;
                         break;
                 }
             }else {
                 switch (addLind) {
-                    case   '1' :
-                        rerult  = true;
+                    case   1 :
+                        result  = true;
                         break;
-                    case   '5' :
-                        rerult  = true;
+                    case   5 :
+                        result  = true;
                         break;
                     default :
-                        rerult  = false;
+                        result  = false;
                         msg     = 'Debe digitar primero los INDICADORES - DESEMPEÑOS - LOGROS para poder generar los desempeños.';
                         break;
                 }
             }
-        };
+        }
 
-        var
-            winM = btn.up('form'),
-            rc	= winM.down('#CbCarga').getSelection(),
-            rp	= winM.down('#periodo').getSelection(),
-            btnSearch = winM.down('#btnSearch'),
-            extra	= {
-                pdbAsig		: rc.get('id_asig'),
-                pdbGrado	: rc.get('id_grado'),
-                pdbGrupo	: rc.get('grupo'),
-                pdbPeriodo  : rp.get('periodo'),
-                pdbJornada  : rc.get('id_jorn'),
-                pdbSede     : rc.get('id_sede'),
-                pdbCurso    : rc.get('id')
-            };
-        if (rerult) {
+		const winM = btn.up('form'),
+			rc = winM.down('#CbCarga').getSelection(),
+			rp = winM.down('#periodo').getSelection(),
+			btnSearch = winM.down('#btnSearch'),
+			extra = {
+				pdbAsig: rc.get('id_asig'),
+				pdbGrado: rc.get('id_grado'),
+				pdbGrupo: rc.get('grupo'),
+				pdbPeriodo: rp.get('periodo'),
+				pdbJornada: rc.get('id_jorn'),
+				pdbSede: rc.get('id_sede'),
+				pdbCurso: rc.get('id')
+			};
+		if (result) {
             Ext.require('Admin.view.docs.VideoView');
             Ext.onReady(function () {
                 win = Ext.create({
@@ -149,14 +146,14 @@ Ext.define('Admin.view.docentes.controller.CargaController',{
                                 fieldLabel  : 'Archivo'
                             }],
                             buttons: [{
-                                text    : 'Imprtar',
+                                text    : 'Importar',
                                 ui      : 'soft-green',
                                 iconCls : 'x-fa fa-cloud-upload',
                                 handler : function () {
-                                    var form = this.up('form').getForm(),
-                                        app = Admin.getApplication();
+									const form = this.up('form').getForm(),
+										app = Admin.getApplication();
 
-                                    Ext.define('Ext.ux.data.Html5Connection', {
+									Ext.define('Ext.ux.data.Html5Connection', {
                                         override: 'Ext.data.Connection',
                                         overrideAccept: true,
                                         isHtml5Supported: function () {
@@ -166,15 +163,15 @@ Ext.define('Admin.view.docentes.controller.CargaController',{
                                             return !this.isHtml5Supported() && this.callParent(arguments);
                                         },
                                         setOptions: function (options, scope) {
-                                            var opts = this.callParent(arguments);
-                                            if (this.isHtml5Supported() && options.isUpload && options.form) {
+											const opts = this.callParent(arguments);
+											if (this.isHtml5Supported() && options.isUpload && options.form) {
                                                 opts.data = new FormData(options.form);
                                             }
                                             return opts;
                                         },
                                         createRequest: function (options, requestOptions) {
-                                            var request = this.callParent(arguments);
-                                            if (this.isHtml5Supported() && options.isUpload && options.progress) {
+											const request = this.callParent(arguments);
+											if (this.isHtml5Supported() && options.isUpload && options.progress) {
         
                                                 if (!options.headers) options.headers = {};
                                                 options.headers['Content-Type'] = null;
@@ -186,16 +183,15 @@ Ext.define('Admin.view.docentes.controller.CargaController',{
                                     Ext.define('Ext.ux.data.Html5Request', {
                                         override: 'Ext.data.request.Ajax',
                                         openRequest: function (options, requestOptions, async, username, password) {
-                                            var me = this;
-                                            var xhr = this.callParent(arguments);
-                                            if (options.isUpload && options.progress) {
+											const xhr = this.callParent(arguments);
+											if (options.isUpload && options.progress) {
                                                 xhr.upload.onprogress = options.progress;
                                             }
                                             return xhr;
                                         },
                                         setupHeaders: function (xhr, options, data, params) {
-                                            var acceptHeader = "Accept";
-                                            if (this.overrideAccept && options.isUpload) {
+											const acceptHeader = "Accept";
+											if (this.overrideAccept && options.isUpload) {
                                                 if (!options.headers) options.headers = {};
                                                 options.headers[acceptHeader] = "text/html";
                                             }
@@ -205,11 +201,11 @@ Ext.define('Admin.view.docentes.controller.CargaController',{
                                     Ext.define('Ext.ux.form.action.Action', {
                                         override: 'Ext.form.action.Action',
                                         createCallback: function () {
-                                            var me = this;
-                                            var callback = this.callParent();
-                                            callback.progress = function (e) {
-                                                var prog = e.loaded / e.total;
-                                                Ext.callback(me.progress, me.scope || me, [me, prog, e]);
+											const me = this;
+											const callback = this.callParent();
+											callback.progress = function (e) {
+												const prog = e.loaded / e.total;
+												Ext.callback(me.progress, me.scope || me, [me, prog, e]);
                                             };
                                             return callback;
                                         }
@@ -221,8 +217,8 @@ Ext.define('Admin.view.docentes.controller.CargaController',{
                                             params  : extra,
                                             waitMsg : 'Cargando plantilla..',
                                             success: function (fp, o) {
-                                                var obj = Ext.decode(o.response.responseText);
-                                                if (obj.estado == 1) {
+												const obj = Ext.decode(o.response.responseText);
+												if (obj.estado === 1) {
                                                     app.showResult('La plantilla se ha importado correctamente.');
                                                     btnSearch.click();
                                                     win.close();
@@ -312,7 +308,7 @@ Ext.define('Admin.view.docentes.controller.CargaController',{
      * @constructor
      */
     onClickClose : function (btn){
-        var 
+        var
             form	= btn.up('form'),
             grid 	= form.down('grid'),
             me      = this;
@@ -391,40 +387,44 @@ Ext.define('Admin.view.docentes.controller.CargaController',{
      
 
     onSelectionNotas: function	(btn) {
-        var	me		= this,
-            win		= btn.up('form'),
-            data    = win.down('#CbCarga').selection,
-            grado 	= data.get('id_grado'),
-            cPeriodo= win.down('#periodo').selection,
-			cUrl    = Global.getUrlBase()+'c_sql/get_competencias',
-            cUrl2   = Global.getUrlBase();
-        st  = Ext.getStore('ColumnDocentesStore');
+		const me = this,
+			win 		= btn.up('form'),
+			data 		= win.down('#CbCarga').selection,
+			grado 		= data.get('id_grado'),
+			cPeriodo 	= win.down('#periodo').selection,
+			cUrl = Global.getApiUrl() + '/competence/competences';
+		let st = Ext.getStore('ColumnDocentesStore');
         me.onStopTimer(btn);
 		win.mask('Cargando notas');
         if (!Ext.isEmpty(cPeriodo)) {
 			Ext.Ajax.request({
 				url: cUrl,
+				headers : Global.getHeaders(),
 				params : {
-					idGrado: grado
+					idGrado: grado,
+					...Global.getSchoolParams()
 				},
 				success: function(response){
-					result 	= Ext.decode(response.responseText);
-					Global.setCompetences(result.records_comp);
-					Global.setScale(result.records_des);
-					Global.setColumnsNotes(result.records_colum);
-					Global.setDbConfig(result.records_config);
-					Global.setConfigReport(Global.getData().config_bol);
+					let result = Ext.decode(response.responseText);
+					Global.setCompetences(result.competencies);
+					Global.setScale(result.ratingScale);
+					Global.setColumnsNotes(result.columnNotes);
+					Global.setDbConfig(result.generalSetting);
+					Global.setBulletinSetting(result.bulletinSetting);
 					st.reload({
 						callback	: function () {
 							Ext.Ajax.request({
-								url: cUrl2 + 'c_notas/logros_estandares_verify',
+								url: Global.getApiUrl() + '/educational-processes/verify',
+								headers: Global.getHeaders(),
+								method: 'GET',
 								params: {
 									pdbGrado: grado,
 									pdbPerio: cPeriodo.get('periodo'),
-									pdbAsig : data.get('id_asig')
+									pdbAsig : data.get('id_asig'),
+									...Global.getSchoolParams()
 								},
 								success: function (response) {
-									obj = Ext.decode(response.responseText);
+									let obj = Ext.decode(response.responseText);
 									Global.setIndicatorsRecord(obj.indicadores);
 									Global.setRecordAchievements(obj.logros);
 								}
@@ -591,135 +591,133 @@ Ext.define('Admin.view.docentes.controller.CargaController',{
      * @constructor
      */
 
-    onClickCalcular : function(btn, e, eOpts) {
-        var win 	        = btn.up('form'),
-            grid 	        = win.down('grid'),
-            aStore 	        = grid.getStore(),
-            btn1	        = win.down('#btnSave'),
-            btn2	        = win.down('#btnUndo'),
-            me		        = this,
-            glo             = Global,
-            addLind         = parseInt(glo.getConfigReport()[0].permi_ind),
-            rerult          = false,
-			dbConfig        = Global.getDbConfig(),
-			hasta	        = 0,
-			_n_red	        = 0,
-			_n_final_red	= 0,
-			_n_aplica		= 0,
-            msg     = '';
+    onClickCalcular : function(btn) {
+		let win = btn.up('form'),
+			grid = win.down('grid'),
+			aStore = grid.getStore(),
+			btn1 = win.down('#btnSave'),
+			btn2 = win.down('#btnUndo'),
+			me = this,
+			addLind = parseInt(Global.getBulletinSetting().permi_ind),
+			result = false,
+			dbConfig = Global.getDbConfig(),
+			hasta = 0,
+			_n_red = 0,
+			_n_final_red = 0,
+			_n_aplica = 0,
+			msg = '';
 		me.onStopTimer(btn);
-		console.log(addLind);
         if(addLind === 5){
-            rerult = true;
+            result = true;
         }else{
-            if (glo.getIndicatorsRecord().length > 0 && glo.getRecordAchievements().length > 0) {
-                rerult = true;
-            }else if(glo.getIndicatorsRecord().length > 0 && !glo.getRecordAchievements().length > 0){
+            if (Global.getIndicatorsRecord().length > 0 && Global.getRecordAchievements().length > 0) {
+                result = true;
+            }else if(Global.getIndicatorsRecord().length > 0 && !Global.getRecordAchievements().length > 0){
                 switch (addLind) {
                     case   1 :
-                        rerult  = true;
+                        result  = true;
                         break;
                     case   2 :
-                        rerult  = false;
+                        result  = false;
                         msg     = 'Debe digitar primero los INDICADORES - DESEMPEÑOS - LOGROS para poder generar los desempeños.';
                         break;
                     case   3 :
-                        rerult  = true;
+                        result  = true;
                         break;
                     case   4 :
-                        rerult  = false;
+                        result  = false;
                         msg     = 'Le falta digitar los DESEMPEÑOS - LOGROS para poder generar los desempeños.';
                         break;
                     default :
-                        rerult  = true;
+                        result  = true;
                         break;
                 }
-            }else if(!glo.getIndicatorsRecord().length > 0 && glo.getRecordAchievements().length > 0){
+            }else if(!Global.getIndicatorsRecord().length > 0 && Global.getRecordAchievements().length > 0){
                 switch (addLind) {
-                    case   '1' :
-                        rerult  = true;
+                    case   1 :
+                        result  = true;
                         break;
-                    case   '2' :
-                        rerult  = false;
+                    case   2 :
+                        result  = false;
                         msg     = 'Debe digitar primero los INDICADORES - DESEMPEÑOS - LOGROS para poder generar los desempeños.';
                         break;
-                    case   '3' :
-                        rerult  = false;
+                    case   3 :
+                        result  = false;
                         msg     = 'Le falta digitar los indicadores de DESEMPEÑO para poder generar los desempeños.';
                         break;
-                    case   '4' :
-                        rerult  = true;
+                    case   4 :
+                        result  = true;
                         break;
                     default :
-                        rerult  = true;
+                        result  = true;
                         break;
                 }
             }else {
                 switch (addLind) {
-                    case   '1' :
-                        rerult  = true;
+                    case   1 :
+                        result  = true;
                         break;
-                    case   '5' :
-                        rerult  = true;
+                    case   5 :
+                        result  = true;
                         break;
                     default :
-                        rerult  = false;
+                        result  = false;
                         msg     = 'Debe digitar primero los INDICADORES - DESEMPEÑOS - LOGROS para poder generar los desempeños.';
                         break;
                 }
             }
         }
-        if (rerult) {
-            grid.el.mask('Generando promedios', 'x-mask-loading');
-            if (btn1.isDisabled()) {
-                btn1.setDisabled(false);
-            }
-            if (btn2.isDisabled()) {
-                btn2.setDisabled(false);
-            }
+		let modified;
+		if (result) {
 			grid.el.mask('Generando promedios', 'x-mask-loading');
-			Ext.each(dbConfig,function(data,i) {
-				_n_aplica	= data.aplicar_redondeo_fin_año;
-				_n_final_red= parseFloat(data.nota_final_redondeo);
-				_n_red		= parseFloat(data.nota_redondeo);
-				Ext.each(Global.getScale(),function (d) {
-					if(d.reprueba > 0){
+			if (btn1.isDisabled()) {
+				btn1.setDisabled(false);
+			}
+			if (btn2.isDisabled()) {
+				btn2.setDisabled(false);
+			}
+			grid.el.mask('Generando promedios', 'x-mask-loading');
+			Ext.each(dbConfig, function (data, i) {
+				_n_aplica = data.aplicar_redondeo_fin_año;
+				_n_final_red = parseFloat(data.nota_final_redondeo);
+				_n_red = parseFloat(data.nota_redondeo);
+				Ext.each(Global.getScale(), function (d) {
+					if (d.reprueba > 0) {
 						hasta = parseFloat(d.hasta);
 					}
 				});
 			});
 			aStore.each(function (rec, index) {
-				x		= 0;
-				nFinal	= 0;
-				Ext.each(Global.getCompetences(),function (data) {
-					x	= ++x;
-					var
-						pA	= parseFloat(rec.get('proc'+x.toString())).toFixed(2),
-						pB	= parseFloat(data.porcentaje).toFixed(2),
-						p	= isNaN(pA) ? pB : pA == 0 ?  pB : pA,
-						val	= parseFloat(me.onEachColumsCalcular(p,data.id_pk,rec));
-					nFinal = nFinal + val ;
+				let x = 0;
+				let nFinal = 0;
+				Global.getCompetences().forEach(function (data) {
+					x = ++x;
+					const pA = parseFloat(rec.get('proc' + x.toString())).toFixed(2),
+						pB = parseFloat(data.porcentaje).toFixed(2),
+						p = isNaN(pA) ? pB : pA == 0 ? pB : pA,
+						val = parseFloat(me.onEachColumnsCalcular(p, data.id_pk, rec));
+					nFinal = nFinal + val;
 				});
-				if(_n_red > 0 && _n_aplica > 0){
-					if((nFinal >= _n_red) && (nFinal <= hasta)){
-						nFinal	= _n_final_red;
+				if (_n_red > 0 && _n_aplica > 0) {
+					if ((nFinal >= _n_red) && (nFinal <= hasta)) {
+						nFinal = _n_final_red;
 					}
 				}
-				rec.set('final',nFinal.toFixed(2));
-				aDesempeño 	= me.getDesempeños(nFinal.toFixed(2));
-				escala		= me.getEscala(nFinal.toFixed(2));
-				rec.set('nombre_escala',aDesempeño);
-				rec.set('id_escala',escala);
+				rec.set('final', nFinal.toFixed(2));
+				let aScale = me.getDesempeños(nFinal.toFixed(2));
+				let escala = me.getEscala(nFinal.toFixed(2));
+				rec.set('nombre_escala', aScale);
+				rec.set('id_escala', escala);
 			});
 			grid.el.unmask();
 
-            modified = aStore.getModifiedRecords();
-            if (modified.length > 0){
-               me.onAutoSave(btn);
-            }
-        }else{
-            Admin.getApplication().onAler(msg);
-        }
+			modified = aStore.getModifiedRecords();
+			if (modified.length > 0) {
+				me.onAutoSave(btn);
+			}
+		} else {
+			Admin.getApplication().onAler(msg);
+		}
 
     },
 
@@ -727,16 +725,15 @@ Ext.define('Admin.view.docentes.controller.CargaController',{
     * Funcion que retorna la escala de notas.
     */
 	getEscala	: function (nValue) {
-		var
-			nLength = Global.getScale().length,
-			x 		= 0,
-			result	= '';
+		let nLength = Global.getScale().length,
+			x = 0,
+			result = '';
 
-		for(x = 0; x < nLength; x++){
-			desde	= parseFloat(Global.getScale()[x].desde);
-			hasta	= parseFloat(Global.getScale()[x].hasta);
+		for (x = 0; x < nLength; x++) {
+			const desde = parseFloat(Global.getScale()[x].desde);
+			const hasta = parseFloat(Global.getScale()[x].hasta);
 
-			if(nValue>=desde && nValue<=hasta){
+			if (nValue >= desde && nValue <= hasta) {
 				result = Global.getScale()[x].id_escala;
 				break;
 			}
@@ -748,14 +745,13 @@ Ext.define('Admin.view.docentes.controller.CargaController',{
      * Funcion que retorna desempeño de la nota final de cada periodo de cada estudiantes.
      */
 	getDesempeños 	: function (nValue) {
-		var
-			nLength = Global.getScale().length,
-			x 		= 0,
-			result	= '';
+		let nLength = Global.getScale().length,
+			x = 0,
+			result = '';
 
 		for(x = 0; x < nLength; x++){
-			desde	= parseFloat(Global.getScale()[x].desde);
-			hasta	= parseFloat(Global.getScale()[x].hasta);
+			const desde	= parseFloat(Global.getScale()[x].desde);
+			const hasta	= parseFloat(Global.getScale()[x].hasta);
 
 			if(nValue>=desde && nValue<=hasta){
 				result = Global.getScale()[x].nombre_escala;
@@ -765,26 +761,25 @@ Ext.define('Admin.view.docentes.controller.CargaController',{
 		return result;
 	},
 
-	onEachColumsCalcular : function (p, idComp,record) {
-		var
-			nota 	= 0,
-			suma 	= 0,
-			prom 	= 0,
-			porc	= 0,
-			cont	= 0,
-			porNota	= 0,
-			sumaPor	= 0,
-			notaSuma= 0,
-			sumaProm= 0,
-			contNota= 0,
-			porcient= 0,
-			colProm	= '',
-			colPorc	= '',
-			activa	= false,
-			porNotaM= 0,
-			st  	= Ext.getStore('ColumnDocentesStore');
+	onEachColumnsCalcular : function (p, idComp,record) {
+		let nota = 0,
+			suma = 0,
+			prom = 0,
+			porc = 0,
+			cont = 0,
+			porNota = 0,
+			sumaPor = 0,
+			notaSuma = 0,
+			sumaProm = 0,
+			contNota = 0,
+			porcient = 0,
+			colProm = '',
+			colPorc = '',
+			activa = false,
+			porNotaM = 0,
+			st = Ext.getStore('ColumnDocentesStore');
 		st.each(function (data) {
-			if (data.get('id_competencia') == idComp){
+			if (data.get('id_competencia') === idComp){
 				switch (data.get('tipo')){
 					case 'NOTA' :
 						activa	= data.get('activa');
@@ -800,7 +795,7 @@ Ext.define('Admin.view.docentes.controller.CargaController',{
 									}else {
 										notaSuma = notaSuma + nota;
 										contNota = ++contNota;
-									};
+									}
 								}else{
 									if(porNota > 0){
 										sumaPor = sumaPor + (nota * porNota / 100);
@@ -808,7 +803,7 @@ Ext.define('Admin.view.docentes.controller.CargaController',{
 									}else {
 										notaSuma = notaSuma + nota;
 										contNota = ++contNota;
-									};
+									}
 								}
 								suma = suma + nota;
 								cont = ++cont;
@@ -858,15 +853,14 @@ Ext.define('Admin.view.docentes.controller.CargaController',{
      */
 
     onAddSugerencias : function(btn) {
-        var
-            record      = btn.up('form').down('#CbCarga').getSelection(),
-            modified    = btn.up('form').down('grid').getStore().getModifiedRecords(),
-            periodo     = Global.getPeriod(),
-            select      = btn.up('form').down('grid').getSelection(),
-            app	        = this.app;
-        if (Ext.isEmpty(modified)) {
+		const record = btn.up('form').down('#CbCarga').getSelection(),
+			modified = btn.up('form').down('grid').getStore().getModifiedRecords(),
+			periodo = Global.getPeriod(),
+			select = btn.up('form').down('grid').getSelection(),
+			app = this.app;
+		if (Ext.isEmpty(modified)) {
             if (select.length > 0) {
-                extra = {
+                const extra = {
                     pdbPeriodo  : periodo,
                     pdbGrado 	: record.get('id_grado'),
                     pdbTable    : 'sugerencias'
@@ -875,7 +869,7 @@ Ext.define('Admin.view.docentes.controller.CargaController',{
                 app.setParamStore('SugerenciasStore',extra);
                 this.onStopTimer(btn);
                 Ext.create('Admin.view.docentes.SugerenciasInsertView',{
-                    title   : 'Asignar Sugerencias u observaciobes',
+                    title   : 'Asignar Sugerencias u observaciones',
                     records : select
                 }).show();
             }else{
@@ -896,15 +890,14 @@ Ext.define('Admin.view.docentes.controller.CargaController',{
      */
 
     onClickLogros : function(btn) {
-        var
-            record  = btn.up('form').down('#CbCarga').getSelection(),
-            modified= btn.up('form').down('grid').getStore().getModifiedRecords(),
-            select  = btn.up('form').down('grid').getSelection(),
-            app	    = this.app;
-        if (Ext.isEmpty(modified)) {
+		const record = btn.up('form').down('#CbCarga').getSelection(),
+			modified = btn.up('form').down('grid').getStore().getModifiedRecords(),
+			select = btn.up('form').down('grid').getSelection(),
+			app = this.app;
+		if (Ext.isEmpty(modified)) {
             if (select.length > 0) {
                 this.onStopTimer(btn);
-                ExExParams = {
+                const ExExParams = {
                     pdbGrado 	: record.get('id_grado'),
                     pdbAsig  	: record.get('id_asig'),
                     pdbGrupo 	: record.get('grupo'),
@@ -949,39 +942,39 @@ Ext.define('Admin.view.docentes.controller.CargaController',{
      * @param eOpts
      */
     onClickDesemp : function	(btn, e, eOpts) {
-        var     me		= Admin.getApplication(),
-                select  = btn.up('form').down('grid').getSelection();
-        if (select.length > 0) {
-            this.onStopTimer(btn);
-            me.onStore('general.EscalaNacionalStore');
-            extra	= {
-                pdbTable: 'escala_nacional',
-                pdbAll	: 0,
-                where   : '{"estado":"1"}'
-            };
-            me.setParamStore('EscalaNacionalStore',extra);
-            Ext.create('Admin.view.docentes.DesempenoView',{
-                title   : 'Desempeños',
-                records : select
-            }).show();
-        }else{
-            me.onAler('Debe seleccionar al menos un estudiante...','error');
-        }
+		const me = Admin.getApplication(),
+			select = btn.up('form').down('grid').getSelection();
+		if (select.length > 0) {
+			this.onStopTimer(btn);
+			me.onStore('general.EscalaNacionalStore');
+			const extra = {
+				pdbTable: 'escala_nacional',
+				pdbAll: 0,
+				where: '{"estado":"1"}'
+			};
+			me.setParamStore('EscalaNacionalStore', extra);
+			Ext.create('Admin.view.docentes.DesempenoView', {
+				title: 'Desempeños',
+				records: select
+			}).show();
+		} else {
+			me.onAler('Debe seleccionar al menos un estudiante...', 'error');
+		}
     },
 
     onConfigSave : function (btn) {
-        var win 	= btn.up('window'),
-            grid 	= win.down('grid'),
-            store 	= grid.getStore(),
-            me		= this;
-        modified = store.getModifiedRecords();
+		const win = btn.up('window'),
+			grid = win.down('grid'),
+			store = grid.getStore(),
+			me = this;
+		let modified = store.getModifiedRecords();
         if (!Ext.isEmpty(modified)) {
             store.sync({
                 success: function(response){
                     grid.el.unmask();
-                    var win1 	= Ext.ComponentQuery.query('notasacademicasdocentes')[0],
-                        btn 	= win1.down('#btnSave');
-                    me.setColumnGrid(btn);
+					const win1 = Ext.ComponentQuery.query('notasacademicasdocentes')[0],
+						btn = win1.down('#btnSave');
+					me.setColumnGrid(btn);
                 },
                 failure: function (response) {
                     grid.el.unmask();
@@ -1002,21 +995,20 @@ Ext.define('Admin.view.docentes.controller.CargaController',{
 
     onGetPrimaria : function (btn) {
         this.setColumnGrid(btn);
-        var 
-            form    = btn.up('form'),
-            data    = form.down('#CbCarga').selection,
-            sexo    = form.down('#sexo').getValue();
-		ExExParams = {
-			pdbGrado 	: data.get('id_grado'),
-			pdbPeriodo	: Global.getPeriod(),
-			pdbCurso 	: data.get('id'),
-			pdbAsig 	: data.get('id_asig'),
-			pdbGrupo	: data.get('grupo'),
-			pdbJorn		: data.get('id_jorn'),
-			pdbSexo     : sexo,
-			pdbSede		: data.get('id_sede'),
-			pdbMatric   : data.get('id_matric'),
-			pdbTable	: '1'
+		const form = btn.up('form'),
+			data = form.down('#CbCarga').selection,
+			sexo = form.down('#sexo').getValue();
+		let ExExParams = {
+			pdbGrado: data.get('id_grado'),
+			pdbPeriodo: Global.getPeriod(),
+			pdbCurso: data.get('id'),
+			pdbAsig: data.get('id_asig'),
+			pdbGrupo: data.get('grupo'),
+			pdbJorn: data.get('id_jorn'),
+			pdbSexo: sexo,
+			pdbSede: data.get('id_sede'),
+			pdbMatric: data.get('id_matric'),
+			pdbTable: '1'
 		};
 
 		Admin.getApplication().setParamStore('NotasStore',ExExParams);
@@ -1041,80 +1033,80 @@ Ext.define('Admin.view.docentes.controller.CargaController',{
      * @param gridcolumns
      */
     setColumnGrid : function (btn) {
-		var win 	= btn.up('form'),
-            form	= win,
-            grid	= null,
-            btn1	= win.down('#btnSave'),
-            btn2	= win.down('#btnUndo'),
-            desde	= 0,
-            hasta	= 0,
-            me		= this,
-			editor	= {
-				xtype			: 'textfield',
-				allowBlank		: false,
-				selectOnFocus 	: true,
-				emptyText		: '0',
-				maskRe			: /[\d\.]/
+		let win = btn.up('form'),
+			form = win,
+			btn1 = win.down('#btnSave'),
+			btn2 = win.down('#btnUndo'),
+			desde = 0,
+			hasta = 0,
+			me = this,
+			editor = {
+				xtype: 'textfield',
+				allowBlank: false,
+				selectOnFocus: true,
+				emptyText: '0',
+				maskRe: /[\d\.]/
 			},
 			grid = win.lookup('notasGrid');
 
-		var
-			columns	= [
+		let columns = [];
+
+		columns = [
 				{
-					xtype       : 'rownumberer'
+					xtype: 'rownumberer'
 				},
 				{
-					text		: 'ESTUDIANTES',
-					dataIndex	: 'nombres',
-					width		: 300,
-					locked   	: true,
+					text: 'ESTUDIANTES',
+					dataIndex: 'nombres',
+					width: 320,
 					menuDisabled: true,
-					sortable    : true
+					locked: true,
+					sortable: true
 				},
 				{
-					text		: 'P',
-					dataIndex	: 'periodo',
-					width		: 33,
-                    locked   	: true,
-                    tooltip     : 'Periodo académico',
+					text: 'P',
+					dataIndex: 'periodo',
+					width: 33,
+					locked: true,
+					tooltip: 'Periodo académico',
 					menuDisabled: true,
-					sortable    : false
+					sortable: false
 				}
-			],
-			finalColums	= {
-				text        : 'FALTAS',
-				defaults    : {
-					width       : 45,
-					align		: 'center',
-					menuDisabled: true,
-					sortable 	: true
+			];
+		let finalColumns = {
+			text: 'FALTAS',
+			defaults: {
+				width: 45,
+				align: 'center',
+				menuDisabled: true,
+				sortable: true
+			},
+			columns: [
+				{
+					text: 'J',
+					dataIndex: 'faltas',
+					tooltip: 'Ingrese las faltas Justificadas',
+					editor: editor
 				},
-				columns : [
-					{
-						text 	    : 'J',
-						dataIndex	: 'faltas',
-						tooltip     : 'Ingrese las faltas Justifcadas',
-						editor		: editor
-					},
-					{
-						text 	    : 'I',
-						dataIndex	: 'injustificadas',
-						tooltip     : 'Ingrese las faltas Injustifcadas',
-						editor		: editor
-					},
-					{
-						text 	    : 'R',
-						dataIndex	: 'retraso',
-						tooltip     : 'Ingrese las faltas por llegada tarde a clase',
-						editor		: editor
-					}
-				]
-			};
+				{
+					text: 'I',
+					dataIndex: 'injustificadas',
+					tooltip: 'Ingrese las faltas Injustificadas',
+					editor: editor
+				},
+				{
+					text: 'R',
+					dataIndex: 'retraso',
+					tooltip: 'Ingrese las faltas por llegada tarde a clase',
+					editor: editor
+				}
+			]
+		};
 		// Se agregan las columnas para las calificaciones númericas
 		if (Global.getScale().length > 0){
 			desde	= Global.getScale()[0].desde; // Nota minima
 			hasta	= Global.getScale()[Global.getScale().length-1].hasta; // Nota maxima
-			Ext.each(Global.getCompetences(),function (data) {
+			Global.getCompetences().forEach(function (data) {
 				columns.push({
 					text		: data.competencia+' - '+data.porcentaje.toString()+' %',
 					tooltip     : data.competencia+' - '+data.porcentaje.toString()+' %',
@@ -1124,10 +1116,11 @@ Ext.define('Admin.view.docentes.controller.CargaController',{
 						menuDisabled: true,
 						sortable 	: true
 					},
-					columns	: me.onEachColumsCompetencia(editor,data.id_pk)
+					columns	: me.onEachColumnsCompetencia(editor,data.id_pk)
 				});
 			});
 		}
+		// Se agregan las columnas para las calificaciones alfanumericas
 		columns.push({
 				text 		: 'FINAL',
 				dataIndex	: 'final',
@@ -1156,7 +1149,7 @@ Ext.define('Admin.view.docentes.controller.CargaController',{
 				sortable    : true,
 				tooltip     : 'Promedio de notas'
 			});
-		columns.push(finalColums);
+		columns.push(finalColumns);
 		grid = Ext.create('Admin.grid.CustomGrid', {
 			reference	: 'notasGrid',
 			itemId		: 'notasGrid',
@@ -1249,7 +1242,7 @@ Ext.define('Admin.view.docentes.controller.CargaController',{
                         form.getController().onStopTimer(btn);
 
 					if ((cellIndex >= 0) && (dIndex != 'prom' || dIndex != 'nombres')) {
-                        var 
+                        var
                             campo 	= grid.grid.columns[cellIndex].dataIndex,
 							btn1	= form.down('#btnSave'),
 							btn2	= form.down('#btnUndo'),
@@ -1363,10 +1356,9 @@ Ext.define('Admin.view.docentes.controller.CargaController',{
 		form.add(grid);
     },
 
-    onEachColumsCompetencia : function (editor, idComp) {
-		var
-			colums	= [],
-			store	= Ext.getStore('ColumnDocentesStore');
+    onEachColumnsCompetencia : function (editor, idComp) {
+		const colums = [],
+			store = Ext.getStore('ColumnDocentesStore');
 		store.each(function (data) {
 			if ( data.get('id_competencia') == idComp){
 				switch (data.get('nombre')){
@@ -1408,27 +1400,10 @@ Ext.define('Admin.view.docentes.controller.CargaController',{
 		return colums;
 	},
 
-    onDeleteLog : function (btn) {
-       var  me      = this,
-            record	= Ext.ComponentQuery.query('notasacademicasdocentes')[0].down('grid').getSelection()[0],
-            app	    = this.app;
-        extra = {
-            pdbGrado 	: record.get('id_grado'),
-            pdbAsig   	: record.get('id_asig'),
-            pdbPeriodo  : record.get('periodo'),
-            pdbNota   	: record.get('id'),
-            pdbGrupo    : record.get('grupo'),
-            pdbJorn  	: record.get('id_jorn')
-        };
-        app.setParamStore('LogrosNotasStore', extra);
-        me.app.onGridDelete(btn);
-    },
-
     onClickListLogros : function (btn) {
-        var 
-            me      = this,
-            record	= btn.up('form').down('#CbCarga').getSelection();
-        extra = {
+		const me = this,
+			record = btn.up('form').down('#CbCarga').getSelection();
+		const extra = {
             pdbGrado 	: record.get('id_grado'),
             pdbAsig   	: record.get('id_asig'),
             pdbPeriodo  : Global.getPeriod(),
@@ -1441,32 +1416,35 @@ Ext.define('Admin.view.docentes.controller.CargaController',{
     },
 
     onDeleteLogEstudiantes : function (btn) {
-        var cbtn = btn,
-            me	 = this;
-        Ext.Msg.show({
-            title	: 'Elimiar datos',
+		const cbtn = btn,
+			me = this;
+		Ext.Msg.show({
+            title	: 'Eliminar datos',
             message	: 'Desea eliminar el registro?',
             buttons	: Ext.Msg.YESNO,
             icon	: Ext.Msg.QUESTION,
             fn: function(btn) {
                 if (btn === 'yes') {
-                    var grid 	        = cbtn.up('grid'),
-                        records         = grid.getSelectionModel().getSelection(),
-                        recordsToSend   = [],
-                        cUrl            = me.app.getUrlBase(),
-                        store           = grid.getStore();
-                    Ext.each(records, function(record) { //step 2
+					let grid = cbtn.up('grid'),
+						records = grid.getSelectionModel().getSelection(),
+						recordsToSend = [],
+						cUrl = me.app.getUrlBase(),
+						store = grid.getStore();
+					Ext.each(records, function(record) { //step 2
                             recordsToSend.push(Ext.apply({id:record.id},record.data));
                         }
                     );
                     recordsToSend = Ext.encode(recordsToSend);
                     grid.el.mask('Eliminando...');
                     Ext.Ajax.request({
-                        url : cUrl+'c_logros/get_delete_logros_estudiantes_all',
+                        url : Global.getApiUrl() + '/educational-processes/by-students',
                         params    : {
                             records	    : recordsToSend,
-                            pdbGrado 	: records[0].get('id_grado')
+                            pdbGrado 	: records[0].get('id_grado'),
+							...Global.getSchoolParams(),
                         },
+						method : 'DELETE',
+						headers: Global.getHeaders(),
                         success : function() {
                             store.remove(records);
                             store.commitChanges;
@@ -1485,9 +1463,9 @@ Ext.define('Admin.view.docentes.controller.CargaController',{
     },
 
     onClickListSugerencias : function (btn) {
-        var me      = this,
-            record	 = btn.up('form').down('#CbCarga').getSelection();
-        extra = {
+		const me = this,
+			record = btn.up('form').down('#CbCarga').getSelection();
+		const extra = {
             pdbGrado 	: record.get('id_grado'),
             pdbAsig   	: record.get('id_asig'),
             pdbPeriodo  : Global.getPeriod(),
@@ -1500,21 +1478,20 @@ Ext.define('Admin.view.docentes.controller.CargaController',{
     },
 
     onDeleteSugEstudiantes : function (btn) {
-        var cbtn = btn,
-            me	 = this,
-            grado= Ext.ComponentQuery.query('notasacademicasdocentes')[0].down('#CbCarga').selection.get('id_grado');
+		const cbtn = btn,
+			me = this,
+			grado = Ext.ComponentQuery.query('notasacademicasdocentes')[0].down('#CbCarga').selection.get('id_grado');
 
-        Ext.Msg.show({
-            title	: 'Elimiar datos',
+		Ext.Msg.show({
+            title	: 'Eliminar datos',
             message	: 'Desea eliminar el registro?',
             buttons	: Ext.Msg.YESNO,
             icon	: Ext.Msg.QUESTION,
             fn: function(btn) {
                 if (btn === 'yes') {
-                    var grid 	        = cbtn.up('grid'),
+                    let grid 	        = cbtn.up('grid'),
                         records         = grid.getSelectionModel().getSelection(),
                         recordsToSend   = [],
-                        cUrl            = me.app.getUrlBase(),
                         store           = grid.getStore();
 
                     Ext.each(records, function(record) { //step 2
@@ -1524,17 +1501,21 @@ Ext.define('Admin.view.docentes.controller.CargaController',{
                     recordsToSend = Ext.encode(recordsToSend);
                     grid.el.mask('Eliminando...');
                     Ext.Ajax.request({
-                        url : cUrl+'c_sugerencias/get_delete_estudiantes',
+                        url : Global.getApiUrl() + '/academic-observations/by-students',
+						method: 'DELETE',
                         params    : {
                             records  : recordsToSend,
-                            pdbGrado 	: grado
+                            pdbGrado 	: grado,
+							...Global.getSchoolParams()
                         },
+						headers: Global.getHeaders(),
                         success : function() {
                             store.remove(records);
                             store.commitChanges;
                             me.app.showResult('Se han eliminado los datos');
                         },
                         failure : function() {
+							store.rejectChanges();
                             me.app.showResult('No se han eliminado los datos');
                         },
                         callback : function(){

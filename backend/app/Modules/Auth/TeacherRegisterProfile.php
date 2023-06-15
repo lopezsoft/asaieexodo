@@ -11,8 +11,6 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules;
-
 class TeacherRegisterProfile implements AuthenticationRegisterContract
 {
     use MessagesTrait;
@@ -44,6 +42,10 @@ class TeacherRegisterProfile implements AuthenticationRegisterContract
                 ]);
                 $user->email_verified_at = now();
                 $user->save();
+                DB::table("{$db}teachers_and_users_ids")->insert([
+                    'teacher_id'    => $teacher->id ?? $teacher->id_docente,
+                    'user_id'       => $user->id,
+                ]);
                 RegisterJob::dispatch($user->id, $request->schoolId, [4] );
             }
             DB::commit();

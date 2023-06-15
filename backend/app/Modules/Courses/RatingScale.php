@@ -4,12 +4,28 @@ namespace App\Modules\Courses;
 
 use App\Modules\School\SchoolQueries;
 use App\Traits\MessagesTrait;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class RatingScale
 {
     use MessagesTrait;
+
+    public static function getRatingScaleId($school, $gradeId, $noteValue)
+    {
+        $db     = $school->db;
+        $year   = $school->year;
+        $query  = DB::table("{$db}desempeños AS t1")
+            ->select('t1.id_escala')
+            ->join("{$db}grados_agrupados AS t2", 't1.id_grado_agrupado', '=', 't2.id')
+            ->join("{$db}aux_grados_agrupados AS t3", 't3.id_grado_agrupado', '=', 't2.id')
+            ->where('t1.year', '=', $year)
+            ->where('t3.id_grado', '=', $gradeId)
+            ->whereRaw("{$noteValue} BETWEEN t1.desde AND t1.hasta")
+            ->first();
+        return $query->id_escala ?? 0;
+    }
     public static function getGroupByGrades($school, $gradeId): \Illuminate\Support\Collection
     {
         $db     = $school->db;
@@ -52,7 +68,7 @@ class RatingScale
     /**
      * @throws \Exception
      */
-    public static function getRatingScale(Request $request): \Illuminate\Http\JsonResponse
+    public static function getRatingScale(Request $request): JsonResponse
     {
         $school = SchoolQueries::getSchoolRequest($request);
         $db     = $school->db;

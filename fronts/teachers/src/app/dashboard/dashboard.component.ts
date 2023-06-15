@@ -39,7 +39,7 @@ export class DashboardComponent implements OnInit {
               localStorage.setItem(this._http.getApiJwt(), JSON.stringify(params));
           }
           this.blockUI.stop(); // Stop blocking
-          const url = `${this._http.getAppUrl()}/teacher`;
+          const url = `${this._http.getAppUrl()}/academic-notes`;
           window.open(url,'_blank');
       }, 2000);
   }

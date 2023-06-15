@@ -10,14 +10,15 @@ Ext.define('Admin.store.docentes.PreinformeStore',{
     ],
     model   : 'Admin.model.docentes.PreinformeModel',
     proxy   : {
+		type	: 'ajax',
         extraParams : {
             pdbTable    : 'preinforme'
         },
         api : {
-            create  : '',
-            read    : 'c_docentes/get_preinforme',
-            update  : 'c_docentes/get_update_preinforme',
-            destroy : 'master/deleteData'
+            create  : 'crud',
+            read    : 'academic-notes/pre-report',
+            update  : 'academic-notes/pre-report',
+            destroy : 'crud'
         },
         timeout : 0
     }

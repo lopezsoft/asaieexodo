@@ -36,8 +36,9 @@ class UsersAccess implements Authentication
 
     public function login(Request $request): JsonResponse
     {
+        $emailValidated = $request->withOutEmail ? 'required|string' : 'required|string|email' ;
         $request->validate([
-            'email'       => 'required|string|email',
+            'email'       => $emailValidated,
             'password'    => 'required|string',
             'remember_me' => 'boolean',
         ]);

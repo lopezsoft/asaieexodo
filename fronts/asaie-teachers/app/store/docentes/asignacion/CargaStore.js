@@ -1,13 +1,16 @@
 Ext.define('Admin.store.docentes.CargaStore', {
-    extend: 'Admin.store.base.StoreUrl',
+    extend: 'Admin.store.general.CargaStore',
     storeId : 'CargaStore',
-    requires: [
-    	'Admin.model.docentes.CargaModel'
-    ],    
-    model		: 'Admin.model.docentes.CargaModel',
-    proxy: {
-    	type	: 'ajax',
-        url	    : 'c_sql/get_carga_academica'
-    }
+	proxy: {
+		extraParams : {
+			pdbTable : 'cursos'
+		},
+		api: {
+			create  : 'crud',
+			read    : 'teachers/courses',
+			update  : 'crud',
+			destroy : 'crud'
+		}
+	}
 });
 

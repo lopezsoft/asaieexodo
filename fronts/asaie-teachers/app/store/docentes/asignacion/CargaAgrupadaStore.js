@@ -10,6 +10,6 @@ Ext.define('Admin.store.docentes.CargaAgrupadaStore', {
     model		: 'Admin.model.docentes.CargaModel',
     proxy: {
         type	: 'ajax',
-        url	: 'c_sql/get_carga_academica_agrupada'
+        url		: 'teachers/grouped-courses',
     }
 });

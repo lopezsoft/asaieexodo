@@ -30,8 +30,6 @@ class GeneralSetting
                     ->selectRaw("t1.*, t2.nombre_grado_agrupado")
                     ->leftJoin("{$db}grados_agrupados as t2","t1.id_grupo_grados","=", "t2.id")
                     ->where("t1.year", $school->year);
-
-
         return self::getResponse([
             'records' => $query->paginate()
         ]);

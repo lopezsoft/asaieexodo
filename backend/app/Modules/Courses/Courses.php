@@ -3,6 +3,7 @@
 namespace App\Modules\Courses;
 
 use App\Modules\School\SchoolQueries;
+use App\Modules\Teacher\CoursesOfTeacher;
 use App\Queries\CallExecute;
 use App\Traits\MessagesTrait;
 use Illuminate\Http\JsonResponse;
@@ -12,6 +13,14 @@ use Illuminate\Support\Facades\DB;
 class Courses
 {
     use MessagesTrait;
+
+    /**
+     * @throws \Exception
+     */
+    public static function getCoursesOfTeacher(Request $request): array
+    {
+        return CoursesOfTeacher::getCourses($request);
+    }
     public static function getActiveCourse($courseId, $db){
         $sql    = DB::table("{$db}cursos")->where('id', $courseId)->first();
         $result	= $courseId;

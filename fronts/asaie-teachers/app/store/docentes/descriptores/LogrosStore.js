@@ -15,10 +15,10 @@ Ext.define('Admin.store.docentes.LogrosStore', {
             pdbTable : 'logros_estandares'
         },
         api: {
-            create  : 'c_logros/get_logros_insert',
-            read    : 'c_logros/get_logros_estandares',
-            update  : 'c_logros/get_logros_update',
-            destroy : 'master/deleteData'
+            create  : 'educational-processes/by-teacher',
+            read    : 'educational-processes/by-teacher',
+            update  : 'educational-processes/by-teacher',
+            destroy : 'educational-processes/by-teacher'
         }
     }
 });

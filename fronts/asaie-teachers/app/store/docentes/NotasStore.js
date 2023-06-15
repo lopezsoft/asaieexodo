@@ -10,10 +10,10 @@ Ext.define('Admin.store.docentes.NotasStore', {
     proxy: {
 	type	: 'ajax',
 	    api: {
-		    create  : 'c_notas/get_Notas_insert',
-		    read    : 'c_notas/get_Notas',
-		    update  : 'c_notas/get_Notas_save',
-		    destroy : 'c_notas/get_Notas_delete'
+		    create  : 'academic-notes/teacher',
+		    read    : 'academic-notes/notes-by-course',
+		    update  : 'academic-notes/teacher',
+		    destroy : 'academic-notes/teacher'
 		}
 	}
 });

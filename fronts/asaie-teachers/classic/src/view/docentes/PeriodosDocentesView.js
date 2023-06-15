@@ -4,7 +4,6 @@ Ext.define('Admin.view.docentes.PeriodosDocentesView' ,{
     xtype 	: 'periodosdocentes',
     store	: 'PeriodosStore',
     title   : 'Periodos académicos',
-    height  : 400,
     plugins	: [
         {
             ptype: 'rowexpander',

@@ -24,10 +24,7 @@ class Teachers
         if($search){
             $query->where(function ($row) use ($search) {
                 $row->where("td.documento",   'like', "%{$search}%");
-                $row->orWhere("td.nombre1",   'like', "%{$search}%");
-                $row->orWhere("td.apellido1",   'like', "%{$search}%");
-                $row->orWhere("td.apellido2", 'like', "%{$search}%");
-                $row->orWhere("td.nombre2",   'like', "%{$search}%");
+                $row->orWhereRaw("CONCAT(RTRIM(td.apellido1),' ',RTRIM(td.apellido2),' ',RTRIM(td.nombre1),' ',RTRIM(td.nombre2)) LIKE '%{$search}%'");
             });
         }
         $query->select("td.*","t1.year");

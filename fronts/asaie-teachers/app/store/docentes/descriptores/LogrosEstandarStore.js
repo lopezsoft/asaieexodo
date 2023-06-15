@@ -9,11 +9,12 @@ Ext.define('Admin.store.docentes.LogrosEstandarStore',{
     ],
     model   : 'Admin.model.docentes.LogrosEstandarModel',
     proxy   : {
+		type: 'ajax',
         api     : {
-            create  : 'c_notas/get_logro_estandares_save',
-            read    : 'c_notas/get_logro_estandares_save',
-            update  : 'c_notas/get_logro_estandares_save',
-            destroy : 'c_notas/get_logro_estandares_save'
+            create  : 'educational-processes/by-teacher/create-by-student',
+            read    : 'crud',
+            update  : 'crud',
+            destroy : 'crud'
         }
     }
 });

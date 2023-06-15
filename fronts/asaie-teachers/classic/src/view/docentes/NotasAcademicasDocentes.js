@@ -3,11 +3,9 @@ Ext.define('Admin.view.docentes.NotasAcademicasDocentes', {
     alias: 'widget.notasacademicasdocentes',
     xtype: 'notasacademicasdocentes',
     initComponent: function() {
-		let me  	= this,
-			height = Ext.Element.getViewportHeight();
+		let me  	= this;
         me.callParent(arguments);
 		me.setTitle('Registro de notas - ' + Global.getYear());
-		me.setMaxHeight(height - 148);
     },
     cls: 'shadow email-compose',
     controller: 'carga',
@@ -48,43 +46,41 @@ Ext.define('Admin.view.docentes.NotasAcademicasDocentes', {
                     ),
                     listeners: {
                         focusenter: function(t) {
-                            oldValue = t.value;
+							let oldValue = t.value;
                             if (oldValue) {
                                 t.expand();
                             }
-
                         },
                         beforeselect: function(c) {
-                            var win = c.up('form'),
-                                grid = win.down('grid');
-                            if (!Ext.isEmpty(grid)) {
-                                var store = grid.getStore(),
-                                    me = Admin.getApplication(),
-                                    modified = store.getModifiedRecords();
-                                if (!Ext.isEmpty(modified)) {
+							const win = c.up('form'),
+								grid = win.down('grid');
+							if (!Ext.isEmpty(grid)) {
+								const store = grid.getStore(),
+									me = Admin.getApplication(),
+									modified = store.getModifiedRecords();
+								if (!Ext.isEmpty(modified)) {
                                     me.onAler('Hay cambios pendientes.');
                                     return false;
                                 }
                             }
                         },
                         select: function(c, r, e) {
-                            var win = c.up('form'),
-                                form = win,
-                                cont = win.getController(),
-                                grid = win.down('grid');
-                            cont.onStopTimer(c);
+							const win = c.up('form'),
+								form = win,
+								cont = win.getController(),
+								grid = win.down('grid');
+							cont.onStopTimer(c);
                             if (!Ext.isEmpty(grid)) {
                                 form.remove('notasGrid', true);
                             }
-                            var
-                                cod_grado = r.get('id_grado'),
-                                me = Admin.getApplication(),
-                                sTitle = r.get('asignatura') + '- ' + r.get('jornada') + '- ' + r.get('grado') + '- Grupo: ' + r.get('grupo') + '- Año: ' + r.get('year');
-                            extra = {
-                                pdbTable: 'periodos_academicos',
-                                pdbGrado: cod_grado,
-                                pdbType: 0
-                            };
+							const cod_grado = r.get('id_grado'),
+								me = Admin.getApplication(),
+								sTitle = r.get('asignatura') + '- ' + r.get('jornada') + '- ' + r.get('grado') + '- Grupo: ' + r.get('grupo') + '- Año: ' + r.get('year');
+							let extra = {
+								pdbTable: 'periodos_academicos',
+								pdbGrado: cod_grado,
+								pdbType: 0
+							};
                             me.setParamStore('PeriodosStore', extra);
                             c.up('form').setTitle('Registro de notas: ' + sTitle);
                         }
@@ -99,25 +95,25 @@ Ext.define('Admin.view.docentes.NotasAcademicasDocentes', {
                     },
                     listeners: {
                         beforeselect: function(c) {
-                            var win = c.up('form'),
-                                form = win.down('form'),
-                                grid = win.down('grid');
-                            if (!Ext.isEmpty(grid)) {
-                                var store = grid.getStore(),
-                                    me = Admin.getApplication(),
-                                    modified = store.getModifiedRecords();
-                                if (!Ext.isEmpty(modified)) {
+							const win = c.up('form'),
+								form = win.down('form'),
+								grid = win.down('grid');
+							if (!Ext.isEmpty(grid)) {
+								const store = grid.getStore(),
+									me = Admin.getApplication(),
+									modified = store.getModifiedRecords();
+								if (!Ext.isEmpty(modified)) {
                                     me.onAler('Hay cambios pendientes.');
                                     return false;
                                 }
                             }
                         },
                         select: function(c, rc) {
-                            var win     = c.up('form'),
-                                form    = win,
-                                cont    = win.getController(),
-                                grid    = win.down('grid');
-                            win.down('#btnSearch').setDisabled(false);
+							const win = c.up('form'),
+								form = win,
+								cont = win.getController(),
+								grid = win.down('grid');
+							win.down('#btnSearch').setDisabled(false);
                             win.down('#btnConfig').setDisabled(true);
                             cont.onStopTimer(c);
                             if (!Ext.isEmpty(grid)) {
@@ -128,22 +124,21 @@ Ext.define('Admin.view.docentes.NotasAcademicasDocentes', {
                 },
                 {
                     xtype: 'customButton',
-                    tooltip : 'Búscar notas',
+                    tooltip : 'Buscar notas',
                     itemId: 'btnSearch',
                     iconCls: 'x-fa fa-search',
                     bind: {
                         disabled: '{!periodos.value}'
                     },
                     handler: function(btn) {
-                        var
-                            me = Admin.getApplication(),
-                            con = btn.up('form').getController(),
-                            form = btn.up('form'),
-                            grid = form.down('grid'),
-                            r = form.down('#CbCarga').getSelection(),
-                            rc = form.down('#periodo').getSelection(),
-                            extra = {};
-                        form.down('#btnSearch').setDisabled(false);
+						let me 		= Admin.getApplication(),
+							con 	= btn.up('form').getController(),
+							form 	= btn.up('form'),
+							grid 	= form.down('grid'),
+							r 		= form.down('#CbCarga').getSelection(),
+							rc 		= form.down('#periodo').getSelection(),
+							extra = {};
+						form.down('#btnSearch').setDisabled(false);
                         form.down('#btnConfig').setDisabled(false);
                         if (!Ext.isEmpty(grid)) {
                             form.remove('notasGrid', true);
@@ -167,19 +162,18 @@ Ext.define('Admin.view.docentes.NotasAcademicasDocentes', {
                         disabled: '{!periodos.value}'
                     },
                     handler: function(btn) {
-                        var
-                            r = btn.up('form').down('#CbCarga').getSelection(),
-                            rc = btn.up('form').down('#periodo').getSelection(),
-                            me = Admin.getApplication();
-                        extP = {
-                            pdbGrado: r.get('id_grado'),
-                            pdbGrupo: r.get('grupo'),
-                            pdbCurso: r.get('id'),
-                            pdbPeriodo: rc.get('periodo'),
-                            pdbTable: 'preinforme'
-                        };
+						const r = btn.up('form').down('#CbCarga').getSelection(),
+							rc = btn.up('form').down('#periodo').getSelection(),
+							me = Admin.getApplication();
+						const extP = {
+							pdbGrado: r.get('id_grado'),
+							pdbGrupo: r.get('grupo'),
+							pdbCurso: r.get('id'),
+							pdbPeriodo: rc.get('periodo'),
+							pdbTable: 'preinforme'
+						};
                         me.setParamStore('PreinformeStore', extP);
-                        win = Ext.create('Admin.view.docentes.reportes.Preinforme');
+						let win = Ext.create('Admin.view.docentes.reportes.Preinforme');
                         win.setTitle('Pre-Informe periódico: ' + r.get('asignatura') + ' - ' + r.get('grado') + ' - ' + r.get('grupo'));
                         win.show();
                     }
@@ -200,19 +194,18 @@ Ext.define('Admin.view.docentes.NotasAcademicasDocentes', {
                         disabled: '{!periodos.value}'
                     },
                     handler: function(btn) {
-                        var
-                            record = btn.up('form').down('#CbCarga').getSelection(),
-                            me = Admin.getApplication();
-                        extP = {
-                            pdbGrado: record.get('id_grado'),
-                            pdbAsig: record.get('id_asig'),
-                            pdbGrupo: record.get('grupo'),
-                            pdbSede: record.get('id_sede'),
-                            pdbJorn: record.get('id_jorn'),
-                            pdbType: 0,
-                            pdbCurso: 0,
-                            pdbTable: 'logros_estandares'
-                        };
+						const record = btn.up('form').down('#CbCarga').getSelection(),
+							me = Admin.getApplication();
+						let extP = {
+							pdbGrado: record.get('id_grado'),
+							pdbAsig: record.get('id_asig'),
+							pdbGrupo: record.get('grupo'),
+							pdbSede: record.get('id_sede'),
+							pdbJorn: record.get('id_jorn'),
+							pdbType: 0,
+							pdbCurso: 0,
+							pdbTable: 'logros_estandares'
+						};
                         me.setParamStore('LogrosStore', extP);
                         Ext.create('Admin.view.docentes.Descriptores', {
                             record: record,
@@ -229,34 +222,36 @@ Ext.define('Admin.view.docentes.NotasAcademicasDocentes', {
                         disabled: '{!periodos.value}'
                     },
                     handler: function(btn) {
-                        var
-                            me = Admin.getApplication(),
-                            cUrl = Global.getUrlBase() + 'c_notas/get_sync_notas',
-                            extra = {},
-                            record = btn.up('form').down('#CbCarga').getSelection(),
-                            p = btn.up('form').down('#periodo').value;
-                        extra = {
-                            pdbCurso: record.get('id'),
-                            pdbGrado: record.get('id_grado'),
-                            pdbAsig: record.get('id_asig'),
-                            pdbJorn: record.get('id_jorn'),
-                            pdbSede: record.get('id_sede'),
-                            pdbGrupo: record.get('grupo'),
-                            pdbPeriodo: p
+						let me = Admin.getApplication(),
+							cUrl = Global.getApiUrl() + '/educational-processes/by-teacher/synchronize',
+							extra = {},
+							record = btn.up('form').down('#CbCarga').getSelection(),
+							p = btn.up('form').down('#periodo').value;
+						extra = {
+                            pdbCurso	: record.get('id'),
+                            pdbGrado	: record.get('id_grado'),
+                            pdbAsig		: record.get('id_asig'),
+                            pdbJorn		: record.get('id_jorn'),
+                            pdbSede		: record.get('id_sede'),
+                            pdbGrupo	: record.get('grupo'),
+                            pdbPeriodo	: p,
+							...Global.getSchoolParams()
                         };
                         Ext.Ajax.request({
                             url: cUrl,
                             params: extra,
-                            success: function(response, opts) {
+							headers: Global.getHeaders(),
+                            success: function() {
                                 me.showResult('Proceso realizado correctamente.')
                             },
                             failure: function(response, opts) {
-                                me.onError(response.responseText);
+								const message = JSON.parse(response.responseText);
+                                me.onError(message.message);
                             }
                         });
                     }
                 }, '-',
-                {
+                /*{
                     xtype: 'customButton',
                     ui: 'soft-green',
                     iconCls: 'x-fa fa-cloud-download',
@@ -275,7 +270,7 @@ Ext.define('Admin.view.docentes.NotasAcademicasDocentes', {
                     iconCls: 'x-fa fa-cloud-upload',
                     tooltip : 'Importar plantilla excel',
                     handler: 'onLoadExcel'
-                }
+                }*/
             ]
         },
         {
@@ -329,7 +324,7 @@ Ext.define('Admin.view.docentes.NotasAcademicasDocentes', {
                 }, '-',
                 {
                     xtype: 'label',
-                    text: 'Auto guradar en 0 SEG.',
+                    text: 'Auto guardar en 0 SEG.',
                     itemId: 'lbClock'
                 }, '-',
                 {

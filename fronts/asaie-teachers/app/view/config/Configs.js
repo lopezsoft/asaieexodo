@@ -7,20 +7,23 @@ Ext.define('Admin.view.config.Configs', {
         avatarWomen: "/assets/img/avatars/woman.png",
         avatarUnknoun: "/assets/img/avatars/unknown.png",
         socket: null,
-   /*     hostSocket	: 'https://ns547829.ip-66-70-178.net:3001',
+   /*     hostSocket	: 'https://ns547829.ip-66-70-178.net:3001', */
         urlBase		: "https://api.asaie.co",
-        urlLocation	: "https://admin.asaie.co",
-		apiUrl		: "https://api.asaie.co/api/v1",*/
+        urlLocation	: "https://teachers.asaie.co",
+		apiUrl		: "https://api.asaie.co/api/v1",
 		year		: 0,
 		hostSocket	: 'http://localhost:8081',
-		urlBase		: "http://asaieexodo.test",
+		/*urlBase		: "http://asaieexodo.test",
 		urlLocation	: "http://asaieexodo.test",
-		apiUrl		: "http://asaieexodo.test/api/v1",
+		apiUrl		: "http://asaieexodo.test/api/v1",*/
 		reportUrl	: "http://asaie.rep",
 		competences: [],
 		scale: [],
 		columnsNotes: [],
 		dbConfig: [],
+		indicatorsRecord: [],
+		recordAchievements: [],
+		bulletinSetting: null,
 		period: '',
     },
     constructor: function(config) {
@@ -30,18 +33,6 @@ Ext.define('Admin.view.config.Configs', {
     isActive: function() {
         return AuthToken.isActive();
     },
-    getCfg: function() {
-        var
-            data = this.getData();
-        return {
-            year: this.getYear(),
-            UserId: data.user_id,
-            userType: data.user_type,
-            userParent: data.user_parent,
-            db: data.db_name
-        };
-    },
-
 	getHeaders: function() {
 		return {
 			'Authorization' : (AuthToken) ? AuthToken.authorization() : ''
@@ -60,6 +51,12 @@ Ext.define('Admin.view.config.Configs', {
 		param.year        	= school.year || dt.getFullYear();
 
 		return param;
+	},
+
+	isEnabledYear: function() {
+		const params	= this.getSchoolParams();
+		const dt		= new Date();
+		return (params.year === dt.getFullYear());
 	},
 
     /**

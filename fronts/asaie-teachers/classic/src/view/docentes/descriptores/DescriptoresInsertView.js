@@ -24,7 +24,7 @@ Ext.define('Admin.view.docentes.DescriptoresInsertView',{
                     ptype : 'gridfilters'
                 }
             ],
-            selType : 'checkboxmodel',
+            selType : 'checkboxes',
 			features: [
 				{
 					ftype	: 'grouping',
@@ -85,17 +85,17 @@ Ext.define('Admin.view.docentes.DescriptoresInsertView',{
         }
     ],
     saveData	: function(storeName,reload){
-		var me 		        = this.getApp(),
-			win		        = this,
-            selectLogros    = win.down('grid').getSelection(),
-            select          = win.getRecords(),
-            store           = Ext.getStore('LogrosEstandarStore');
+		const me = this.getApp(),
+			win = this,
+			selectLogros = win.down('grid').getSelection(),
+			select = win.getRecords(),
+			store = Ext.getStore('LogrosEstandarStore');
 
-        if (selectLogros.length > 0) {
+		if (selectLogros.length > 0) {
             win.mask('Guardando…', 'x-mask-loading');
             Ext.each(select,function (rec) {
                 Ext.each(selectLogros,function (record) {
-                    data = {
+                    const data = {
                         id_nota				: rec.get('id'),
                         id_logro_estandar	: record.get('id'),
                         final				: rec.get('final'),

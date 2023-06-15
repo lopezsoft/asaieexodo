@@ -45,12 +45,9 @@ Ext.define('Admin.view.docentes.SugerenciasInsertView',{
                         switch(val){
                             case '3':
                                 return '<span style="color:Darkviolet;">' + 'OBSERVACIÓN' + '</span>';
-                                break;
                             default:
                                 return '<span style="color:red;">' + 'SUGERENCIA' + '</span>';
-                                break;
                         }
-                        return val;
                     }
                 },
                 {
@@ -70,16 +67,16 @@ Ext.define('Admin.view.docentes.SugerenciasInsertView',{
         }
     ],
     saveData	: function(storeName,reload){
-		var me 		        = this.getApp(),
-			win		        = this,
-            selectSug       = win.down('grid').getSelection(),
-            select          = win.getRecords(),
-            store           = Ext.getStore('SugerenciasInsertStore');
-        if (selectSug.length > 0) {
+		const me = this.getApp(),
+			win = this,
+			selectSug = win.down('grid').getSelection(),
+			select = win.getRecords(),
+			store = Ext.getStore('SugerenciasInsertStore');
+		if (selectSug.length > 0) {
             win.mask('Guardando…', 'x-mask-loading');
             Ext.each(select,function (rec) {
                 Ext.each(selectSug,function (record) {
-                    data = {
+                    const data = {
                         id_nota				: rec.get('id'),
                         id_sugerencia	    : record.get('id')
                     };

@@ -11,10 +11,10 @@ Ext.define('Admin.store.docentes.ColumnDocentesStore', {
             pdbTable    : 'config_columns_theacher'
         },
         api: {
-            create  : '',
-            read    : 'c_sql/db_docente',
-            update  : 'General/update_data',
-            destroy : ''
+            create  : 'crud',
+            read    : 'teachers/column-notes',
+            update  : 'crud',
+            destroy : 'crud'
         }
     }
 });

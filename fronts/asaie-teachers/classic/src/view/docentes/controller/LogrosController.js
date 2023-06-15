@@ -69,13 +69,12 @@ Ext.define('Admin.view.docentes.controller.LogrosController', {
     },
 
     onViewImportYear : function (btn) {
-        var 
-            record  = btn.up('window').getRecord();
-        extra = {
-            pdbGrado 	: record.get('id_grado'),
-            pdbAsig   	: record.get('id_asig'),
-            pdbSede   	: record.get('id_sede')
-        };
+		const record = btn.up('window').getRecord();
+		let extra = {
+			pdbGrado: record.get('id_grado'),
+			pdbAsig: record.get('id_asig'),
+			pdbSede: record.get('id_sede')
+		};
         Admin.getApplication().setParamStore('ImportarDescriptoresStore',extra);
         Ext.create('Admin.view.docentes.ImportarDescriptores',{
             record  : record,

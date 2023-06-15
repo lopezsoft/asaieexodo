@@ -81,7 +81,7 @@ export class LoginPageComponent extends FormComponent implements OnInit {
 
     this.activeLoading();
     this.showSpinner(lang.instant('login.button.loggingIn'));
-    this.gService.http.post('/auth/login', me.value)
+    this.gService.http.post('/auth/login?withOutEmail=1', me.value)
       .subscribe({
         next: (resp) => {
             this.disabledLoading();

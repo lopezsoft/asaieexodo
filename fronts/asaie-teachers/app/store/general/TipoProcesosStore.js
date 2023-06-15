@@ -13,12 +13,6 @@ Ext.define('Admin.store.general.TipoProcesosStore', {
 		typeData: 'Ajax',
         extraParams : {
             pdbTable : 'tipo_procesos_educativos'
-        },
-        api: {
-            create  : 'General/insert_data',
-            read    : 'General/get_select_all',//['sqlQueryTable','requestQueryTable'],//'General/get_select',
-            update  : 'General/update_data',
-            destroy : 'General/delete_data'
         }
     }
 });

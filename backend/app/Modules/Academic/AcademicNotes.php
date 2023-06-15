@@ -16,6 +16,60 @@ use Illuminate\Support\Facades\DB;
 class AcademicNotes
 {
     use  MessagesTrait;
+
+    public static function getNotesByCourse(Request $request) : JsonResponse
+    {
+        try {
+            $school     = SchoolQueries::getSchoolRequest($request);
+            $db    	    = $school->db;
+            $grado	    = $request->input('pdbGrado');
+            $curso	    = $request->input('pdbCurso');
+            $jorn	    = $request->input('pdbJorn');
+            $sede	    = $request->input('pdbSede');
+            $grupo	    = $request->input('pdbGrupo');
+            $periodo    = $request->input('pdbPeriodo');
+            $sexo	    = $request->input('pdbSexo') ?? 'MX';
+            $table 	    = TablesQuery::getTableNotes($grado);
+            $year	    = $school->year;
+            $where      = '';
+
+            if ($sexo != 'MX') {
+                $where = " AND tx.abrev_sexo ='{$sexo}'";
+            }
+            $query	= "INSERT INTO {$db}{$table} (id_matric, year, periodo, id_curso)
+			SELECT tm.id, tm.year, {$periodo}, {$curso}
+			FROM {$db}student_enrollment AS tm
+			LEFT JOIN {$db}inscripciones AS te on tm.id_student = te.id
+			LEFT JOIN {$db}sexo AS tx ON te.id_sexo = tx.id
+			WHERE tm.id_headquarters = {$sede} AND tm.id_study_day = {$jorn} AND
+			tm.id_grade = {$grado} AND tm.id_group = '{$grupo}' AND tm.year = {$year} AND
+			tm.id_state = 2 {$where} AND NOT EXISTS(
+			SELECT a.id_curso, a.id_matric, a.year, a.periodo
+			FROM {$db}{$table} AS a
+			WHERE a.id_curso = {$curso} AND a.id_matric = tm.id  AND a.periodo = {$periodo});";
+
+            DB::statement($query);
+
+            $param	= [
+                $curso,
+                $periodo,
+                $year,
+                $grado,
+                $sexo
+            ];
+
+            $call	= "{$db}sp_select_notas_academicas_curso  (?, ?, ?, ?, ? )";
+            return self::getResponse([
+                "records" => [
+                    "data" => CallExecute::execute($call, $param)
+                ]
+            ]);
+        }catch (Exception $e){
+            return self::getResponse500([
+                "message" => $e->getMessage()
+            ]);
+        }
+    }
     public static function deleteNotes(Request $request, $id):  JsonResponse
     {
         try {

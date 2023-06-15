@@ -9,11 +9,15 @@ Ext.define('Admin.store.docentes.SugerenciasInsertStore', {
     ],
     model		: 'Admin.model.docentes.SugerenciasModel',
     proxy: {
+		type: 'ajax',
+		extraParams : {
+			pdbTable    : 'sugerencias'
+		},
         api: {
-            create  : 'c_sugerencias/insert_sugerencias_est',
-            read    : 'c_sugerencias/get_sugerencias',
-            update  : 'c_sugerencias/get_update_sugerencias',
-            destroy : 'master/deleteData'
+            create  : 'academic-observations/create-for-student',
+            read    : 'academic-observations',
+            update  : 'crud',
+            destroy : 'crud'
         }
     }
 });

@@ -13,10 +13,10 @@ Ext.define('Admin.store.docentes.SugerenciasStore', {
             pdbTable    : 'sugerencias'
         },
         api: {
-            create  : 'c_sugerencias/insert_sugerencias',
-            read    : 'c_sugerencias/get_sugerencias',
-            update  : 'master/updateData',
-            destroy : 'master/deleteData'
+            create  : 'academic-observations',
+            read    : 'academic-observations',
+            update  : 'crud',
+            destroy : 'crud'
         }
     }
 });

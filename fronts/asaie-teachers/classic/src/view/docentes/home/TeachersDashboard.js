@@ -9,11 +9,11 @@ Ext.define('Admin.view.docentes.home.TeachersDashboard', {
     items   : [
         {
             xtype   : 'periodosdocentes',
-            userCls : 'small-100 big-100'
+            userCls : 'small-100 big-50'
         },
         {
             xtype   : 'asignaciondocentes',
-            userCls : 'small-100 big-100'
+            userCls : 'small-100 big-50'
         }
     ]
 });

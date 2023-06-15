@@ -7,19 +7,18 @@ Ext.define('Admin.view.docentes.Sugerencias',{
     xtype 	    : 'sugerencias',
     controller  : 'sugerencias',
     initComponent: function () {
-        var
-            me = Admin.getApplication();
-        extra = {
+		const me = Admin.getApplication();
+		let extra = {
             pdbPeriodo  : '0',
             pdbTable    : 'sugerencias'
         };
         me.setParamStore('SugerenciasStore', extra);
-        extra = {
-            pdbTable    : 'periodos_academicos',
-            pdbGrado    : 5,
-            pdbType     : 2
-        };
-        me.setParamStore('PeriodosStore', extra);
+		extra = {
+			pdbTable: 'periodos_academicos',
+			pdbGrado: 5,
+			pdbType: 2
+		};
+        me.setParamStore('PeriodosStore', extra, true);
         this.callParent(arguments);
         this.setTitle('Sugerencias u observaciones académicas - '+ Global.getYear());
     },
@@ -27,16 +26,15 @@ Ext.define('Admin.view.docentes.Sugerencias',{
         this.setWinObject(Ext.create('Admin.view.docentes.SugerenciaSave'));
 	},
     showWindow : function (btn) {
-        var 
-            me      = this
-            data    = me.down('grid').getSelection()[0];
+		const me = this;
+		let data = me.down('grid').getSelection()[0];
 
         if(!me.getWinObject()){
             me.buildWindow();
         }
         form    = me.getWinObject().down('form');
         form.reset();
-        if(btn.xtype  == 'editButton'){
+        if(btn.xtype  === 'editButton'){
             form.loadRecord(data);
         }
         me.getWinObject().show();

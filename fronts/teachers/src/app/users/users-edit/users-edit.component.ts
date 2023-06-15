@@ -71,23 +71,24 @@ export class UsersEditComponent extends FormComponent implements OnInit, AfterVi
       const ts    = this;
       const frm   = ts.customForm;
       ts.editing  = true;
-      ts.usersSer.getUserById( id)
+      ts.usersSer.getUserById( id, this.school_id)
 			.subscribe({
 				next: (resp) => {
+                    const data = resp[0];
 					ts.hideSpinner();
 					frm.setValue({
-						first_name  : resp[0].first_name,
-						last_name   : resp[0].last_name,
-						active      : resp[0].active,
-						email       : resp[0].email,
+						first_name  : data.first_name,
+						last_name   : data.last_name,
+						active      : data.active,
+						email       : data.email,
 						school_id   : this.school_id,
 						profile_id  : [],
 					});
-					ts.imgData    = resp[0].avatar ? `${resp[0].avatar}` : '';
-					const school  = resp[0].schools.find(s => s.school_id == this.school_id);
+					ts.imgData    = data.avatar ? `${data.avatar}` : '';
+					const school  = data.schools.find(s => s.school_id == this.school_id);
 					let profile   = [];
 					if(school) {
-						school.school.roles.forEach((rol) => {
+						school.roles.forEach((rol) => {
 							profile = [...profile, rol.profile_id];
 						});
 					}

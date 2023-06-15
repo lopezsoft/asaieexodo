@@ -4,7 +4,6 @@ Ext.define('Admin.view.docentes.AsignacionDocentes' ,{
     xtype 	: 'asignaciondocentes',
     store	: 'CargaStore',
     title   : 'Asignación académica',
-    height  : 400,
     plugins	: [
         {
             ptype: 'rowexpander',

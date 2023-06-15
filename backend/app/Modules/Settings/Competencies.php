@@ -2,8 +2,10 @@
 
 namespace App\Modules\Settings;
 
+use App\Modules\Courses\RatingScale;
 use App\Modules\School\SchoolQueries;
 use App\Traits\MessagesTrait;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -11,6 +13,46 @@ use Illuminate\Support\Facades\DB;
 class Competencies
 {
     use MessagesTrait;
+    public static function getEducationProcesses(Request $request) : JsonResponse
+    {
+        try {
+            $school     = SchoolQueries::getSchoolRequest($request);
+            $gradeId    = $request->input('idGrado') ?? $request->input('pdbGrado');
+
+            $competencies   = self::getCompetenciesByGroupGrades($school, $gradeId);
+            $ratingScale    = RatingScale::getGroupByGrades($school, $gradeId);
+            $columnNotes    = ColumnNotes::getGroupByGrades($school, $gradeId);
+            $generalSetting = GeneralSetting::getGeneralSettingByGrade($school, $gradeId);
+            $bulletinSetting= BulletinSetting::get($school);
+            return self::getResponse([
+                'competencies'      => $competencies,
+                'ratingScale'       => $ratingScale,
+                'columnNotes'       => $columnNotes,
+                'generalSetting'    => $generalSetting,
+                'bulletinSetting'   => $bulletinSetting,
+            ]);
+        } catch (\Exception $e) {
+            return self::getResponse500([
+                "error" => $e->getMessage()
+            ]);
+        }
+    }
+    public static function getByGroupGrades(Request $request): JsonResponse
+    {
+        try {
+            $school         = SchoolQueries::getSchoolRequest($request);
+            $gradeId        = $request->input('pdbGrado');
+            return self::getResponse([
+                'records'      => [
+                    'data'  => self::getCompetenciesByGroupGrades($school, $gradeId)
+                ],
+            ]);
+        } catch (\Exception $e) {
+            return self::getResponse500([
+                "error" => $e->getMessage()
+            ]);
+        }
+    }
     public static function getCompetenciesByGroupGrades($school, $gradeId): \Illuminate\Support\Collection
     {
         $db     = $school->db;
@@ -22,7 +64,6 @@ class Competencies
             ->where('t1.year', '=', $year)
             ->where('t3.id_grado', '=', $gradeId)
             ->where('t1.calificable', '=', 1)
-            ->where('t1.id', '>', 0)
             ->orderBy('t1.id')
             ->get();
     }
@@ -40,21 +81,24 @@ class Competencies
     {
         return ColumnNotes::getCompetencies($request);
     }
-    /**
-     * @throws \Exception
-     */
     public static function getCompetencies(Request $request): JsonResponse
     {
-        $school = SchoolQueries::getSchoolRequest($request);
-        $db     = $school->db;
-        $query  = DB::table("{$db}competencias", "td")
-                    ->selectRaw("td.*, t1.nombre_grado_agrupado")
-                    ->leftJoin("{$db}grados_agrupados AS t1", "td.id_grado_agrupado", "=", "t1.id")
-                    ->where("td.year", $school->year)
-                    ->orderByRaw("td.year, td.id_grado_agrupado, td.id");
+        try {
+            $school = SchoolQueries::getSchoolRequest($request);
+            $db     = $school->db;
+            $query  = DB::table("{$db}competencias", "td")
+                        ->selectRaw("td.*, t1.nombre_grado_agrupado")
+                        ->leftJoin("{$db}grados_agrupados AS t1", "td.id_grado_agrupado", "=", "t1.id")
+                        ->where("td.year", $school->year)
+                        ->orderByRaw("td.year, td.id_grado_agrupado, td.id");
 
-        return self::getResponse([
-            'records' => $query->paginate()
-        ]);
+            return self::getResponse([
+                'records' => $query->paginate()
+            ]);
+        }catch (Exception $e) {
+            return self::getResponse500([
+                "error" => $e->getMessage()
+            ]);
+        }
     }
 }

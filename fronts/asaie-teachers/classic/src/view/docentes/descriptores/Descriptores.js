@@ -11,30 +11,30 @@ Ext.define('Admin.view.docentes.Descriptores', {
         record  : null
     },
     initComponent: function () {
-        var 
-            me      = this,
-            app     = Admin.getApplication(),
-            record  = me.getRecord(),
-            url     = Global.getUrlBase () + 'c_sql/get_competencias';
-        Ext.Ajax.request({
+		const me = this,
+			app = Admin.getApplication(),
+			record = me.getRecord(),
+			url = Global.getApiUrl() + '/competence/competences';
+		Ext.Ajax.request({
 			url     : url,
+			headers : Global.getHeaders(),
 			params  : {
-				idGrado: record.get('id_grado')
+				idGrado: record.get('id_grado'),
+				...Global.getSchoolParams()
 			},
 			success: function(response){
-				result 	= Ext.decode(response.responseText);
-                Global.setCompetences(result.records_comp);
-                Global.setScale(result.records_des);
-                Global.setColumnsNotes(result.records_colum);
-                Global.setDbConfig(result.records_config);
-                Global.setConfigReport(Global.getData().config_bol);
+				let result = Ext.decode(response.responseText);
+				Global.setCompetences(result.competencies);
+				Global.setScale(result.ratingScale);
+				Global.setColumnsNotes(result.columnNotes);
+				Global.setDbConfig(result.generalSetting);
 			}
         });
 
-        extra = {
-			pdbTable	: 'periodos_academicos',
-			pdbGrado	: record.get('id_grado'),
-			pdbType	    : 0
+		let extra = {
+			pdbTable: 'periodos_academicos',
+			pdbGrado: record.get('id_grado'),
+			pdbType: 0
 		};
 		app.setParamStore('PeriodosStore', extra);
 		extra = {
@@ -52,24 +52,22 @@ Ext.define('Admin.view.docentes.Descriptores', {
         this.callParent(arguments);
     },
     buildWindow	: function(){
-        var
-            me      = this,
-            record  = me.getRecord();
-        me.setWinObject(Ext.create('Admin.view.docentes.DescriptoresSave'));
-        sTitle  = record.get('asignatura') + ' - ' + record.get('grado');
+		const me = this,
+			record = me.getRecord();
+		me.setWinObject(Ext.create('Admin.view.docentes.DescriptoresSave'));
+		let sTitle = record.get('asignatura') + ' - ' + record.get('grado');
         me.getWinObject().setTitle(sTitle);
 	},
     showWindow : function (btn) {
-        var 
-            me      = this
-            data    = me.down('grid').getSelection()[0];
+		const me = this;
+		let data = me.down('grid').getSelection()[0];
 
         me.buildWindow();
         form    = me.getWinObject().down('form');
         form.down('#CbEscalaNacional').setHidden(true);
 		form.down('#CbEscalaNacional').allowBlank = true;
         form.reset(true);
-        if(btn.xtype  == 'editButton'){
+        if(btn.xtype  === 'editButton'){
             form.loadRecord(data);
             form.down('#CbEscalaNacional').setHidden(false);
 			form.down('#CbEscalaNacional').allowBlank = false;

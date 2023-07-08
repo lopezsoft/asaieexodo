@@ -11,12 +11,15 @@ class GeneralSetting
     {
         $db     = $school->db;
         $year   = $school->year;
-        return DB::table("{$db}config001","t")
-            ->leftJoin($db."grados_agrupados AS t1", "t.id_grupo_grados", "=", "t1.id")
-            ->leftJoin($db."aux_grados_agrupados AS t2", "t2.id_grado_agrupado", "=", "t1.id")
-            ->where('t.year', $year)
-            ->where('t2.id_grado', $gradeId)
-            ->first();
+        $query  = DB::table("{$db}config001","t")
+            ->where('t.year', $year);
+        if ($gradeId > 0) {
+            $query->where('t2.id_grado', $gradeId)
+                ->leftJoin($db."grados_agrupados AS t1", "t.id_grupo_grados", "=", "t1.id")
+                ->leftJoin($db."aux_grados_agrupados AS t2", "t2.id_grado_agrupado", "=", "t1.id");
+            return $query->first();
+        }
+        return $query->get();
     }
 
     /**

@@ -38,7 +38,7 @@ Ext.define('Admin.view.docentes.CargarNivelaciones',{
                 },
                 {
                     text 		: 'Apellidos y nombres',
-                    width 		: 250,
+                    width 		: 320,
                     dataIndex	: 'nombres',
                     filter		: 'string',
                     locked		: true
@@ -95,16 +95,14 @@ Ext.define('Admin.view.docentes.CargarNivelaciones',{
                 }
             ],
             listeners :{
-                'validateedit' : function (editor, e, eOpts ) {
-                    var
-                        valuePerdida    = parseFloat(e.record.data['nota_perdida']),
-                        valueCompare    = parseFloat(e.value),
-                        gb              = Global.getDbConfig()[0],
-                        nota_max_rec    = parseFloat(gb.nota_max_rec);
-                    if (valueCompare > 0) {
+                'validateedit' : function (editor, e ) {
+					const valuePerdida = parseFloat(e.record.data['nota_perdida']),
+						valueCompare = parseFloat(e.value),
+						nota_max_rec = parseFloat(Global.getDbConfig().nota_max_rec);
+					if (valueCompare > 0) {
                         if (valueCompare < valuePerdida ) {
                             e.cancel = true;
-                            e.record.data[e.field] = parseFloat(0.00);
+                            e.record.data[e.field] = parseFloat('0.00');
                             Admin.getApplication().showResult('El valor permitido debe ser mayor o igual que la nota perdida');
                         }else if(nota_max_rec > 0){
                             if (valueCompare > nota_max_rec){
@@ -117,14 +115,14 @@ Ext.define('Admin.view.docentes.CargarNivelaciones',{
                     }
                 },
                 cellkeydown : function ( grid, td, cellIndex, record, tr, rowIndex, e, eOpts ) {
-                    var campo 	= grid.grid.columns[cellIndex].dataIndex,
-                        aIndex 	= -1,
-                        win		= grid.up('window'),
-                        btn1	= win.down('#saveButton'),
-                        btn2	= win.down('#undoButton');
-                    switch(e.getKey()){
+					let campo = grid.grid.columns[cellIndex].dataIndex,
+						aIndex = -1,
+						win = grid.up('window'),
+						btn1 = win.down('#saveButton'),
+						btn2 = win.down('#undoButton');
+					switch(e.getKey()){
                         case 46 :      // Si presionan la tecla DEL O SUP, se borra el dato.
-                            if (cellIndex == 4 || cellIndex == 5){
+                            if (cellIndex === 4 || cellIndex === 5){
                                 record.set(campo,'');
                                 if (btn1.isDisabled()) {
                                     btn1.setDisabled(false);
@@ -135,12 +133,12 @@ Ext.define('Admin.view.docentes.CargarNivelaciones',{
                             }
                             break;
                         case 65 :		// Si presionan la letra A, reemplaza todos los valores
-                            if (cellIndex == 4 || cellIndex == 5){
-                                aValue 	= record.get(campo);
-                                aStore 	= grid.getStore();
+                            if (cellIndex === 4 || cellIndex === 5){
+                                const aValue 	= record.get(campo);
+                                const aStore 	= grid.getStore();
                                 Ext.each(aStore.data, function() {
                                         aIndex = aIndex+1;
-                                        aRecord	= aStore.getAt(aIndex) ; // obtenesmos el registros
+                                        let aRecord	= aStore.getAt(aIndex) ; // obtenemos el registro
                                         aRecord.set(campo, aValue);        // Seteamos los valores de la columna
                                 });
                                 if (btn1.isDisabled()) {
@@ -153,9 +151,9 @@ Ext.define('Admin.view.docentes.CargarNivelaciones',{
                             break;
                     }
                 },
-                beforeedit : function (editor, e, eOpts){
+                beforeedit : function (editor, e){
                     e.grid.focus(true, true);
-                        win		= e.grid.up('window'),
+                        const win		= e.grid.up('window'),
                         btn1	= win.down('#saveButton'),
                         btn2	= win.down('#undoButton');
                     if (btn1.isDisabled()) {
@@ -208,12 +206,12 @@ Ext.define('Admin.view.docentes.CargarNivelaciones',{
         }
     ],
     saveData : function(storeName) {
-        var win 	= this,
-            grid 	= win.down('grid'),
-            store 	= Ext.getStore('RecuperacionesPeriodicasStore'),
-            btn1	= win.down('#saveButton'),
-            btn2	= win.down('#undoButton');
-        modified = store.getModifiedRecords();
+		const win = this,
+			grid = win.down('grid'),
+			store = Ext.getStore('RecuperacionesPeriodicasStore'),
+			btn1 = win.down('#saveButton'),
+			btn2 = win.down('#undoButton');
+		let modified = store.getModifiedRecords();
         if(!Ext.isEmpty(modified)){
             win.mask('Guardando…');
             store.sync({

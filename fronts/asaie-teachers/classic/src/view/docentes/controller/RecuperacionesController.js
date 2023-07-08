@@ -8,19 +8,21 @@ Ext.define('Admin.view.docentes.controller.RecuperacionesController',{
         this.redirectTo('periodicteacherleveling', true);
     },
 
-    onViewRecFinal : function (btn) {
-        var
-            me   	= this.app,
-			url     = Global.getUrlBase() +'general/get_config_db';
-        me.onStore('docentes.RecuperacionesFinalesStore');
+    onViewRecFinal : function () {
+		const me = this.app,
+			url = Global.getApiUrl() + '/competence/competences';
+		me.onStore('docentes.RecuperacionesFinalesStore');
         Ext.Ajax.request({
             url     : url ,
             params  : {
-                pdbGrado: 0
+                pdbGrado: 0,
+				...Global.getSchoolParams()
             },
+			headers : Global.getHeaders(),
             success: function(response){
-                result 	= Ext.decode(response.responseText);
-                Global.setDbConfig(result.records);
+				const result = Ext.decode(response.responseText);
+				Global.setDbConfig(result.generalSetting);
+				Global.setGroupGrades(result.groupGrades);
                 Ext.create('Admin.view.docentes.RecuperacionesFinalesView').show();
             },
             failure: function (response) {
@@ -30,33 +32,38 @@ Ext.define('Admin.view.docentes.controller.RecuperacionesController',{
     },
 
     onClickCargar : function(btn){
-        var	grid	= btn.up('grid'),
-            select	= grid.getSelection()[0],
-            me		= Admin.getApplication(),
-            ts      = btn.up('form'),
-			url     = Global.getUrlBase() +'general/get_config_db';
-        me.onStore('docentes.RecuperacionesPeriodicasStore');
-        extra	= {
-            pdbTable 	: 'periodos_academicos',
-            pdbGrado	: select.get('id_grado'),
-            pdbType		: 0
-        };
-        me.setParamStore('PeriodosStore',extra,true);
+		const grid 	= btn.up('grid'),
+			select 	= grid.getSelection()[0],
+			me 		= Admin.getApplication(),
+			ts 		= btn.up('form'),
+			url = Global.getApiUrl() + '/competence/competences';
+		me.onStore('docentes.RecuperacionesPeriodicasStore');
+		let extra = {
+			pdbTable: 'periodos_academicos',
+			pdbGrado: select.get('id_grado'),
+			pdbType: 0
+		};
+        me.setParamStore('PeriodosStore', extra, true);
         ts.mask();
         Ext.Ajax.request({
             url     : url,
+			headers : Global.getHeaders(),
             params  : {
-                pdbGrado: select.get('id_grado')
+                pdbGrado: select.get('id_grado'),
+				...Global.getSchoolParams()
             },
             success: function(response){
-                result 	= Ext.decode(response.responseText);
-                Global.setDbConfig(result.records);
+				const result = Ext.decode(response.responseText);
+				Global.setCompetences(result.competencies);
+				Global.setScale(result.ratingScale);
+				Global.setColumnsNotes(result.columnNotes);
+				Global.setDbConfig(result.generalSetting);
                 Ext.create('Admin.view.docentes.CargarNivelaciones',{
                     title   : 'Nivelaciones periódicas - '+select.get('grado')+' - '+select.get('asignatura'),
                     record  : select
                 }).show();
             },
-            failure: function (response) {
+            failure: function () {
                 me.onAler('No se pueden cargar los datos');
             },callback  : function(){
                 ts.unmask();

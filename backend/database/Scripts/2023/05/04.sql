@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS `file_managers`;
 CREATE TABLE `file_managers` (
                                  `id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
                                  `file_manager_uuid` VARCHAR(36) NOT NULL COLLATE 'utf8mb4_general_ci',

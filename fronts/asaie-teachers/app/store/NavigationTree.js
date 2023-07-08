@@ -44,14 +44,14 @@ Ext.define('Admin.store.NavigationTree', {
 					viewType: 'sugerenciasform',
 					routeId : 'sugerencias'
 				},
-				/*{
+				{
 					text    : 'Nivelaciones',
 					iconCls : 'x-fa fa-thumbs-up',
 					leaf    : true,
 					viewType: 'planmejoramiento',
 					routeId : 'nivelaciones'
 				},
-				{
+				/*{
 					text    : 'Seguimiento académico',
 					iconCls : 'x-fa fa-eye',
 					viewType: 'seguimientoacademico',

@@ -24,12 +24,14 @@ class Competencies
             $columnNotes    = ColumnNotes::getGroupByGrades($school, $gradeId);
             $generalSetting = GeneralSetting::getGeneralSettingByGrade($school, $gradeId);
             $bulletinSetting= BulletinSetting::get($school);
+            $groupGrades    = DB::table("{$school->db}aux_grados_agrupados")->get();
             return self::getResponse([
                 'competencies'      => $competencies,
                 'ratingScale'       => $ratingScale,
                 'columnNotes'       => $columnNotes,
                 'generalSetting'    => $generalSetting,
                 'bulletinSetting'   => $bulletinSetting,
+                'groupGrades'       => $groupGrades,
             ]);
         } catch (\Exception $e) {
             return self::getResponse500([

@@ -10,6 +10,7 @@ Ext.define('Admin.store.docentes.RecuperacionesPeriodicasStore',{
     ],
     model		: 'Admin.model.docentes.RecuperacionesPeriodicasModel',
     proxy: {
+		type	: 'ajax',
         api: {
             create  : 'academic-leveling/period/create',
             read    : 'academic-leveling/period/by-teacher',

@@ -18,9 +18,10 @@ class UserRegister
 {
     use MessagesTrait;
 
-    public static function verify(Request $request, $user_id, $hash): JsonResponse|\Illuminate\Http\RedirectResponse
+    public static function verify(Request $request, $user_id, $hash)
     {
         if (!$request->hasValidSignature()) {
+            return view('auth.verify-email');
             return response()->json([
                 "success"   => false,
                 "message"   => "Enlace inválido o caducado."

@@ -6,12 +6,12 @@ Ext.define('Admin.security.TokenStorage', {
 		me.initConfig(cfg);
     },
     config: {
-        storageKey  : 'asaie-exodo-jwt',
+        storageKey  : 'teacher-asaie-exodo-jwt',
         storageOut   : 'token-dashboard'
     },  
 
     redirectTo : function(){
-		window.location.href = Global.getUrlBase() + 'auth/login';
+		window.location.href = Global.getUrlBase();
     },
     
     clearOut : function () {
@@ -133,9 +133,8 @@ Ext.define('Admin.security.TokenStorage', {
             },
             method      : 'POST',
             success: function(response, opts) {
-               var 
-                    text    = response.responseText
-                    obj     = Ext.decode(response.responseText);
+				const text = response.responseText;
+				let obj = Ext.decode(response.responseText);
                 if(obj.success === true){
                     me.save(text);
                     app.showResult('Bienvenido al sistema, te has autenticado correctamente.');

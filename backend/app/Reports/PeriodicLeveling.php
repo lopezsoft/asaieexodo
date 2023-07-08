@@ -7,6 +7,7 @@ use App\Core\JReportModel;
 use App\Modules\Academic\AcademicLevelingPeriod;
 use App\Modules\Courses\RatingScale;
 use App\Modules\School\SchoolQueries;
+use App\Modules\Teacher\CoursesOfTeacher;
 use App\Traits\MessagesTrait;
 use Illuminate\Http\Request;
 
@@ -21,6 +22,8 @@ class PeriodicLeveling implements ReportProcessorContract
             $format     = $school->format;
             $year       = $school->year;
             $teacherId  = $request->input('pdbTeacherId');
+            if($teacherId == 0)
+                $teacherId  = CoursesOfTeacher::getTeacherId($db);
             $level      = $request->input('pdbNivel') ?? 0;
             $period     = $request->input('pdbPeriodo') ?? 1;
             $gradeId    = AcademicLevelingPeriod::getGradeId($request, $db, $level);;

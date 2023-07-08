@@ -46,7 +46,7 @@
                     <div class="col-md-4">
                         <div class="form-group">
                             <label>{{'placeholder.email' | translate}}</label>
-                            <input class="form-control" type="email" formControlName="email"
+                            <input class="form-control" type="text" formControlName="email"
                                 [placeholder]="placeholderEmail" inputmode="email"  [class.is-invalid]="invalidEmail" [readonly]="editing">
                             <small class="text-danger" *ngIf="invalidEmail">Correo electrónico incorrecto</small>
                         </div>

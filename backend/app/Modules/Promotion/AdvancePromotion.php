@@ -3,6 +3,7 @@
 namespace App\Modules\Promotion;
 
 use App\Modules\School\SchoolQueries;
+use App\Modules\Teacher\CoursesOfTeacher;
 use App\Queries\CallExecute;
 use App\Traits\MessagesTrait;
 use Exception;
@@ -45,7 +46,7 @@ class AdvancePromotion{
             $db     = $school->db;
             $params = [
                 $school->year,
-                $request->input('pdbDocente'),
+                $request->input('pdbDocente') ?? CoursesOfTeacher::getTeacherId($db),
                 1
             ];
             return self::getResponse(['records' => [

@@ -8,9 +8,9 @@ use Illuminate\Http\Request;
 use App\Modules\Academic\AcademicLevelingPeriod;
 class AcademicLevelingController extends Controller
 {
-    public function updatePeriod(Request $request, $id): JsonResponse
+    public function updatePeriod(Request $request): JsonResponse
     {
-        return AcademicLevelingPeriod::update($request, $id);
+        return AcademicLevelingPeriod::update($request);
     }
     public function getByTeacherPeriod(Request $request): JsonResponse
     {

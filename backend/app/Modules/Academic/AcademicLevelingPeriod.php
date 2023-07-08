@@ -3,6 +3,7 @@
 namespace App\Modules\Academic;
 use App\Modules\Courses\RatingScale;
 use App\Modules\School\SchoolQueries;
+use App\Modules\Teacher\CoursesOfTeacher;
 use App\Queries\TablesQuery;
 use App\Queries\UpdateTable;
 use App\Traits\MessagesTrait;
@@ -20,7 +21,7 @@ class AcademicLevelingPeriod
             $school     = SchoolQueries::getSchoolRequest($request);
             $db	        = $school->db;
             $year       = $school->year;
-            $teacherId  = $request->input('pdbTeacherId');
+            $teacherId  = $request->input('pdbTeacherId') ?? CoursesOfTeacher::getTeacherId($db);
             $level      = $request->input('pdbNivel') ?? 0;
             $period     = $request->input('pdbPeriodo') ?? 1;
             $gradeId    = self::getGradeId($request, $db, $level);;
@@ -45,7 +46,7 @@ class AcademicLevelingPeriod
 
             if($level == 0){
                 $queryNotes->where('tc.id_grado', $gradeId);
-                $queryNotes->where('tm.id_grado', $gradeId);
+                $queryNotes->where('tm.id_grade', $gradeId);
                 $queryNotes->where('tc.id_asig', $subjectId);
             }
             $queryNotes->where('tn.year', $year)
@@ -84,7 +85,7 @@ class AcademicLevelingPeriod
             }
 
             $queryNotes->selectRaw("ta.asignatura, ta.abrev, tar.area, tg.cod_grado")
-                ->join($db.'asignaturas as ta', 'tc.id_asig', '=', 'ta.id')
+                ->join($db.'asignaturas as ta', 'tc.id_asig', '=', 'ta.id_pk')
                 ->join($db.'aux_asignaturas AS tau', function($join) {
                     $join->on('tau.id_asign', '=', 'ta.id_pk')
                         ->on('tau.year', '=', 'tc.year');
@@ -106,18 +107,18 @@ class AcademicLevelingPeriod
         }
     }
 
-    public static function update(Request $request, $id): JsonResponse
+    public static function update(Request $request): JsonResponse
     {
         try {
             $school     = SchoolQueries::getSchoolRequest($request);
             $db         = $school->db;
             $level      = $request->input('pdbNivel') ?? 0;
             $period     = $request->input('pdbPeriodo') ?? 1;
+            ControlClosingDates::isCurrentYear($school->year);
             $gradeId    = self::getGradeId($request, $db, $level);
             ControlClosingDates::validateLevelingDate($school, $gradeId, $period);
             $table      = TablesQuery::getTableNotes($gradeId ?? 4);
             $fields     = json_decode($request->input('records'));
-            $fields->id = $id;
             return UpdateTable::update($request, $fields, "{$db}{$table}");
         } catch (Exception $e) {
             return self::getResponse500([

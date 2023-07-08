@@ -43,13 +43,13 @@ export class UsersEditComponent extends FormComponent implements OnInit, AfterVi
     get invalidLastName(): boolean{
       return this.isInvalid('last_name');
     }
-		get invalidEmail() {
-			return this.isInvalid('email');
-		}
-		// placeholder
-		get placeholderEmail(): string {
-			return this.translate.instant('placeholder.email');
-		}
+    get invalidEmail() {
+        return this.isInvalid('email');
+    }
+    // placeholder
+    get placeholderEmail(): string {
+        return this.translate.instant('placeholder.email');
+    }
     ngOnInit(): void {
       const ts    = this;
       super.ngOnInit();

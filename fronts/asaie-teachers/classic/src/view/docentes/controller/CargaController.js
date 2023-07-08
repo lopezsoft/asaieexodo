@@ -35,11 +35,11 @@ Ext.define('Admin.view.docentes.controller.CargaController',{
 			params  : extra,
 			timeout : 0,
 			success : function(response, opts) {
-				var obj = Ext.decode(response.responseText);
+				const obj = Ext.decode(response.responseText);
 				me.onOpenUrl(obj.pathFile);
 			},
 			failure: function(response, opts) {
-				me.app.onError('Ocurrio un error al tratar de exportar la plantilla');
+				me.app.onError('Ocurrió un error al tratar de exportar la plantilla');
 			}
 		});
     },
@@ -600,7 +600,7 @@ Ext.define('Admin.view.docentes.controller.CargaController',{
 			me = this,
 			addLind = parseInt(Global.getBulletinSetting().permi_ind),
 			result = false,
-			dbConfig = Global.getDbConfig(),
+			dbConfig = [Global.getDbConfig()],
 			hasta = 0,
 			_n_red = 0,
 			_n_final_red = 0,
@@ -677,25 +677,26 @@ Ext.define('Admin.view.docentes.controller.CargaController',{
 				btn2.setDisabled(false);
 			}
 			grid.el.mask('Generando promedios', 'x-mask-loading');
-			Ext.each(dbConfig, function (data, i) {
-				_n_aplica = data.aplicar_redondeo_fin_año;
-				_n_final_red = parseFloat(data.nota_final_redondeo);
-				_n_red = parseFloat(data.nota_redondeo);
+			Ext.each(dbConfig, function (data) {
+				_n_aplica 		= data.aplicar_redondeo_fin_año;
+				_n_final_red 	= parseFloat(data.nota_final_redondeo);
+				_n_red 			= parseFloat(data.nota_redondeo);
 				Ext.each(Global.getScale(), function (d) {
 					if (d.reprueba > 0) {
 						hasta = parseFloat(d.hasta);
 					}
 				});
 			});
+			const competences = Global.getCompetencesFilter();
 			aStore.each(function (rec, index) {
 				let x = 0;
 				let nFinal = 0;
-				Global.getCompetences().forEach(function (data) {
+				competences.forEach(function (data) {
 					x = ++x;
-					const pA = parseFloat(rec.get('proc' + x.toString())).toFixed(2),
-						pB = parseFloat(data.porcentaje).toFixed(2),
-						p = isNaN(pA) ? pB : pA == 0 ? pB : pA,
-						val = parseFloat(me.onEachColumnsCalcular(p, data.id_pk, rec));
+					const pA 	= parseFloat(parseFloat(rec.get('proc' + x.toString())).toFixed(2));
+					const pB 	= parseFloat(parseFloat(data.porcentaje).toFixed(2));
+					const p 	= isNaN(pA) ? pB : (pA === 0) ? pB : pA;
+					const val 	= parseFloat(me.onEachColumnsCalcular(p, data.id_pk, rec));
 					nFinal = nFinal + val;
 				});
 				if (_n_red > 0 && _n_aplica > 0) {
@@ -779,7 +780,8 @@ Ext.define('Admin.view.docentes.controller.CargaController',{
 			porNotaM = 0,
 			st = Ext.getStore('ColumnDocentesStore');
 		st.each(function (data) {
-			if (data.get('id_competencia') === idComp){
+			const competenceId = parseInt(data.get('id_competencia'));
+			if (competenceId === parseInt(idComp)){
 				switch (data.get('tipo')){
 					case 'NOTA' :
 						activa	= data.get('activa');
@@ -820,7 +822,7 @@ Ext.define('Admin.view.docentes.controller.CargaController',{
 			}
 		});
 		if (suma > 0){
-			prom	= (suma/cont).toFixed(2);
+			prom	= parseFloat((suma/cont).toFixed(2));
 			if (sumaPor > 0){
 				if(notaSuma > 0	){
 					sumaProm = (notaSuma/contNota).toFixed(2);
@@ -836,8 +838,8 @@ Ext.define('Admin.view.docentes.controller.CargaController',{
 			}else{
 				porc 	= (prom * p)/100;
 			}
-			colProm.length > 0 ? record.set(colProm,prom > 0 ? parseFloat(prom).toFixed(2) : 0) :  colProm = '';
-			colPorc.length > 0 ? record.set(colPorc,porc > 0 ? parseFloat(porc).toFixed(2) : 0) :  colPorc = '';
+			colProm.length > 0 ? record.set(colProm,prom > 0 ? prom.toFixed(2) : 0) :  colProm = '';
+			colPorc.length > 0 ? record.set(colPorc,porc > 0 ? porc.toFixed(2) : 0) :  colPorc = '';
 		}
 		return porc ? porc.toFixed(2) : 0;
 	},

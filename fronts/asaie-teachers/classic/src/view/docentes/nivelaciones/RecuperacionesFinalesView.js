@@ -50,7 +50,7 @@ Ext.define('Admin.view.docentes.RecuperacionesFinalesView',{
                 },
                 {
                     text        : 'Nombres y apellidos',
-                    width       : 280,
+                    width       : 320,
                     dataIndex   : 'estudiante'
                 },
                 {
@@ -142,17 +142,17 @@ Ext.define('Admin.view.docentes.RecuperacionesFinalesView',{
             ],
             listeners: {
                 cellclick: function (grid, td, cellIndex, record, tr, rowIndex, e, eOpts) {
-                    var btn = this.down('#btnPrinter');
-                    if (btn.isDisabled()) {
+					const btn = this.down('#btnPrinter');
+					if (btn.isDisabled()) {
                         btn.setDisabled(false);
                     }
                 },
                 cellkeydown: function (grid, td, cellIndex, record, tr, rowIndex, e, eOpts) {
-                    var campo = grid.grid.columns[cellIndex].dataIndex,
-                        aIndex = -1,
-                        btn1 = this.down('#saveButton'),
-                        btn2 = this.down('#undoButton');
-                    switch (e.getKey()) {
+					let campo = grid.grid.columns[cellIndex].dataIndex,
+						aIndex = -1,
+						btn1 = this.down('#saveButton'),
+						btn2 = this.down('#undoButton');
+					switch (e.getKey()) {
                         case 46 :      // Si presionan la tecla DEL O SUP, se borra el dato.
                             if (cellIndex == 4 || cellIndex == 5) {
                                 record.set(campo, '');
@@ -166,11 +166,11 @@ Ext.define('Admin.view.docentes.RecuperacionesFinalesView',{
                             break;
                         case 65 :		// Si presionan la letra A, reemplaza todos los valores
                             if (cellIndex == 4 || cellIndex == 5) {
-                                aValue = record.get(campo);
-                                aStore = grid.getStore();
+                                const aValue = record.get(campo);
+                                const aStore = grid.getStore();
                                 Ext.each(aStore.data, function () {
                                         aIndex = aIndex + 1;
-                                        aRecord = aStore.getAt(aIndex); // obtenesmos el registros
+                                        let aRecord = aStore.getAt(aIndex); // obtenemos el registro
                                         aRecord.set(campo, aValue);        // Seteamos los valores de la columna
                                     }
                                 );
@@ -186,10 +186,10 @@ Ext.define('Admin.view.docentes.RecuperacionesFinalesView',{
                 },
 
                 beforeedit: function (editor, e, eOpts) {
-                    var 
+                    const
                         me  = e.grid.up('window');
                     e.grid.focus(true, true);
-                    var win     = e.grid,
+                    const win     = e.grid,
                         btn1    = win.down('#saveButton'),
                         btn2    = win.down('#undoButton');
                     if (btn1.isDisabled()) {
@@ -198,23 +198,22 @@ Ext.define('Admin.view.docentes.RecuperacionesFinalesView',{
                     if (btn2.isDisabled()) {
                         btn2.setDisabled(false);
                     }
-                    if(me.getOldValue() !=e.record.get('id_grade') ){
+                    if(me.getOldValue() !== e.record.get('id_grade') ){
                         me.getMaxValueB(e.record.get('id_grade'));
                         me.setOldValue(e.record.get('id_grade'));
                     }
                 },
 
                 validateedit : function (ed, e, eOpts) {
-                    var
-                        valuePerdida    = parseFloat(e.record.data['notafinal']),
-                        valueCompare    = parseFloat(e.value),
-                        me              = Admin.getApplication(),
-                        nota_max_rec    = e.grid.up('window').getMaxValue();
-                    if (valueCompare > 0) {
+					const valuePerdida = parseFloat(e.record.data['notafinal']),
+						valueCompare = parseFloat(e.value),
+						me = Admin.getApplication(),
+						nota_max_rec = e.grid.up('window').getMaxValue();
+					if (valueCompare > 0) {
                         if(nota_max_rec > 0){
                             if (valueCompare < valuePerdida) {
                                 e.cancel = true;
-                                e.record.data[e.field] = parseFloat(0.00);
+                                e.record.data[e.field] = parseFloat('0.00');
                                 me.showResult('El valor permitido debe ser mayor o igual a la nota perdida');
                             }else if(nota_max_rec > 0){
                                 if (valueCompare > nota_max_rec){
@@ -267,17 +266,16 @@ Ext.define('Admin.view.docentes.RecuperacionesFinalesView',{
     ],
 
     getMaxValueB: function(id){
-        var 
-            grados  = Global.getData().grupo_grados,
-            me      = this,
-            config  = Global.getDbConfig();
-        me.setMaxValue(0);
+		const grados = Global.getGroupGrades(),
+			me = this,
+			config = Global.getDbConfig();
+		me.setMaxValue(0);
         if(grados){
             config.forEach(function(d){
                 grados.forEach(function(ele){
                     if(ele.id_grado_agrupado === d.id_grupo_grados && ele.id_grado === id){
                         return me.setMaxValue(parseFloat(d.nota_max_rec));
-                    };
+                    }
                 });
             });
         }

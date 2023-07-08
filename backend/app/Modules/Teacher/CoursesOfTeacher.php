@@ -15,7 +15,7 @@ class CoursesOfTeacher
         $teacher    = DB::table("{$db}teachers_and_users_ids")
                         ->where('user_id', $user->id)
                         ->first();
-        return $teacher->teacher_id;
+        return $teacher->teacher_id ?? 0;
     }
 
     /**

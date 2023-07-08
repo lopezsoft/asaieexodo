@@ -251,7 +251,7 @@ Ext.define('Admin.view.docentes.NotasAcademicasDocentes', {
                         });
                     }
                 }, '-',
-                /*{
+                {
                     xtype: 'customButton',
                     ui: 'soft-green',
                     iconCls: 'x-fa fa-cloud-download',
@@ -270,7 +270,7 @@ Ext.define('Admin.view.docentes.NotasAcademicasDocentes', {
                     iconCls: 'x-fa fa-cloud-upload',
                     tooltip : 'Importar plantilla excel',
                     handler: 'onLoadExcel'
-                }*/
+                }
             ]
         },
         {
@@ -338,7 +338,7 @@ Ext.define('Admin.view.docentes.NotasAcademicasDocentes', {
                     columns     : 3,
                     vertical    : true,
                     hideLabel   : true,
-                    tooltip     : 'Permite filtar el listado por sexo',
+                    tooltip     : 'Permite filtrar el listado por sexo',
                     items: [
                         {
                             boxLabel    : 'Mixto',

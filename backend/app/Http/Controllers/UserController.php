@@ -17,7 +17,7 @@ class UserController extends Controller
     {
         return UserRegister::resend($user_id);
     }
-    public function verify(Request $request, $user_id, $hash): JsonResponse|\Illuminate\Http\RedirectResponse
+    public function verify(Request $request, $user_id, $hash)
     {
         return UserRegister::verify($request, $user_id, $hash);
     }

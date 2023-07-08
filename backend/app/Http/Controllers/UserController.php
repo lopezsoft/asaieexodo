@@ -17,7 +17,7 @@ class UserController extends Controller
     {
         return UserRegister::resend($user_id);
     }
-    public function verify(Request $request, $user_id, $hash)
+    public function verify(Request $request, $user_id, $hash): \Illuminate\Http\RedirectResponse
     {
         return UserRegister::verify($request, $user_id, $hash);
     }

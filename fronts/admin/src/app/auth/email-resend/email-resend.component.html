@@ -1,0 +1,62 @@
+<!--Registration Page Starts-->
+<section>
+  <div class="auth-wrapper auth-v2">
+    <div class="auth-inner row m-0">
+      <!-- Brand logo--><a class="brand-logo" href="javascript:void(0);">
+        <img src="{{ gService.coreConfig.app.appLogoImage }}" alt="brand-logo" height="28" />
+        <h2 class="brand-text text-primary ml-1">{{ gService.coreConfig.app.appName }}</h2>
+      </a>
+      <!-- /Brand logo-->
+      <!-- Left Text-->
+      <div class="d-none d-lg-flex col-lg-8 align-items-center p-5">
+        <div class="w-100 d-lg-flex align-items-center justify-content-center px-5">
+          <img class="img-fluid" [src]="
+              gService.coreConfig.layout.skin === 'dark'
+                ? 'assets/images/pages/register-v2-dark.svg'
+                : 'assets/images/pages/register-v2.svg'
+            " alt="Email Resend" />
+        </div>
+      </div>
+      <!-- /Left Text-->
+      <!-- Register-->
+      <div class="d-flex col-lg-4 align-items-center auth-bg px-2 p-lg-5">
+        <div class="col-12 col-sm-8 col-md-6 col-lg-12 px-xl-2 mx-auto">
+          <h4 class="card-title mb-2 text-break text-center">
+            <strong>{{ 'resend.header' | translate }}</strong>
+          </h4>
+          <p class="message-p">
+            <ng-container *ngIf="!sendEmail">
+              Estimando usuario, lamentamos informarle que el enlace al que ha intentado acceder parece estar vencido o es incorrecto.
+              Esto puede ser debido a que el enlace ha expirado después de un periodo de tiempo determinado o puede haber un error en el enlace proporcionado.
+              <br/>
+              <br/>
+              Para reenviar el correo de confirmación, por favor ingrese su correo electrónico en el siguiente campo y haga clic en el botón "{{ 'resend.button.resend' | translate }}".
+            </ng-container>
+            <ng-container *ngIf="sendEmail">
+              Se ha enviado un nuevo enlace de verificación a la dirección de correo electrónico que proporcionó durante el registro.
+            </ng-container>
+          </p>
+          <form class="auth-register-form mt-2" [formGroup]="customForm" *ngIf="!sendEmail">
+            <div class="form-group">
+              <input class="form-control" type="email" formControlName="email"
+                     [placeholder]="placeholderEmail" inputmode="email" autocomplete="off" [class.is-invalid]="invalidEmail">
+              <small class="text-danger" *ngIf="invalidEmail">Correo electrónico incorrecto</small>
+            </div>
+            <button class="btn btn-info btn-block btn-lg" type="submit" (click)="onSave()" [disabled]="gService.loading">
+              <strong *ngIf="!gService.loading">{{ 'resend.button.resend' | translate }}</strong>
+              <strong
+                *ngIf="gService.loading">{{ 'resend.button.resending' | translate }}
+							</strong>
+              <i [ngClass]="{'fa-paper-plane':!gService.loading, 'fa-spinner fa-spin':gService.loading }" class="fas"
+                style="text-align: left;padding-left: 10px;">
+              </i>
+            </button>
+          </form>
+        </div>
+      </div>
+      <!-- /Register-->
+    </div>
+  </div>
+</section>
+<!--Registration Page Ends-->
+<block-ui></block-ui>

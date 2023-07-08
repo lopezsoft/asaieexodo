@@ -19,6 +19,7 @@ import { NgSelectModule } from '@ng-select/ng-select';
 
 import CoreModule from '../core/core-app.module';
 import {BlockUIModule} from "ng-block-ui";
+import {EmailResendComponent} from "./email-resend/email-resend.component";
 
 export function createTranslateLoader(http: HttpClient) {
   return new TranslateHttpLoader(http, "./assets/i18n/", ".json");
@@ -48,7 +49,8 @@ export function createTranslateLoader(http: HttpClient) {
     LockScreenPageComponent,
     LoginPageComponent,
     MaintenancePageComponent,
-    RegisterPageComponent
+    RegisterPageComponent,
+    EmailResendComponent
   ]
 })
 export class ContentAuthModule { }

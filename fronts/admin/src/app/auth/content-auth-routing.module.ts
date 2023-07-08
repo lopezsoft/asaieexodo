@@ -7,6 +7,7 @@ import { LockScreenPageComponent } from "./lock-screen/lock-screen-page.componen
 import { LoginPageComponent } from "./login/login-page.component";
 import { MaintenancePageComponent } from "./maintenance/maintenance-page.component";
 import { RegisterPageComponent } from "./register/register-page.component";
+import {EmailResendComponent} from "./email-resend/email-resend.component";
 
 
 const routes: Routes = [
@@ -45,6 +46,13 @@ const routes: Routes = [
       {
         path: 'maintenance',
         component: MaintenancePageComponent,
+        data: {
+          title: 'Maintenance Page'
+        }
+      },
+      {
+        path: 'email/resend/:id',
+        component: EmailResendComponent,
         data: {
           title: 'Maintenance Page'
         }

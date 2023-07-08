@@ -12,6 +12,7 @@ use Illuminate\Auth\Passwords\CanResetPassword;
 
 /**
  * @method static create(array $array)
+ * @method static findOrFail($user_id)
  * @property mixed $first_name
  * @property mixed $last_name
  */

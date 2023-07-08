@@ -18,14 +18,11 @@ class UserRegister
 {
     use MessagesTrait;
 
-    public static function verify(Request $request, $user_id, $hash)
+    public static function verify(Request $request, $user_id, $hash): \Illuminate\Http\RedirectResponse
     {
         if (!$request->hasValidSignature()) {
-            return view('auth.verify-email');
-            return response()->json([
-                "success"   => false,
-                "message"   => "Enlace inválido o caducado."
-            ], 401);
+            $url = env('FRONTEND_URL', 'APP_URL')."/#/auth/email/resend/$user_id";
+            return redirect()->to($url);
         }
         $user = User::findOrFail($user_id);
         if (!$user->hasVerifiedEmail()) {

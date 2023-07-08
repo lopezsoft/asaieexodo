@@ -49,7 +49,16 @@
       "recoverPassword"       : "Recordar contraseña"
     }
   },
+  "resend": {
+    "header"      : "Correo de confirmación",
+    "description" : "Ingrese su dirección de correo electrónico y le enviaremos un correo de confirmación.",
+    "button"      : {
+      "resend"     : "Reenviar correo de confirmación",
+      "resending"  : "Reenviando..."
+    }
+  },
   "register" : {
+    "confirm"     : "Crear cuenta",
     "title"       : "Crear cuenta",
     "description" : "Complete el siguiente formulario para crear una nueva cuenta.",
     "headerForm"  : "Formulario de Registro",

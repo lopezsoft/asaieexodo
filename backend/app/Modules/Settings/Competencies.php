@@ -46,7 +46,7 @@ class Competencies
             $gradeId        = $request->input('pdbGrado');
             return self::getResponse([
                 'records'      => [
-                    'data'  => self::getCompetenciesByGroupGrades($school, $gradeId)
+                    'data'  => self::getCompetenciesBuilder($school, $gradeId)->get()
                 ],
             ]);
         } catch (\Exception $e) {
@@ -57,17 +57,22 @@ class Competencies
     }
     public static function getCompetenciesByGroupGrades($school, $gradeId): \Illuminate\Support\Collection
     {
+        return self::getCompetenciesBuilder($school, $gradeId)
+            ->where('t1.calificable', '=', 1)
+            ->get();
+    }
+
+    private static function getCompetenciesBuilder($school, $gradeId): \Illuminate\Database\Query\Builder
+    {
         $db     = $school->db;
         $year   = $school->year;
         return DB::table("{$db}competencias AS t1")
-            ->select('t1.id_pk', 't1.id', 't1.competencia', 't1.porcentaje', 't1.year')
+            ->select('t1.id_pk', 't1.id', 't1.competencia', 't1.porcentaje', 't1.year', 't1.calificable')
             ->leftJoin("{$db}grados_agrupados AS t2", 't1.id_grado_agrupado', '=', 't2.id')
             ->leftJoin("{$db}aux_grados_agrupados AS t3", 't3.id_grado_agrupado', '=', 't2.id')
             ->where('t1.year', '=', $year)
             ->where('t3.id_grado', '=', $gradeId)
-            ->where('t1.calificable', '=', 1)
-            ->orderBy('t1.id')
-            ->get();
+            ->orderBy('t1.id');
     }
     /**
      * @throws \Exception

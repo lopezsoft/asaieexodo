@@ -2,6 +2,7 @@
 namespace App\Modules\Settings;
 use App\Modules\School\SchoolQueries;
 use App\Queries\CallExecute;
+use App\Queries\UpdateTable;
 use App\Traits\MessagesTrait;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -174,5 +175,16 @@ class ColumnNotes
         return self::getResponse([
             'records' => $query->paginate()
         ]);
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public static function setColumnNotes(Request $request): JsonResponse
+    {
+        $school = SchoolQueries::getSchoolRequest($request);
+        $db     = $school->db;
+        $fields = json_decode($request->input('records'));
+        return UpdateTable::update($request, $fields, "{$db}config_columns_theacher");
     }
 }

@@ -18,7 +18,29 @@ Ext.define('Admin.view.docentes.NotasAcademicasDocentes', {
     items: [
 
     ],
-    dockedItems: [{
+	afterRender: function () {
+		var me = this;
+
+		me.callParent(arguments);
+
+		me.syncSize();
+
+		// Since we want to always be a %age of the modalViewort, we have to watch for
+		// resize events.
+		Ext.on(me.resizeListeners = {
+			resize: me.onViewportResize,
+			scope: me,
+			buffer: 50
+		});
+	},
+
+	onViewportResize: function () {
+		this.syncSize();
+	},
+	syncSize: function () {
+		this.height = Ext.getBody().getViewSize().height - 74;
+	},
+	dockedItems: [{
             xtype: 'customToolbar',
             itemId: 'carg',
             items: [

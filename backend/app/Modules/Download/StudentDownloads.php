@@ -47,11 +47,11 @@ class StudentDownloads
                 $worksheet->setCellValue('B'.$count,$field->headquarters_name);
             }
             //Guardamos el archivo en formato Excel 2007
-            $aws_main_path  = env('AWS_MAIN_PATH', 'test');
             $fileExport	    = "{$ie->school_name}-Plantilla Inscripciones y matriculas ASAIE {$date}.xlsx";
             $writer         = IOFactory::createWriter($spreadsheet, 'Xlsx');
             $writer->save("storage/{$fileExport}");
 
+            $aws_main_path  = env('AWS_MAIN_PATH', 'test');
             $content        = Storage::disk('public')->get($fileExport);
             Storage::disk('public')->delete($fileExport);
             $filePath	    = "{$aws_main_path}/schools/{$school->folder_name}/excel/Plantilla Inscripciones y matriculas ASAIE {$date}.xlsx";

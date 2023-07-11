@@ -19,7 +19,7 @@ Ext.define('Admin.view.docentes.controller.CargaController',{
 			win = btn.up('form'),
 			rc = win.down('#CbCarga').getSelection(),
 			rp = win.down('#periodo').getSelection(),
-			cUrl = Global.getUrlBase() + 'excel_manager/exportar_notas_asignatura';
+			cUrl = Global.getApiUrl() + '/download/excel/template-notes-by-course';
 		let extra = {
 			pdbIdAsig: rc.get('id_asig'),
 			pdbGrado: rc.get('id_grado'),
@@ -27,18 +27,23 @@ Ext.define('Admin.view.docentes.controller.CargaController',{
 			pdbPeriodo: rp.get('periodo'),
 			pdbJornada: rc.get('id_jorn'),
 			pdbSede: rc.get('id_sede'),
-			pdbCurso: rc.get('id')
+			pdbCurso: rc.get('id'),
+			...Global.getSchoolParams()
 		};
 		me.onStopTimer(btn);
+		win.mask('Generando plantilla...');
 		Ext.Ajax.request({
 			url     : cUrl,
 			params  : extra,
+			headers : Global.getHeaders(),
 			timeout : 0,
-			success : function(response, opts) {
+			success : function(response) {
 				const obj = Ext.decode(response.responseText);
 				me.onOpenUrl(obj.pathFile);
+				win.unmask();
 			},
-			failure: function(response, opts) {
+			failure: function() {
+				win.unmask();
 				me.app.onError('Ocurrió un error al tratar de exportar la plantilla');
 			}
 		});
@@ -47,7 +52,7 @@ Ext.define('Admin.view.docentes.controller.CargaController',{
     onLoadExcel : function (btn) {
 		let win = btn.up('form'),
 			me = this,
-			addLind = parseInt(Global.getBulletinSetting().permi_ind),
+			addLind = parseInt(Global.getBulletinSetting()?.permi_ind ?? 5),
 			result = false,
 			msg = '';
 		me.onStopTimer(btn);
@@ -123,7 +128,8 @@ Ext.define('Admin.view.docentes.controller.CargaController',{
 				pdbPeriodo: rp.get('periodo'),
 				pdbJornada: rc.get('id_jorn'),
 				pdbSede: rc.get('id_sede'),
-				pdbCurso: rc.get('id')
+				pdbCurso: rc.get('id'),
+				...Global.getSchoolParams()
 			};
 		if (result) {
             Ext.require('Admin.view.docs.VideoView');
@@ -213,9 +219,10 @@ Ext.define('Admin.view.docentes.controller.CargaController',{
             
                                     if (form.isValid()) {
                                         form.submit({
-                                            url     : Global.getUrlBase()   + 'excel_manager/upload_plantilla',
+                                            url     : Global.getApiUrl() + '/upload/excel/template-notes-by-course',
                                             params  : extra,
                                             waitMsg : 'Cargando plantilla..',
+											headers : Global.getHeaders(),
                                             success: function (fp, o) {
 												const obj = Ext.decode(o.response.responseText);
 												if (obj.estado === 1) {
@@ -227,7 +234,7 @@ Ext.define('Admin.view.docentes.controller.CargaController',{
                                                 }
                                             },
                                             failure: function (f, e) {
-                                                app.onError('La plantilla no se pudo importar, ocurrio un error');
+                                                app.onError('La plantilla no se pudo importar, ocurrió un error');
                                             }
                                         });
                                     }

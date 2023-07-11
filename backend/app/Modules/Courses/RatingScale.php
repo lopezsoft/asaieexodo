@@ -6,7 +6,6 @@ use App\Modules\School\SchoolQueries;
 use App\Traits\MessagesTrait;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class RatingScale
 {
@@ -14,55 +13,34 @@ class RatingScale
 
     public static function getRatingScaleId($school, $gradeId, $noteValue)
     {
-        $db     = $school->db;
-        $year   = $school->year;
-        $query  = DB::table("{$db}desempeños AS t1")
-            ->select('t1.id_escala')
-            ->join("{$db}grados_agrupados AS t2", 't1.id_grado_agrupado', '=', 't2.id')
-            ->join("{$db}aux_grados_agrupados AS t3", 't3.id_grado_agrupado', '=', 't2.id')
-            ->where('t1.year', '=', $year)
-            ->where('t3.id_grado', '=', $gradeId)
-            ->whereRaw("{$noteValue} BETWEEN t1.desde AND t1.hasta")
-            ->first();
+        $query  = RatingScaleBuild::query($school->db, $school->year)
+            ->select('td.id_escala')
+            ->whereRaw("{$noteValue} BETWEEN td.desde AND td.hasta");
+        $query  = RatingScaleBuild::addGrade($query, $gradeId)->first();
         return $query->id_escala ?? 0;
     }
     public static function getGroupByGrades($school, $gradeId): \Illuminate\Support\Collection
     {
-        $db     = $school->db;
-        $year   = $school->year;
-        return DB::table("{$db}desempeños AS t1")
-            ->select('t1.id', 't1.id_escala', 't1.desde', 't1.hasta', 't1.reprueba', 't4.color', 't4.nombre_escala', 't4.mensaje', 't4.abrev')
-            ->join("{$db}grados_agrupados AS t2", 't1.id_grado_agrupado', '=', 't2.id')
-            ->join("{$db}aux_grados_agrupados AS t3", 't3.id_grado_agrupado', '=', 't2.id')
-            ->join("{$db}escala_nacional AS t4", 't1.id_escala', '=', 't4.id')
-            ->where('t1.year', '=', $year)
-            ->where('t3.id_grado', '=', $gradeId)
-            ->orderBy('t1.id')
-            ->get();
+        $query  = RatingScaleBuild::query($school->db, $school->year)
+            ->selectRaw('td.id_pk, td.id, td.id_escala, td.desde, td.hasta, td.reprueba, t4.color,
+                t4.nombre_escala, t4.mensaje, t4.abrev')
+            ->join("{$school->db}escala_nacional AS t4", 'td.id_escala', '=', 't4.id')
+            ->orderBy('td.id');
+        return RatingScaleBuild::addGrade($query, $gradeId)->get();
     }
     public static function getRatingScaleMin($school, $gradeId = 5): ?object
     {
-        $db     = $school->db;
-        return DB::table($db."desempeños","td")
+        $query = RatingScaleBuild::query($school->db, $school->year)
             ->selectRaw('td.desde, td.hasta')
-            ->join($db.'grados_agrupados AS t1', 'td.id_grado_agrupado','=','t1.id')
-            ->join($db.'aux_grados_agrupados AS t2', 't2.id_grado_agrupado','=','t1.id')
-            ->where('td.year', $school->year)
-            ->where('td.id', 2)
-            ->where('t2.id_grado', $gradeId)
-            ->first();
+            ->where('td.id', 2);
+        return RatingScaleBuild::addGrade($query, $gradeId)->first();
     }
     public static function getRatingScaleReproved($school, $gradeId = 5): ?object
     {
-        $db     = $school->db;
-        return DB::table($db."desempeños","td")
+        $query = RatingScaleBuild::query($school->db, $school->year)
             ->selectRaw('td.desde, td.hasta')
-            ->join($db.'grados_agrupados AS t1', 'td.id_grado_agrupado','=','t1.id')
-            ->join($db.'aux_grados_agrupados AS t2', 't2.id_grado_agrupado','=','t1.id')
-            ->where('td.year', $school->year)
-            ->where('td.reprueba', 1)
-            ->where('t2.id_grado', $gradeId)
-            ->first();
+            ->where('td.reprueba', 1);
+        return RatingScaleBuild::addGrade($query, $gradeId)->first();
     }
 
     /**
@@ -71,12 +49,8 @@ class RatingScale
     public static function getRatingScale(Request $request): JsonResponse
     {
         $school = SchoolQueries::getSchoolRequest($request);
-        $db     = $school->db;
-        $query  = DB::table($db."desempeños","td")
+        $query  = RatingScaleBuild::query($school->db, $school->year)
             ->selectRaw('td.*, t1.nombre_grado_agrupado, t2.nombre_escala, t2.abrev')
-            ->join($db.'grados_agrupados AS t1', 'td.id_grado_agrupado','=','t1.id')
-            ->join($db.'escala_nacional AS t2', 'td.id_escala','=','t2.id')
-            ->where('td.year', $school->year)
             ->orderByRaw("td.year, td.id_grado_agrupado, td.id");
         return self::getResponse([
             'records' => $query->paginate()
@@ -84,16 +58,13 @@ class RatingScale
     }
 
     public static function getScaleString($grade, $year, $db): string {
-        $query  = DB::table($db."desempeños AS td")
-            ->selectRaw('td.id_pk,td.desde,td.hasta, t2.nombre_escala, t2.abrev')
-            ->join($db.'grados_agrupados AS t1', 'td.id_grado_agrupado','=','t1.id')
-            ->join($db.'escala_nacional AS t2', 'td.id_escala','=','t2.id')
-            ->join($db.'aux_grados_agrupados AS ta', 'ta.id_grado_agrupado','=','t1.id')
-            ->where('ta.id_grado', $grade)
-            ->where('td.year', $year)
+        $query  = RatingScaleBuild::query($db, $year)
+            ->selectRaw('td.id_pk,td.desde,td.hasta, t3.nombre_escala, t3.abrev')
+            ->join($db.'escala_nacional AS t3', 'td.id_escala','=','t3.id')
+            ->where('t2.id_grado', $grade)
             ->where('td.id', '>', 0)
             ->orderBy('td.year')
-            ->orderBy('ta.id_grado_agrupado')
+            ->orderBy('t2.id_grado_agrupado')
             ->orderBy('td.id');
 
         $query	= $query->get();

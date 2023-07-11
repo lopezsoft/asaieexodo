@@ -12,6 +12,13 @@ use Illuminate\Http\Request;
 
 class TeachersController extends Controller
 {
+    /**
+     * @throws \Exception
+     */
+    public function setColumnNotes(Request $request): JsonResponse
+    {
+        return ColumnNotes::setColumnNotes($request);
+    }
     public function getColumnNotes(Request $request): JsonResponse
     {
         return ColumnNotes::getByCourse($request);

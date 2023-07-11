@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Modules\Download\TeacherDownloads;
 use App\Modules\FileManagers;
 use App\Modules\Upload\StudentUploads;
 use Illuminate\Http\JsonResponse;
@@ -9,6 +10,10 @@ use Illuminate\Http\Request;
 
 class UploadController extends Controller
 {
+    public function setTemplateNotesByCourse(Request $request): JsonResponse
+    {
+        return TeacherDownloads::setTemplateNotesByCourse($request);
+    }
     public function uploadSignature(Request $request): JsonResponse
     {
         $path           = "settings/signature";

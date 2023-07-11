@@ -10,10 +10,11 @@ Ext.define('Admin.store.docentes.ColumnDocentesStore', {
         extraParams : {
             pdbTable    : 'config_columns_theacher'
         },
+		type	: 'ajax',
         api: {
             create  : 'crud',
             read    : 'teachers/column-notes',
-            update  : 'crud',
+            update  : 'teachers/column-notes',
             destroy : 'crud'
         }
     }

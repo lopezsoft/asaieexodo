@@ -5,11 +5,15 @@ namespace App\Http\Controllers\Academic;
 use App\Http\Controllers\Controller;
 use App\Modules\Student\MoveStudents;
 use App\Modules\Student\StudentEnrollment;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class StudentController extends Controller
 {
-    public function moveStudents(Request $request): \Illuminate\Http\JsonResponse
+    /**
+     * @throws \Exception
+     */
+    public function moveStudents(Request $request): JsonResponse
     {
         return MoveStudents::move($request);
     }
@@ -17,7 +21,7 @@ class StudentController extends Controller
     /**
      * @throws \Exception
      */
-    public function oldRegistration(Request $request): \Illuminate\Http\JsonResponse
+    public function oldRegistration(Request $request): JsonResponse
     {
         return StudentEnrollment::oldRegistration($request);
     }
@@ -25,11 +29,15 @@ class StudentController extends Controller
     /**
      * @throws \Exception
      */
-    public function getEnrollment(Request $request): \Illuminate\Http\JsonResponse
+    public function getEnrollment(Request $request): JsonResponse
     {
         return StudentEnrollment::getEnrollment($request);
     }
-    public function getEnrollmentList(Request $request): \Illuminate\Http\JsonResponse
+
+    /**
+     * @throws \Exception
+     */
+    public function getEnrollmentList(Request $request): JsonResponse
     {
         return StudentEnrollment::getEnrollmentList($request);
     }

@@ -227,19 +227,19 @@ Ext.define('Admin.forms.CustomForm',{
 	 * @param reload : Indica si se recarga la tienda luedo de carcelar los cambios
 	 */
     cancelChanges: function (store, reload) {
-        var 
+        var
             store   = this.getStore();
         if (store) {
-            xStore   = Ext.getStore(store);
+            const xStore   = Ext.getStore(store);
             xStore.rejectChanges();
             xStore.reload();
         }
 	},
 	
 	afterRender: function () {
-        var me = this;
+		const me = this;
 
-        me.callParent(arguments);
+		me.callParent(arguments);
 
         me.syncSize();
 
@@ -260,10 +260,8 @@ Ext.define('Admin.forms.CustomForm',{
 		let me  	= this,
 			win		= me.down('window'),
 			height = Ext.Element.getViewportHeight();
-		if(win) {
-			// TODO: Pendiente
-		}else{
-			this.setMaxHeight(height - 148);
+		if(!win) {
+			this.setMaxHeight(height - 74);
 		}
     }
 });

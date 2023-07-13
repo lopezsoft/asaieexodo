@@ -9,6 +9,12 @@ Ext.define('Admin.store.docentes.observador.AnotacionesM3Store', {
     proxy: {
         extraParams  : {
             pdbTable    : 'obs_anotaciones_mod_3'
-        }
+        },
+		api: {
+			create  : 'observer/annotations',
+			read    : 'crud',
+			update  : 'crud',
+			destroy : 'crud'
+		}
     }
 });

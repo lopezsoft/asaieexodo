@@ -4,7 +4,7 @@ Ext.define('Admin.view.docentes.observador.FichaSeguimientoForm' ,{
 	xtype		: 'fichaseguimientodocente',
 	controller	: 'observador',
 	initComponent : function (){
-		var me	= Admin.getApplication();
+		const me = Admin.getApplication();
 		me.onStore('docentes.CargaAgrupadaObservadorStore');
 		me.onStore('docentes.EstudiantesStore');
 		me.onStore('docentes.observador.ObservadorStore');
@@ -71,7 +71,7 @@ Ext.define('Admin.view.docentes.observador.FichaSeguimientoForm' ,{
 		        },
 		        {
 		            text		: "Sede",
-					width		: 250,
+					flex		: 2,
 		            sortable	: true,
 		            dataIndex	: 'sede'
 		        },
@@ -119,26 +119,24 @@ Ext.define('Admin.view.docentes.observador.FichaSeguimientoForm' ,{
 							),
 							listeners: {
 								focusenter: function(t) {
-									oldValue = t.value;
-									if (oldValue) {
+									if (t.value) {
 										t.expand();
 									}
 								},
 								select: function(c, r, e) {
-									var 
-										extra = {
-											pdbGrado 	: r.get('id_grado'),
-											pdbGrupo	: r.get('grupo'),
-											pdbSede 	: r.get('id_sede'),
-											pdbJorn  	: r.get('id_jorn')
-										};
+									const extra = {
+										pdbGrado: r.get('id_grado'),
+										pdbGrupo: r.get('grupo'),
+										pdbSede: r.get('id_sede'),
+										pdbJorn: r.get('id_jorn')
+									};
 									Admin.getApplication().setParamStore('EstudiantesStore', extra);
 								}
 							}
 						},
 						{
 							xtype	: 'customButton',
-							tooltip : 'Búscar',
+							tooltip : 'Buscar',
 							itemId	: 'btnSearch',
 							iconCls	: 'x-fa fa-search',
 							bind: {

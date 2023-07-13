@@ -4,6 +4,7 @@ namespace App\Modules\Settings;
 
 use App\Modules\Courses\RatingScale;
 use App\Modules\School\SchoolQueries;
+use App\Modules\Teacher\CoursesOfTeacher;
 use App\Traits\MessagesTrait;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -16,15 +17,21 @@ class Competencies
     public static function getEducationProcesses(Request $request) : JsonResponse
     {
         try {
-            $school     = SchoolQueries::getSchoolRequest($request);
-            $gradeId    = $request->input('idGrado') ?? $request->input('pdbGrado');
-
+            $school         = SchoolQueries::getSchoolRequest($request);
+            $gradeId        = $request->input('idGrado') ?? $request->input('pdbGrado');
+            $teacherId      = CoursesOfTeacher::getTeacherId($school->db);
             $competencies   = self::getCompetenciesByGroupGrades($school, $gradeId);
             $ratingScale    = RatingScale::getGroupByGrades($school, $gradeId);
             $columnNotes    = ColumnNotes::getGroupByGrades($school, $gradeId);
             $generalSetting = GeneralSetting::getGeneralSettingByGrade($school, $gradeId);
             $bulletinSetting= BulletinSetting::get($school);
             $groupGrades    = DB::table("{$school->db}aux_grados_agrupados")->get();
+            $groupDirectors = DB::table("{$school->db}dir_grupo")
+                                ->where([
+                                    'id_docente'    => $teacherId,
+                                    'year'          => $school->year,
+                                    'estado'        => 1
+                                ])->get();
             return self::getResponse([
                 'competencies'      => $competencies,
                 'ratingScale'       => $ratingScale,
@@ -32,6 +39,7 @@ class Competencies
                 'generalSetting'    => $generalSetting,
                 'bulletinSetting'   => $bulletinSetting,
                 'groupGrades'       => $groupGrades,
+                'groupDirectors'    => $groupDirectors,
             ]);
         } catch (\Exception $e) {
             return self::getResponse500([

@@ -52,7 +52,7 @@ Ext.define('Admin.view.docentes.controller.CargaController',{
     onLoadExcel : function (btn) {
 		let win = btn.up('form'),
 			me = this,
-			addLind = parseInt(Global.getBulletinSetting()?.permi_ind ?? 5),
+			addLind = parseInt(Global.getBulletinSetting().permi_ind || 5),
 			result = false,
 			msg = '';
 		me.onStopTimer(btn);

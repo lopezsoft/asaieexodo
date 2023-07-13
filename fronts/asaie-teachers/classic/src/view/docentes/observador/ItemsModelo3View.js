@@ -36,7 +36,7 @@ Ext.define('Admin.view.docentes.observador.ItemsModelo3View' ,{
 				},
 		        {
 		            text		: "CRITERIO",
-		            width		: 350,
+		            flex		: 2,
 		            sortable	: false,
 		            dataIndex	: 'criterio',
 		            filter		: 'list'

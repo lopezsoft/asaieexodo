@@ -26,6 +26,7 @@ Route::prefix('v1')->group(function () {
             Route::get('countries',             'getCountries');
         });
         require_once __DIR__.'/school.php';
+        require_once __DIR__.'/observer.php';
         require_once __DIR__.'/academic.php';
         require_once __DIR__.'/courses.php';
         require_once __DIR__.'/teachers.php';

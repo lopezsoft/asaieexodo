@@ -36,11 +36,16 @@ class RegisterJob implements ShouldQueue
      */
     public function handle()
     {
-        SchoolUser::create([
-            'user_id'   => $this->user_id,
-            'school_id' => $this->school_id,
-            'state'     => 1,
-        ]);
+        $user   = SchoolUser::where('user_id', $this->user_id)
+                    ->where('school_id', $this->school_id)
+                    ->first();
+        if (!$user) {
+            SchoolUser::create([
+                'user_id'   => $this->user_id,
+                'school_id' => $this->school_id,
+                'state'     => 1,
+            ]);
+        }
 
         foreach ($this->roles as $role) {
             DB::table('user_roles')->insert([

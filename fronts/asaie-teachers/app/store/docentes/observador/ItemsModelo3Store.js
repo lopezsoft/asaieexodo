@@ -11,11 +11,12 @@ Ext.define('Admin.store.docentes.observador.ItemsModelo3Store', {
         extraParams  : {
             pdbTable    : 'obs_items_modelo_3'
         },
+		type	: 'ajax',
         api: {
-		    create  : 'master/insertData',
-		    read    : 'observer/get_itemsmodelo3',
-		    update  : 'master/updateData',
-		    destroy : 'master/deleteData'
+		    create  : 'crud',
+		    read    : 'observer/items-model3',
+		    update  : 'observer/items-model3',
+		    destroy : 'crud'
 		}
     }
 });

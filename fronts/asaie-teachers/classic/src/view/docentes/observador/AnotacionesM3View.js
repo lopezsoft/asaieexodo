@@ -18,7 +18,7 @@ Ext.define('Admin.view.docentes.observador.AnotacionesM3View',{
 				{
 					name		: 'compromiso_est',
 					fieldLabel	: 'Compromiso del estudiante',
-					emptyText	: 'Digite el crompromiso del estudiante'
+					emptyText	: 'Digite el compromiso del estudiante'
 				},
 				{
 					name		: 'compromiso_acu',
@@ -42,12 +42,12 @@ Ext.define('Admin.view.docentes.observador.AnotacionesM3View',{
 		}		    
 	],
 	saveData	: function(storeName,reload){
-		var me 		= this.getApp(),
-			win		= this,
-			form    = win.down('form'),
-			record  = form.getRecord(),
-			values  = form.getValues(),
-			store   = Ext.getStore(storeName);
+		const me = this.getApp(),
+			win = this,
+			form = win.down('form'),
+			record = form.getRecord(),
+			values = form.getValues(),
+			store = Ext.getStore(storeName);
 		if (record) { //Edición
 			if (store.getModifiedRecords().length > 0) {
 				win.mask('Guardando...');
@@ -70,7 +70,6 @@ Ext.define('Admin.view.docentes.observador.AnotacionesM3View',{
 		}else{ // Insertar
 			win.mask('Guardando...');
 			values.id_observador 	= win.getRecord().get('id');
-			values.id_docente 		= Global.getData().user_parent;
 			store.insert(0,values);
 			store.sync({
 				success : function(batch, o){
@@ -82,10 +81,10 @@ Ext.define('Admin.view.docentes.observador.AnotacionesM3View',{
 					}
 				},
 				failure	: function (re) {
-					store.rejectChanges();
 					win.unmask();
+					store.rejectChanges();
 				}
 			});
-		};
+		}
 	}
 });

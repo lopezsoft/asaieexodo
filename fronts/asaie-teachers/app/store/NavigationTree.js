@@ -51,13 +51,13 @@ Ext.define('Admin.store.NavigationTree', {
 					viewType: 'planmejoramiento',
 					routeId : 'nivelaciones'
 				},
-				/*{
+				{
 					text    : 'Seguimiento académico',
 					iconCls : 'x-fa fa-eye',
 					viewType: 'seguimientoacademico',
 					routeId : 'seguimiento',
 					leaf    : true
-				},*/
+				},
 				/*{
 					text    : 'Informes',
 					iconCls : 'x-fa fa-newspaper-o nav-tree-change-new',

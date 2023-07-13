@@ -6,6 +6,7 @@ use App\Modules\Grades\GradesQuery;
 use App\Modules\School\SchoolQueries;
 use App\Queries\CallExecute;
 use App\Traits\MessagesTrait;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -16,7 +17,7 @@ class StudentEnrollment
     /**
      * @throws \Exception
      */
-    public static function oldRegistration(Request $request): \Illuminate\Http\JsonResponse
+    public static function oldRegistration(Request $request): JsonResponse
     {
         try {
             DB::beginTransaction();
@@ -83,12 +84,12 @@ class StudentEnrollment
     /**
      * @throws \Exception
      */
-    public static function getEnrollment(Request $request): \Illuminate\Http\JsonResponse
+    public static function getEnrollment(Request $request): JsonResponse
     {
         $school     = SchoolQueries::getSchoolRequest($request);
         $db	        = $school->db;
         $year       = $school->year;
-        $grade	    = $request->input('pdbCodGrado');
+        $grade	    = $request->input('pdbCodGrado') ?? $request->input('pdbGrado');
         $grupo		= $request->input('pdbGrupo');
         $sede		= $request->input('pdbSede');
         $jornada	= $request->input('pdbJorn');
@@ -109,7 +110,7 @@ class StudentEnrollment
     /**
      * @throws \Exception
      */
-    public static function getEnrollmentList(Request $request): \Illuminate\Http\JsonResponse
+    public static function getEnrollmentList(Request $request): JsonResponse
     {
         $school     = SchoolQueries::getSchoolRequest($request);
         $db	        = $school->db;
@@ -121,11 +122,11 @@ class StudentEnrollment
 					rtrim(ti.nombre1),' ',rtrim(ti.nombre2)) AS nombres,
 					rtrim(tg.grado) AS grado, rtrim(ts.headquarters_name) AS sede, ti.foto, ti.mime,
 					RTRIM(tj.jornada) AS jornada, RTRIM(tes.name_state) estado_mat")
-            ->leftJoin($db.'inscripciones AS ti', 'tm.id_student', '=', 'ti.id')
-            ->leftJoin($db.'grados AS tg', 'tm.id_grade','=','tg.id')
-            ->leftJoin($db.'sedes AS ts', 'tm.id_headquarters','=','ts.id')
-            ->leftJoin($db.'jornadas AS tj', 'tm.id_study_day','=','tj.cod_jorn')
-            ->leftJoin($db.'registration_status AS tes', 'tm.id_state','=','tes.id');
+            ->join($db.'inscripciones AS ti', 'tm.id_student', '=', 'ti.id')
+            ->join($db.'grados AS tg', 'tm.id_grade','=','tg.id')
+            ->join($db.'sedes AS ts', 'tm.id_headquarters','=','ts.id')
+            ->join($db.'jornadas AS tj', 'tm.id_study_day','=','tj.cod_jorn')
+            ->join($db.'registration_status AS tes', 'tm.id_state','=','tes.id');
         if(!is_null($promoted)) {
             $query->where('tm.year', $school->pdbYear)
                 ->where('tm.id_grade', $school->grade)

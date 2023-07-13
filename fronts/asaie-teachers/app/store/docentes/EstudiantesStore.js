@@ -7,6 +7,6 @@ Ext.define('Admin.store.docentes.EstudiantesStore',{
     ],
     model   : 'Admin.model.docentes.EstudiantesModel',
     proxy   : {
-        url : 'General/get_select_estudiantes'
+        url : 'students/enrollment'
     }
 });

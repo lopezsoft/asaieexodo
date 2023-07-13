@@ -26,6 +26,11 @@ Ext.define('Admin.view.config.Configs', {
     constructor: function(config) {
         this.initConfig(this.config, config);
     },
+	getCompetencesFilter: function() {
+		return this.getCompetences().filter((item) => {
+			return parseInt(item.id) > 0;
+		});
+	},
 
     isActive: function() {
         return AuthToken.isActive();

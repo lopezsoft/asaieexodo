@@ -92,7 +92,7 @@ Ext.define('Admin.view.docentes.observador.CrudObservadorView' ,{
 			        store			: 'ObservadorStore',
 					displayInfo 	: false,
 			        items			: [
-			        	,'-',
+			        	'-',
 			        	{
 							xtype		: 'customButton',
 							text		: 'Anotaciones',
@@ -114,7 +114,7 @@ Ext.define('Admin.view.docentes.observador.CrudObservadorView' ,{
 		}
 	],
 	buildWindow : function(){
-		var tipo    = '3'; // TODO: Asignar Tipo de observador
+		const tipo    = '3'; // TODO: Asignar Tipo de observador
 		switch(tipo){
 			case '1' :
 				view = 'Admin.view.docentes.observador.DatosView';

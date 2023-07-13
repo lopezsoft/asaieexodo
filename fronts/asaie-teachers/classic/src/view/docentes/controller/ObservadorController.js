@@ -32,16 +32,15 @@ Ext.define('Admin.view.docentes.controller.ObservadorController', {
 	},
 
 	onClickCrudObservador : function (btn) {
-		var
-			me 		= this.app,
-			form 	= btn.up('form'),
-			grid 	= form.down('grid'),
-            tipo    = '3',
-			data 	= grid.getSelection()[0],
-			msg		= 'Usted no es director de grupo y tampoco posee permisos para diligenciar la ficha.',
-			access	= false;
-
-        switch(tipo){
+		let me = this.app,
+			form = btn.up('form'),
+			grid = form.down('grid'),
+			tipo = '3',
+			data = grid.getSelection()[0],
+			msg = 'Usted no es director de grupo y tampoco posee permisos para diligenciar la ficha.',
+			access = false;
+		let table = '';
+		switch(tipo){
             case '1' :
                 table = 'obs_observador_mod_1';
                 break;
@@ -59,7 +58,7 @@ Ext.define('Admin.view.docentes.controller.ObservadorController', {
                 break;
 		}
 		
-		extParam = {
+		const extParam = {
 			pdbGrado 	: data.get('id_grade'),
 			pdbGrupo	: data.get('id_group'),
 			pdbSede 	: data.get('id_headquarters'),
@@ -70,23 +69,27 @@ Ext.define('Admin.view.docentes.controller.ObservadorController', {
 		me.setParamStore('ObservadorStore',extParam);
 		form.mask('Verificando permisos...');
 		Ext.Ajax.request({
-			url		: Global.getUrlBase() +  'general/get_config_db',
+			url		: Global.getApiUrl() +  '/competence/competences',
 			params	: {
-				pdbGrado 	: data.get('id_grade')
+				pdbGrado 	: data.get('id_grade'),
+				...Global.getSchoolParams()
 			},
+			headers: Global.getHeaders(),
 			success: function(response, opts) {
-				var obj = Ext.decode(response.responseText);
-				Global.setDbConfig(obj.records[0]);
-				cnf	= Global;
-				if (cnf.getDbConfig().docente_ficha_obs == '1') {
+				const obj = Ext.decode(response.responseText);
+				Global.setDbConfig(obj.generalSetting);
+				Global.setGroupDirectors(obj.groupDirectors);
+				const generalSetting = Global.getDbConfig();
+				const groupDirectors = Global.getGroupDirectors();
+				if (parseInt(generalSetting.docente_ficha_obs) === 1) {
 					Ext.create('Admin.view.docentes.observador.CrudObservadorView',{
 						title	: 'Fichas de seguimiento - '+data.get('nombres'),
 						record	: data
 					}).show();
-				}else if(cnf.getDataDirGroup().length == 0){
+				}else if(groupDirectors.length === 0){
 					me.showResult(msg)
 				}else{
-					Ext.each(cnf.getDataDirGroup(),function (rec) {
+					Ext.each(groupDirectors,function (rec) {
 						if ((rec.id_grado == data.get('id_grade')) && (rec.grupo == data.get('id_group')) &&
 							(rec.id_jorn == data.get('id_study_day'))) {
 							access = true;
@@ -113,11 +116,11 @@ Ext.define('Admin.view.docentes.controller.ObservadorController', {
 
 	// Fortalezas y dificultades modelo del observador 
 	onFortDif : function (btn) {
-		var app 	= this.app,
-			win 	= btn.up('window'),
-			tipo	= '3',
-			grid 	= win.down('grid'),
-			data 	= grid.getSelection()[0];
+		const app = this.app,
+			win = btn.up('window'),
+			tipo = '3',
+			grid = win.down('grid'),
+			data = grid.getSelection()[0];
 		app.onStore('docentes.observador.ItemsModelo3Store');
 		switch(tipo){
 			case '1' :
@@ -146,9 +149,9 @@ Ext.define('Admin.view.docentes.controller.ObservadorController', {
 				table	= 'obs_items_modelo_1';
 				break;
 		}
-		extParam = {
-			pId_Observador  : data.get('id'),
-			pCons_Sede		: data.get('id_headquarters'),
+		const extParam = {
+			pdbObserverId  	: data.get('id'),
+			pdbSede			: data.get('id_headquarters'),
 			pdbTable		: table
 		};
 		app.onStore('docentes.observador.FortDifStore');

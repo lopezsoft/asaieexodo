@@ -7,10 +7,10 @@ Ext.define('Admin.store.docentes.observador.ObservadorStore', {
     model		: 'Admin.model.docentes.observador.ObservadorModel',
     proxy: {
         api: {
-		    create  : 'master/insertData',
-		    read    : 'observer/get_observador',
-		    update  : 'master/updateData',
-		    destroy : 'master/deleteData'
+		    create  : 'crud',
+		    read    : 'observer',
+		    update  : 'crud',
+		    destroy : 'crud'
 		}
     }
 });

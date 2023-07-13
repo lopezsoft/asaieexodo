@@ -2,6 +2,7 @@
 
 namespace App\Modules\Download;
 
+use App\Modules\Academic\ControlClosingDates;
 use App\Modules\Courses\RatingScale;
 use App\Modules\Courses\RatingScaleBuild;
 use App\Modules\School\SchoolQueries;
@@ -33,6 +34,8 @@ class TeacherDownloads
             $grado	            = $request->input('pdbGrado');
             $per	            = $request->input('pdbPeriodo');
             $curso	            = $request->input('pdbCurso');
+            ControlClosingDates::isCurrentYear($school->year);
+            ControlClosingDates::validatePeriodDate($school, $grado, $per);
             //
             $teacherId          = CoursesOfTeacher::getTeacherId($db);
             $path               = "excel/upload/teachers/{$teacherId}";
@@ -158,6 +161,8 @@ class TeacherDownloads
             $per	            = $request->input('pdbPeriodo');
             $curso	            = $request->input('pdbCurso');
             $teacherId          = CoursesOfTeacher::getTeacherId($db);
+            ControlClosingDates::isCurrentYear($school->year);
+            ControlClosingDates::validatePeriodDate($school, $grado, $per);
             /**
              * Trae los datos del curso a exportar
              */

@@ -26,7 +26,13 @@ const CustomRadioBasic = (props: CustomRadioBasicProps) => {
               justifyContent: 'space-between'
             }}
           >
-            {typeof title === 'string' ? <Typography sx={{ mr: 2, fontWeight: 500 }}>{title}</Typography> : title}
+            {typeof title === 'string' ? (
+              <Typography sx={{ mr: 2 }} variant='h6'>
+                {title}
+              </Typography>
+            ) : (
+              title
+            )}
             {typeof meta === 'string' ? <Typography sx={{ color: 'text.disabled' }}>{meta}</Typography> : meta}
           </Box>
           {typeof content === 'string' ? <Typography variant='body2'>{content}</Typography> : content}
@@ -35,7 +41,13 @@ const CustomRadioBasic = (props: CustomRadioBasicProps) => {
     } else if (meta && title && !content) {
       return (
         <Box sx={{ width: '100%', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-          {typeof title === 'string' ? <Typography sx={{ mr: 2, fontWeight: 500 }}>{title}</Typography> : title}
+          {typeof title === 'string' ? (
+            <Typography sx={{ mr: 2 }} variant='h6'>
+              {title}
+            </Typography>
+          ) : (
+            title
+          )}
           {typeof meta === 'string' ? <Typography sx={{ color: 'text.disabled' }}>{meta}</Typography> : meta}
         </Box>
       )

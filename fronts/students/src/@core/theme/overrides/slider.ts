@@ -57,8 +57,8 @@ const Slider = () => {
             height: 30
           },
           '&.Mui-active': {
-            width: 18,
-            height: 18,
+            width: 19,
+            height: 19,
             '&:before': {
               borderWidth: 3
             },
@@ -97,6 +97,23 @@ const Slider = () => {
               height: 30
             }
           }
+        }),
+        valueLabel: ({ theme }: OwnerStateThemeType) => ({
+          borderRadius: 4,
+          padding: theme.spacing(1, 2),
+          backgroundColor:
+            theme.palette.mode === 'light'
+              ? `rgba(${theme.palette.customColors.main}, 0.9)`
+              : hexToRGBA(theme.palette.customColors.trackBg, 0.9),
+          '&:before': {
+            display: 'none'
+          },
+          '& .MuiSlider-valueLabelCircle': {
+            lineHeight: 'normal'
+          }
+        }),
+        markLabel: ({ theme }: OwnerStateThemeType) => ({
+          color: theme.palette.text.disabled
         })
       }
     }

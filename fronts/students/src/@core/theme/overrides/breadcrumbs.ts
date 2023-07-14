@@ -12,7 +12,7 @@ const Breadcrumbs = () => {
           }
         }),
         li: ({ theme }: OwnerStateThemeType) => ({
-          color: theme.palette.text.secondary,
+          color: theme.palette.text.primary,
           '& .MuiTypography-root': {
             color: 'inherit'
           }

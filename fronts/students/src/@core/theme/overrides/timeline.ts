@@ -6,13 +6,22 @@ import { hexToRGBA } from 'src/@core/utils/hex-to-rgba'
 
 const Timeline = () => {
   return {
+    MuiTimeline: {
+      styleOverrides: {
+        root: {
+          margin: 0,
+          padding: 0
+        }
+      }
+    },
     MuiTimelineItem: {
       styleOverrides: {
         root: ({ theme }: OwnerStateThemeType) => ({
-          '&:not(:last-of-type)': {
-            '& .MuiTimelineContent-root': {
-              marginBottom: theme.spacing(4)
-            }
+          '&:last-of-type': {
+            minHeight: 0
+          },
+          '&:not(:last-of-type) .MuiTimelineContent-root': {
+            marginBottom: theme.spacing(4)
           }
         })
       }

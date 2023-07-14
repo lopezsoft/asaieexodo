@@ -43,7 +43,7 @@ const Menu = styled(MuiMenu)<MenuProps>(({ theme }) => ({
   '& .MuiMenu-paper': {
     width: 350,
     overflow: 'hidden',
-    marginTop: theme.spacing(4.5),
+    marginTop: theme.spacing(4.25),
     [theme.breakpoints.down('sm')]: {
       width: '100%'
     }
@@ -99,7 +99,7 @@ const ShortcutsDropdown = (props: Props) => {
   return (
     <Fragment>
       <IconButton color='inherit' aria-haspopup='true' onClick={handleDropdownOpen} aria-controls='customized-menu'>
-        <Icon fontSize='1.5rem' icon='tabler:layout-grid-add' />
+        <Icon fontSize='1.625rem' icon='tabler:layout-grid-add' />
       </IconButton>
       <Menu
         anchorEl={anchorEl}
@@ -128,7 +128,7 @@ const ShortcutsDropdown = (props: Props) => {
               '& svg': { color: 'text.secondary' }
             }}
           >
-            <Typography variant='h6'>Shortcuts</Typography>
+            <Typography variant='h5'>Shortcuts</Typography>
             <Tooltip title='Add Shortcut' placement='top'>
               <IconButton size='small'>
                 <Icon fontSize='1.5rem' icon='tabler:apps' />

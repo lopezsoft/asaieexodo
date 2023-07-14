@@ -77,7 +77,8 @@ const UserDropdown = (props: Props) => {
     textDecoration: 'none',
     '& svg': {
       mr: 2.5,
-      color: 'text.primary'
+      fontSize: '1.5rem',
+      color: 'text.secondary'
     }
   }
 
@@ -100,16 +101,16 @@ const UserDropdown = (props: Props) => {
       >
         <Avatar
           alt='John Doe'
-          onClick={handleDropdownOpen}
-          sx={{ width: 40, height: 40 }}
           src='/images/avatars/1.png'
+          onClick={handleDropdownOpen}
+          sx={{ width: 38, height: 38 }}
         />
       </Badge>
       <Menu
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
         onClose={() => handleDropdownClose()}
-        sx={{ '& .MuiMenu-paper': { width: 230, mt: 4.5 } }}
+        sx={{ '& .MuiMenu-paper': { width: 230, mt: 4.75 } }}
         anchorOrigin={{ vertical: 'bottom', horizontal: direction === 'ltr' ? 'right' : 'left' }}
         transformOrigin={{ vertical: 'top', horizontal: direction === 'ltr' ? 'right' : 'left' }}
       >
@@ -132,47 +133,49 @@ const UserDropdown = (props: Props) => {
           </Box>
         </Box>
         <Divider sx={{ my: theme => `${theme.spacing(2)} !important` }} />
-        <MenuItemStyled sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
+        <MenuItemStyled sx={{ p: 0 }} onClick={() => handleDropdownClose('/pages/user-profile/profile')}>
           <Box sx={styles}>
             <Icon icon='tabler:user-check' />
             My Profile
           </Box>
         </MenuItemStyled>
-        <MenuItemStyled sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
-          <Box sx={styles}>
-            <Icon icon='tabler:mail' />
-            Inbox
-          </Box>
-        </MenuItemStyled>
-        <MenuItemStyled sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
-          <Box sx={styles}>
-            <Icon icon='tabler:message-2' />
-            Chat
-          </Box>
-        </MenuItemStyled>
-        <Divider sx={{ my: theme => `${theme.spacing(2)} !important` }} />
-        <MenuItemStyled sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
+        <MenuItemStyled sx={{ p: 0 }} onClick={() => handleDropdownClose('/pages/account-settings/account')}>
           <Box sx={styles}>
             <Icon icon='tabler:settings' />
             Settings
           </Box>
         </MenuItemStyled>
-        <MenuItemStyled sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
+        <MenuItemStyled sx={{ p: 0 }} onClick={() => handleDropdownClose('/pages/account-settings/billing')}>
+          <Box sx={styles}>
+            <Icon icon='tabler:credit-card' />
+            Billing
+          </Box>
+        </MenuItemStyled>
+        <Divider sx={{ my: theme => `${theme.spacing(2)} !important` }} />
+        <MenuItemStyled sx={{ p: 0 }} onClick={() => handleDropdownClose('/pages/help-center')}>
+          <Box sx={styles}>
+            <Icon icon='tabler:lifebuoy' />
+            Help
+          </Box>
+        </MenuItemStyled>
+        <MenuItemStyled sx={{ p: 0 }} onClick={() => handleDropdownClose('/pages/faq')}>
+          <Box sx={styles}>
+            <Icon icon='tabler:info-circle' />
+            FAQ
+          </Box>
+        </MenuItemStyled>
+        <MenuItemStyled sx={{ p: 0 }} onClick={() => handleDropdownClose('/pages/pricing')}>
           <Box sx={styles}>
             <Icon icon='tabler:currency-dollar' />
             Pricing
           </Box>
         </MenuItemStyled>
-        <MenuItemStyled sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
-          <Box sx={styles}>
-            <Icon icon='tabler:help' />
-            FAQ
-          </Box>
-        </MenuItemStyled>
         <Divider sx={{ my: theme => `${theme.spacing(2)} !important` }} />
-        <MenuItemStyled onClick={handleLogout} sx={{ py: 2, '& svg': { mr: 2, fontSize: '1.375rem' } }}>
-          <Icon icon='tabler:logout' />
-          Logout
+        <MenuItemStyled sx={{ p: 0 }} onClick={handleLogout}>
+          <Box sx={styles}>
+            <Icon icon='tabler:logout' />
+            Sign Out
+          </Box>
         </MenuItemStyled>
       </Menu>
     </Fragment>

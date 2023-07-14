@@ -5,8 +5,8 @@ import { Skin } from 'src/@core/layouts/types'
 const DefaultPalette = (mode: Palette['mode'], skin: Skin): Palette => {
   // ** Vars
   const whiteColor = '#FFF'
-  const lightColor = '51, 48, 60'
-  const darkColor = '228, 230, 244'
+  const lightColor = '47, 43, 61'
+  const darkColor = '208, 212, 241'
   const darkPaperBgColor = '#2F3349'
   const mainColor = mode === 'light' ? lightColor : darkColor
 
@@ -28,8 +28,8 @@ const DefaultPalette = (mode: Palette['mode'], skin: Skin): Palette => {
       lightPaperBg: whiteColor,
       darkPaperBg: darkPaperBgColor,
       bodyBg: mode === 'light' ? '#F8F7FA' : '#25293C', // Same as palette.background.default but doesn't consider bordered skin
-      trackBg: mode === 'light' ? '#F1F0F2' : '#3B405B',
-      avatarBg: mode === 'light' ? '#F6F6F7' : '#4A5072',
+      trackBg: mode === 'light' ? '#F1F0F2' : '#363B54',
+      avatarBg: mode === 'light' ? '#DBDADE' : '#4A5072',
       tableHeaderBg: mode === 'light' ? '#F6F6F7' : '#4A5072'
     },
     mode: mode,
@@ -90,11 +90,11 @@ const DefaultPalette = (mode: Palette['mode'], skin: Skin): Palette => {
       A700: '#616161'
     },
     text: {
-      primary: `rgba(${mainColor}, 0.87)`,
-      secondary: `rgba(${mainColor}, 0.6)`,
-      disabled: `rgba(${mainColor}, 0.38)`
+      primary: `rgba(${mainColor}, 0.78)`,
+      secondary: `rgba(${mainColor}, 0.68)`,
+      disabled: `rgba(${mainColor}, 0.42)`
     },
-    divider: `rgba(${mainColor}, 0.12)`,
+    divider: `rgba(${mainColor}, 0.16)`,
     background: {
       paper: mode === 'light' ? whiteColor : darkPaperBgColor,
       default: defaultBgColor()
@@ -102,7 +102,8 @@ const DefaultPalette = (mode: Palette['mode'], skin: Skin): Palette => {
     action: {
       active: `rgba(${mainColor}, 0.54)`,
       hover: `rgba(${mainColor}, 0.04)`,
-      selected: `rgba(${mainColor}, 0.08)`,
+      selected: `rgba(${mainColor}, 0.06)`,
+      selectedOpacity: 0.06,
       disabled: `rgba(${mainColor}, 0.26)`,
       disabledBackground: `rgba(${mainColor}, 0.12)`,
       focus: `rgba(${mainColor}, 0.12)`

@@ -51,6 +51,9 @@ const MenuNavLink = styled(ListItemButton)<
   marginRight: theme.spacing(3.5),
   borderRadius: theme.shape.borderRadius,
   transition: 'padding-left .25s ease-in-out, padding-right .25s ease-in-out',
+  '&:hover': {
+    backgroundColor: theme.palette.action.hover
+  },
   '&.active': {
     '&, &:hover': {
       boxShadow: `0px 2px 6px ${hexToRGBA(theme.palette.primary.main, 0.48)}`,
@@ -171,13 +174,10 @@ const VerticalNavLink = ({
             </Typography>
             {item.badgeContent ? (
               <Chip
+                size='small'
                 label={item.badgeContent}
                 color={item.badgeColor || 'primary'}
-                sx={{
-                  height: 20,
-                  fontWeight: 500,
-                  '& .MuiChip-label': { px: 1.5, textTransform: 'capitalize' }
-                }}
+                sx={{ height: 22, minWidth: 22, '& .MuiChip-label': { px: 1.5, textTransform: 'capitalize' } }}
               />
             ) : null}
           </MenuItemTextMetaWrapper>

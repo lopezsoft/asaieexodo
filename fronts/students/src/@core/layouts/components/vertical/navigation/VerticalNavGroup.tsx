@@ -199,13 +199,16 @@ const VerticalNavGroup = (props: Props) => {
               width: theme => `calc(100% - ${theme.spacing(3.5 * 2)})`,
               transition: 'padding-left .25s ease-in-out, padding-right .25s ease-in-out',
               px: navCollapsed && !navHover ? (collapsedNavWidth - navigationBorderWidth - 22 - 28) / 8 : 4,
+              '&:hover': {
+                backgroundColor: 'action.hover'
+              },
               '& .MuiTypography-root, & :not(.menu-item-meta) > svg': {
                 color: 'text.secondary'
               },
               '&.Mui-selected': {
-                backgroundColor: 'action.hover',
+                backgroundColor: 'action.selected',
                 '&:hover': {
-                  backgroundColor: 'action.hover'
+                  backgroundColor: 'action.selected'
                 },
                 '& .MuiTypography-root, & :not(.menu-item-meta) > svg': {
                   color: 'text.primary'
@@ -256,12 +259,13 @@ const VerticalNavGroup = (props: Props) => {
               >
                 {item.badgeContent ? (
                   <Chip
+                    size='small'
                     label={item.badgeContent}
                     color={item.badgeColor || 'primary'}
                     sx={{
-                      mr: 1.5,
-                      height: 20,
-                      fontWeight: 500,
+                      mr: 2,
+                      height: 22,
+                      minWidth: 22,
                       '& .MuiChip-label': { px: 1.5, textTransform: 'capitalize' }
                     }}
                   />

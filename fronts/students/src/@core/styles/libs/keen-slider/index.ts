@@ -6,6 +6,9 @@ import 'keen-slider/keen-slider.min.css'
 
 const KeenSliderWrapper = styled('div')(({ theme }) => ({
   '& .keen-slider': {
+    // Keen Slider handles RTL internally and thus, we need to set the direction to LTR
+    direction: 'ltr',
+
     '& .keen-slider__slide': {
       '& img': {
         height: 'auto',

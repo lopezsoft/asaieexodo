@@ -93,7 +93,7 @@ const PlanDetails = (props: PricingPlanProps) => {
             <Typography sx={{ mt: 2.5, mr: 0.5, fontWeight: 500, color: 'primary.main', alignSelf: 'flex-start' }}>
               $
             </Typography>
-            <Typography variant='h3' sx={{ fontWeight: 500, color: 'primary.main' }}>
+            <Typography variant='h1' sx={{ color: 'primary.main', fontSize: '3rem', lineHeight: 1.4168 }}>
               {plan === 'monthly' ? data?.monthlyPrice : data?.yearlyPlan.perMonth}
             </Typography>
             <Typography sx={{ mb: 1.5, alignSelf: 'flex-end', color: 'text.disabled' }}>/month</Typography>
@@ -101,7 +101,14 @@ const PlanDetails = (props: PricingPlanProps) => {
           {plan !== 'monthly' && data?.monthlyPrice !== 0 ? (
             <Typography
               variant='body2'
-              sx={{ top: 52, left: '50%', position: 'absolute', color: 'text.disabled', transform: 'translateX(-50%)' }}
+              sx={{
+                mt: 4,
+                top: 52,
+                left: '50%',
+                position: 'absolute',
+                color: 'text.disabled',
+                transform: 'translateX(-50%)'
+              }}
             >{`USD ${data?.yearlyPlan.totalAnnual}/year`}</Typography>
           ) : null}
         </Box>
@@ -110,7 +117,7 @@ const PlanDetails = (props: PricingPlanProps) => {
       <Button
         fullWidth
         color={data?.currentPlan ? 'success' : 'primary'}
-        variant={data?.popularPlan ? 'contained' : 'outlined'}
+        variant={data?.popularPlan ? 'contained' : 'tonal'}
       >
         {data?.currentPlan ? 'Your Current Plan' : 'Upgrade'}
       </Button>

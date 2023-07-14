@@ -93,7 +93,7 @@ const HorizontalLayout = (props: LayoutProps) => {
         {/* Navbar (or AppBar) and Navigation Menu Wrapper */}
         <AppBar
           color='default'
-          elevation={skin === 'bordered' ? 0 : 4}
+          elevation={skin === 'bordered' ? 0 : 2}
           className='layout-navbar-and-nav-container'
           position={appBar === 'fixed' ? 'sticky' : 'static'}
           sx={{
@@ -122,7 +122,7 @@ const HorizontalLayout = (props: LayoutProps) => {
               sx={{
                 mx: 'auto',
                 ...(contentWidth === 'boxed' && { '@media (min-width:1440px)': { maxWidth: 1440 } }),
-                minHeight: theme => `${(theme.mixins.toolbar.minHeight as number) - 1}px !important`
+                minHeight: theme => `${(theme.mixins.toolbar.minHeight as number) - 2}px !important`
               }}
             >
               <AppBarContent

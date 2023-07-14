@@ -51,7 +51,7 @@ const typography = {
       },
       {
         props: { variant: 'button' },
-        style: ({ theme }: OwnerStateThemeType) => ({ color: theme.palette.text.primary })
+        style: ({ theme }: OwnerStateThemeType) => ({ textTransform: 'none', color: theme.palette.text.primary })
       },
       {
         props: { variant: 'caption' },

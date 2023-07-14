@@ -17,6 +17,8 @@ import MuiLink from './link'
 import MuiList from './list'
 import MuiMenu from './menu'
 import MuiTabs from './tabs'
+import FabButton from './fab'
+import MuiBadge from './badge'
 import MuiInput from './input'
 import MuiPaper from './paper'
 import MuiTable from './table'
@@ -25,6 +27,7 @@ import MuiAlerts from './alerts'
 import MuiButton from './button'
 import MuiDialog from './dialog'
 import MuiRating from './rating'
+import MuiDrawer from './drawer'
 import MuiSelect from './select'
 import MuiSlider from './slider'
 import MuiAvatar from './avatars'
@@ -42,39 +45,44 @@ import MuiAccordion from './accordion'
 import MuiPagination from './pagination'
 import MuiTypography from './typography'
 import MuiBreadcrumb from './breadcrumbs'
+import MuiIconButton from './icon-button'
+import MuiButtonGroup from './button-group'
 import MuiAutocomplete from './autocomplete'
 import MuiToggleButton from './toggleButton'
 
 const Overrides = (settings: Settings) => {
   const { skin } = settings
 
-  const button = MuiButton()
   const chip = MuiChip()
   const list = MuiList()
+  const menu = MuiMenu()
   const tabs = MuiTabs()
   const radio = MuiRadio()
   const input = MuiInput()
   const tables = MuiTable()
   const alerts = MuiAlerts()
+  const button = MuiButton()
   const rating = MuiRating()
   const slider = MuiSlider()
+  const cards = MuiCard(skin)
   const avatars = MuiAvatar()
   const divider = MuiDivider()
-  const menu = MuiMenu(skin)
   const tooltip = MuiTooltip()
-  const cards = MuiCard(skin)
+  const fabButton = FabButton()
+  const dialog = MuiDialog(skin)
   const checkbox = MuiCheckbox()
   const backdrop = MuiBackdrop()
   const dataGrid = MuiDataGrid()
   const progress = MuiProgress()
+  const drawer = MuiDrawer(skin)
   const switches = MuiSwitches()
   const timeline = MuiTimeline()
-  const accordion = MuiAccordion()
-  const dialog = MuiDialog(skin)
-  const pagination = MuiPagination()
   const popover = MuiPopover(skin)
-  const breadcrumb = MuiBreadcrumb()
+  const accordion = MuiAccordion()
+  const pagination = MuiPagination()
   const snackbar = MuiSnackbar(skin)
+  const breadcrumb = MuiBreadcrumb()
+  const buttonGroup = MuiButtonGroup()
   const autocomplete = MuiAutocomplete(skin)
 
   return Object.assign(
@@ -90,6 +98,7 @@ const Overrides = (settings: Settings) => {
     dialog,
     rating,
     slider,
+    drawer,
     tables,
     avatars,
     divider,
@@ -98,6 +107,7 @@ const Overrides = (settings: Settings) => {
     tooltip,
     checkbox,
     backdrop,
+    MuiBadge,
     dataGrid,
     MuiPaper,
     progress,
@@ -106,9 +116,12 @@ const Overrides = (settings: Settings) => {
     timeline,
     accordion,
     MuiSelect,
+    fabButton,
     breadcrumb,
     pagination,
+    buttonGroup,
     autocomplete,
+    MuiIconButton,
     MuiTypography,
     MuiToggleButton
   )

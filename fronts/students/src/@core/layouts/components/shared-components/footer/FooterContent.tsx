@@ -8,9 +8,18 @@ import { styled } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 import useMediaQuery from '@mui/material/useMediaQuery'
 
+const StyledCompanyName = styled(Link)(({ theme }) => ({
+  fontWeight: 500,
+  textDecoration: 'none',
+  color: `${theme.palette.primary.main} !important`
+}))
+
 const LinkStyled = styled(Link)(({ theme }) => ({
   textDecoration: 'none',
-  color: theme.palette.primary.main
+  color: `${theme.palette.text.secondary} !important`,
+  '&:hover': {
+    color: `${theme.palette.primary.main} !important`
+  }
 }))
 
 const FooterContent = () => {
@@ -19,30 +28,34 @@ const FooterContent = () => {
 
   return (
     <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
-      <Typography sx={{ mr: 2 }}>
+      <Typography sx={{ mr: 2, display: 'flex', color: 'text.secondary' }}>
         {`© ${new Date().getFullYear()}, Made with `}
-        <Box component='span' sx={{ color: 'error.main' }}>
+        <Box component='span' sx={{ mx: 1, color: 'error.main' }}>
           ❤️
         </Box>
-        {` by `}
-        <LinkStyled target='_blank' href='https://pixinvent.com'>
+        {`by`}
+        <Typography sx={{ ml: 1 }} target='_blank' href='https://pixinvent.com' component={StyledCompanyName}>
           Pixinvent
-        </LinkStyled>
+        </Typography>
       </Typography>
       {hidden ? null : (
         <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', '& :not(:last-child)': { mr: 4 } }}>
-          <LinkStyled target='_blank' href='https://themeforest.net/licenses/standard'>
+          <Typography target='_blank' component={LinkStyled} href='https://themeforest.net/licenses/standard'>
             License
-          </LinkStyled>
-          <LinkStyled target='_blank' href='https://1.envato.market/pixinvent_portfolio'>
+          </Typography>
+          <Typography target='_blank' component={LinkStyled} href='https://1.envato.market/pixinvent_portfolio'>
             More Themes
-          </LinkStyled>
-          <LinkStyled target='_blank' href='https://demos.pixinvent.com/vuexy-nextjs-admin-template/documentation'>
+          </Typography>
+          <Typography
+            target='_blank'
+            component={LinkStyled}
+            href='https://demos.pixinvent.com/vuexy-nextjs-admin-template/documentation'
+          >
             Documentation
-          </LinkStyled>
-          <LinkStyled target='_blank' href='https://pixinvent.ticksy.com'>
+          </Typography>
+          <Typography target='_blank' component={LinkStyled} href='https://pixinvent.ticksy.com'>
             Support
-          </LinkStyled>
+          </Typography>
         </Box>
       )}
     </Box>

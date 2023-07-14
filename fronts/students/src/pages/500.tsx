@@ -41,7 +41,7 @@ const Error500 = () => {
     <Box className='content-center'>
       <Box sx={{ p: 5, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
         <BoxWrapper>
-          <Typography variant='h4' sx={{ mb: 1.5 }}>
+          <Typography variant='h2' sx={{ mb: 1.5 }}>
             Oops, something went wrong!
           </Typography>
           <Typography sx={{ mb: 6, color: 'text.secondary' }}>

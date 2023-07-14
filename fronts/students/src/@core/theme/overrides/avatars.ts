@@ -5,6 +5,9 @@ const Avatar = () => {
   return {
     MuiAvatar: {
       styleOverrides: {
+        root: ({ theme }: OwnerStateThemeType) => ({
+          fontSize: theme.typography.body1.fontSize
+        }),
         colorDefault: ({ theme }: OwnerStateThemeType) => ({
           color: theme.palette.text.secondary,
           backgroundColor: theme.palette.customColors.avatarBg
@@ -17,7 +20,7 @@ const Avatar = () => {
           '&.pull-up': {
             '& .MuiAvatar-root': {
               cursor: 'pointer',
-              transition: 'box-shadow 0.2s ease, transform 0.2s ease',
+              transition: 'box-shadow 0.25s ease, transform 0.25s ease',
               '&:hover': {
                 zIndex: 2,
                 boxShadow: theme.shadows[3],

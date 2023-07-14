@@ -180,7 +180,7 @@ const HorizontalNavGroup = (props: Props) => {
       {/* @ts-ignore */}
       <MainWrapper {...(WrapperCondition ? { onClickAway: handleGroupClose } : { onMouseLeave: handleGroupClose })}>
         <ChildWrapper>
-          <List component='div' sx={{ py: skin === 'bordered' ? 2.375 : 2.5 }}>
+          <List component='div' sx={{ py: skin === 'bordered' ? 2.625 : 2.75 }}>
             <ListItem
               aria-haspopup='true'
               {...(WrapperCondition ? {} : { onMouseEnter: handleGroupOpen })}
@@ -243,12 +243,13 @@ const HorizontalNavGroup = (props: Props) => {
                 >
                   {item.badgeContent ? (
                     <Chip
+                      size='small'
                       label={item.badgeContent}
                       color={item.badgeColor || 'primary'}
                       sx={{
-                        mr: 1.5,
-                        height: 20,
-                        fontWeight: 500,
+                        mr: 2,
+                        height: 22,
+                        minWidth: 22,
                         '& .MuiChip-label': { px: 1.5, textTransform: 'capitalize' }
                       }}
                     />
@@ -275,7 +276,7 @@ const HorizontalNavGroup = (props: Props) => {
                     ...(hasParent ? { overflowY: 'auto', overflowX: 'visible', maxHeight: 'calc(100vh - 21rem)' } : {}),
                     ...(skin === 'bordered'
                       ? { boxShadow: 0, border: `1px solid ${theme.palette.divider}` }
-                      : { boxShadow: 4 })
+                      : { boxShadow: 6 })
                   }}
                 >
                   <HorizontalNavItems {...props} hasParent horizontalNavItems={item.children} />

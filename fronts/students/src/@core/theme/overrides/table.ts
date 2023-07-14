@@ -13,14 +13,14 @@ const Table = () => {
     },
     MuiTableHead: {
       styleOverrides: {
-        root: {
+        root: ({ theme }: OwnerStateThemeType) => ({
           textTransform: 'uppercase',
           '& .MuiTableCell-head': {
-            fontSize: '0.75rem',
-            fontWeight: 600,
-            letterSpacing: '1px'
+            fontWeight: 500,
+            letterSpacing: '1px',
+            fontSize: theme.typography.body2.fontSize
           }
-        }
+        })
       }
     },
     MuiTableBody: {

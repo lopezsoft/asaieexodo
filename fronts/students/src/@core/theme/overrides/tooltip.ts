@@ -9,6 +9,8 @@ const Tooltip = () => {
     MuiTooltip: {
       styleOverrides: {
         tooltip: ({ theme }: OwnerStateThemeType) => ({
+          padding: theme.spacing(1, 3),
+          fontSize: theme.typography.body1.fontSize,
           backgroundColor:
             theme.palette.mode === 'light'
               ? `rgba(${theme.palette.customColors.main}, 0.9)`

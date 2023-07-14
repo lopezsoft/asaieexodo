@@ -8,17 +8,16 @@ import Link from 'next/link'
 import Button from '@mui/material/Button'
 import Divider from '@mui/material/Divider'
 import Checkbox from '@mui/material/Checkbox'
-import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
-import InputLabel from '@mui/material/InputLabel'
 import IconButton from '@mui/material/IconButton'
 import Box, { BoxProps } from '@mui/material/Box'
-import FormControl from '@mui/material/FormControl'
 import useMediaQuery from '@mui/material/useMediaQuery'
-import OutlinedInput from '@mui/material/OutlinedInput'
 import { styled, useTheme } from '@mui/material/styles'
 import InputAdornment from '@mui/material/InputAdornment'
 import MuiFormControlLabel, { FormControlLabelProps } from '@mui/material/FormControlLabel'
+
+// ** Custom Component Import
+import CustomTextField from 'src/@core/components/mui/text-field'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
@@ -60,16 +59,14 @@ const RightWrapper = styled(Box)<BoxProps>(({ theme }) => ({
 }))
 
 const LinkStyled = styled(Link)(({ theme }) => ({
-  fontSize: '0.875rem',
   textDecoration: 'none',
-  color: theme.palette.primary.main
+  color: `${theme.palette.primary.main} !important`
 }))
 
 const FormControlLabel = styled(MuiFormControlLabel)<FormControlLabelProps>(({ theme }) => ({
   marginTop: theme.spacing(1.5),
   marginBottom: theme.spacing(1.75),
   '& .MuiFormControlLabel-label': {
-    fontSize: '0.875rem',
     color: theme.palette.text.secondary
   }
 }))
@@ -121,7 +118,7 @@ const Register = () => {
           }}
         >
           <Box sx={{ width: '100%', maxWidth: 400 }}>
-            <svg width={34} height={23.375} viewBox='0 0 32 22' fill='none' xmlns='http://www.w3.org/2000/svg'>
+            <svg width={34} viewBox='0 0 32 22' fill='none' xmlns='http://www.w3.org/2000/svg'>
               <path
                 fillRule='evenodd'
                 clipRule='evenodd'
@@ -150,64 +147,59 @@ const Register = () => {
               />
             </svg>
             <Box sx={{ my: 6 }}>
-              <Typography sx={{ mb: 1.5, fontWeight: 500, fontSize: '1.625rem', lineHeight: 1.385 }}>
+              <Typography variant='h3' sx={{ mb: 1.5 }}>
                 Adventure starts here 🚀
               </Typography>
               <Typography sx={{ color: 'text.secondary' }}>Make your app management easy and fun!</Typography>
             </Box>
             <form noValidate autoComplete='off' onSubmit={e => e.preventDefault()}>
-              <TextField autoFocus fullWidth sx={{ mb: 4 }} label='Username' placeholder='johndoe' />
-              <TextField fullWidth label='Email' sx={{ mb: 4 }} placeholder='user@email.com' />
-              <FormControl fullWidth>
-                <InputLabel htmlFor='auth-login-v2-password'>Password</InputLabel>
-                <OutlinedInput
-                  label='Password'
-                  id='auth-login-v2-password'
-                  type={showPassword ? 'text' : 'password'}
-                  endAdornment={
+              <CustomTextField autoFocus fullWidth sx={{ mb: 4 }} label='Username' placeholder='johndoe' />
+              <CustomTextField fullWidth label='Email' sx={{ mb: 4 }} placeholder='user@email.com' />
+              <CustomTextField
+                fullWidth
+                label='Password'
+                id='auth-login-v2-password'
+                type={showPassword ? 'text' : 'password'}
+                InputProps={{
+                  endAdornment: (
                     <InputAdornment position='end'>
                       <IconButton
                         edge='end'
                         onMouseDown={e => e.preventDefault()}
                         onClick={() => setShowPassword(!showPassword)}
                       >
-                        <Icon icon={showPassword ? 'tabler:eye' : 'tabler:eye-off'} fontSize={20} />
+                        <Icon fontSize='1.25rem' icon={showPassword ? 'tabler:eye' : 'tabler:eye-off'} />
                       </IconButton>
                     </InputAdornment>
-                  }
-                />
-              </FormControl>
-
+                  )
+                }}
+              />
               <FormControlLabel
                 control={<Checkbox />}
-                sx={{ mb: 4, mt: 1.5, '& .MuiFormControlLabel-label': { fontSize: '0.875rem' } }}
+                sx={{ mb: 4, mt: 1.5, '& .MuiFormControlLabel-label': { fontSize: theme.typography.body2.fontSize } }}
                 label={
-                  <>
-                    <Typography variant='body2' component='span'>
-                      I agree to{' '}
-                    </Typography>
-                    <LinkStyled href='/' onClick={e => e.preventDefault()}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
+                    <Typography sx={{ color: 'text.secondary' }}>I agree to</Typography>
+                    <Typography component={LinkStyled} href='/' onClick={e => e.preventDefault()} sx={{ ml: 1 }}>
                       privacy policy & terms
-                    </LinkStyled>
-                  </>
+                    </Typography>
+                  </Box>
                 }
               />
-              <Button fullWidth size='large' type='submit' variant='contained' sx={{ mb: 4 }}>
+              <Button fullWidth type='submit' variant='contained' sx={{ mb: 4 }}>
                 Sign up
               </Button>
               <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
                 <Typography sx={{ color: 'text.secondary', mr: 2 }}>Already have an account?</Typography>
-                <Typography variant='body2'>
-                  <LinkStyled href='/login' sx={{ fontSize: '1rem' }}>
-                    Sign in instead
-                  </LinkStyled>
+                <Typography component={LinkStyled} href='/login'>
+                  Sign in instead
                 </Typography>
               </Box>
               <Divider
                 sx={{
-                  fontSize: '0.875rem',
                   color: 'text.disabled',
                   '& .MuiDivider-wrapper': { px: 6 },
+                  fontSize: theme.typography.body2.fontSize,
                   my: theme => `${theme.spacing(6)} !important`
                 }}
               >

@@ -11,7 +11,6 @@
     "esbenp.prettier-vscode",
     "dbaeumer.vscode-eslint",
     "eamodio.gitlens",
-    "kisstkondoros.vscode-codemetrics",
     "quicktype.quicktype",
     "streetsidesoftware.code-spell-checker",
     "editorconfig.editorconfig",
@@ -21,7 +20,6 @@
     "formulahendry.auto-rename-tag",
     "yzhang.markdown-all-in-one",
     "davidanson.vscode-markdownlint",
-    "chakrounanas.turbo-console-log",
     "planbcoding.vscode-react-refactor",
   ]
 }

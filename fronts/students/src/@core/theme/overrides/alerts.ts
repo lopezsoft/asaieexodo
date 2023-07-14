@@ -10,10 +10,10 @@ const Alert = () => {
       styleOverrides: {
         root: ({ theme }: OwnerStateThemeType) => ({
           fontWeight: 500,
-          fontSize: '1rem',
-          lineHeight: 1.375,
+          lineHeight: 1.467,
           alignItems: 'flex-start',
           padding: theme.spacing(1.25, 3.5),
+          fontSize: theme.typography.body1.fontSize,
           '& .MuiAlertTitle-root': {
             marginBottom: theme.spacing(2.5)
           },
@@ -28,19 +28,26 @@ const Alert = () => {
           padding: theme.spacing(1),
           borderRadius: theme.shape.borderRadius,
           margin: theme.spacing(1.75, 2.5, 1.75, 0),
-          backgroundColor: theme.palette.common.white,
           '& + .MuiAlert-message': {
             padding: theme.spacing(2.25, 0)
           },
           '& ~ .MuiAlert-action': {
-            paddingTop: theme.spacing(1.25)
+            paddingTop: theme.spacing(1.75)
           }
         }),
         message: ({ theme }: OwnerStateThemeType) => ({
           padding: theme.spacing(1.75, 0)
         }),
         action: ({ theme }: OwnerStateThemeType) => ({
-          paddingTop: theme.spacing(0.75)
+          paddingTop: theme.spacing(1.25),
+          '& svg': {
+            fontSize: '1rem'
+          }
+        }),
+        standard: ({ theme }: OwnerStateThemeType) => ({
+          '& .MuiAlert-icon': {
+            backgroundColor: theme.palette.background.paper
+          }
         }),
         standardSuccess: ({ theme }: OwnerStateThemeType) => ({
           color: theme.palette.success.main,
@@ -130,7 +137,10 @@ const Alert = () => {
           }
         }),
         filled: ({ theme }: OwnerStateThemeType) => ({
-          color: theme.palette.common.white
+          color: theme.palette.common.white,
+          '& .MuiAlert-icon': {
+            backgroundColor: theme.palette.common.white
+          }
         }),
         filledSuccess: ({ theme }: OwnerStateThemeType) => ({
           '& .MuiAlert-icon': {
@@ -157,9 +167,8 @@ const Alert = () => {
     MuiAlertTitle: {
       styleOverrides: {
         root: {
-          fontWeight: 600,
-          marginTop: '-1px',
-          lineHeight: 1.33333,
+          marginTop: 0,
+          lineHeight: 1.3334,
           fontSize: '1.125rem'
         }
       }

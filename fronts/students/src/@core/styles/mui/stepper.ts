@@ -33,12 +33,12 @@ const StepperWrapper = styled(Box)<BoxProps>(({ theme }) => {
       },
       '& .step-title': {
         fontWeight: 500,
-        fontSize: '1rem',
-        color: theme.palette.text.primary
+        color: theme.palette.text.primary,
+        fontSize: theme.typography.body1.fontSize
       },
       '& .step-subtitle': {
-        fontSize: '0.875rem',
-        color: theme.palette.text.secondary
+        color: theme.palette.text.secondary,
+        fontSize: theme.typography.body2.fontSize
       },
       '& .MuiStepLabel-root.Mui-disabled': {
         '& .step-number': {

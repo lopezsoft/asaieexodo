@@ -144,8 +144,8 @@ const Customizer = () => {
               <RadioGroup
                 row
                 value={skin}
+                sx={{ '& .MuiFormControlLabel-label': { color: 'text.secondary' } }}
                 onChange={e => handleChange('skin', e.target.value as Settings['skin'])}
-                sx={{ '& .MuiFormControlLabel-label': { fontSize: '.875rem', color: 'text.secondary' } }}
               >
                 <FormControlLabel value='default' label='Default' control={<Radio />} />
                 <FormControlLabel value='bordered' label='Bordered' control={<Radio />} />
@@ -159,7 +159,7 @@ const Customizer = () => {
                 row
                 value={mode}
                 onChange={e => handleChange('mode', e.target.value as any)}
-                sx={{ '& .MuiFormControlLabel-label': { fontSize: '.875rem', color: 'text.secondary' } }}
+                sx={{ '& .MuiFormControlLabel-label': { color: 'text.secondary' } }}
               >
                 <FormControlLabel value='light' label='Light' control={<Radio />} />
                 <FormControlLabel value='dark' label='Dark' control={<Radio />} />
@@ -246,8 +246,8 @@ const Customizer = () => {
               <RadioGroup
                 row
                 value={contentWidth}
+                sx={{ '& .MuiFormControlLabel-label': { color: 'text.secondary' } }}
                 onChange={e => handleChange('contentWidth', e.target.value as Settings['contentWidth'])}
-                sx={{ '& .MuiFormControlLabel-label': { fontSize: '.875rem', color: 'text.secondary' } }}
               >
                 <FormControlLabel value='full' label='Full' control={<Radio />} />
                 <FormControlLabel value='boxed' label='Boxed' control={<Radio />} />
@@ -260,8 +260,8 @@ const Customizer = () => {
               <RadioGroup
                 row
                 value={appBar}
+                sx={{ '& .MuiFormControlLabel-label': { color: 'text.secondary' } }}
                 onChange={e => handleChange('appBar', e.target.value as Settings['appBar'])}
-                sx={{ '& .MuiFormControlLabel-label': { fontSize: '.875rem', color: 'text.secondary' } }}
               >
                 <FormControlLabel value='fixed' label='Fixed' control={<Radio />} />
                 <FormControlLabel value='static' label='Static' control={<Radio />} />
@@ -277,8 +277,8 @@ const Customizer = () => {
               <RadioGroup
                 row
                 value={footer}
+                sx={{ '& .MuiFormControlLabel-label': { color: 'text.secondary' } }}
                 onChange={e => handleChange('footer', e.target.value as Settings['footer'])}
-                sx={{ '& .MuiFormControlLabel-label': { fontSize: '.875rem', color: 'text.secondary' } }}
               >
                 <FormControlLabel value='fixed' label='Fixed' control={<Radio />} />
                 <FormControlLabel value='static' label='Static' control={<Radio />} />
@@ -314,6 +314,7 @@ const Customizer = () => {
               <RadioGroup
                 row
                 value={layout}
+                sx={{ '& .MuiFormControlLabel-label': { color: 'text.secondary' } }}
                 onChange={e => {
                   saveSettings({
                     ...settings,
@@ -321,7 +322,6 @@ const Customizer = () => {
                     lastLayout: e.target.value as Settings['lastLayout']
                   })
                 }}
-                sx={{ '& .MuiFormControlLabel-label': { fontSize: '.875rem', color: 'text.secondary' } }}
               >
                 <FormControlLabel value='vertical' label='Vertical' control={<Radio />} />
                 <FormControlLabel value='horizontal' label='Horizontal' control={<Radio />} />
@@ -335,10 +335,10 @@ const Customizer = () => {
                 <RadioGroup
                   row
                   value={verticalNavToggleType}
+                  sx={{ '& .MuiFormControlLabel-label': { color: 'text.secondary' } }}
                   onChange={e =>
                     handleChange('verticalNavToggleType', e.target.value as Settings['verticalNavToggleType'])
                   }
-                  sx={{ '& .MuiFormControlLabel-label': { fontSize: '.875rem', color: 'text.secondary' } }}
                 >
                   <FormControlLabel value='accordion' label='Accordion' control={<Radio />} />
                   <FormControlLabel value='collapse' label='Collapse' control={<Radio />} />

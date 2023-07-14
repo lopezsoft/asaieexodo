@@ -1,6 +1,6 @@
 // ** MUI Imports
 import { styled } from '@mui/material/styles'
-import Typography, { TypographyProps } from '@mui/material/Typography'
+import Typography from '@mui/material/Typography'
 import MuiListSubheader, { ListSubheaderProps } from '@mui/material/ListSubheader'
 
 // ** Icon Imports
@@ -36,13 +36,6 @@ const ListSubheader = styled((props: ListSubheaderProps) => <MuiListSubheader co
   })
 )
 
-const TypographyHeaderText = styled(Typography)<TypographyProps>({
-  fontSize: '0.75rem',
-  lineHeight: 'normal',
-  letterSpacing: '0.21px',
-  textTransform: 'uppercase'
-})
-
 const VerticalNavSectionTitle = (props: Props) => {
   // ** Props
   const { item, navHover, settings, collapsedNavWidth, navigationBorderWidth } = props
@@ -66,9 +59,9 @@ const VerticalNavSectionTitle = (props: Props) => {
         {navCollapsed && !navHover ? (
           <Icon icon='tabler:separator' />
         ) : (
-          <TypographyHeaderText noWrap>
+          <Typography noWrap variant='caption' sx={{ textTransform: 'uppercase' }}>
             <Translations text={item.sectionTitle} />
-          </TypographyHeaderText>
+          </Typography>
         )}
       </ListSubheader>
     </CanViewNavSectionTitle>

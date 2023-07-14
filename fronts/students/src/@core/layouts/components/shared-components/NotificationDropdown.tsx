@@ -61,7 +61,7 @@ const Menu = styled(MuiMenu)<MenuProps>(({ theme }) => ({
   '& .MuiMenu-paper': {
     width: 380,
     overflow: 'hidden',
-    marginTop: theme.spacing(4.5),
+    marginTop: theme.spacing(4.25),
     [theme.breakpoints.down('sm')]: {
       width: '100%'
     }
@@ -101,14 +101,13 @@ const Avatar = styled(CustomAvatar)<CustomAvatarProps>({
 })
 
 // ** Styled component for the title in MenuItems
-const MenuItemTitle = styled(Typography)<TypographyProps>(({ theme }) => ({
+const MenuItemTitle = styled(Typography)<TypographyProps>({
   fontWeight: 500,
   flex: '1 1 100%',
   overflow: 'hidden',
   whiteSpace: 'nowrap',
-  textOverflow: 'ellipsis',
-  marginBottom: theme.spacing(0.75)
-}))
+  textOverflow: 'ellipsis'
+})
 
 // ** Styled component for the subtitle in MenuItems
 const MenuItemSubtitle = styled(Typography)<TypographyProps>({
@@ -178,7 +177,7 @@ const NotificationDropdown = (props: Props) => {
             '& .MuiBadge-badge': { top: 4, right: 4, boxShadow: theme => `0 0 0 2px ${theme.palette.background.paper}` }
           }}
         >
-          <Icon fontSize='1.5rem' icon='tabler:bell' />
+          <Icon fontSize='1.625rem' icon='tabler:bell' />
         </Badge>
       </IconButton>
       <Menu
@@ -194,14 +193,10 @@ const NotificationDropdown = (props: Props) => {
           sx={{ cursor: 'default', userSelect: 'auto', backgroundColor: 'transparent !important' }}
         >
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-            <Typography sx={{ cursor: 'text', fontWeight: 600 }}>Notifications</Typography>
-            <CustomChip
-              skin='light'
-              size='small'
-              color='primary'
-              label={`${notifications.length} New`}
-              sx={{ height: 20, fontSize: '0.75rem', fontWeight: 500, borderRadius: '10px' }}
-            />
+            <Typography variant='h5' sx={{ cursor: 'text' }}>
+              Notifications
+            </Typography>
+            <CustomChip skin='light' size='small' color='primary' label={`${notifications.length} New`} />
           </Box>
         </MenuItem>
         <ScrollWrapper hidden={hidden}>

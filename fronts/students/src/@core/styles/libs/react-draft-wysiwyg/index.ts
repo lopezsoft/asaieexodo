@@ -32,6 +32,7 @@ export const EditorWrapper = styled('div')(({ theme }) => ({
         }
       },
       '& .rdw-option-wrapper, & .rdw-dropdown-wrapper': {
+        borderRadius: '4px !important',
         borderColor: theme.palette.divider,
         background: theme.palette.background.paper,
         '& .rdw-dropdown-carettoopen': {
@@ -50,7 +51,11 @@ export const EditorWrapper = styled('div')(({ theme }) => ({
                 filter: 'invert(1)'
               }
             }
-          : {})
+          : {}),
+        '&:hover': {
+          boxShadow: 'none',
+          backgroundColor: `rgba(${theme.palette.customColors.main}, 0.08)`
+        }
       },
       '& .rdw-embedded-modal-size-input, & .rdw-image-modal-size-input': {
         width: '60%',
@@ -61,12 +66,12 @@ export const EditorWrapper = styled('div')(({ theme }) => ({
       },
       '& .rdw-link-modal-input, & .rdw-embedded-modal-link-input, & .rdw-image-modal-url-input, & .rdw-embedded-modal-size-input, & .rdw-image-modal-size-input':
         {
-          fontSize: '1rem',
           background: 'none',
           padding: theme.spacing(0, 3.5),
           color: theme.palette.text.primary,
           borderColor: theme.palette.divider,
           borderRadius: theme.shape.borderRadius,
+          fontSize: theme.typography.body1.fontSize,
           '&:focus': {
             borderColor: theme.palette.primary.main
           },

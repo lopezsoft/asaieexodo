@@ -18,7 +18,7 @@ const Card = (skin: Skin) => {
         })
       },
       defaultProps: {
-        elevation: skin === 'bordered' ? 0 : 6
+        elevation: skin === 'bordered' ? 0 : 7
       }
     },
     MuiCardHeader: {
@@ -29,20 +29,18 @@ const Card = (skin: Skin) => {
             paddingTop: 0
           },
           '& .MuiCardHeader-subheader': {
-            fontSize: '0.875rem',
-            marginTop: theme.spacing(1),
-            color: theme.palette.text.disabled
+            marginTop: theme.spacing(0.5),
+            color: theme.palette.text.disabled,
+            fontSize: theme.typography.body2.fontSize,
+            lineHeight: theme.typography.body2.lineHeight
           }
         }),
-        title: {
-          lineHeight: 1.6,
+        title: ({ theme }: OwnerStateThemeType) => ({
           fontWeight: 500,
-          fontSize: '1.125rem',
+          lineHeight: 1.334,
           letterSpacing: '0.15px',
-          '@media (min-width: 600px)': {
-            fontSize: '1.25rem'
-          }
-        },
+          fontSize: theme.typography.h5.fontSize
+        }),
         action: {
           marginTop: 0,
           marginRight: 0

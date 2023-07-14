@@ -41,7 +41,7 @@ const Error401 = () => {
     <Box className='content-center'>
       <Box sx={{ p: 5, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
         <BoxWrapper>
-          <Typography variant='h4' sx={{ mb: 1.5 }}>
+          <Typography variant='h2' sx={{ mb: 1.5 }}>
             You are not authorized!
           </Typography>
           <Typography sx={{ color: 'text.secondary' }}>

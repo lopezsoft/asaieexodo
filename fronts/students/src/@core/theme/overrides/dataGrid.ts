@@ -38,12 +38,12 @@ const DataGrid = () => {
         columnHeaderTitleContainer: {
           padding: 0
         },
-        columnHeaderTitle: {
-          fontWeight: 600,
-          fontSize: '0.75rem',
+        columnHeaderTitle: ({ theme }: OwnerStateThemeType) => ({
+          fontWeight: 500,
           letterSpacing: '1px',
-          textTransform: 'uppercase'
-        },
+          textTransform: 'uppercase',
+          fontSize: theme.typography.body2.fontSize
+        }),
         columnSeparator: ({ theme }: OwnerStateThemeType) => ({
           color: theme.palette.divider
         }),

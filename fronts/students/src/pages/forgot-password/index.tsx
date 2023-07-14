@@ -6,11 +6,13 @@ import Link from 'next/link'
 
 // ** MUI Components
 import Button from '@mui/material/Button'
-import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import Box, { BoxProps } from '@mui/material/Box'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { styled, useTheme } from '@mui/material/styles'
+
+// ** Custom Component Import
+import CustomTextField from 'src/@core/components/mui/text-field'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
@@ -50,11 +52,11 @@ const RightWrapper = styled(Box)<BoxProps>(({ theme }) => ({
 
 const LinkStyled = styled(Link)(({ theme }) => ({
   display: 'flex',
-  fontSize: '1rem',
   alignItems: 'center',
   textDecoration: 'none',
   justifyContent: 'center',
-  color: theme.palette.primary.main
+  color: theme.palette.primary.main,
+  fontSize: theme.typography.body1.fontSize
 }))
 
 const ForgotPassword = () => {
@@ -97,7 +99,7 @@ const ForgotPassword = () => {
           }}
         >
           <Box sx={{ width: '100%', maxWidth: 400 }}>
-            <svg width={34} height={23.375} viewBox='0 0 32 22' fill='none' xmlns='http://www.w3.org/2000/svg'>
+            <svg width={34} viewBox='0 0 32 22' fill='none' xmlns='http://www.w3.org/2000/svg'>
               <path
                 fillRule='evenodd'
                 clipRule='evenodd'
@@ -134,8 +136,8 @@ const ForgotPassword = () => {
               </Typography>
             </Box>
             <form noValidate autoComplete='off' onSubmit={e => e.preventDefault()}>
-              <TextField autoFocus type='email' label='Email' sx={{ display: 'flex', mb: 4 }} />
-              <Button fullWidth size='large' type='submit' variant='contained' sx={{ mb: 4 }}>
+              <CustomTextField fullWidth autoFocus type='email' label='Email' sx={{ display: 'flex', mb: 4 }} />
+              <Button fullWidth type='submit' variant='contained' sx={{ mb: 4 }}>
                 Send reset link
               </Button>
               <Typography sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', '& svg': { mr: 1 } }}>

@@ -4,27 +4,30 @@ import Box, { BoxProps } from '@mui/material/Box'
 
 const CleaveWrapper = styled(Box)<BoxProps>(({ theme }) => ({
   '& input': {
-    height: 56,
-    fontSize: 16,
     width: '100%',
-    borderWidth: 1,
     background: 'none',
-    borderStyle: 'solid',
-    padding: '16.5px 14px',
+    lineHeight: 1.4375,
+    padding: '7.5px 13px',
     color: theme.palette.text.primary,
     borderRadius: theme.shape.borderRadius,
+    fontSize: theme.typography.body1.fontSize,
     fontFamily: theme.typography.body1.fontFamily,
-    borderColor: `rgba(${theme.palette.customColors.main}, 0.22)`,
+    border: `1px solid rgba(${theme.palette.customColors.main}, 0.2)`,
     transition: theme.transitions.create(['border-color', 'box-shadow']),
+    '&:hover': {
+      borderColor: `rgba(${theme.palette.customColors.main}, 0.28)`
+    },
     '&:focus, &:focus-visible': {
       outline: 0,
-      borderWidth: 2,
-      padding: '15.5px 13px',
+      boxShadow: theme.shadows[2],
       borderColor: `${theme.palette.primary.main} !important`,
-      boxShadow: `0 2px 3px 0 rgba(${theme.palette.customColors.main}, 0.1)`
+      '&::placeholder': {
+        transform: 'translateX(4px)'
+      }
     },
-    '&::-webkit-input-placeholder': {
-      color: theme.palette.text.secondary
+    '&::placeholder': {
+      opacity: 0.42,
+      transition: theme.transitions.create(['transform'], { duration: theme.transitions.duration.shorter })
     }
   }
 }))

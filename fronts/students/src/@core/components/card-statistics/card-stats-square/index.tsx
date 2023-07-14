@@ -20,7 +20,7 @@ const CardStatsSquare = (props: CardStatsSquareProps) => {
         <CustomAvatar skin='light' color={avatarColor} sx={{ mb: 2, width: avatarSize, height: avatarSize }}>
           <Icon icon={icon} fontSize={iconSize} />
         </CustomAvatar>
-        <Typography variant='h6' sx={{ mb: 2 }}>
+        <Typography variant='h5' sx={{ mb: 2 }}>
           {stats}
         </Typography>
         <Typography variant='body2'>{title}</Typography>

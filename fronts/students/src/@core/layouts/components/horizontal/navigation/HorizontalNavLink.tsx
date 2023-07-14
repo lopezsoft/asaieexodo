@@ -84,7 +84,7 @@ const HorizontalNavLink = (props: Props) => {
 
   return (
     <CanViewNavLink navLink={item}>
-      <Wrapper {...(!hasParent ? { component: 'div', sx: { py: settings.skin === 'bordered' ? 2.375 : 2.5 } } : {})}>
+      <Wrapper {...(!hasParent ? { component: 'div', sx: { py: settings.skin === 'bordered' ? 2.625 : 2.75 } } : {})}>
         <ListItem
           component={Link}
           disabled={item.disabled}
@@ -149,13 +149,10 @@ const HorizontalNavLink = (props: Props) => {
             </Box>
             {item.badgeContent ? (
               <Chip
+                size='small'
                 label={item.badgeContent}
                 color={item.badgeColor || 'primary'}
-                sx={{
-                  height: 20,
-                  fontWeight: 500,
-                  '& .MuiChip-label': { px: 1.5, textTransform: 'capitalize' }
-                }}
+                sx={{ height: 22, minWidth: 22, '& .MuiChip-label': { px: 1.5, textTransform: 'capitalize' } }}
               />
             ) : null}
           </Box>

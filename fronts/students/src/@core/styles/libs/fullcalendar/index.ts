@@ -74,9 +74,9 @@ const CalendarWrapper = styled(Box)<BoxProps>(({ theme }) => {
           },
           '& .fc-button-primary': {
             '&:not(.fc-prev-button):not(.fc-next-button):not(.fc-sidebarToggle-button)': {
-              padding: theme.spacing(1.5, 5.08),
+              border: 0,
               color: theme.palette.primary.main,
-              borderColor: hexToRGBA(theme.palette.primary.main, 0.24),
+              padding: theme.spacing(1.94, 5.08),
               backgroundColor: hexToRGBA(theme.palette.primary.main, 0.16),
               '&.fc-button-active, &:hover': {
                 backgroundColor: hexToRGBA(theme.palette.primary.main, 0.24)
@@ -123,10 +123,9 @@ const CalendarWrapper = styled(Box)<BoxProps>(({ theme }) => {
           marginLeft: 0
         },
         '& .fc-toolbar-title': {
-          fontWeight: 500,
+          ...theme.typography.h5,
           marginRight: theme.spacing(4),
-          marginLeft: theme.spacing(2.5),
-          fontSize: theme.typography.h6.fontSize
+          marginLeft: theme.spacing(2.5)
         },
         '.fc-button:empty:not(.fc-sidebarToggle-button), & .fc-toolbar-chunk:empty': {
           display: 'none'
@@ -249,8 +248,8 @@ const CalendarWrapper = styled(Box)<BoxProps>(({ theme }) => {
       '& .fc-col-header': {
         '& .fc-col-header-cell': {
           fontWeight: 500,
-          fontSize: '1rem',
-          color: theme.palette.text.primary,
+          color: theme.palette.text.secondary,
+          fontSize: theme.typography.body1.fontSize,
           '& .fc-col-header-cell-cushion': {
             padding: theme.spacing(0.5, 2),
             textDecoration: 'none !important'
@@ -268,8 +267,8 @@ const CalendarWrapper = styled(Box)<BoxProps>(({ theme }) => {
           fontWeight: 500,
           marginBottom: 0,
           borderRadius: 4,
-          fontSize: '0.875rem',
-          padding: theme.spacing(0.4, 2)
+          padding: theme.spacing(0.4, 2),
+          fontSize: theme.typography.body2.fontSize
         },
         '&:not(:last-of-type)': {
           marginBottom: theme.spacing(2)
@@ -301,7 +300,7 @@ const CalendarWrapper = styled(Box)<BoxProps>(({ theme }) => {
       },
       '& .fc-daygrid-day-number, & .fc-timegrid-slot-label-cushion, & .fc-list-event-time': {
         textDecoration: 'none !important',
-        color: `${theme.palette.text.primary} !important`
+        color: `${theme.palette.text.secondary} !important`
       },
       '& .fc-day-today:not(.fc-popover):not(.fc-col-header-cell)': {
         backgroundColor: theme.palette.action.selected
@@ -322,9 +321,9 @@ const CalendarWrapper = styled(Box)<BoxProps>(({ theme }) => {
         '& .fc-timegrid-axis': {
           '&.fc-scrollgrid-shrink': {
             '& .fc-timegrid-axis-cushion': {
-              fontSize: '.75rem',
               textTransform: 'lowercase',
-              color: theme.palette.text.disabled
+              color: theme.palette.text.disabled,
+              fontSize: theme.typography.h6.fontSize
             }
           }
         },
@@ -341,8 +340,8 @@ const CalendarWrapper = styled(Box)<BoxProps>(({ theme }) => {
             '& .fc-timegrid-slot-label-frame': {
               textAlign: 'center',
               '& .fc-timegrid-slot-label-cushion': {
-                fontSize: '0.875rem',
                 textTransform: 'lowercase',
+                fontSize: theme.typography.body2.fontSize,
                 color: `${theme.palette.text.secondary} !important`
               }
             }
@@ -362,6 +361,18 @@ const CalendarWrapper = styled(Box)<BoxProps>(({ theme }) => {
         '& th[colspan="3"]': {
           position: 'relative'
         },
+        '& .fc-list-table': {
+          borderBottom: `1px solid ${theme.palette.divider}`,
+          '& tr': {
+            borderBottom: `1px solid ${theme.palette.divider}`,
+            '&:first-of-type': {
+              borderTop: `1px solid ${theme.palette.divider}`
+            },
+            '& > *': {
+              border: 0
+            }
+          }
+        },
         '& .fc-list-day-cushion': {
           background: theme.palette.action.hover
         },
@@ -380,9 +391,8 @@ const CalendarWrapper = styled(Box)<BoxProps>(({ theme }) => {
           backgroundColor: theme.palette.action.hover,
 
           '& .fc-list-day-text, & .fc-list-day-side-text': {
-            fontWeight: 500,
-            fontSize: '1rem',
-            textDecoration: 'none'
+            textDecoration: 'none',
+            ...theme.typography.h6
           },
 
           '&  >  *': {
@@ -391,13 +401,14 @@ const CalendarWrapper = styled(Box)<BoxProps>(({ theme }) => {
           }
         },
         '& .fc-list-event-title': {
-          fontSize: '1rem',
+          display: 'flex',
           paddingLeft: theme.spacing(2.5),
-          color: theme.palette.text.primary
+          color: theme.palette.text.secondary,
+          fontSize: theme.typography.body1.fontSize
         },
         '& .fc-list-event-time': {
-          fontSize: '1rem',
-          color: theme.palette.text.disabled
+          color: theme.palette.text.disabled,
+          fontSize: theme.typography.body1.fontSize
         }
       },
 

@@ -9,6 +9,11 @@ const Pagination = () => {
     MuiPaginationItem: {
       styleOverrides: {
         root: ({ theme }: OwnerStateThemeType) => ({
+          height: 38,
+          minWidth: 38,
+          '&:not(.MuiPaginationItem-rounded)': {
+            borderRadius: '50%'
+          },
           '&:not(.MuiPaginationItem-outlined):not(.Mui-disabled)': {
             transition: theme.transitions.create(['color', 'background-color', 'box-shadow'], {
               duration: 250,
@@ -19,8 +24,21 @@ const Pagination = () => {
             }
           }
         }),
+        sizeSmall: {
+          height: 28,
+          minWidth: 28,
+          borderRadius: 4
+        },
+        sizeLarge: {
+          height: 48,
+          minWidth: 48,
+          borderRadius: 8
+        },
+        ellipsis: {
+          height: 'auto'
+        },
         outlined: ({ theme }: OwnerStateThemeType) => ({
-          borderColor: `rgba(${theme.palette.customColors.main}, 0.22)`
+          borderColor: `rgba(${theme.palette.customColors.main}, 0.2)`
         }),
         outlinedPrimary: ({ theme }: OwnerStateThemeType) => ({
           '&.Mui-selected': {

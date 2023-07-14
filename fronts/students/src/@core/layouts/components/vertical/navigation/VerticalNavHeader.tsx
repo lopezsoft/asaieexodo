@@ -34,18 +34,16 @@ const MenuHeaderWrapper = styled(Box)<BoxProps>(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  paddingRight: theme.spacing(4.5),
+  paddingRight: theme.spacing(3.5),
   transition: 'padding .25s ease-in-out',
   minHeight: theme.mixins.toolbar.minHeight
 }))
 
-const HeaderTitle = styled(Typography)<TypographyProps>(({ theme }) => ({
-  fontWeight: 600,
+const HeaderTitle = styled(Typography)<TypographyProps>({
+  fontWeight: 700,
   lineHeight: '24px',
-  fontSize: '1.375rem !important',
-  color: theme.palette.text.primary,
   transition: 'opacity .25s ease-in-out, margin .25s ease-in-out'
-}))
+})
 
 const LinkStyled = styled(Link)({
   display: 'flex',
@@ -79,10 +77,10 @@ const VerticalNavHeader = (props: Props) => {
       if (userNavMenuBranding) {
         return 0
       } else {
-        return (collapsedNavWidth - navigationBorderWidth - 32) / 8
+        return (collapsedNavWidth - navigationBorderWidth - 34) / 8
       }
     } else {
-      return 4.5
+      return 6
     }
   }
 
@@ -91,20 +89,12 @@ const VerticalNavHeader = (props: Props) => {
   const MenuUnlockedIcon = () => userMenuUnlockedIcon || <Icon icon='tabler:circle' />
 
   return (
-    <MenuHeaderWrapper
-      className='nav-header'
-      sx={{
-        pl: menuHeaderPaddingLeft(),
-        '& .MuiTypography-root, & .MuiIconButton-root': {
-          color: 'text.primary'
-        }
-      }}
-    >
+    <MenuHeaderWrapper className='nav-header' sx={{ pl: menuHeaderPaddingLeft() }}>
       {userNavMenuBranding ? (
         userNavMenuBranding(props)
       ) : (
         <LinkStyled href='/'>
-          <svg width={32} height={22} viewBox='0 0 32 22' fill='none' xmlns='http://www.w3.org/2000/svg'>
+          <svg width={34} viewBox='0 0 32 22' fill='none' xmlns='http://www.w3.org/2000/svg'>
             <path
               fillRule='evenodd'
               clipRule='evenodd'
@@ -132,7 +122,7 @@ const VerticalNavHeader = (props: Props) => {
               d='M7.77295 16.3566L23.6563 0H32V6.88383C32 6.88383 31.8262 9.17836 30.6591 10.4057L19.7824 22H13.6938L7.77295 16.3566Z'
             />
           </svg>
-          <HeaderTitle variant='h6' sx={{ ...menuCollapsedStyles, ...(navCollapsed && !navHover ? {} : { ml: 2.5 }) }}>
+          <HeaderTitle variant='h4' sx={{ ...menuCollapsedStyles, ...(navCollapsed && !navHover ? {} : { ml: 2.5 }) }}>
             {themeConfig.templateName}
           </HeaderTitle>
         </LinkStyled>
@@ -143,11 +133,7 @@ const VerticalNavHeader = (props: Props) => {
           disableRipple
           disableFocusRipple
           onClick={toggleNavVisibility}
-          sx={{
-            p: 0,
-            backgroundColor: 'transparent !important',
-            color: `${theme.palette.text.secondary} !important`
-          }}
+          sx={{ p: 0, color: 'text.secondary', backgroundColor: 'transparent !important' }}
         >
           <Icon icon='tabler:x' fontSize='1.25rem' />
         </IconButton>
@@ -158,6 +144,7 @@ const VerticalNavHeader = (props: Props) => {
           onClick={() => saveSettings({ ...settings, navCollapsed: !navCollapsed })}
           sx={{
             p: 0,
+            color: 'text.primary',
             backgroundColor: 'transparent !important',
             '& svg': {
               fontSize: '1.25rem',

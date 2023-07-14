@@ -32,12 +32,14 @@ const CardStatsHorizontalWithDetails = (props: CardStatsHorizontalWithDetailsPro
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
           <Typography sx={{ mb: 1, color: 'text.secondary' }}>{title}</Typography>
           <Box sx={{ mb: 1, columnGap: 1.5, display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
-            <Typography variant='h5'>{stats}</Typography>
+            <Typography variant='h4'>{stats}</Typography>
             <Typography
               sx={{ color: trend === 'negative' ? 'error.main' : 'success.main' }}
             >{`(${trendDiff})%`}</Typography>
           </Box>
-          <Typography sx={{ color: 'text.secondary' }}>{subtitle}</Typography>
+          <Typography variant='h6' sx={{ color: 'text.secondary' }}>
+            {subtitle}
+          </Typography>
         </Box>
         <CustomAvatar skin='light' variant='rounded' color={avatarColor} sx={{ width: avatarSize, height: avatarSize }}>
           <Icon icon={icon} fontSize={iconSize} />

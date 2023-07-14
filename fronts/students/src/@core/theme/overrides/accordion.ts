@@ -17,14 +17,14 @@ const Accordion = () => {
           '&:before': { display: 'none' },
           borderRadius: theme.shape.borderRadius,
           transition: 'box-shadow .35s ease, margin .35s ease',
-          boxShadow: theme.shadows[skin === 'bordered' ? 0 : 1],
+          boxShadow: theme.shadows[skin === 'bordered' ? 0 : 2],
           ...(skin === 'bordered' && { border: `1px solid ${theme.palette.divider}` }),
           '&.Mui-disabled': {
             backgroundColor: `rgba(${theme.palette.customColors.main}, 0.12)`
           },
           '&.Mui-expanded': {
             margin: theme.spacing(2, 0),
-            boxShadow: theme.shadows[skin === 'bordered' ? 0 : 6]
+            boxShadow: theme.shadows[skin === 'bordered' ? 0 : 7]
           },
           '& .MuiCollapse-root': {
             minHeight: 'unset !important',
@@ -52,7 +52,7 @@ const Accordion = () => {
             borderBottomLeftRadius: 0,
             borderBottomRightRadius: 0,
             '& .MuiAccordionSummary-content': {
-              margin: theme.spacing(3, 0)
+              margin: theme.spacing(3.25, 0)
             }
           },
           '& .MuiTypography-root': {
@@ -60,7 +60,7 @@ const Accordion = () => {
           }
         }),
         content: ({ theme }: OwnerStateThemeType) => ({
-          margin: theme.spacing(3, 0)
+          margin: theme.spacing(3.25, 0)
         }),
         expandIconWrapper: ({ theme }: OwnerStateThemeType) => ({
           color: theme.palette.text.primary

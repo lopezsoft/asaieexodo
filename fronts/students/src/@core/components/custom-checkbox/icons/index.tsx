@@ -32,14 +32,19 @@ const CustomCheckboxIcons = (props: CustomCheckboxIconsProps) => {
             flexDirection: 'column',
             border: theme => `1px solid ${theme.palette.divider}`,
             ...(selected.includes(value)
-              ? { borderColor: `${color}.main`, '& svg': { color: 'primary.main' } }
+              ? {
+                  borderColor: `${color}.main`,
+                  '& svg': { color: theme => `${theme.palette.primary.main} !important` }
+                }
               : { '&:hover': { borderColor: theme => `rgba(${theme.palette.customColors.main}, 0.25)` } })
           }}
         >
           {icon ? <Icon icon={icon} {...iconProps} /> : null}
           {title ? (
             typeof title === 'string' ? (
-              <Typography sx={{ fontWeight: 500, ...(content ? { mb: 2 } : { my: 'auto' }) }}>{title}</Typography>
+              <Typography variant='h6' sx={{ ...(content ? { mb: 2 } : { my: 'auto' }) }}>
+                {title}
+              </Typography>
             ) : (
               title
             )

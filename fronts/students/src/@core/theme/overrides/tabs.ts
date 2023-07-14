@@ -25,6 +25,7 @@ const Tabs = () => {
       styleOverrides: {
         root: ({ theme }: OwnerStateThemeType) => ({
           minHeight: 38,
+          textTransform: 'none',
           padding: theme.spacing(1.75, 5)
         }),
         textColorSecondary: ({ theme }: OwnerStateThemeType) => ({

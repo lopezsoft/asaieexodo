@@ -22,9 +22,9 @@ const CardStatsWithAreaChart = (props: CardStatsWithAreaChartProps) => {
     avatarIcon,
     chartSeries,
     avatarSize = 42,
-    avatarIconSize = 26,
     chartColor = 'primary',
-    avatarColor = 'primary'
+    avatarColor = 'primary',
+    avatarIconSize = '1.625rem'
   } = props
 
   // ** Hook
@@ -90,14 +90,14 @@ const CardStatsWithAreaChart = (props: CardStatsWithAreaChartProps) => {
 
   return (
     <Card sx={{ ...sx }}>
-      <CardContent sx={{ display: 'flex', pb: '0 !important', flexDirection: 'column', alignItems: 'flex-start' }}>
+      <CardContent sx={{ pb: 0, display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
         <CustomAvatar skin='light' color={avatarColor} sx={{ mb: 2.5, width: avatarSize, height: avatarSize }}>
           <Icon icon={avatarIcon} fontSize={avatarIconSize} />
         </CustomAvatar>
-        <Typography variant='h6'>{stats}</Typography>
+        <Typography variant='h5'>{stats}</Typography>
         <Typography variant='body2'>{title}</Typography>
       </CardContent>
-      <ReactApexcharts type='area' height={106} options={options} series={chartSeries} />
+      <ReactApexcharts type='area' height={110} options={options} series={chartSeries} />
     </Card>
   )
 }

@@ -3,14 +3,20 @@ import { OwnerStateThemeType } from './'
 import { Skin } from 'src/@core/layouts/types'
 
 const Popover = (skin: Skin) => {
+  const boxShadow = (theme: OwnerStateThemeType['theme']) => {
+    if (skin === 'bordered') {
+      return theme.shadows[0]
+    } else if (theme.palette.mode === 'light') {
+      return theme.shadows[6]
+    } else return '0px 3px 14px 0px rgba(15, 20, 34, 0.38)'
+  }
+
   return {
     MuiPopover: {
       styleOverrides: {
-        root: ({ theme }: OwnerStateThemeType) => ({
-          '& .MuiPopover-paper': {
-            boxShadow: theme.shadows[skin === 'bordered' ? 0 : 6],
-            ...(skin === 'bordered' && { border: `1px solid ${theme.palette.divider}` })
-          }
+        paper: ({ theme }: OwnerStateThemeType) => ({
+          boxShadow: boxShadow(theme),
+          ...(skin === 'bordered' && { border: `1px solid ${theme.palette.divider}` })
         })
       }
     }

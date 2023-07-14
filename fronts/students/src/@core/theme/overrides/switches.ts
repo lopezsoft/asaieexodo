@@ -13,24 +13,28 @@ const Switch = () => {
             height: 18,
             opacity: 1,
             borderRadius: 30,
-            backgroundColor: 'transparent',
-            border: `1px solid ${theme.palette.text.disabled}`,
-            transition: 'box-shadow 0.15s ease-in-out, background-color 0.15s ease-in-out'
+            backgroundColor: theme.palette.background.paper,
+            border: `1px solid rgba(${theme.palette.customColors.main}, ${theme.palette.mode === 'dark' ? 0.4 : 0.2})`,
+            transition:
+              'border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out, background-color 0.15s ease-in-out'
           }
         }),
         switchBase: ({ theme }: OwnerStateThemeType) => ({
           top: 5,
           left: 6,
           padding: `${theme.spacing(2.5)} !important`,
-          color: `rgba(${theme.palette.customColors.main}, 0.6)`,
           transition: 'left 0.15s ease-in-out, transform 0.15s ease-in-out, color 0.15s ease-in-out',
+          color: `rgba(${theme.palette.customColors.main}, ${theme.palette.mode === 'dark' ? 0.4 : 0.2})`,
           '&:hover': {
             backgroundColor: 'transparent !important'
           },
           '&.Mui-disabled': {
-            opacity: 0.4,
-            color: theme.palette.text.disabled,
+            color: `rgba(${theme.palette.customColors.main}, ${theme.palette.mode === 'dark' ? 0.8 : 0.4})`,
             '& + .MuiSwitch-track': {
+              borderColor: 'transparent !important',
+              backgroundColor: `rgba(${theme.palette.customColors.main}, ${theme.palette.mode === 'dark' ? 0.4 : 0.2})`
+            },
+            '&, & + .MuiSwitch-track': {
               opacity: 0.5
             },
             '&.Mui-checked': {
@@ -46,11 +50,9 @@ const Switch = () => {
             color: `${theme.palette.common.white} !important`,
             '& + .MuiSwitch-track': {
               opacity: 1,
+              boxShadow: theme.shadows[2],
               borderColor: theme.palette.primary.main,
-              backgroundColor: theme.palette.primary.main,
-              boxShadow: `0 2px 3px 0 rgba(${
-                theme.palette.mode === 'light' ? theme.palette.customColors.main : '12, 16, 27'
-              }, 0.16)`
+              backgroundColor: theme.palette.primary.main
             },
             '&.MuiSwitch-colorSecondary + .MuiSwitch-track': {
               borderColor: theme.palette.secondary.main,

@@ -2,7 +2,7 @@
  * Created by LOPEZSOFT on 19/03/2016.
  */
 Ext.define('Admin.combo.CbDocumentos',{
-    extend	: 'Admin.combo.ComboExpand',
+    extend	: 'Admin.combo.CustomComboBox',
     requires: [
         'Admin.store.general.DocumentosStore'
     ],

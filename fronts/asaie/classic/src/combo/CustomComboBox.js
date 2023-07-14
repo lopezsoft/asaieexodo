@@ -26,7 +26,7 @@ Ext.define('Admin.combo.CustomComboBox',{
             delete qe.combo.astQuery;
         },
         focusenter : function (t) {
-            oldValue = t.value;
+			let oldValue = t.value;
             if (oldValue) {
                 t.expand();
             }

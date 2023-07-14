@@ -26,6 +26,7 @@ Ext.define('Admin.view.config.Configs', {
     constructor: function(config) {
         this.initConfig(this.config, config);
     },
+
 	getCompetencesFilter: function() {
 		return this.getCompetences().filter((item) => {
 			return parseInt(item.id) > 0;
@@ -34,17 +35,6 @@ Ext.define('Admin.view.config.Configs', {
 
     isActive: function() {
         return AuthToken.isActive();
-    },
-    getCfg: function() {
-        var
-            data = this.getData();
-        return {
-            year: this.getYear(),
-            UserId: data.user_id,
-            userType: data.user_type,
-            userParent: data.user_parent,
-            db: data.db_name
-        };
     },
 
 	getHeaders: function() {

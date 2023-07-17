@@ -1,0 +1,63 @@
+
+.table-observer {
+    border-collapse: collapse;
+}
+
+.table-observer tbody {
+    border-collapse: collapse;
+    font-size: 10px;
+    width: 100%;
+}
+.table-observer th {
+    padding: 2px 2px;
+    text-align: center;
+    height: 100%;
+    border: 1px solid #1e1e1e;
+    background: #D9D9D9;
+}
+
+.table-observer td {
+    border-collapse: collapse;
+    padding: 2px 2px;
+    height: 100%;
+    border: 1px solid #1e1e1e;
+    font-size: 10px;
+}
+
+.image-observer {
+    max-height: 156px;
+    min-width: 96px;
+    margin-top: 37px;
+    margin-bottom: 37px;
+}
+
+.body-observer {
+    padding-top: 38px;
+    padding-bottom: 72px;
+    width: 100%;
+}
+
+.column-width-item {
+    width: 22px;
+    max-width: 22px;
+}
+
+.observer-content {
+    align-content: center;
+    height: 100px !important;
+    width: 100%;
+    margin: auto;
+}
+.observer-content div {
+    width: 100%;
+    text-align: center;
+    margin: auto;
+}
+
+.observer-signature {
+    width: 100%;
+    padding: 2px 2px;
+    margin-top: 3rem;
+    font-size: 12px;
+    margin-bottom: 4rem;
+}

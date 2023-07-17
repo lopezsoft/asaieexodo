@@ -75,16 +75,25 @@ class EducationalProcessesByTeacher
             $params     = (Object) $request->all();
             $school     = SchoolQueries::getSchoolRequest($request);
             $db         = $school->db;
-            ControlClosingDates::isCurrentYear($school->year);
+            // ControlClosingDates::isCurrentYear($school->year);
             $teacherId  = CoursesOfTeacher::getTeacherId($db);
-            $fields     = json_decode($request->input('records'), true);
-            $fields     = array_merge($fields, [
+            $fields     = json_decode($request->input('records'));
+            $params     = [
                 'year'          => $school->year,
                 'id_docente'    => $teacherId,
                 'id_asig'		=> $params->pdbAsig,
                 'id_grado'		=> $params->pdbGrado,
-            ]);
-            $fields     = (Object) $fields;
+            ];
+            if(is_array($fields)) {
+                $dataFields = [];
+                foreach ($fields as $field) {
+                    $fieldList      = (array)$field;
+                    $dataFields[]   = (object)array_merge($fieldList, $params);
+                }
+                $fields     = $dataFields;
+            }else {
+                $fields     = (Object) array_merge((array)$fields, $params);
+            }
             $result     = InsertTable::insert($request, $fields, "{$db}logros_estandares");
             EducationalProcessesInsertInNotesJob::dispatch($params, $school, $teacherId);
             return $result;

@@ -16,6 +16,7 @@
         "league/flysystem-aws-s3-v3": "3.0",
         "lopezsoft/jasperphp": "^2.9",
         "maatwebsite/excel": "^3.1.48",
+        "mpdf/mpdf": "^8.1",
         "phpoffice/phpspreadsheet": "^1.28.0"
     },
     "require-dev": {

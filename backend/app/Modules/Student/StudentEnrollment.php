@@ -6,6 +6,7 @@ use App\Modules\Grades\GradesQuery;
 use App\Modules\School\SchoolQueries;
 use App\Queries\CallExecute;
 use App\Traits\MessagesTrait;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -112,11 +113,12 @@ class StudentEnrollment
      */
     public static function getEnrollmentList(Request $request): JsonResponse
     {
-        $school     = SchoolQueries::getSchoolRequest($request);
-        $db	        = $school->db;
-        $year       = $school->year;
-        $search     = $request->input('query') ?? null;
-        $promoted   = $request->input('promoted') ?? null;
+        $school         = SchoolQueries::getSchoolRequest($request);
+        $db	            = $school->db;
+        $year           = $school->year;
+        $search         = $request->input('query') ?? null;
+        $promoted       = $request->input('promoted') ?? null;
+        $withObserver   = $request->input('withObserver') ?? null;
         $query = DB::table($db.'student_enrollment','tm')
             ->selectRaw("tm.*, CONCAT(rtrim(ti.apellido1),' ',rtrim(ti.apellido2),' ',
 					rtrim(ti.nombre1),' ',rtrim(ti.nombre2)) AS nombres,
@@ -139,6 +141,13 @@ class StudentEnrollment
             $query->where('tm.year', $year)
                     ->where('tm.id_state','>', '1');
         }
+        if($withObserver) {
+            $query->whereExists(function ($query) use ($db) {
+                $query->select(DB::raw(1))
+                    ->from($db.'obs_observador_mod_3 AS bb')
+                    ->whereRaw('bb.id_matric = tm.id');
+            });
+        }
         if($search) {
             $query->where(function ($row) use ($search) {
                 $row->whereRaw("CONCAT(rtrim(ti.nombre1),' ',rtrim(ti.apellido1),' ',rtrim(ti.apellido2)) LIKE '%{$search}%'")
@@ -148,9 +157,7 @@ class StudentEnrollment
             });
         }
 
-        $query->orderBy('nombres')
-            ->orderBy('tm.id_grade')
-            ->orderBy('tm.id_group');
+        $query->orderByRaw('nombres, tm.id_grade, tm.id_group');
         return self::getResponse([
             'records' =>    $query->paginate($school->limit)
         ]);
@@ -163,5 +170,28 @@ class StudentEnrollment
         $fun	    = "{$school->database_name}.sp_select_historial_matriculas ( ? )";
         $param	    = [$studentId];
         return CallExecute::execute($fun, $param);
+    }
+
+    public static function getInscriptions(Request $request): JsonResponse
+    {
+        try {
+            $school         = SchoolQueries::getSchoolRequest($request);
+            $db	            = $school->db;
+            $search         = $request->input('query') ?? null;
+            $query = DB::table($db.'inscripciones');
+            if($search) {
+                $query->where(function ($row) use ($search) {
+                    $row->whereRaw("CONCAT(rtrim(nombre1),' ',rtrim(nombre2),' ',rtrim(apellido1),' ',rtrim(apellido2)) LIKE '%{$search}%'");
+                });
+            }
+            $query->orderByRaw('apellido1, apellido2, nombre1, nombre2');
+            return self::getResponse([
+                'records' =>    $query->paginate($school->limit)
+            ]);
+        }catch (Exception $e) {
+            return self::getResponse500([
+                'message'   => $e->getMessage()
+            ]);
+        }
     }
 }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Created with Jaspersoft Studio version 6.8.0.final using JasperReports Library version 6.8.0-2ed8dfabb690ff337a5797129f2cd92902b0c87b  -->
+<!-- Created with Jaspersoft Studio version 6.18.1.final using JasperReports Library version 6.18.1-9d75d1969e774d4f179fb3be8401e98a0e6d1611  -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="ficha_obs_mod3_seguimiento_subreport" pageWidth="556" pageHeight="727" whenNoDataType="NoDataSection" columnWidth="556" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="33974257-97b3-4498-8fe2-7887b59433ce">
 	<property name="ireport.zoom" value="1.5"/>
 	<property name="ireport.x" value="35"/>
@@ -19,102 +19,128 @@
 		<![CDATA[CALL sp_select_criterios_obs_m3 ($P{P_ANIO},$P{P_ID_MATRIC})]]>
 	</queryString>
 	<field name="n1" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="n1"/>
 		<property name="com.jaspersoft.studio.field.label" value="n1"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="obs_items_modelo_3"/>
 	</field>
 	<field name="n2" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="n2"/>
 		<property name="com.jaspersoft.studio.field.label" value="n2"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="obs_items_modelo_3"/>
 	</field>
 	<field name="n3" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="n3"/>
 		<property name="com.jaspersoft.studio.field.label" value="n3"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="obs_items_modelo_3"/>
 	</field>
 	<field name="n4" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="n4"/>
 		<property name="com.jaspersoft.studio.field.label" value="n4"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="obs_items_modelo_3"/>
 	</field>
 	<field name="av1" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="av1"/>
 		<property name="com.jaspersoft.studio.field.label" value="av1"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="obs_items_modelo_3"/>
 	</field>
 	<field name="av2" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="av2"/>
 		<property name="com.jaspersoft.studio.field.label" value="av2"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="obs_items_modelo_3"/>
 	</field>
 	<field name="av3" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="av3"/>
 		<property name="com.jaspersoft.studio.field.label" value="av3"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="obs_items_modelo_3"/>
 	</field>
 	<field name="av4" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="av4"/>
 		<property name="com.jaspersoft.studio.field.label" value="av4"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="obs_items_modelo_3"/>
 	</field>
 	<field name="cs1" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="cs1"/>
 		<property name="com.jaspersoft.studio.field.label" value="cs1"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="obs_items_modelo_3"/>
 	</field>
 	<field name="cs2" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="cs2"/>
 		<property name="com.jaspersoft.studio.field.label" value="cs2"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="obs_items_modelo_3"/>
 	</field>
 	<field name="cs3" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="cs3"/>
 		<property name="com.jaspersoft.studio.field.label" value="cs3"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="obs_items_modelo_3"/>
 	</field>
 	<field name="cs4" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="cs4"/>
 		<property name="com.jaspersoft.studio.field.label" value="cs4"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="obs_items_modelo_3"/>
 	</field>
 	<field name="s1" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="s1"/>
 		<property name="com.jaspersoft.studio.field.label" value="s1"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="obs_items_modelo_3"/>
 	</field>
 	<field name="s2" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="s2"/>
 		<property name="com.jaspersoft.studio.field.label" value="s2"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="obs_items_modelo_3"/>
 	</field>
 	<field name="s3" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="s3"/>
 		<property name="com.jaspersoft.studio.field.label" value="s3"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="obs_items_modelo_3"/>
 	</field>
 	<field name="s4" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="s4"/>
 		<property name="com.jaspersoft.studio.field.label" value="s4"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="obs_items_modelo_3"/>
 	</field>
 	<field name="criterio" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="descripcion"/>
 		<property name="com.jaspersoft.studio.field.label" value="criterio"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="obs_criterios"/>
 	</field>
 	<field name="aspecto" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="descripcion"/>
 		<property name="com.jaspersoft.studio.field.label" value="aspecto"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="obs_items_modelos"/>
 	</field>
 	<field name="año" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="year"/>
 		<property name="com.jaspersoft.studio.field.label" value="año"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="student_enrollment"/>
 	</field>
 	<field name="grupo" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="id_group"/>
 		<property name="com.jaspersoft.studio.field.label" value="grupo"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="student_enrollment"/>
 	</field>
 	<field name="cod_grado" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="id_grade"/>
 		<property name="com.jaspersoft.studio.field.label" value="cod_grado"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="student_enrollment"/>
 	</field>
 	<field name="jornada" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="jornada"/>
 		<property name="com.jaspersoft.studio.field.label" value="jornada"/>
 	</field>
 	<field name="grado" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="grado"/>
 		<property name="com.jaspersoft.studio.field.label" value="grado"/>
 	</field>
 	<field name="sede" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="sede"/>
 		<property name="com.jaspersoft.studio.field.label" value="sede"/>
 	</field>
 	<field name="estudiante" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="estudiante"/>
 		<property name="com.jaspersoft.studio.field.label" value="estudiante"/>
 	</field>
 	<field name="nombre_nivel" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="nombre_nivel"/>
 		<property name="com.jaspersoft.studio.field.label" value="nombre_nivel"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="niveles_estudio"/>
 	</field>
@@ -604,7 +630,7 @@
 					<pen lineWidth="0.75"/>
 				</graphicElement>
 			</rectangle>
-			<textField isStretchWithOverflow="true">
+			<textField textAdjust="StretchHeight">
 				<reportElement positionType="Float" stretchType="ContainerHeight" x="0" y="0" width="230" height="10" uuid="96dee362-ff43-4c56-9563-a8c973985b6b">
 					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 				</reportElement>
@@ -860,7 +886,7 @@
 					<pen lineWidth="0.75"/>
 				</graphicElement>
 			</rectangle>
-			<textField isStretchWithOverflow="true">
+			<textField textAdjust="StretchHeight">
 				<reportElement positionType="Float" stretchType="ContainerHeight" x="0" y="0" width="556" height="10" uuid="68a05b50-9521-4e69-9b09-5c113f4c6c5e">
 					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 				</reportElement>

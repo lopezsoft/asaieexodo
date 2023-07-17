@@ -1,30 +1,15 @@
-<table class="table-footer">
-    @if($saleMaster->footline1)
+<footer>
+    <hr/>
+    <table class="table-footer">
         <tr>
             <td class="text-center">
-                {!! $saleMaster->footline1 !!}
+                {!! $header->pie !!}
             </td>
         </tr>
-    @endif
-    @if($saleMaster->footline2)
         <tr>
-            <td class="text-center">
-                {!! $saleMaster->footline2 !!}
+            <td class="text-center footer-marketing">
+                {{ $R_MARKETING }}
             </td>
         </tr>
-    @endif
-    @if($saleMaster->footline3)
-        <tr>
-            <td class="text-center">
-                {!! $saleMaster->footline3 !!}
-            </td>
-        </tr>
-    @endif
-    @if($saleMaster->footline4)
-        <tr>
-            <td class="text-center">
-                {!! $saleMaster->footline4 !!}
-            </td>
-        </tr>
-    @endif
-</table>
+    </table>
+</footer>

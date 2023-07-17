@@ -201,18 +201,18 @@ Ext.define('Admin.view.docentes.controller.ObservadorController', {
 	},
 
 	onAnotaciones	: function (btn) {
-		var me		= this.app,
-			grid	= btn.up('window').down('grid'),
-			data	= grid.getSelection()[0];
+		const me = this.app,
+			grid = btn.up('window').down('grid'),
+			data = grid.getSelection()[0];
 
-		extraParams = {
-			pdbTable 	: 'periodos_academicos',
-			pdbGrado	: data.get('id_grade'),
-			pdbType		: 0
+		let extraParams = {
+			pdbTable: 'periodos_academicos',
+			pdbGrado: data.get('id_grade'),
+			pdbType: 0
 		};
-		extParam = {
-			where		: '{"id_observador" : '+data.get('id')+'}',
-			pdbTable	: 'obs_anotaciones_mod_3'
+		let extParam = {
+			where: '{"id_observador" : ' + data.get('id') + '}',
+			pdbTable: 'obs_anotaciones_mod_3'
 		};
 		me.onStore('docentes.observador.AnotacionesM3Store');
 		me.setParamStore('AnotacionesM3Store',extParam);
@@ -228,35 +228,34 @@ Ext.define('Admin.view.docentes.controller.ObservadorController', {
 	 * @param btn
 	 */
 	onSetReport: function(btn){
-		var url     = '',
-			win     = btn.up('window'),
-			name    = win.getItemId();
+		let param;
+		let url = '',
+			win = btn.up('window'),
+			name = win.getItemId();
 		switch (name){
 			case 'CrudObservadorView' :
-				var
-					url     = 'reports/report_ficha_observador',
-					values  = win.down('grid').getSelection()[0],
-					param   = {
-						pdbGrado    : values.get('id_grade'),
-						pdbGrupo    : values.get('id_group'),
-						pdbJorn     : values.get('id_study_day'),
-						pdbMatric   : values.get('id_matric'),
-						pdbSede     : values.get('id_headquarters'),
-						pdbEstudian : values.get('nombres')
-					};
+				url = 'reports/observer-sheet';
+				let values = win.down('grid').getSelection()[0];
+				param = {
+					pdbGrado: values.get('id_grade'),
+					pdbGrupo: values.get('id_group'),
+					pdbJorn: values.get('id_study_day'),
+					pdbMatric: values.get('id_matric'),
+					pdbSede: values.get('id_headquarters'),
+					pdbEstudian: values.get('nombres')
+				};
 				break;
 			case 'EstudiantesView' :
-				var
-					url     = 'reports/report_ficha_observador',
-					values  = win.down('grid').getSelection()[0],
-					param   = {
-						pdbGrado    : values.get('id_grado'),
-						pdbGrupo    : values.get('grupo'),
-						pdbJorn     : values.get('id_jorn'),
-						pdbMatric   : values.get('id_matric'),
-						pdbSede     : values.get('id_sede'),
-						pdbEstudian : values.get('nombres')
-					};
+				url = 'reports/report_ficha_observador';
+				values = win.down('grid').getSelection()[0];
+				param = {
+					pdbGrado: values.get('id_grado'),
+					pdbGrupo: values.get('grupo'),
+					pdbJorn: values.get('id_jorn'),
+					pdbMatric: values.get('id_matric'),
+					pdbSede: values.get('id_sede'),
+					pdbEstudian: values.get('nombres')
+				};
 				break;
 		}
 

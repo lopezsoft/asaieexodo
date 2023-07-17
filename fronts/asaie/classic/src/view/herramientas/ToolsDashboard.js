@@ -23,7 +23,7 @@ Ext.define('Admin.view.herramientas.ToolsDashboard',{
             items   : [
                 {
                     xtype       : 'buttonPanel',
-                    text    : 'Infra estructura tegnológica',
+                    text    : 'Infra estructura tecnológica',
                     iconCls : 'x-fa fa-table',
                     itemId  : 'btnVotacion',
                     tooltip : 'Mesas de votación',

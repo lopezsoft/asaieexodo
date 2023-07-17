@@ -1,6 +1,7 @@
 <?php
 Route::prefix('students')->group(function () {
     Route::controller('Academic\StudentController')->group(function () {
+        Route::get('index', 'getInscriptions');
         Route::get('academic-history', 'getAcademicHistory');
         Route::get('enrollment', 'getEnrollment');
         Route::get('enrollment-list', 'getEnrollmentList');

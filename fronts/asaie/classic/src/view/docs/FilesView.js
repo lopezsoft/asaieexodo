@@ -49,12 +49,11 @@ Ext.define('Admin.view.docs.FilesView',{
         return me;
     },
     initComponent: function() {
-        var
-            me      = this,
-            store   = Ext.getStore('ImageBrowserStore'),
-            prox    = store.getProxy(),
-            api = {};
-        this.setTitle(AppLang.getSTitleSelectFile());
+		let me = this,
+			store = Ext.getStore('ImageBrowserStore'),
+			prox = store.getProxy(),
+			api = {};
+		this.setTitle(AppLang.getSTitleSelectFile());
         if (Ext.isEmpty(me.getPathReadFile())){
             Ext.Error.raise('Debe proporcionar una ruta para la lectura de los archivos! - pathReadFile');
             return false;

@@ -2,14 +2,14 @@
     <tr>
         <td colspan="2" rowspan="2">
             <div class="signature-wrapper">
-                <span>{{ $saleMaster->username }}</span>
+                <span>{{ $sale->saleResolution->resolution->signature_one ?? $saleMaster->username }}</span>
                 <hr>
                 <div>Elaboró</div>
             </div>
         </td>
         <td colspan="2" rowspan="2">
             <div class="signature-wrapper">
-                <span>{{ $saleMaster->username }}</span>
+                <span>{{ $sale->saleResolution->resolution->signature_two ?? $saleMaster->username }}</span>
                 <hr>
                 <div>Aprobó</div>
             </div>

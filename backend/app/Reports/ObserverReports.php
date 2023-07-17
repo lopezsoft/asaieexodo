@@ -2,59 +2,77 @@
 
 namespace App\Reports;
 
-use App\Core\JReportModel;
+use App\Common\BuildReportsPDF;
 use App\Modules\School\SchoolQueries;
+use App\Queries\CallExecute;
+use App\Traits\MessagesTrait;
+use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class ObserverReports
 {
-    /**
-     * @throws \Exception
-     */
-    public static function getObserverSheet(Request $request): \Illuminate\Http\JsonResponse
+    use MessagesTrait;
+    public static function getObserverSheet(Request $request): JsonResponse
     {
-        $school     = SchoolQueries::getSchoolRequest($request);
-        $year       = $school->year;
-        $db         = $school->db;
-        $format		= $request->input('pFormat');
-        $Grado 	    = $request->input('pdbGrado');
-        $Grupo	    = $request->input('pdbGrupo');
-        $Jorn 	    = $request->input('pdbJorn');
-        $Matric	    = $request->input('pdbMatric');
-        $Sede	    = $request->input('pdbSede');
-        $est        = $request->input('pdbEstudian');
-        $pdbImage   = $request->input('pdbImage');
-        $report     = 'ficha_observador_mod3';
+        try {
+            $school     = SchoolQueries::getSchoolRequest($request);
+            $year       = $school->year;
+            $db         = $school->db;
+            $Matric	    = $request->input('pdbMatric');
 
-        $sql        = DB::table("{$db}obs_modelos_observador_cuerpo","t1")
-                        ->leftJoin("{$db}obs_modelos_observador AS t2", "t1.id_observador", "=", "t2.id")
-                        ->where("t2.estado", 1)
-                        ->first();
-        $c_cuerpo   = "";
-        if ($sql){
-            $c_cuerpo	= $sql->cuerpo;
-            $c_cuerpo	= str_replace("{P_NAME_STUDENT}",$est,$c_cuerpo);
+            $observerData   = DB::table("{$db}obs_modelos_observador_cuerpo","t1")
+                                ->leftJoin("{$db}obs_modelos_observador AS t2", "t1.id_observador", "=", "t2.id")
+                                ->selectRaw('t1.*')
+                                ->where("t2.estado", 1)
+                                ->first();
+            if (!$observerData){
+                throw new Exception("No se encontró el modelo de observador");
+            }
+            $studentData    = CallExecute::execute("{$db}sp_select_datos_observador(?, ?, ?)", [$year, $Matric, 3])[0];
+            if(!$studentData){
+                throw new Exception("No se encontró el estudiante");
+            }
+            $studentItems       = CallExecute::execute("{$db}sp_select_criterios_obs_m3(?, ?)", [$year, $Matric]);
+            if(count($studentItems) === 0){
+                throw new Exception("No se encontraron los aspectos y criterios del estudiante");
+            }
+            $studentAnnotations     = CallExecute::execute("{$db}sp_select_canotaciones_obs_m3(?, ?)", [$year, $Matric]);
+            $groupDirectorSignature = CallExecute::execute("{$db}sp_firma_dir_grupo(?, ?, ?, ?, ?)",
+                [$school->headquarter, $school->grade, $school->group, $school->workingDay, $year]);
+
+            $studentName    = $studentData->nombres;
+            $enrollmentCode = Str::padLeft($studentData->id_matric, 10, '0');
+            $studentIdentity= "{$studentData->abrev_doc} No. {$studentData->nro_doc_id} - CÓDIGO MATRICULA: {$enrollmentCode}";
+            $body	        = $observerData->cuerpo;
+            $body	        = str_replace("{P_NAME_STUDENT}",$studentName, $body);
+            $body	        = str_replace("{P_DOCUMENT}",$studentIdentity, $body);
+
+            $image	= 'assets/img/avatars/unknown_carnets.png';
+            $avatar	= $studentData->avatar;
+            if($avatar || $avatar != ''){
+                $image	= $avatar;
+            }
+            $params	= [
+                'observerBody'		=> $body,
+                'observerData'		=> $observerData,
+                'image'				=> $image,
+                'studentData'		=> $studentData,
+                'year'				=> $year,
+                'items'				=> $studentItems,
+                'annotations'		=> $studentAnnotations,
+                'groupDirectorSignature'    => $groupDirectorSignature[0] ?? null
+            ];
+
+            $fileDescription= 'Ficha del observador';
+            $pdfBuilder     = new BuildReportsPDF("reports.observer.observer-mod3", $fileDescription, $school);
+            return $pdfBuilder->build($params);
+        }catch (Exception $e){
+            return self::getResponse500([
+                'message'   => $e->getMessage()
+            ]);
         }
-
-        $image	= 'assets/img/avatars/unknown_carnets.png';
-        $params	= [
-            'P_ID_MATRIC'	=> intval($Matric),
-            'P_ANIO'		=> intval($year),
-            'P_ID_SEDE'		=> intval($Sede),
-            'P_GRADO'		=> ($Grado),
-            'P_GRUPO'		=> ($Grupo),
-            'P_ID_JORN'		=> intval($Jorn),
-            'P_IMAGE_PROF'	=> $image,
-            'R_CUERPO'		=> $c_cuerpo
-        ];
-        $query = "SELECT t1.encabezado,t1.cuerpo,t1.firma
-				FROM ".$db."obs_modelos_observador_cuerpo AS t1
-				LEFT JOIN ".$db."obs_modelos_observador AS t2 ON t1.id_observador = t2.id
-				WHERE t2.estado = 1 LIMIT 1;";
-
-        $report_export	= 'Ficha Observador';
-        $path       = "{$school->school->folder_name}";
-        return (new JReportModel())->getReportExport($report,$report_export,$format,$query,$path, $school->school, $params);
     }
 }

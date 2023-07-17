@@ -5,7 +5,13 @@ Ext.define('Admin.store.inscripciones.InscripcionesStore',{
         extraParams : {
             pdbTable 	: 'inscripciones',
 			order 		: '{"apellido1" : "ASC", "apellido2" : "ASC", "nombre1": "ASC"}'
-        }
+        },
+		api: {
+			create  : 'crud',
+			read    : 'students/index',
+			update  : 'crud',
+			destroy : 'crud'
+		},
     },
     requires: [
         'Admin.model.inscripciones.InscripcionesModel'

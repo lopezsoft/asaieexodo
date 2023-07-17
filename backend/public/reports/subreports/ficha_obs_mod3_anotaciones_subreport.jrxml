@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Created with Jaspersoft Studio version 6.8.0.final using JasperReports Library version 6.8.0-2ed8dfabb690ff337a5797129f2cd92902b0c87b  -->
+<!-- Created with Jaspersoft Studio version 6.18.1.final using JasperReports Library version 6.18.1-9d75d1969e774d4f179fb3be8401e98a0e6d1611  -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="ficha_obs_mod3_anotaciones_subreport" pageWidth="556" pageHeight="727" whenNoDataType="NoDataSection" columnWidth="556" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="33974257-97b3-4498-8fe2-7887b59433ce">
 	<property name="ireport.zoom" value="1.5"/>
 	<property name="ireport.x" value="35"/>
@@ -19,57 +19,72 @@
 		<![CDATA[CALL sp_select_canotaciones_obs_m3 ($P{P_ANIO},$P{P_ID_MATRIC})]]>
 	</queryString>
 	<field name="anotacion" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="anotacion"/>
 		<property name="com.jaspersoft.studio.field.label" value="anotacion"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="obs_anotaciones_mod_3"/>
 	</field>
 	<field name="compromiso_est" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="compromiso_est"/>
 		<property name="com.jaspersoft.studio.field.label" value="compromiso_est"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="obs_anotaciones_mod_3"/>
 	</field>
 	<field name="compromiso_acu" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="compromiso_acu"/>
 		<property name="com.jaspersoft.studio.field.label" value="compromiso_acu"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="obs_anotaciones_mod_3"/>
 	</field>
 	<field name="compromiso_inst" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="compromiso_inst"/>
 		<property name="com.jaspersoft.studio.field.label" value="compromiso_inst"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="obs_anotaciones_mod_3"/>
 	</field>
 	<field name="periodo" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="periodo"/>
 		<property name="com.jaspersoft.studio.field.label" value="periodo"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="obs_anotaciones_mod_3"/>
 	</field>
 	<field name="fecha" class="java.sql.Date">
+		<property name="com.jaspersoft.studio.field.name" value="fecha"/>
 		<property name="com.jaspersoft.studio.field.label" value="fecha"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="obs_anotaciones_mod_3"/>
 	</field>
 	<field name="docente" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="docente"/>
 		<property name="com.jaspersoft.studio.field.label" value="docente"/>
 	</field>
 	<field name="año" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="year"/>
 		<property name="com.jaspersoft.studio.field.label" value="año"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="student_enrollment"/>
 	</field>
 	<field name="grupo" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="id_group"/>
 		<property name="com.jaspersoft.studio.field.label" value="grupo"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="student_enrollment"/>
 	</field>
 	<field name="cod_grado" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="id_grade"/>
 		<property name="com.jaspersoft.studio.field.label" value="cod_grado"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="student_enrollment"/>
 	</field>
 	<field name="jornada" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="jornada"/>
 		<property name="com.jaspersoft.studio.field.label" value="jornada"/>
 	</field>
 	<field name="grado" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="grado"/>
 		<property name="com.jaspersoft.studio.field.label" value="grado"/>
 	</field>
 	<field name="sede" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="sede"/>
 		<property name="com.jaspersoft.studio.field.label" value="sede"/>
 	</field>
 	<field name="estudiante" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="estudiante"/>
 		<property name="com.jaspersoft.studio.field.label" value="estudiante"/>
 	</field>
 	<field name="nombre_nivel" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="nombre_nivel"/>
 		<property name="com.jaspersoft.studio.field.label" value="nombre_nivel"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="niveles_estudio"/>
 	</field>
@@ -374,7 +389,7 @@
 					</textElement>
 					<textFieldExpression><![CDATA[$F{fecha}]]></textFieldExpression>
 				</textField>
-				<textField isStretchWithOverflow="true">
+				<textField textAdjust="StretchHeight">
 					<reportElement positionType="Float" stretchType="ContainerHeight" x="51" y="0" width="168" height="10" uuid="785f185c-3580-44ed-bae0-2649df28aaea">
 						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 					</reportElement>
@@ -384,7 +399,7 @@
 					</textElement>
 					<textFieldExpression><![CDATA[$F{anotacion}]]></textFieldExpression>
 				</textField>
-				<textField isStretchWithOverflow="true">
+				<textField textAdjust="StretchHeight">
 					<reportElement positionType="Float" stretchType="ContainerHeight" x="221" y="0" width="168" height="10" uuid="dd9e1885-8585-461a-997c-0e48e0fb253e">
 						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 					</reportElement>
@@ -394,7 +409,7 @@
 					</textElement>
 					<textFieldExpression><![CDATA[$F{compromiso_est}]]></textFieldExpression>
 				</textField>
-				<textField isStretchWithOverflow="true">
+				<textField textAdjust="StretchHeight">
 					<reportElement positionType="Float" stretchType="ContainerHeight" x="391" y="0" width="164" height="10" uuid="6d688043-0303-41db-b557-61bd0a031a15">
 						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 					</reportElement>
@@ -430,7 +445,7 @@
 						<pen lineWidth="0.75"/>
 					</graphicElement>
 				</line>
-				<textField isStretchWithOverflow="true">
+				<textField textAdjust="StretchHeight">
 					<reportElement positionType="Float" stretchType="ContainerHeight" x="127" y="0" width="262" height="10" uuid="00760578-8ff3-4249-a7eb-be4eab0f1f6b">
 						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
@@ -447,7 +462,7 @@
 						<pen lineWidth="0.75"/>
 					</graphicElement>
 				</line>
-				<textField isStretchWithOverflow="true">
+				<textField textAdjust="StretchHeight">
 					<reportElement positionType="Float" stretchType="ContainerHeight" x="391" y="0" width="164" height="10" uuid="8b4a2fbc-18c7-4ecf-bf3f-d4deafcfae91">
 						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 					</reportElement>

@@ -91,31 +91,31 @@ Ext.define('Admin.view.configuraciones.FirmasView',{
 						text	: 'Firma escaneada',
 						iconCls	:'x-fa fa-check',
 						handler	: function (btn) {
-							var me  = Admin.getApplication();
+							const me = Admin.getApplication();
 							me.onStore('docs.ImageBrowserStore');
-							var win = Ext.create({
-								xtype       : 'FilesView',
-								title       : 'Seleccionar imagen para firma Escaneada',
-								pathReadFile    : 'files/read',
-								pathUploadFile  : 'upload/settings/upload-signature',
-								titlePanelLoad  : 'Subir imagen',
-								titlePanelView  : 'Mis imágenes',
-								textButtonLoad  : 'Seleccionar una imagen en el equipo',
-								textButtonApply : 'Establecer como firma escaneada',
+							const win = Ext.create({
+								xtype: 'FilesView',
+								title: 'Seleccionar imagen para firma Escaneada',
+								pathReadFile: 'files/read',
+								pathUploadFile: 'upload/settings/upload-signature',
+								titlePanelLoad: 'Subir imagen',
+								titlePanelView: 'Mis imágenes',
+								textButtonLoad: 'Seleccionar una imagen en el equipo',
+								textButtonApply: 'Establecer como firma escaneada',
 								extraParams: {
-									belongToId	: null,
-									fileProfile	: 'Signature'
+									belongToId: null,
+									fileProfile: 'Signature'
 								},
-								listeners : {
-									afterselect : function (me, r) {
+								listeners: {
+									afterselect: function (me, r) {
 										btn.up('window').down('#txtFirm').setValue(r.get('file_path'));
 										btn.up('window').down('#txtMime').setValue(r.get('mime_type'));
 									},
-									afterupload : function (me, r) {
+									afterupload: function (me, r) {
 										btn.up('window').down('#txtFirm').setValue(r.foto);
 										btn.up('window').down('#txtMime').setValue(r.mime);
 									},
-									cancel  : function (me) {
+									cancel: function (me) {
 										btn.up('window').down('#txtFirm').reset();
 										btn.up('window').down('#txtMime').reset();
 									}

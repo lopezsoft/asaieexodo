@@ -1,0 +1,94 @@
+body{
+    font-family: arial, sans-serif, verdana, helvetica, 'Courier New';
+}
+
+.page {
+    margin: 94px 113px;
+}
+
+header {
+
+}
+
+footer {
+    position: fixed;
+    bottom: -30px;
+}
+
+table {
+    width: 100%;
+}
+
+.table-signatures {
+    font-size: 12px;
+}
+
+.signature-content {
+    width: 100%;
+    height: 100%;
+    text-align: center;
+}
+
+.signature-content-img {
+    max-width:  180px;
+    height: 100%;
+    margin-bottom: -10px;
+}
+
+.td-50 td {
+    width: 50%;
+}
+
+
+.table-footer, .header-table, .table-signatures {
+    border-collapse: collapse;
+}
+
+.table-footer, .header-table th {
+    padding: 2px 2px;
+    height: 100%;
+}
+
+.table-footer, .header-table, .table-signatures td {
+    border-collapse: collapse;
+    padding: 2px 2px;
+    height: 100%;
+}
+
+.footer-marketing {
+    font-size: 10px;
+}
+.footer-page {
+    font-size: 10px;
+}
+
+hr {
+    margin-top: 1px !important;
+    margin-bottom: 1px !important;
+}
+
+.text-uppercase {
+    text-transform: uppercase !important;
+}
+
+.header-table {
+    text-align: center !important;
+}
+
+.img-table {
+    max-height: 72px;
+    min-width: 96px;
+}
+
+.text-center {
+    text-align: center !important;
+}
+
+.text-right {
+    text-align: right !important;
+}
+
+.img-qrcode {
+    width: 76px;
+    height: 76px;
+}

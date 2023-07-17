@@ -64,6 +64,7 @@ encoding/familiares.jrxml=UTF-8
 encoding/fechas_nacimiento.jrxml=UTF-8
 encoding/ficha_matricula.jrxml=UTF-8
 encoding/ficha_matricula2.jrxml=UTF-8
+encoding/ficha_observador.jrxml=UTF-8
 encoding/ficha_observador_mod3.jrxml=UTF-8
 encoding/historial_academico.jrxml=UTF-8
 encoding/libro_carta_prescolar.jrxml=UTF-8

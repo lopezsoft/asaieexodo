@@ -5,7 +5,7 @@ var imageTpl = new Ext.XTemplate(
     '<tpl for=".">',
         '<div class="thumb-wrap-v">',
             '<div class="thumb-v">',
-                '<img src="{[values.type == -1 ? values.file_path : "assets/img/files/128/"+values.extension_file+".png" ]}"/>',
+                '<img width="128" src="{[isImage(values.file_name) ? values.url : "assets/img/files/128/"+values.extension_file+".png" ]}"/>',
             '</div>',
             '<span>{file_description}</span>',
         '</div>',
@@ -26,3 +26,7 @@ Ext.define('Admin.view.docs.ImageBrowserView',{
         this.callParent(arguments);
     }
 });
+
+function isImage(filename) {
+	return filename.endsWith('.jpg') || filename.endsWith('.png') || filename.endsWith('.gif') || filename.endsWith('.bmp');
+}

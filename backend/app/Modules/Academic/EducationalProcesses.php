@@ -177,7 +177,7 @@ class EducationalProcesses
                 $scaleId		= RatingScale::getRatingScaleId($school, $grado, $final);
                 if($scaleId > 0){
                     switch($estado){
-                        case 1 : // Asignar segun desempeño
+                        case 1 : // Asignar según desempeño
                             if ($scaleLogId === $scaleId) {
                                 EducationalProcessesInsert::insertTableLog($table, $noteId, $id_logro);
                             }

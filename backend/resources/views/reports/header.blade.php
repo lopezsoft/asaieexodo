@@ -1,17 +1,15 @@
-<table class="header-invoice">
-    <tr>
-        <td>
-            <img src="{{ $logo }}" alt="" class="img-invoice">
-        </td>
-        <td>
-            @if (isset($headerLine1))
-                {!! $headerLine1 !!}
-            @endif
-            @if (isset($headerLine2))
-                @if (Str::length($headerLine2) > 5)
-                    {!! $headerLine2 !!}
-                @endif
-            @endif
-        </td>
-    </tr>
-</table>
+<header>
+    <table class="header-table">
+        <tr>
+            <td>
+                <img src="{{$storagePath}}{{$header->logo}}" alt="" class="img-invoice">
+            </td>
+            <td>
+                {!! $header->encabezado !!}
+            </td>
+            <td>
+                <img src="{{$storagePath}}{{ $header->escudo }}" alt="" class="img-invoice">
+            </td>
+        </tr>
+    </table>
+</header>

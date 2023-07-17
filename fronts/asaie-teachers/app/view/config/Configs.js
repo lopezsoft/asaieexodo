@@ -7,7 +7,7 @@ Ext.define('Admin.view.config.Configs', {
         avatarWomen: "/assets/img/avatars/woman.png",
         avatarUnknoun: "/assets/img/avatars/unknown.png",
         socket: null,
-       /* hostSocket	: 'https://ns547829.ip-66-70-178.net:3001',
+        /*hostSocket	: 'https://ns547829.ip-66-70-178.net:3001',
         urlBase		: "https://api.asaie.co",
         urlLocation	: "https://teachers.asaie.co",
 		apiUrl		: "https://api.asaie.co/api/v1",*/
@@ -64,6 +64,7 @@ Ext.define('Admin.view.config.Configs', {
 	isEnabledYear: function() {
 		const params	= this.getSchoolParams();
 		const dt		= new Date();
+		return true;
 		return (params.year === dt.getFullYear());
 	},
 

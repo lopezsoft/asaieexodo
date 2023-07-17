@@ -1,7 +1,7 @@
 var imageTpl = new Ext.XTemplate(
     '<div class="details">',
         '<tpl for=".">',
-            '<img src="{[values.type === 1 ? values.url : "assets/img/files/128/"+values.extension_file+".png" ]}"/>',
+            '<img src="{[isImage(values.file_name)? values.url : "assets/img/files/128/"+values.extension_file+".png" ]}"/>',
             '<div class="details-info">',
                 '<b>Nombre del archivo:</b>',
                 '<span>{file_description}</span>',

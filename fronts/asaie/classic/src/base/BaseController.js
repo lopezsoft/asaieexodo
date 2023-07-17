@@ -340,14 +340,12 @@ Ext.define('Admin.base.BaseController', {
      * @param xUrl - La ruta del informe
      */
     getIframe : function (xUrl, xFormat) {
-        var
-            me  = this;
-        Ext.require('Admin.view.docs.IframeView');
+		const me = this;
+		Ext.require('Admin.view.docs.IframeView');
         Ext.onReady(function () {
-            if (xFormat == 'pdf') {
-                var
-                    cHtml = '<object><embed  width="100%" height="100%" src="'+xUrl+'"></object>';
-                Ext.create('Admin.view.docs.IframeView',{
+            if (xFormat === 'pdf') {
+				const cHtml = '<object><embed  width="100%" height="100%" src="' + xUrl + '"></object>';
+				Ext.create('Admin.view.docs.IframeView',{
                     title 	: 'Vista previa del enlace',
                     html  	: cHtml,
                     width   : 700,
@@ -427,7 +425,7 @@ Ext.define('Admin.base.BaseController', {
      */
 
     onGenReport: function (btn, url, param) {
-        var me  	= this,
+        let me  	= this,
             cUrl	= Global.getApiUrl() +'/' + url,
             vMask;
         vMask = btn.up('window');
@@ -493,7 +491,8 @@ Ext.define('Admin.base.BaseController', {
                     me.getIframe(result.pathFile, xFormat);
                 },
                 failure: function (response) {
-                    me.app.onError('No se pueden cargar los datos');
+					let result = Ext.decode(response.responseText);
+                    me.app.onError(result.message || 'No se pueden cargar los datos');
                 },
                 callback : function (response) {
                     if (!Ext.isEmpty(vMask)) {

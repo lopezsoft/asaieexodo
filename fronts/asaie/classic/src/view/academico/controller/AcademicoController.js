@@ -866,6 +866,7 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
 		const me = Admin.getApplication(),
 			rec = btn.up('window').down('grid').getSelection()[0];
 		me.onStore('docs.ImageBrowserStore');
+		let urlImage	= "";
 		const win = Ext.create({
 			xtype: 'FilesView',
 			title: 'Seleccionar archivo',
@@ -874,18 +875,32 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
 			titlePanelLoad	: 'Subir archivos',
 			titlePanelView	: 'Mis archivos',
 			textButtonLoad	: 'Seleccionar una archivo en el equipo',
-			textButtonApply	: AppLang.getSButtonAcept(),
+			textButtonApply : 'Establecer como avatar',
 			extraParams: {
 				belongToId	: rec.get('id'),
 				fileProfile	: 'Student'
+			},
+			listeners: {
+				afterselect: function (me, r) {
+					urlImage	= r.get('url');
+				}
+			}
+		});
+		win.on('apply',function(me){
+			if(isImage(urlImage)) {
+				rec.set('foto',urlImage);
+				rec.store.sync();
+				win.close();
+			}else {
+				Ext.Msg.alert('Error', 'El archivo seleccionado no es una imagen');
 			}
 		});
 		win.show();
     },
     onFamilies : function (btn) {
-        var me = Admin.getApplication(),
-                dataGrid    = btn.up('window').down('grid').getSelection()[0];
-            me.setParamStore('FamiliesStore', {
+		const me = Admin.getApplication(),
+			dataGrid = btn.up('window').down('grid').getSelection()[0];
+		me.setParamStore('FamiliesStore', {
                 pdbTable        : 'families'
             },false);
             Ext.create('Admin.view.academico.inscripciones.Families',{
@@ -894,9 +909,9 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
     },
 
     onFamiliesStudent : function (btn) {
-        var me = Admin.getApplication(),
-                dataGrid    = btn.up('window').down('grid').getSelection()[0];
-            me.setParamStore('FamiliesStudentStore', {
+		const me = Admin.getApplication(),
+			dataGrid = btn.up('window').down('grid').getSelection()[0];
+		me.setParamStore('FamiliesStudentStore', {
                 pdbTable        : 'aux_families_students',
                 pdbIdStudent    :  dataGrid.get('id')
             },false);

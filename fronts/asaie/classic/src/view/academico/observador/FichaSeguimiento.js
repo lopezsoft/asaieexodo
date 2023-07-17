@@ -4,10 +4,12 @@ Ext.define('Admin.view.academico.FichaSeguimiento',{
     alias       : 'widget.fichaseguimiento',
     initComponent: function () {
         let me      = this;
-        const zstore    = Ext.create('Admin.store.base.StoreUrl',{
-            extend      : 'Admin.store.docentes.EstudiantesStore',
+        const store    = Ext.create('Admin.store.base.StoreUrl',{
             model       : 'Admin.model.docentes.EstudiantesModel',
             proxy   : {
+				extraParams: {
+					withObserver: 1
+				},
                 url : 'students/enrollment-list'
             },
             autoLoad    : true
@@ -16,7 +18,7 @@ Ext.define('Admin.view.academico.FichaSeguimiento',{
         me.items = [
             {
                 xtype   : 'customgrid',
-                store   : zstore,
+                store   : store,
                 plugins		: [
                     {
                         ptype : 'gridfilters'
@@ -40,12 +42,13 @@ Ext.define('Admin.view.academico.FichaSeguimiento',{
 						text        : 'Imagen',
 						width       : 80,
 						renderer    : function (val) {
-							if(Ext.isEmpty(val)){
-								aVal    = Global.getAvatarUnknoun();
-							}else {
-								aVal    = val
+							let aVal;
+							if (Ext.isEmpty(val)) {
+								aVal = Global.getAvatarUnknoun();
+							} else {
+								aVal = val
 							}
-							return '<img alt="{foto}" height="48" width="48" src="'+aVal+'"/>';
+							return '<img alt="" height="48" width="48" src="'+aVal+'"/>';
 						}
 					},
                     {

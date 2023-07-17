@@ -10,6 +10,11 @@ use Illuminate\Http\Request;
 
 class StudentController extends Controller
 {
+    public function getInscriptions(Request $request): JsonResponse
+    {
+        return StudentEnrollment::getInscriptions($request);
+    }
+
     /**
      * @throws \Exception
      */

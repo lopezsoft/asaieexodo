@@ -14,7 +14,7 @@ Ext.define('Admin.store.base.StoreUrl',{
 	    reader	: {
 	        type			: 'json',
 	        rootProperty	: 'records.data',
-	        totalProperty	: 'total'
+	        totalProperty	: 'records.total'
 	    },
 		timeout : 60000,
 		listeners: {

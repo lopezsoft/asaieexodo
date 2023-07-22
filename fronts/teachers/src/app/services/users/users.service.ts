@@ -6,13 +6,14 @@ import { JsonResponse } from '../../interfaces';
 import {HttpServerService, MessagesService} from '../../utils';
 
 import { Users, UserTypes } from '../../models/users-model';
-import {SchoolContract, Schools} from "../../models/school-contract";
+import {SchoolContract, SchoolModuleContract, Schools} from "../../models/school-contract";
 import {LoadMaskService} from "../../core/common/load-mask.service";
 @Injectable({
   providedIn: 'root'
 })
 export class UsersService {
-  public schools : Schools[] = [];
+  public schools        : Schools[] = [];
+  public schoolModules  : SchoolModuleContract[] = [];
   constructor(
     private _http: HttpServerService,
     public mask: LoadMaskService,
@@ -34,7 +35,21 @@ export class UsersService {
         }
       })
   }
-  getUserSchools() {
+    getSchoolModules(schoolId: number): void {
+        if(this.schoolModules.length === 0) {
+            this._http.get(`/school/system-modules`, {schoolId})
+                .subscribe({
+                    next: (resp: any) => {
+                        this.schoolModules  = resp.dataRecords.data;
+                        localStorage.setItem('schoolModules', JSON.stringify(this.schoolModules));
+                    },
+                    error: (err: any) => {
+                        console.log(err);
+                    }
+                });
+        }
+    }
+  getUserSchools(): void {
     if(this.schools.length === 0) {
         this._http.get('/user')
             .subscribe({

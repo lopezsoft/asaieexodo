@@ -2,6 +2,7 @@
 namespace App\Models\School;
 
 use App\Contracts\UpdateContract;
+use App\Models\SchoolModule;
 use App\Models\User;
 use App\Modules\School\SchoolQueries;
 use App\Queries\QueryTable;
@@ -88,6 +89,23 @@ class Schools Implements UpdateContract
             return UpdateTable::update($request, $data, $table);
 
         } catch (Exception $e) {
+            return self::getResponse500([
+                'message' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    public static function getSystemModules(Request $request): JsonResponse
+    {
+        try {
+            $school = SchoolQueries::getSchoolRequest($request);
+            $query  = SchoolModule::query()->where('school_id', $school->school->id ?? 0);
+            return self::getResponse([
+                'dataRecords'   =>[
+                    'data'  => $query->get(),
+                ]
+            ]);
+        }catch (Exception $e) {
             return self::getResponse500([
                 'message' => $e->getMessage(),
             ]);

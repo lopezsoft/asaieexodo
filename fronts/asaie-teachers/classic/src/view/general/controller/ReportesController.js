@@ -11,18 +11,21 @@ Ext.define('Admin.view.general.controller.ReportesController',{
      * @param btn
      */
     onSetReport: function(btn){
-		let xtype	= btn.up('window').xtype || btn.up('form').xtype;
-
+		let win     	= btn.up('window');
+		let xtype		= btn.up('window').xtype || btn.up('form').xtype;
+		const comboData = win.down('#cbCargaDocente').getSelection();
+		let param;
+		let url;
 		switch (xtype) {
 			case 'generarcarnets':
-				var url     = 'reports/school-carnes',
-					ts      = btn.up('window'),
-					tab		= ts.down('customtab').getActiveTab(),
-					param	= {};
+				url = 'reports/school-carnes';
+				const ts = btn.up('window'),
+					tab = ts.down('customtab').getActiveTab();
+				param = {};
 				param.ckAll		= ts.down('#ckAll').getValue() ? 1 : 0;
 				param.ckRes		= ts.down('#ckRes').getValue() ? 1 : 0;
 				param.pdbId		= tab.down('grid').getSelection()[0].id;
-				if(tab.title == 'Docentes'){
+				if(tab.title === 'Docentes'){
 					param.pdbType	= 2;
 				}else{
 					param.pdbType	= 1;
@@ -30,22 +33,21 @@ Ext.define('Admin.view.general.controller.ReportesController',{
 				this.onGenReport(btn,url,param);
 				break;
 			default:
-				var url     = 'reports/consolidated',
-					win     = btn.up('window'),
-					values  = win.down('form').getValues(),
-					param   = {
-						pdbCodGrado : values.id_grado,
-						pdbIdJorn   : values.cod_jorn,
-						pdbGrupo    : values.grupo,
-						pHojaReport : values.hoja,
-						pTypeReport : values.id_report,
-						pdbIdSede   : values.id_sede,
-						pdbPeriodo  : values.periodo,
-						pdbAllPer   : values.allper
-					};
+				url = 'reports/consolidated';
+				let values = win.down('form').getValues();
+				param = {
+					pdbCodGrado	: comboData.get('id_grado'),
+					pdbIdJorn	: comboData.get('id_jorn'),
+					pdbGrupo	: comboData.get('grupo'),
+					pHojaReport	: values.hoja,
+					pTypeReport	: values.id_report,
+					pdbIdSede	: comboData.get('id_sede'),
+					pdbPeriodo	: values.periodo,
+					pdbAllPer	: values.allper
+				};
 				this.onGenReport(btn,url,param);
-				if (btn.itemId == 'btnXls'){
-					// this.onDownLoadReportXls(btn,url,param);
+				if (btn.itemId === 'btnXls'){
+					this.onDownLoadReportXls(btn,url,param);
 				}
 				break;
 		}
@@ -53,16 +55,16 @@ Ext.define('Admin.view.general.controller.ReportesController',{
 
     onDownLoadReportXls: function (btn, url, param) {
 
-        var me  	= this,
-            cUrl	= Global.getUrlBase()+'excel_manager/download_report_consolidado',
-            vMask;
+		let me = this,
+			cUrl = Global.getUrlBase() + 'excel_manager/download_report_consolidado',
+			vMask;
 
-        vMask = btn.up('window');
+		vMask = btn.up('window');
 
         if (Ext.isEmpty(vMask)){
             vMask   = btn.up('grid');
         }
-
+		let xFormat;
         switch(btn.itemId){
             case 'btnHtml':
                 xFormat = 'html';
@@ -91,38 +93,39 @@ Ext.define('Admin.view.general.controller.ReportesController',{
         }
 
 
-        if(!Ext.isEmpty(url) && btn.itemId == 'btnXls') {
+		let xParam;
+		if (!Ext.isEmpty(url) && btn.itemId === 'btnXls') {
 
-            xParam  = param;
+			xParam = param;
 
-            Object.defineProperty(xParam,'pFormat',{
-                value : xFormat,
-                writable: true,
-                enumerable: true,
-                configurable: true
-            });
+			Object.defineProperty(xParam, 'pFormat', {
+				value: xFormat,
+				writable: true,
+				enumerable: true,
+				configurable: true
+			});
 
-            Ext.Ajax.request({
-                timeout : 60000,
-                url: cUrl,
+			Ext.Ajax.request({
+				timeout: 60000,
+				url: cUrl,
 
-                params: xParam,
+				params: xParam,
 
-                success: function (response) {
-                    result = Ext.decode(response.responseText);
-                    me.onOpenUrl(result.pathFile);
-                },
+				success: function (response) {
+					let result = Ext.decode(response.responseText);
+					me.onOpenUrl(result.pathFile);
+				},
 
-                failure: function (response) {
-                    me.app.onError('No se pueden cargar los datos');
-                },
+				failure: function (response) {
+					me.app.onError('No se pueden cargar los datos');
+				},
 
-                callback : function (response) {
-                    if (!Ext.isEmpty(vMask)) {
-                        vMask.el.unmask();
-                    }
-                }
-            });
-        }
+				callback: function (response) {
+					if (!Ext.isEmpty(vMask)) {
+						vMask.el.unmask();
+					}
+				}
+			});
+		}
     }
 });

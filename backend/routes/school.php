@@ -1,6 +1,7 @@
 <?php
 Route::prefix('school')->group(function () {
     Route::controller('School\SchoolsController')->group(function () {
+        Route::get('system-modules', 'getSystemModules');
         Route::get('read',          'read');
         Route::get('users',          'users');
         Route::get('user/{id}',          'user');

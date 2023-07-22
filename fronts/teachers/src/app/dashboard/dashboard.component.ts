@@ -23,6 +23,7 @@ export class DashboardComponent implements OnInit {
       this.blockUI.start('Cargando módulo...'); // Start blocking
       const params  = <any>this._http.getToken();
       const dt      = new Date();
+      this.user.getSchoolModules(school.id);
       setTimeout(() => {
           if (params) {
               params.school = {

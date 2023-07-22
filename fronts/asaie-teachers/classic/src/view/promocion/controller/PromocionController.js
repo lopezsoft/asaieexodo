@@ -11,9 +11,8 @@ Ext.define('Admin.view.promocion.controller.PromocionController', {
     },
 
     onHistorilaAca: function(btn) {
-        var
-            me = this.app;
-        Ext.require([
+		const me = this.app;
+		Ext.require([
             'Admin.view.promocion.HistorialAcademicoView'
         ]);
 
@@ -24,23 +23,10 @@ Ext.define('Admin.view.promocion.controller.PromocionController', {
             win.show();
         });
     },
-
-    onSaveActaGradoEnc: function(btn) {
-        var
-            me = this.app,
-            win = btn.up('window'),
-            form = win.down('form'),
-            values = form.getValues(),
-            record = form.getRecord(),
-            store = Ext.getStore('ActasPromEncStore');
-        this.onDataSave(record, values, store, values, win, false);
-    },
-
     onActaGrado: function(btn) {
-        var
-            me = this.app,
-            gb = Global;
-        Ext.require('Admin.view.promocion.ActasGradoView');
+		const me = this.app,
+			gb = Global;
+		Ext.require('Admin.view.promocion.ActasGradoView');
         Ext.onReady(function() {
             me.onStore('general.MatriculadosStore');
             me.onStore('general.JornadasStore');
@@ -211,23 +197,24 @@ Ext.define('Admin.view.promocion.controller.PromocionController', {
     },
 
     /**
-     * Funcion para setear los datos que se enviar al servidor para lamar el reporte.
+     * Funcion para setear los datos que se envía al servidor para lamar el reporte.
      * @param btn
      */
     onSetReport: function(btn) {
-        var
-            win = btn.up('window') || btn.up('form'),
-            name = win.getItemId() || win.xtype,
-            form = null,
-            param = {};
-        switch (name) {
+		let url;
+		const win = btn.up('window') || btn.up('form'),
+			name = win.getItemId() || win.xtype;
+		let param = {};
+		let grid;let values;
+		let record;
+		const comboData = win.down('#cbCargaDocente').getSelection();
+		switch (name) {
             case 'HistorialAcademicoView':
-                var
-                    url = 'reports/academic-history',
-                    param = {
-                        pdbGrado: win.down('#comboGrados').getValue()
-                    };
-                break;
+				url = 'reports/academic-history';
+				param = {
+					pdbGrado: win.down('#comboGrados').getValue()
+				};
+				break;
             case 'SabanaFinalesView':
                 values = win.down('form').getValues(),
                     url = 'reports/final-savannas',
@@ -241,85 +228,78 @@ Ext.define('Admin.view.promocion.controller.PromocionController', {
                     };
                 break;
             case 'ActasGradoView':
-                var
-                    values = win.down('form').getValues(),
-                    url = 'reports/report_acta_grado',
-                    grid = win.down('grid'),
-                    param = {
-                        pdbGrado: win.down('#comboGrados').getValue(),
-                        pdbJorn: win.down('#comboJornadas').getValue(),
-                        pdbGrupo: win.down('#comboGrupo').getValue(),
-                        pdbSede: win.down('#comboSedes').getValue(),
-                        pdbMatric: grid.getSelection()[0].get('id_matric'),
-                        pdbHoja: values.hoja,
-                        pdbModelo: values.modelo
-                    };
-                break;
+				values = win.down('form').getValues();
+				url = 'reports/report_acta_grado';
+				grid = win.down('grid');
+				param = {
+					pdbGrado: win.down('#comboGrados').getValue(),
+					pdbJorn: win.down('#comboJornadas').getValue(),
+					pdbGrupo: win.down('#comboGrupo').getValue(),
+					pdbSede: win.down('#comboSedes').getValue(),
+					pdbMatric: grid.getSelection()[0].get('id_matric'),
+					pdbHoja: values.hoja,
+					pdbModelo: values.modelo
+				};
+				break;
             case 'promovidos':
-                var
-                    url = 'reports/report_promocion_anticipada',
-                    record = win.down('grid').getSelection()[0],
-                    param = {
-                        pdbId: record.get('id'),
-                        pdbGrade: record.get('grade_id')
-                    };
-                break;
+				url = 'reports/report_promocion_anticipada';
+				record = win.down('grid').getSelection()[0];
+				param = {
+					pdbId: record.get('id'),
+					pdbGrade: record.get('grade_id')
+				};
+				break;
             case 'ActaPromocionEstaView':
-                var
-                    url = 'reports/minutes-promotion-statistics',
-                    param = {
-                        pdbType: win.down('#CkGrado').getValue() ? 1 : 0
-                    };
-                break;
+				url = 'reports/minutes-promotion-statistics';
+				param = {
+					pdbType: win.down('#CkGrado').getValue() ? 1 : 0
+				};
+				break;
             case 'ActaPromocionView':
-                var
-                    url = 'reports/minutes-promotion',
-                    param = {
-                        pdbGrado: win.down('#comboGrados').getValue(),
-                        pdbJorn: win.down('#comboJornadas').getValue(),
-                        pdbGrupo: win.down('#comboGrupo').getValue(),
-                        pdbSede: win.down('#comboSedes').getValue()
-                    };
-                break;
+				url = 'reports/minutes-promotion';
+				param = {
+					pdbGrado: win.down('#comboGrados').getValue(),
+					pdbJorn: win.down('#comboJornadas').getValue(),
+					pdbGrupo: win.down('#comboGrupo').getValue(),
+					pdbSede: win.down('#comboSedes').getValue()
+				};
+				break;
             case 'certificadofinal':
-                var
-                    values = win.getValues(),
-                    url = 'reports/final-certificate',
-                    grid = win.down('grid'),
-                    param = {
-                        pdbGrado: win.down('#comboGrados').getValue(),
-                        pdbJorn: win.down('#comboJornadas').getValue(),
-                        pdbGrupo: win.down('#comboGrupo').getValue(),
-                        pdbSede: win.down('#comboSedes').getValue(),
-                        pdbMatric: win.down('#ckEst').getValue() ? grid.getSelection()[0].get('id') : 0,
-                        pdbType: values.tipo,
-                        pdbHoja: values.hoja,
-                        pdbPer: values.periodo,
-                        pdbModelo: values.modelo,
-                        pdbDistrib: win.down('#CkDistrib').getValue() ? 1 : 0
-                    };
-                break;
+				values = win.getValues();
+				url = 'reports/final-certificate';
+				grid = win.down('grid');
+				param = {
+					pdbGrado: win.down('#comboGrados').getValue(),
+					pdbJorn: win.down('#comboJornadas').getValue(),
+					pdbGrupo: win.down('#comboGrupo').getValue(),
+					pdbSede: win.down('#comboSedes').getValue(),
+					pdbMatric: win.down('#ckEst').getValue() ? grid.getSelection()[0].get('id') : 0,
+					pdbType: values.tipo,
+					pdbHoja: values.hoja,
+					pdbPer: values.periodo,
+					pdbModelo: values.modelo,
+					pdbDistrib: win.down('#CkDistrib').getValue() ? 1 : 0
+				};
+				break;
             case 'LibroFinalView':
-                var
-                    values = win.getValues(),
-                    url = 'reports/final-report',
-                    grid = win.down('grid');
+				values = win.getValues();
+				url = 'reports/final-report';
+				grid = win.down('grid');
 
-                param = {
-                    pdbGrado: values.id_grado,
-                    pdbJorn: values.cod_jorn,
-                    pdbGrupo: values.grupo,
-                    pdbSede: values.id_sede,
-                    pdbMatric: (values.selection > 0) ? grid.getSelection()[0].get('id') : 0,
-                    pdbPer: values.periodo,
-                    pdbHoja: values.hoja
+				param = {
+                    pdbGrado	: comboData.get('id_grado'),
+                    pdbJorn		: comboData.get('id_jorn'),
+                    pdbGrupo	: comboData.get('grupo'),
+                    pdbSede		: comboData.get('id_sede'),
+                    pdbMatric	: (values.selection > 0) ? grid.getSelection()[0].get('id') : 0,
+                    pdbPer		: values.periodo,
+                    pdbHoja		: values.hoja
                 };
                 break;
             default:
-                var
-                    url = '',
-                    param = {};
-                break;
+				url = '';
+				param = {};
+				break;
         }
         this.onGenReport(btn, url, param);
     }

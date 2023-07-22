@@ -3,6 +3,9 @@ Ext.define('Admin.view.docentes.observador.FichaSeguimientoForm' ,{
     alias 		: 'widget.fichaseguimientodocente',
 	xtype		: 'fichaseguimientodocente',
 	controller	: 'observador',
+	requires	: [
+		'Admin.combo.CbCargaDocente'
+	],
 	initComponent : function (){
 		const me = Admin.getApplication();
 		me.onStore('docentes.CargaAgrupadaObservadorStore');
@@ -96,27 +99,7 @@ Ext.define('Admin.view.docentes.observador.FichaSeguimientoForm' ,{
 					xtype : 'customToolbar',
 					items : [
 						{
-							xtype		: 'customComboBox',
-							fieldLabel	: '',
-							store		: 'CargaAgrupadaObservadorStore',
-							valueField	: 'grado',
-							itemId		: 'cbcarga',
-							reference	: 'cbcarga',
-							publishes	: 'value',
-							minChars	: 2,
-							flex		: 1,
-							emptyText: 'Seleccione por favor...',
-							tpl: Ext.create('Ext.XTemplate',
-								'<ul class="x-list-plain"><tpl for=".">',
-								'<li role="option" class="x-boundlist-item">{grado} - {grupo} - {jornada} - {sede}</li>',
-								'</tpl></ul>'
-							),
-							// template for the content inside text field
-							displayTpl: Ext.create('Ext.XTemplate',
-								'<tpl for=".">',
-								'{grado} - {grupo} - {jornada} - {sede}',
-								'</tpl>'
-							),
+							xtype		: 'cbCargaDocente',
 							listeners: {
 								focusenter: function(t) {
 									if (t.value) {

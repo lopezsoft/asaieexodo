@@ -8,9 +8,9 @@ Route::prefix('educational-processes')->group(function () {
             Route::post('/', 'createByTeacher');
             Route::get('/', 'getByTeacher');
             Route::post('/update', 'updateByTeacher');
-            Route::put('/', 'updateByTeacher');
-            Route::post('/delete', 'deleteByStudents');
-            Route::delete('/', 'deleteByStudents');
+            Route::put('/{$id}', 'updateByTeacher');
+            Route::post('/delete', 'deleteByTeacher');
+            Route::delete('/{id}', 'deleteByTeacher');
         });
         Route::prefix('by-students')->group(function () {
             Route::get('/', 'getByStudents');

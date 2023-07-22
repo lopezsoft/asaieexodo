@@ -14,12 +14,11 @@ Ext.define('Admin.store.docentes.LogrosStore', {
         extraParams : {
             pdbTable : 'logros_estandares'
         },
-		type: 'ajax',
         api: {
             create  : 'educational-processes/by-teacher',
             read    : 'educational-processes/by-teacher',
-            update  : 'educational-processes/by-teacher/update',
-            destroy : 'educational-processes/by-teacher/delete'
+            update  : 'educational-processes/by-teacher',
+            destroy : 'educational-processes/by-teacher'
         }
     }
 });

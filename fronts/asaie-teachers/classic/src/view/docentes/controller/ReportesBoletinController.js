@@ -22,17 +22,19 @@ Ext.define('Admin.view.docentes.controller.ReportesBoletinController',{
      * @param btn
      */
     onSetReport: function(btn){
-        var url     = 'reports/periodic-bulletin',
-            win     = btn.up('window'),
-            grid    = win.down('grid'),
-            values  = win.down('form').getValues(),
-            param   = {
-                pdbCodGrado : values.id_grado,
-                pdbIdJorn   : values.cod_jorn,
-                pdbGrupo    : values.grupo,
+		const url = 'reports/periodic-bulletin',
+			win = btn.up('window'),
+			grid = win.down('grid'),
+			values = win.down('form').getValues();
+		const comboData = win.down('#cbCargaDocente').getSelection();
+		console.log(comboData);
+		const param   = {
+                pdbCodGrado : comboData.get('id_grado'),
+                pdbIdJorn   : comboData.get('id_jorn'),
+                pdbGrupo    : comboData.get('grupo'),
                 pHojaReport : values.hoja,
                 pTypeReport : values.id_report,
-                pdbIdSede   : values.id_sede,
+                pdbIdSede   : comboData.get('id_sede'),
                 pdbPeriodo  : values.periodo,
                 pdbMatric   : win.down('#ckEst').getValue() ? grid.getSelection()[0].get('id') : 0
             };
@@ -42,8 +44,8 @@ Ext.define('Admin.view.docentes.controller.ReportesBoletinController',{
         Ext.create('Admin.view.general.ConsolidadosReportView').show();
     },
     onViewEstadistica : function (btn) {
-        var me = this.app;
-        me.onStore('general.PeriodosStore');
+		const me = this.app;
+		me.onStore('general.PeriodosStore');
         me.onStore('general.NivelesAcademicosStore');
         me.setParamStore('PeriodosStore',{
             pdbTable 	: 'periodos_academicos',

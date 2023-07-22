@@ -1,5 +1,18 @@
 import {RolContract} from "./users-model";
 
+export interface SystemModuleContract {
+    id: number;
+    tag: string;
+    module_name: string;
+}
+export interface SchoolModuleContract {
+    id: number;
+    school_id: number;
+    system_module_id: number;
+    status: boolean;
+    is_active: boolean;
+    system_module: SystemModuleContract;
+}
 export interface Schools {
     id: number;
     user_id: number;

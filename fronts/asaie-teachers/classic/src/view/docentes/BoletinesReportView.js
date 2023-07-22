@@ -23,9 +23,15 @@ Ext.define('Admin.view.docentes.BoletinesReportView',{
     alias   :'widget.BoletinesReportView',
     title   : 'Reportes',
     controller  : 'Reporboletin',
-    initComponent: function () { 
-        this.callParent(arguments);
+	requires	: [
+		'Admin.combo.CbCargaDocente'
+	],
+    initComponent: function () {
+		const me = Admin.getApplication();
+		me.onStore('docentes.CargaAgrupadaObservadorStore');
         this.setTitle(AppLang.getSTitleNewsletters()+' - ' + Global.getYear());
+        this.callParent(arguments);
+
     },
     items       : [
         {
@@ -38,7 +44,7 @@ Ext.define('Admin.view.docentes.BoletinesReportView',{
             items   : [
                 {       
                     xtype   : 'form',
-                    flex    : 3,
+                    flex    : 2,
                     ui      : 'panel-white',
                     scrollable : true,
                     items   : [
@@ -51,13 +57,7 @@ Ext.define('Admin.view.docentes.BoletinesReportView',{
                             margin  : 4,
                             items   : [
                                 {
-                                    xtype   : 'sedesJorn',
-                                    defaults : {
-                                        labelWidth	: 110
-                                    }
-                                },
-                                {
-                                    xtype   : 'CbGrupo'
+                                    xtype   : 'cbCargaDocente'
                                 },
                                 {
                                     xtype   : 'CbPeriodos',
@@ -132,11 +132,11 @@ Ext.define('Admin.view.docentes.BoletinesReportView',{
                     ],
                     listeners : {
                         'selectionchange': function(grid, selected, eOpts) {
-                            var me = this;
+							const me = this;
 
-                            if (me.up('window').down('#ckEst')) {
+							if (me.up('window').down('#ckEst')) {
                                 me.up('window').down('#ckEst').setDisabled(!selected.length);
-                                if (selected.length == 0){
+                                if (selected.length === 0){
                                     me.up('window').down('#ckEst').setValue(false);
                                 }
                             }
@@ -169,7 +169,8 @@ Ext.define('Admin.view.docentes.BoletinesReportView',{
                         {
                             text: 'Sede',
                             dataIndex: 'sede',
-                            width: 190
+							minWidth: 200,
+                            flex: 1
                         }
                     ],
                     dockedItems: [
@@ -180,21 +181,19 @@ Ext.define('Admin.view.docentes.BoletinesReportView',{
                                 {
                                     xtype       : 'customButton',
                                     iconCls     : 'x-fa fa-search',
-                                    text        : 'Búscar',
+                                    text        : 'Buscar',
                                     bind    : {
-                                        visible : '{comboReport.value}'
+                                        visible : '{cbCargaDocente.value}'
                                     },
                                     handler     : function (btn) {
-                                        var
-                                            win     = btn.up('window'),
-                                            me      = Admin.getApplication(),
-                                            store   = Ext.getStore('MatriculadosStore');
-
-                                        extra   = {
-                                            pdbCodGrado : win.down('#comboGrados').getValue(),
-                                            pdbGrupo    : win.down('#comboGrupo').getValue(),
-                                            pdbSede     : win.down('#comboSedes').getValue(),
-                                            pdbJorn     : win.down('#comboJornadas').getValue(),
+										const win = btn.up('window') || btn.up('form'),
+											me = Admin.getApplication();
+										const comboData = win.down('#cbCargaDocente').getSelection();
+										const extra   = {
+                                            pdbCodGrado : comboData.get('id_grado'),
+                                            pdbGrupo    : comboData.get('grupo'),
+                                            pdbSede     : comboData.get('id_sede'),
+                                            pdbJorn     : comboData.get('id_jorn'),
                                             pdbTable    : 'student_enrollment'
                                         };
                                         me.setParamStore('MatriculadosStore',extra,true);
@@ -209,7 +208,7 @@ Ext.define('Admin.view.docentes.BoletinesReportView',{
                                 {
                                     xtype   : 'printButton',
                                     bind    : {
-                                        disabled    : '{!comboReport.value}'
+                                        disabled    : '{!cbCargaDocente.value}'
                                     }
                                 }
                             ]

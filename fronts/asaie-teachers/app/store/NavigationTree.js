@@ -58,21 +58,23 @@ Ext.define('Admin.store.NavigationTree', {
 					routeId : 'seguimiento',
 					leaf    : true
 				},
-				/*{
+				{
 					text    : 'Informes',
 					iconCls : 'x-fa fa-newspaper-o nav-tree-change-new',
 					cls     : 'parpadea chat-button',
 					viewType: 'informesdocentes',
 					routeId : 'informes',
+					visible : Global.hasAccessTeacherReports(),
 					leaf    : true
-				},*/
-				/*{
+				},
+				{
 					text    : 'Actividades académicas',
 					iconCls : 'x-fa fa-spinner',
 					viewType: 'actividadesacademicas',
 					routeId : 'actividades',
+					visible : Global.hasAccessAcademicActivities(),
 					leaf    : true
-				}*/
+				}
             ]
     }
 });

@@ -3,9 +3,14 @@ Ext.define('Admin.view.promocion.InformeFinal',{
     alias   :'widget.informefinal',
     xtype   :'informefinal',
     itemId  : 'LibroFinalView',
+	requires	: [
+		'Admin.combo.CbCargaDocente'
+	],
     initComponent: function () {
-        this.callParent(arguments);
+		const me = Admin.getApplication();
+		me.onStore('docentes.CargaAgrupadaObservadorStore');
         this.setTitle('Informe final de evaluación - '+ Global.getYear());
+        this.callParent(arguments);
     },
     controller  : 'Promocion',
     layout: {
@@ -15,7 +20,7 @@ Ext.define('Admin.view.promocion.InformeFinal',{
     items       : [
         {
             xtype   		: 'fieldset',
-            title   		: 'Squabbed de estudiantes',
+            title   		: 'Búsqueda de estudiantes',
 			width   		: 455,
             defaults : {
                 labelWidth	: 65
@@ -23,18 +28,9 @@ Ext.define('Admin.view.promocion.InformeFinal',{
 			scrollable	: true,
             margin  : 4,
             items   : [
-                {
-                    xtype   : 'sedesJorn',
-                    defaults : {
-                        labelWidth	: 65
-                    }
-                },
-                {
-                    xtype   : 'CbGrupo',
-                    bind    : {
-                        visible : '{comboGrados.value}'
-                    }
-                },
+				{
+					xtype		: 'cbCargaDocente',
+				},
                 {
                     xtype       : 'radiogroup',
                     fieldLabel  : 'Periodo',
@@ -153,7 +149,7 @@ Ext.define('Admin.view.promocion.InformeFinal',{
                 {
                     text: 'Sede',
                     dataIndex: 'sede',
-                    width: 190
+                    flex: 1
                 }
             ]
         }
@@ -168,18 +164,19 @@ Ext.define('Admin.view.promocion.InformeFinal',{
                 iconCls     : 'x-fa fa-search',
                 text        : 'Buscar',
                 bind    : {
-                    disabled : '{!comboJornadas.value}'
+                    disabled : '{!cbCargaDocente.value}'
                 },
                 handler     : function (btn) {
-                    var
-                        win     = btn.up('form'),
-                        me      = Admin.getApplication();
+					const win = btn.up('form'),
+						me = Admin.getApplication();
+					const comboData = win.down('#cbCargaDocente').getSelection();
 					let extra = {
-						pdbCodGrado: win.down('#comboGrados').getValue(),
-						pdbGrupo: win.down('#comboGrupo').getValue(),
-						pdbSede: win.down('#comboSedes').getValue(),
-						pdbJorn: win.down('#comboJornadas').getValue(),
-						pdbTable: 'matriculas'
+						pdbCodGrado	: comboData.get('id_grado'),
+						pdbGrado	: comboData.get('id_grado'),
+						pdbGrupo	: comboData.get('grupo'),
+						pdbSede		: comboData.get('id_sede'),
+						pdbJorn		: comboData.get('id_jorn'),
+						pdbTable	: 'matriculas'
 					};
                     me.setParamStore('MatriculadosStore',extra,true);
                 }
@@ -192,14 +189,15 @@ Ext.define('Admin.view.promocion.InformeFinal',{
 					const me = Admin.getApplication(),
 						gb = Global,
 						win = btn.up('form'),
-						values = win.getValues(),
-						param = {
-							pdbGrado: win.down('#comboGrados').getValue(),
-							pdbJorn: win.down('#comboJornadas').getValue(),
-							pdbGrupo: win.down('#comboGrupo').getValue(),
-							pdbSede: win.down('#comboSedes').getValue(),
-							pdbAll: win.down('#ckAll').getValue() ? 1 : 0,
-							pdbPer: values.periodo
+						values = win.getValues();
+					const comboData = win.down('#cbCargaDocente').getSelection();
+					const  param = {
+							pdbGrado	: comboData.get('id_grado'),
+							pdbJorn		: comboData.get('id_jorn'),
+							pdbGrupo	: comboData.get('grupo'),
+							pdbSede		: comboData.get('id_sede'),
+							pdbAll		: win.down('#ckAll').getValue() ? 1 : 0,
+							pdbPer		: values.periodo
 						};
 					const {school, profile} = AuthToken.recoverParams();
 					const dt	= new Date();
@@ -226,41 +224,7 @@ Ext.define('Admin.view.promocion.InformeFinal',{
                     });
                 },
                 bind    : {
-                    disabled : '{!comboJornadas.value}'
-                }
-            },'-',
-            {
-                xtype   : 'customButton',
-                iconCls : 'x-fa fa-plus',
-                text    : 'Observaciones',
-                itemId  : 'btnObs',
-                disabled: true,
-                handler : function (btn) {
-					let me = Admin.getApplication(),
-						store = '',
-						win = btn.up('form'),
-						grid = win.down('grid');
-
-					store   = Ext.getStore('ActaPromoObsStore');
-					let param = {
-						pdbTable: 'acta_promocion',
-						where: '{"id_matric": ' + grid.getSelection()[0].get('id') + '}'
-					};
-                    me.setParamStore('ActaPromoObsStore',param,false);
-                    win.mask();
-                    store.load({
-                        callback: function (r) {
-                            win.unmask();
-                            if (r.length > 0){
-                                win = Ext.create('Admin.view.promocion.ObservacionFinalView');
-                                form= win.down('form');
-                                form.loadRecord(r[0]);
-                                win.show();
-                            }else {
-                                me.showResult('El estudiante no tiene acta de promoción.');
-                            }
-                        }
-                    });
+                    disabled : '{!cbCargaDocente.value}'
                 }
             },'-',
             {
@@ -273,7 +237,7 @@ Ext.define('Admin.view.promocion.InformeFinal',{
             {
                 xtype   : 'printButton',
                 bind    : {
-                    disabled    : '{!comboJornadas.value}'
+                    disabled    : '{!cbCargaDocente.value}'
                 }
             },'-',
             {

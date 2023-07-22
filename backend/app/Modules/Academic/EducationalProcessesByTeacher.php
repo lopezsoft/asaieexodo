@@ -75,7 +75,7 @@ class EducationalProcessesByTeacher
             $params     = (Object) $request->all();
             $school     = SchoolQueries::getSchoolRequest($request);
             $db         = $school->db;
-            // ControlClosingDates::isCurrentYear($school->year);
+            ControlClosingDates::isCurrentYear($school->year);
             $teacherId  = CoursesOfTeacher::getTeacherId($db);
             $fields     = json_decode($request->input('records'));
             $params     = [

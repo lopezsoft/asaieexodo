@@ -17,8 +17,10 @@ Ext.define('Admin.view.general.ConsolidadosReportView',{
     extend  : 'Admin.base.ReportViewBase',
     alias   :'widget.ConsolidadosReportView',
     initComponent: function () {
-        this.callParent(arguments);
+		const me = Admin.getApplication();
+		me.onStore('docentes.CargaAgrupadaObservadorStore');
         this.setTitle(AppLang.getSTitleConsolidated() + ' - ' + Global.getYear());
+        this.callParent(arguments);
     },
     controller  : 'ReportesGeneral',
     maxHeight      : 500,
@@ -31,13 +33,7 @@ Ext.define('Admin.view.general.ConsolidadosReportView',{
             },
             items   : [
                 {
-                    xtype   : 'sedesJorn',
-                    defaults: {
-                        labelWidth  : 120
-                    }
-                },
-                {
-                    xtype   : 'CbGrupo'
+                    xtype   : 'cbCargaDocente'
                 },
                 {
                     xtype   : 'CbPeriodos',
@@ -110,27 +106,24 @@ Ext.define('Admin.view.general.ConsolidadosReportView',{
             text        : AppLang.getSButtonGenerate(),
             formBind    : true,
             handler     : function (btn) {
-                var url     = '/reports/generate/consolidated',
-                    win     = btn.up('window'),
-                    me      = Admin.getApplication(),
-                    values  = win.down('form').getValues(),
-                    param   = {
-                        pdbCodGrado : values.id_grado,
-                        pdbIdJorn   : values.cod_jorn,
-                        pdbGrupo    : values.grupo,
-                        pTypeReport : values.id_report,
-                        pdbIdSede   : values.id_sede,
-                        pdbPeriodo  : values.periodo,
+				const url = '/reports/generate/consolidated',
+					win = btn.up('window'),
+					me = Admin.getApplication(),
+					values = win.down('form').getValues();
+				const comboData = win.down('#cbCargaDocente').getSelection();
+				const param = {
+						pdbCodGrado	: comboData.get('id_grado'),
+						pdbIdJorn	: comboData.get('id_jorn'),
+						pdbGrupo	: comboData.get('grupo'),
+						pTypeReport	: values.id_report,
+						pdbIdSede	: comboData.get('id_sede'),
+						pdbPeriodo	: values.periodo,
 						allPer		: values.allper ? 1 : 0,
-						allGroup	: values.allGroup ? 1 : 0
-                    };
-                try {
+						allGroup	: values.allGroup ? 1 : 0,
+						...Global.getSchoolParams()
+					};
+				try {
                     win.mask(AppLang.getSSavingChanges());
-					const {school, profile}	= AuthToken.recoverParams();
-					const dt			= new Date();
-					param.schoolId  	= school.id || 0;
-					param.profileId   	= profile.id || 0;
-					param.year        	= school.year || dt.getFullYear();
                     Ext.Ajax.request({
                         url: Global.getApiUrl() + url,
                         timeout: 6000000,
@@ -138,13 +131,13 @@ Ext.define('Admin.view.general.ConsolidadosReportView',{
 						headers: {
 							'Authorization' : (AuthToken) ? AuthToken.authorization() : ''
 						},
-                        success: function (response, opts) {
+                        success: function () {
                             me.showResult(AppLang.getSChangesOk());
                         },
                         failure: function (response, opts) {
                             me.onError('server-side failure with status code ' + response.status);
                         },
-                        callback: function (e, r) {
+                        callback: function () {
                             win.unmask()
                         }
                     });

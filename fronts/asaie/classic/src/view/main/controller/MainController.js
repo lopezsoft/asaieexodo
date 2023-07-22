@@ -21,8 +21,8 @@ Ext.define('Admin.view.main.MainController', {
 
     setCurrentView: function(hashTag) {
         hashTag = (hashTag || '').toLowerCase();
-        xrefs                   = this.getReferences();
-        var me                  = this,
+		let xrefs = this.getReferences();
+        let me                  = this,
             refs                = me.getReferences(),
             mainCard            = refs.mainCardPanel,
             mainLayout          = mainCard.getLayout(),

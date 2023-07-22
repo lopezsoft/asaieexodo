@@ -24,65 +24,67 @@ Ext.define('Admin.view.home.Dashboard', {
     ],
     listeners : {
         afterRender : function(o, e){
-            var 
-                ts  = this,
-                url = Global.getUrlBase() + 'stats/get_students_enrolled';
-			return;
-            Ext.Ajax.request({
-                url: url,
-                success: function (response, opts) {
-                    var data = Ext.decode(response.responseText),
-                        me = Admin.getApplication();
-                    me.onStore('charts.RegisteredStore');
+			const url = Global.getApiUrl() + '/school/statistics/students-enrolled';
+			Ext.Ajax.request({
+                url		: url,
+				method	: 'GET',
+				headers	: Global.getHeaders(),
+				params: {
+					...Global.getSchoolParams()
+				},
+                success: function (response) {
+					const data = Ext.decode(response.responseText),
+						me = Admin.getApplication();
+					me.onStore('charts.RegisteredStore');
                     me.onStore('charts.RetiredStore');
                     me.onStore('charts.TeachersStore');
                     o.removeAll(true);
-                    items = [
-                        {
-                            xtype           : 'widget-e',
-                            containerColor  : 'cornflower-blue',
-                            userCls         : 'big-33 small-50',
-                            itemId          : 'registered',
-                            data: {
-                                amount  : data.registered,
-                                type    : AppLang.getSTitleStudentRegistered(),
-                                icon    : 'user-graduate'
-                            }
-                        },
-                        {
-                            xtype           : 'widget-e',
-                            itemId          : 'retired',
-                            containerColor  : 'green',
-                            userCls         : 'big-33 small-50',
-                            data: {
-                                amount  : data.retired,
-                                type    : AppLang.getSTitleStudentRetired(),
-                                icon    : 'graduation-cap'
-                            }
-                        },
-                        {
-                            xtype: 'widget-e',
-                            containerColor: 'magenta',
-                            userCls: 'big-33 small-100',
-                            data: {
-                                amount: data.teachers,
-                                type: AppLang.getSTitleTeachersRegistered(),
-                                icon: 'chalkboard-teacher'
-                            }
-                        },
-                        {
-                            xtype: 'RegisteredBar',
-                            userCls: 'big-100 small-100'
-                        },
-                        {
-                            xtype: 'RetiredBar',
-                            userCls: 'big-100 small-100'
-                        },
-                        {
-                            xtype: 'TeachersBar',
-                            userCls: 'big-100 small-100'
-                        }
-                    ];
+					let items = [
+						{
+							xtype: 'widget-e',
+							containerColor: 'cornflower-blue',
+							userCls: 'big-33 small-50',
+							itemId: 'registered',
+							data: {
+								amount: data.registered,
+								type: AppLang.getSTitleStudentRegistered(),
+								icon: 'user-graduate'
+							}
+						},
+						{
+							xtype: 'widget-e',
+							itemId: 'retired',
+							containerColor: 'green',
+							userCls: 'big-33 small-50',
+							data: {
+								amount: data.retired,
+								type: AppLang.getSTitleStudentRetired(),
+								icon: 'graduation-cap'
+							}
+						},
+						{
+							xtype: 'widget-e',
+							containerColor: 'magenta',
+							userCls: 'big-33 small-100',
+							data: {
+								amount: data.teachers,
+								type: AppLang.getSTitleTeachersRegistered(),
+								icon: 'chalkboard-teacher'
+							}
+						},
+						{
+							xtype: 'RegisteredBar',
+							userCls: 'big-100 small-100'
+						},
+						{
+							xtype: 'RetiredBar',
+							userCls: 'big-100 small-100'
+						},
+						{
+							xtype: 'TeachersBar',
+							userCls: 'big-100 small-100'
+						}
+					];
                     o.add(items);
                 },
                 failure: function (response, opts) {

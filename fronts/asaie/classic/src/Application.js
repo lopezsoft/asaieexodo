@@ -28,7 +28,7 @@ Ext.define('Admin.Application', {
     ],
 
 
-    defaultToken: 'login',
+    defaultToken: 'dashboard',
 
     // The name of the initial view to create. This class will gain a "viewport" plugin
     // if it does not extend Ext.Viewport.
@@ -94,24 +94,25 @@ Ext.define('Admin.Application', {
 				"hideMethod": "fadeOut"
 			};
 
-			if(AuthToken.isAuthenticated()) {
+			let mainView;
+			if (AuthToken.isAuthenticated()) {
 				me.setMainView('Admin.view.main.Main');
 				mainView = me.getMainView();
 				mainView.getController().redirectTo('dashboard', true);
 				mainView.getController().onToggleNavigationSize(null);
-				const token	= AuthToken.recoverParams();
-				const msg	= (token)	? token.user.first_name + ' ' + token.user.last_name : '';
+				const token = AuthToken.recoverParams();
+				const msg = (token) ? token.user.first_name + ' ' + token.user.last_name : '';
 				toastr.success('Hola ' + msg + ', bienvenid@ al sistema de notas ASAIE ÉXODO.');
-			}else {
-				window.location.href	= '/auth/login';
+			} else {
+				window.location.href = '/auth/login';
 			}
 
         });
     },
 
     onCreateStores: function() {
-        var me = Admin.getApplication();
-        me.onStore('general.MatriculadosStore');
+		const me = Admin.getApplication();
+		me.onStore('general.MatriculadosStore');
         me.onStore('general.JornadasStore');
         me.onStore('general.GrupoStore');
         me.onStore('general.GradosStore');

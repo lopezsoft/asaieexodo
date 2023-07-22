@@ -7,16 +7,16 @@ Ext.define('Admin.view.config.Configs', {
         avatarWomen: "/assets/img/avatars/woman.png",
         avatarUnknoun: "/assets/img/avatars/unknown.png",
         socket: null,
-        hostSocket	: 'https://ns547829.ip-66-70-178.net:3001',
+     /*   hostSocket	: 'https://ns547829.ip-66-70-178.net:3001',
         urlBase		: "https://api.asaie.co",
         urlLocation	: "https://admin.asaie.co",
-		apiUrl		: "https://api.asaie.co/api/v1",
+		apiUrl		: "https://api.asaie.co/api/v1",*/
 		year		: 0,
-		/*hostSocket	: 'http://localhost:8081',
+		hostSocket	: 'http://localhost:8081',
 		urlBase		: "http://asaieexodo.test",
 		urlLocation	: "http://asaieexodo.test",
 		apiUrl		: "http://asaieexodo.test/api/v1",
-		reportUrl	: "http://asaie.rep",*/
+		reportUrl	: "http://asaie.rep",
 		competences: [],
 		scale: [],
 		columnsNotes: [],
@@ -26,7 +26,22 @@ Ext.define('Admin.view.config.Configs', {
     constructor: function(config) {
         this.initConfig(this.config, config);
     },
-
+	getSchoolModules: function() {
+		const modules	= localStorage.getItem('schoolModules');
+		return (modules) ? JSON.parse(modules) : [];
+	},
+	hasAccessTeacherReports: function() {
+		return this.hasAccessSchoolModule('TEACHER_REPORTS');
+	},
+	hasAccessAcademicActivities: function() {
+		return this.hasAccessSchoolModule('ACADEMIC_ACTIVITIES');
+	},
+	hasAccessSchoolModule: function(modeleName) {
+		const modules	= this.getSchoolModules();
+		return modules.filter((item) => {
+			return item.system_module.tag === "TEACHER_REPORTS" && item.is_active === 1 && item.status === 1;
+		}).length > 0;
+	},
 	getCompetencesFilter: function() {
 		return this.getCompetences().filter((item) => {
 			return parseInt(item.id) > 0;

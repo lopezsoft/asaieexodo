@@ -1,5 +1,13 @@
 <?php
 Route::prefix('school')->group(function () {
+    Route::prefix('statistics')->group(function () {
+        Route::controller('School\StatisticsController')->group(function () {
+            Route::get('students-enrolled', 'getStudentsEnrolled');
+            Route::get('teachers-by-year', 'getTeachersByYear');
+            Route::get('retired-by-year', 'getRetiredByYear');
+            Route::get('registered-by-year', 'getRegisteredByYear');
+        });
+    });
     Route::controller('School\SchoolsController')->group(function () {
         Route::get('system-modules', 'getSystemModules');
         Route::get('read',          'read');

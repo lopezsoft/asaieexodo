@@ -148,7 +148,7 @@ Ext.define('Admin.view.main.Main', {
                         width   : 32,
                         alt     : AppLang.getSToolTipUserProfile(),
                         itemId  : 'imgUser',
-                        src     : (Ext.isEmpty(user.avatar)) ? Global.getAvatarUnknoun() : Global.getUrlBase() + user.avatar,
+                        src     : (Ext.isEmpty(user.avatar)) ? Global.getAvatarUnknoun() : user.avatar,
                         imgCls  : 'avatar-background',
                         tooltip : AppLang.getSToolTipUserProfile()
                     },

@@ -1,7 +1,7 @@
 Ext.define('Admin.store.charts.TeachersStore', {
     extend: 'Admin.store.base.StoreUrl',
     storeId	    : 'TeachersStore',
-    autoLoad    : false,
+    autoLoad    : true,
     alias       : 'store.TeachersStore',
     requires: [
     	'Admin.model.charts.RegisteredModel'
@@ -9,6 +9,6 @@ Ext.define('Admin.store.charts.TeachersStore', {
     model		: 'Admin.model.charts.RegisteredModel',
     proxy: {
 	type	: 'ajax',
-	     url:  'stats/get_teachers_year'
+	     url:  'school/statistics/teachers-by-year'
 	}
 });

@@ -1,7 +1,7 @@
 Ext.define('Admin.store.charts.RegisteredStore', {
     extend: 'Admin.store.base.StoreUrl',
     storeId	    : 'RegisteredStore',
-    autoLoad    : false,
+    autoLoad    : true,
     alias       : 'store.RegisteredStore',
     requires: [
     	'Admin.model.charts.RegisteredModel'
@@ -9,6 +9,6 @@ Ext.define('Admin.store.charts.RegisteredStore', {
     model		: 'Admin.model.charts.RegisteredModel',
     proxy: {
 	type	: 'ajax',
-	     url:  'stats/get_Registered_year'
+	     url:  'school/statistics/registered-by-year'
 	}
 });

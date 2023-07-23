@@ -29,6 +29,13 @@ Route::prefix('files')->group(function () {
         Route::get('read', 'get');
         Route::post('upload', 'upload');
         Route::delete('delete/{id}', 'delete');
+        Route::prefix('watermark')->group(function () {
+            Route::get('/', 'getWatermarks');
+            Route::post('/', 'uploadWatermark');
+            Route::put('/{id}', 'updateWatermark');
+            Route::post('/{id}', 'updateWatermark');
+            Route::delete('/{id}', 'deleteWatermark');
+        });
     });
     Route::controller('DeletingController')->group(function () {
         Route::delete('delete-path/{path}', 'deleteFile');

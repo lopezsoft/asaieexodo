@@ -1,0 +1,255 @@
+{
+    "histories": [
+        {
+            "changes": [
+                {
+                    "attribute": "file_name",
+                    "from": null,
+                    "to": "R1eQTMqwoOyefB71QaiqeMchzkFjy9h3woYkc5sO.jpg"
+                },
+                {
+                    "attribute": "file_description",
+                    "from": null,
+                    "to": "watermark-altos del libano.jpg"
+                },
+                {
+                    "attribute": "file_path",
+                    "from": null,
+                    "to": "test\/schools\/demo\/watermarks\/R1eQTMqwoOyefB71QaiqeMchzkFjy9h3woYkc5sO.jpg"
+                },
+                {
+                    "attribute": "url",
+                    "from": null,
+                    "to": "https:\/\/asaie-app-storage.s3.us-west-2.amazonaws.com\/test\/schools\/demo\/watermarks\/R1eQTMqwoOyefB71QaiqeMchzkFjy9h3woYkc5sO.jpg"
+                },
+                {
+                    "attribute": "extension_file",
+                    "from": null,
+                    "to": "jpg"
+                },
+                {
+                    "attribute": "mime_type",
+                    "from": null,
+                    "to": "image\/jpeg"
+                },
+                {
+                    "attribute": "size_file",
+                    "from": null,
+                    "to": 214145
+                },
+                {
+                    "attribute": "last_modified",
+                    "from": null,
+                    "to": "2023-07-22 23:58:03"
+                },
+                {
+                    "attribute": "state",
+                    "from": null,
+                    "to": 1
+                },
+                {
+                    "attribute": "school_id",
+                    "from": null,
+                    "to": 10
+                },
+                {
+                    "attribute": "settings",
+                    "from": null,
+                    "to": "{\"paper_size\":\"a4\",\"available_in\":\"1\",\"hide_header\":\"1\",\"hide_footer\":\"1\",\"margin_top\":\"5cm\",\"margin_bottom\":\"0cm\"}"
+                },
+                {
+                    "attribute": "uuid",
+                    "from": null,
+                    "to": "5d2786f7-eb06-4bcc-a547-5ad67e48cf6a"
+                }
+            ],
+            "at": "2023-07-22 23:58:04",
+            "timestamp": 1690088284,
+            "action": "create",
+            "userId": 1,
+            "by": "LEWIS LOPEZ GOMEZ (lopezsoft.com@gmail.com)",
+            "ip": "::1"
+        },
+        {
+            "changes": [
+                {
+                    "changes": [
+                        {
+                            "attribute": "file_name",
+                            "from": null,
+                            "to": "R1eQTMqwoOyefB71QaiqeMchzkFjy9h3woYkc5sO.jpg"
+                        },
+                        {
+                            "attribute": "file_description",
+                            "from": null,
+                            "to": "watermark-altos del libano.jpg"
+                        },
+                        {
+                            "attribute": "file_path",
+                            "from": null,
+                            "to": "test\/schools\/demo\/watermarks\/R1eQTMqwoOyefB71QaiqeMchzkFjy9h3woYkc5sO.jpg"
+                        },
+                        {
+                            "attribute": "url",
+                            "from": null,
+                            "to": "https:\/\/asaie-app-storage.s3.us-west-2.amazonaws.com\/test\/schools\/demo\/watermarks\/R1eQTMqwoOyefB71QaiqeMchzkFjy9h3woYkc5sO.jpg"
+                        },
+                        {
+                            "attribute": "extension_file",
+                            "from": null,
+                            "to": "jpg"
+                        },
+                        {
+                            "attribute": "mime_type",
+                            "from": null,
+                            "to": "image\/jpeg"
+                        },
+                        {
+                            "attribute": "size_file",
+                            "from": null,
+                            "to": 214145
+                        },
+                        {
+                            "attribute": "last_modified",
+                            "from": null,
+                            "to": "2023-07-22 23:58:03"
+                        },
+                        {
+                            "attribute": "state",
+                            "from": null,
+                            "to": 1
+                        },
+                        {
+                            "attribute": "school_id",
+                            "from": null,
+                            "to": 10
+                        },
+                        {
+                            "attribute": "settings",
+                            "from": null,
+                            "to": "{\"paper_size\":\"a4\",\"available_in\":\"1\",\"hide_header\":\"1\",\"hide_footer\":\"1\",\"margin_top\":\"5cm\",\"margin_bottom\":\"0cm\"}"
+                        },
+                        {
+                            "attribute": "uuid",
+                            "from": null,
+                            "to": "5d2786f7-eb06-4bcc-a547-5ad67e48cf6a"
+                        }
+                    ],
+                    "at": "2023-07-22 23:58:04",
+                    "timestamp": 1690088284,
+                    "action": "create",
+                    "userId": 1,
+                    "by": "LEWIS LOPEZ GOMEZ (lopezsoft.com@gmail.com)",
+                    "ip": "::1"
+                },
+                {
+                    "attribute": "last_modified",
+                    "from": "2023-07-23T04:58:03.000000Z",
+                    "to": "2023-07-22 23:58:03"
+                },
+                {
+                    "attribute": "settings",
+                    "from": {
+                        "paper_size": "a4",
+                        "available_in": "1",
+                        "hide_header": "1",
+                        "hide_footer": "1",
+                        "margin_top": "5cm",
+                        "margin_bottom": "0cm"
+                    },
+                    "to": "{\"paper_size\":\"a4\",\"available_in\":\"3\",\"hide_header\":\"1\",\"hide_footer\":\"0\",\"margin_top\":\"5cm\",\"margin_bottom\":\"0cm\"}"
+                },
+                {
+                    "attribute": "created_at",
+                    "from": "2023-07-23T04:58:04.000000Z",
+                    "to": "2023-07-22 23:58:04"
+                },
+                {
+                    "attribute": "updated_at",
+                    "from": "2023-07-23T04:58:04.000000Z",
+                    "to": "2023-07-22 23:58:04"
+                }
+            ],
+            "at": "2023-07-22 23:59:13",
+            "timestamp": 1690088353,
+            "action": "update",
+            "userId": 1,
+            "by": "LEWIS LOPEZ GOMEZ (lopezsoft.com@gmail.com)",
+            "ip": "::1"
+        },
+        {
+            "changes": [
+                {
+                    "attribute": "last_modified",
+                    "from": "2023-07-23T04:58:03.000000Z",
+                    "to": "2023-07-22 23:58:03"
+                },
+                {
+                    "attribute": "settings",
+                    "from": {
+                        "paper_size": "a4",
+                        "available_in": "3",
+                        "hide_header": "1",
+                        "hide_footer": "0",
+                        "margin_top": "5cm",
+                        "margin_bottom": "0cm"
+                    },
+                    "to": "{\"paper_size\":\"a4\",\"available_in\":\"2\",\"hide_header\":\"1\",\"hide_footer\":\"0\",\"margin_top\":\"5cm\",\"margin_bottom\":\"0cm\"}"
+                },
+                {
+                    "attribute": "created_at",
+                    "from": "2023-07-23T04:58:04.000000Z",
+                    "to": "2023-07-22 23:58:04"
+                },
+                {
+                    "attribute": "updated_at",
+                    "from": "2023-07-23T04:59:13.000000Z",
+                    "to": "2023-07-22 23:59:13"
+                }
+            ],
+            "at": "2023-07-23 00:02:30",
+            "timestamp": 1690088550,
+            "action": "update",
+            "userId": 1,
+            "by": "LEWIS LOPEZ GOMEZ (lopezsoft.com@gmail.com)",
+            "ip": "::1"
+        },
+        {
+            "changes": [
+                {
+                    "attribute": "last_modified",
+                    "from": "2023-07-23T04:58:03.000000Z",
+                    "to": "2023-07-22 23:58:03"
+                },
+                {
+                    "attribute": "settings",
+                    "from": {
+                        "paper_size": "a4",
+                        "available_in": "2",
+                        "hide_header": "1",
+                        "hide_footer": "0",
+                        "margin_top": "5cm",
+                        "margin_bottom": "0cm"
+                    },
+                    "to": "{\"paper_size\":\"a4\",\"available_in\":\"4\",\"hide_header\":\"1\",\"hide_footer\":\"0\",\"margin_top\":\"5cm\",\"margin_bottom\":\"0cm\"}"
+                },
+                {
+                    "attribute": "created_at",
+                    "from": "2023-07-23T04:58:04.000000Z",
+                    "to": "2023-07-22 23:58:04"
+                },
+                {
+                    "attribute": "updated_at",
+                    "from": "2023-07-23T05:02:30.000000Z",
+                    "to": "2023-07-23 00:02:30"
+                }
+            ],
+            "at": "2023-07-23 00:22:24",
+            "timestamp": 1690089744,
+            "action": "update",
+            "userId": 1,
+            "by": "LEWIS LOPEZ GOMEZ (lopezsoft.com@gmail.com)",
+            "ip": "::1"
+        }
+    ]
+}

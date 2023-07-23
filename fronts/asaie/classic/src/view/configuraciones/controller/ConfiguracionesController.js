@@ -4,33 +4,24 @@
 Ext.define('Admin.view.configuraciones.controller.ConfiguracionesController',{
     extend  : 'Admin.base.BaseController',
     alias   : 'controller.configuraciones',
-
     init: function () {
-        me = this;
-        me.setConfigVar();
+        this.setConfigVar();
     },
+	onExtraModules : function (btn) {
+		const me = this.app;
+		me.onStore('general.ExtraModulesStore');
+		Ext.create('Admin.view.configuraciones.ExtraModulesView').show();
+	},
+	onWatermark : function (btn) {
+		const me = this.app;
+		me.onStore('general.WatermarkStore');
+		Ext.create('Admin.view.configuraciones.WatermarkView').show();
+	},
     onCarnets : function(btn){
-        var me  = this.app;
-        me.onStore('general.CarnetsStore');
+		const me = this.app;
+		me.onStore('general.CarnetsStore');
         Ext.create('Admin.view.configuraciones.Carnets').show();
     },
-	onConfigMatOnline : function (btn) {
-		var win     = btn.up('window'),
-			me      = this.app,
-			form    = win.down('form'),
-			record  = form.getRecord(),
-			values  = form.getValues(),
-			store   = Ext.getStore('ConfigMatOnlineStore');
-		record.set(values);
-		store.sync({
-			success : function(batch, o) {
-				me.showResult('Se guardaron los datos correctamente.')
-			},
-			failure : function (e, r) {
-				me.onError('Ocurrio un error, no se guardaron los cambios.');
-			}
-		});
-	},
 
 	onMatOnline : function (btn) {
         var me  = this.app;
@@ -38,15 +29,16 @@ Ext.define('Admin.view.configuraciones.controller.ConfiguracionesController',{
         store = Ext.getStore('ConfigMatOnlineStore');
         store.reload({
             callback : function (r, e) {
-                if (r.length > 0){
-                    //Habilitar matricula en línea
-                    win     = Ext.create('Admin.view.configuraciones.ConfigMatOnlineView');
-                    form    = win.down('form');
-                    form.loadRecord(r[0]);
-                    win.show();
-                }else {
-                    me.onError('Ha ocurrido un error');
-                }
+				let win;
+				if (r.length > 0) {
+					//Habilitar matricula en línea
+					win = Ext.create('Admin.view.configuraciones.ConfigMatOnlineView');
+					form = win.down('form');
+					form.loadRecord(r[0]);
+					win.show();
+				} else {
+					me.onError('Ha ocurrido un error');
+				}
             }
         });
 	},
@@ -56,31 +48,6 @@ Ext.define('Admin.view.configuraciones.controller.ConfiguracionesController',{
         me.onStore('general.JornadasStore');
         Ext.create('Admin.view.configuraciones.JornadasView').show();
 	},
-
-	onUpdateEscalaNacional : function (btn) {
-		var win     = btn.up('window'),
-			me      = this.app,
-			form    = win.down('form'),
-			record  = form.getRecord(),
-			cb		= win.down('CbEscalaNacional'),
-			values  = form.getValues();
-		values.nombre_escala = cb.getSelection().get('nombre_escala');
-		record.set(values);
-		win.close();
-	},
-
-	onUpdateNivelCompetencia : function (btn) {
-		var win     = btn.up('window'),
-			me      = this.app,
-			form    = win.down('form'),
-			record  = form.getRecord(),
-			cb		= win.down('CbGradosAgrupados'),
-			values  = form.getValues();
-		values.nombre_grado_agrupado = cb.getSelection().get('nombre_grado_agrupado');
-		record.set(values);
-		win.close();
-	},
-
 	onEscalaNacional    : function (btn) {
 		var me  = this.app;
         me.onStore('general.EscalaNacionalStore');
@@ -88,30 +55,6 @@ Ext.define('Admin.view.configuraciones.controller.ConfiguracionesController',{
             pdbTable: 'escala_nacional'
         });
         Ext.create('Admin.view.configuraciones.EscalaNacionalView').show();
-	},
-
-	onUpdateNivelEscala : function (btn) {
-		var win     = btn.up('window'),
-			me      = this.app,
-			form    = win.down('form'),
-			record  = form.getRecord(),
-			cb		= win.down('CbGradosAgrupados'),
-			values  = form.getValues();
-		values.nombre_grado_agrupado = cb.getSelection().get('nombre_grado_agrupado');
-		record.set(values);
-		win.close();
-	},
-
-	onUpdateNivelGrado : function (btn) {
-		var win     = btn.up('window'),
-			me      = this.app,
-			form    = win.down('form'),
-			record  = form.getRecord(),
-			cb		= win.down('CbNivelAcademico'),
-			values  = form.getValues();
-		values.nombre_nivel = cb.getSelection().get('nombre_nivel');
-		record.set(values);
-		win.close();
 	},
 
 	onGrados : function (btn) {
@@ -158,18 +101,6 @@ Ext.define('Admin.view.configuraciones.controller.ConfiguracionesController',{
         Ext.create('Admin.view.configuraciones.GradosAgrupadosView').show();
 	},
 
-	onUpdateGradosPeriodos : function (btn) {
-		var win     = btn.up('window'),
-			me      = this.app,
-			form    = win.down('form'),
-			record  = form.getRecord(),
-			cb		= win.down('CbGradosAgrupados'),
-			values  = form.getValues();
-		values.nombre_grado_agrupado = cb.getSelection().get('nombre_grado_agrupado');
-		record.set(values);
-		win.close();
-	},
-
 	onPeriodos : function (btn) {
 		const me = this.app;
 		me.onStore('general.PeriodosStore');
@@ -199,17 +130,6 @@ Ext.define('Admin.view.configuraciones.controller.ConfiguracionesController',{
             }
         });
 	},
-
-    onSaveProyCupo : function (btn) {
-        var win     = btn.up('window'),
-            me      = this,
-            form    = win.down('form'),
-            record  = form.getRecord(),
-            values  = form.getValues(),
-            store   = Ext.getStore('ProyCuposStore');
-
-        me.onDataSave(record, values, store, values, win,true);
-    },
 
     onNewProyCupos : function (btn) {
         var me  = this.app;

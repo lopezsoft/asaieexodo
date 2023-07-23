@@ -6,8 +6,8 @@ Ext.define('Admin.security.TokenStorage', {
 		me.initConfig(cfg);
     },
     config: {
-        storageKey  : 'asaie-exodo-jwt',
-        storageOut   : 'token-dashboard'
+        storageKey  	: 'asaie-exodo-jwt',
+        storageOut   	: 'token-dashboard'
     },  
 
     redirectTo : function(){

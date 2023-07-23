@@ -101,7 +101,7 @@ class Schools Implements UpdateContract
             $school = SchoolQueries::getSchoolRequest($request);
             $query  = SchoolModule::query()->where('school_id', $school->school->id ?? 0);
             return self::getResponse([
-                'dataRecords'   =>[
+                'records'   =>[
                     'data'  => $query->get(),
                 ]
             ]);

@@ -8,7 +8,7 @@ Ext.define('Admin.view.configuraciones.ConfigPanel',{
     xtype   : 'configPanel',
     layout  : 'responsivecolumn',
 	initComponent: function () {
-		const { isRector, isSecretary } = AuthToken.profileSettings();
+		const { isRector, isSecretary, isCoordinador } = AuthToken.profileSettings();
 		this.items   		= [
 			{
 				xtype   : 'containerButton',
@@ -198,18 +198,12 @@ Ext.define('Admin.view.configuraciones.ConfigPanel',{
 								ts = btn.up('container').up('container');
 							let me = Admin.getApplication();
 							ts.mask('Procesando petición...');
-							const {school, profile}	= AuthToken.recoverParams();
-							const dt	= new Date();
-							let xParam	= {};
-							xParam.schoolId  	= school.id || 0;
-							xParam.profileId   	= profile.id || 0;
-							xParam.year        	= school.year || dt.getFullYear();
 							Ext.Ajax.request({
 								url: gb.getApiUrl() +'/settings/delete-notes-zero',
-								params: xParam,
-								headers: {
-									'Authorization' : (AuthToken) ? AuthToken.authorization() : ''
+								params: {
+									...Global.getSchoolParams(),
 								},
+								headers: Global.getHeaders(),
 								success: function(response) {
 									me.showResult('Proceso terminado correctamente.');
 								},
@@ -271,6 +265,32 @@ Ext.define('Admin.view.configuraciones.ConfigPanel',{
 						text    : 'Habilitar Matricula En línea',
 						handler : 'onMatOnline',
 						disabled: true
+					}
+				]
+			},
+			{
+				xtype   : 'containerButton',
+				disabled: isCoordinador,
+				hidden	: isCoordinador,
+				items   : [
+					{
+						xtype   : 'buttonPanel',
+						iconCls : 'x-fa fa-newspaper',
+						text    : 'Marcas de agua en informes',
+						handler : 'onWatermark',
+					}
+				]
+			},
+			{
+				xtype   : 'containerButton',
+				disabled: isSecretary,
+				hidden	: isSecretary,
+				items   : [
+					{
+						xtype   : 'buttonPanel',
+						iconCls : 'x-fa fa-wrench',
+						text    : 'Módulos extras',
+						handler : 'onExtraModules',
 					}
 				]
 			}

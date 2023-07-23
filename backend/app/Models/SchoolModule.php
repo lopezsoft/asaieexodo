@@ -21,6 +21,13 @@ class SchoolModule extends Model
         'status',
         'is_active',
     ];
+    protected $appends = [
+        'module_name',
+    ];
+    public function getModuleNameAttribute(): string
+    {
+        return $this->systemModule->module_name ?? '';
+    }
     public function systemModule(): BelongsTo
     {
         return $this->belongsTo(SystemModule::class);

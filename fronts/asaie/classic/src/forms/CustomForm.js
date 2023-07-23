@@ -178,14 +178,14 @@ Ext.define('Admin.forms.CustomForm',{
         }
     },
     saveData: function (storeName, reload) {
-        var me      = this.getApp(),
-            win     = this,
-            form    = this,
-            record  = form.getRecord(),
-            values  = form.getValues(),
-            store   = Ext.getStore(storeName);
+		const me = this.getApp(),
+			win = this,
+			form = this,
+			record = form.getRecord(),
+			values = form.getValues(),
+			store = Ext.getStore(storeName);
 
-        if (store.getModifiedRecords().length > 0) {
+		if (store.getModifiedRecords().length > 0) {
             win.mask('Guardando...');
         }
         if (record) { //Edición
@@ -207,7 +207,7 @@ Ext.define('Admin.forms.CustomForm',{
                 success: function (batch, o) {
                     me.showResult('Se han guardado los datos');
                     win.close();
-                    if (reload == true) {
+                    if (reload === true) {
                         store.reload();
                     }
                 },
@@ -218,7 +218,7 @@ Ext.define('Admin.forms.CustomForm',{
                     win.unmask();
                 }
             });
-        };
+        }
     },
 
 	/**

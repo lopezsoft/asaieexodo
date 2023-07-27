@@ -49,11 +49,11 @@ Ext.define('Admin.view.promocion.CertificadoFinal',{
                                     boxLabel  : 'Oficio',
                                     name      : 'hoja',
                                     inputValue: '1',
-                                    checked   : true
                                 },
                                 {
                                     boxLabel  : 'Carta',
                                     name      : 'hoja',
+                                    checked   : true,
                                     inputValue: '2'
                                 }
                             ]
@@ -171,7 +171,8 @@ Ext.define('Admin.view.promocion.CertificadoFinal',{
                 {
                     text: 'Sede',
                     dataIndex: 'sede',
-                    width: 190
+					flex: 2,
+                    minWidth: 250
                 }
             ]
         }

@@ -22,6 +22,7 @@ class CustomMPdf extends Mpdf
      */
     public function loadView($view, array $data = [], array $mergeData = []): void
     {
+
         $this->WriteHTML(View::make($view, $data, $mergeData)->render());
     }
 }

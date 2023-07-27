@@ -11,34 +11,34 @@ Ext.define('Admin.view.promocion.CertificatesHeadersSave' ,{
 			defaultType	: 'customhtmleditor',
 			items	: [
                 {
-                    enableFont  : false,
+                    enableFont  : true,
                     labelAlign  : 'top',
                     fieldLabel  : 'Encabezado',
-                    name        : 'header1'
+                    name        : 'header1',
                 },
                 {
-                    enableFont  : false,
+                    enableFont  : true,
                     labelAlign  : 'top',
                     fieldLabel  : 'Resolución',
                     name        : 'header2'
                 },
                 {
-                    enableFont  : false,
+                    enableFont  : true,
                     labelAlign  : 'top',
                     fieldLabel  : 'Datos de expedición',
                     name        : 'body'
                 },
                 {
-                    xtype       : 'customtextarea',
-                    name        : 'resolution'
-                },
-                {
-                    enableFont          : false,
+                    enableFont          : true,
                     name                : 'message',
                     enableSourceEdit    : false,
                     enableLinks         : false,
                     enableLists         : false,
                     height              : 120
+                },
+                {
+                    xtype       : 'customtextarea',
+                    name        : 'resolution'
                 },
                 {
                     xtype       : 'customtextarea',

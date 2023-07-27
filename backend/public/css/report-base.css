@@ -6,10 +6,6 @@ body{
     margin: 94px 113px;
 }
 
-header {
-
-}
-
 footer {
     position: fixed;
     bottom: -30px;
@@ -19,9 +15,28 @@ table {
     width: 100%;
 }
 
+.section-body {
+    font-family: arial, sans-serif, verdana, helvetica, 'Courier New';
+    padding: 2px;
+    width: 100%;
+}
+.student-data {
+    font-size: 12px;
+    text-align: justify;
+}
+
 .table-signatures {
     font-size: 12px;
 }
+
+.date-signature-content {
+    width: 100%;
+    padding: 2px 2px;
+    margin-top: 1rem;
+    font-size: 12px;
+    margin-bottom: 2rem;
+}
+
 
 .signature-content {
     width: 100%;
@@ -86,6 +101,10 @@ hr {
 
 .text-right {
     text-align: right !important;
+}
+
+.text-left {
+    text-align: left !important;
 }
 
 .img-qrcode {

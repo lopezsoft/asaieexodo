@@ -13,6 +13,57 @@ use \App\MPdf\CustomMPdf;
 
 class BuildReportsPDF
 {
+    private bool $showFooter = true;
+    private string|null $watermarkImage = null;
+    private bool $showWatermarkImage = false;
+
+    /**
+     * @return bool
+     */
+    public function isShowFooter(): bool
+    {
+        return $this->showFooter;
+    }
+
+    /**
+     * @param bool $showFooter
+     */
+    public function setShowFooter(bool $showFooter): void
+    {
+        $this->showFooter = $showFooter;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getWatermarkImage(): ?string
+    {
+        return $this->watermarkImage;
+    }
+
+    /**
+     * @param string|null $watermarkImage
+     */
+    public function setWatermarkImage(?string $watermarkImage): void
+    {
+        $this->watermarkImage = $watermarkImage;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isShowWatermarkImage(): bool
+    {
+        return $this->showWatermarkImage;
+    }
+
+    /**
+     * @param bool $showWatermarkImage
+     */
+    public function setShowWatermarkImage(bool $showWatermarkImage): void
+    {
+        $this->showWatermarkImage = $showWatermarkImage;
+    }
     public function __construct(
         public string $view,
         public string $fileDescription,
@@ -55,15 +106,22 @@ class BuildReportsPDF
             $fileName           = "{$slugDescription}_{$genericName}_{$date}{$format}";
 
             $pdf            = new CustomMPdf($config);
-            $pdf->SetHTMLFooter('<hr/>
-                <table class="table-footer">
-                    <tr>
-                        <td class="text-center">
-                            '.$header->pie.'
-                        </td>
-                        <td class="footer-page">{PAGENO}</td>
-                    </tr>
-                </table>');
+            if($this->isShowFooter()){
+                $pdf->SetHTMLFooter('<hr/>
+                    <table class="table-footer">
+                        <tr>
+                            <td class="text-center">
+                                '.$header->pie.'
+                            </td>
+                            <td class="footer-page">{PAGENO}</td>
+                        </tr>
+                    </table>');
+            }
+            $watermark  = $this->getWatermarkImage();
+            if($watermark !== null && $this->isShowWatermarkImage()) {
+                $pdf->SetWatermarkImage($watermark, .2, 'D', [0, 0]);
+                $pdf->showWatermarkImage = true;
+            }
             $pdf->loadView($view, $data);
             $localPath      = "{$pathReports}{$delim}{$fileName}";
             $pdf->save($localPath);

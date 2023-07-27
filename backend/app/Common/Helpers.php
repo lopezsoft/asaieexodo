@@ -1,9 +1,14 @@
 <?php
 
+use App\Queries\CallExecute;
 use Carbon\Carbon;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Protection;
 
+function CallExecute($callName, $params = []): array
+{
+    return CallExecute::execute($callName, $params);
+}
 function getCurrentDateSignature() : string
 {
     $date   = Carbon::now();

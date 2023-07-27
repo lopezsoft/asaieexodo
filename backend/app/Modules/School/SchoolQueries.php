@@ -20,6 +20,7 @@ class SchoolQueries
             $school     = self::getSchool($request->input('schoolId') ?? 0);
             $year       = $request->input('year') ?? Date('Y');
             return (object) [
+                'id'                => $school->id,
                 'school'            => $school,
                 'db'                => "{$school->database_name}.",
                 'database_name'     => $school->database_name,

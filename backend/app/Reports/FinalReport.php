@@ -1,15 +1,16 @@
 <?php
 
 namespace App\Reports;
-
+use App\Common\BuildReportsPDF;
 use App\Core\JReportModel;
+use App\Models\WatermarkFile;
 use App\Modules\Courses\RatingScale;
 use App\Modules\Grades\SchoolLevel;
 use App\Modules\School\SchoolQueries;
+use App\Queries\CallExecute;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-
 class FinalReport
 {
     /**
@@ -26,29 +27,23 @@ class FinalReport
         $mod	    = $request->input('pdbModelo');
         $dist	    = $request->input('pdbDistrib');
         $levelId    = SchoolLevel::getLevelId($db, $school->grade);
+        $paperSize  = 'letter';
+        $formatSize = "Letter";
+        $reportView = "reports.certificates.final-certificate";
+        $isPreSchool= ($levelId == 1);
+        if ($h == '1'){
+            $formatSize = "Legal";
+            $paperSize  = 'legal';
+        }
         if ($levelId > 1){
             if ($dist == 1){
-                if ($h == '1'){
-                    $report	= 'certificado_final_distri';
-                }else{
-                    $report	= 'certificado_final_carta_distri';
-                }
+                //$report	= 'certificado_final_carta_distri';
                 $query	= "CALL {$db}sp_select_areasf(".$year.",".$school->headquarter.",'".$school->grade."','".$school->group."',".$school->workingDay.",".$one.",".$dist.")";
             }else{
                 // Solo Áreas
                 if ($tp == 1){
-                    if ($h == '1'){
-                        $report	= 'certificado_final_areas';
-                    }else{
-                        $report	= 'certificado_final_areas_carta';
-                    }
                     $query	= "CALL {$db}sp_select_areasf_agrupada(".$year.",".$school->headquarter.",'".$school->grade."','".$school->group."',".$school->workingDay.",".$one.")";
                 }else{
-                    if ($h == '1'){
-                        $report	= 'certificado_final';
-                    }else{
-                        $report	= 'certificado_final_carta';
-                    }
                     $query	= "CALL {$db}sp_select_areasf(".$year.",".$school->headquarter.",'".$school->grade."','".$school->group."',".$school->workingDay.",".$one.",0)";
                 }
             }
@@ -64,48 +59,51 @@ class FinalReport
             if(count($query) > 0){
                 $periodo = $query[0]->periodo;
             }
-
-            if ($h == '1'){
-                $report	= 'certificado_final_oficio_preescolar';
-            }else{
-                $report	= 'certificado_final_carta_preescolar';
-            }
-            $query	= 	"CALL {$db}sp_boletines_reportes(".$school->headquarter.",'".$school->grade."','".$school->group."',".$school->workingDay.",".$year.",'".$periodo."',".$one.")";
+            $query	    = 	"CALL {$db}sp_boletines_reportes(".$school->headquarter.",'".$school->grade."','".$school->group."',".$school->workingDay.",".$year.",'".$periodo."',".$one.")";
         }
-
-        if($school->grade > 15){
-            $type	= 5;
-        }else{
-            $type	= 4;
-        }
-
+        $type	= 4;
         $up		= sprintf("INSERT INTO %scertificate_numbers(id_parent,year,total,type) SELECT id,%s,1,1 FROM ".
                         "%sconfig_const_cert_end WHERE type = %d LIMIT 1 ON DUPLICATE KEY UPDATE total=total + 1",
                         $db, $year, $db, $type);
         DB::statement($up);
-
         $sql	= "SELECT t.*, RIGHT(CONCAT('0000000',t2.total),7) cons, t2.year, r.logo, r.escudo, r.pie ".
                         "FROM ".$db."config_const_cert_end AS t ".
                         "JOIN ".$db."certificate_numbers AS t2 ON t2.id_parent = t.id ".
                         "JOIN ".$db."encabezado_reportes AS r ON r.id > 0 ".
                         " WHERE ".$year." BETWEEN t.year_from AND t.year_until AND t2.year =".$year." AND t.type = ".
                         $type." LIMIT 1";
-        $sql	= DB::select($sql);
+        DB::statement($sql);
+        $header         = CallExecute::execute("{$db}sp_header_final_certificate(?, ?)", [$year, 4]);
 
-        $report_export	= 'Certificado final';
+        $studentList    = DB::select($query);
 
+        $watermark      = WatermarkFile::query()
+                            ->where('school_id', $school->id)
+                            ->whereRaw("JSON_EXTRACT(`settings`, '$.available_in') = '1' OR
+                            JSON_EXTRACT(`settings`, '$.available_in') = '4'")
+                            ->whereRaw("JSON_EXTRACT(`settings`, '$.paper_size') = '".$paperSize."'")
+                            ->where('state', 1)
+                            ->first();
+
+        $fileDescription= 'Certificado final';
+        $pdfBuilder     = new BuildReportsPDF($reportView, $fileDescription, $school);
+        if($watermark){
+            $pdfBuilder->setWatermarkImage($watermark->url);
+            $pdfBuilder->setShowWatermarkImage(true);
+            $pdfBuilder->setShowFooter(($watermark->hide_footer === '0'));
+        }
         $params	= [
-            'R_TYPE'		=> intval($mod),
-            'R_RESOLUCION'	=> $sql[0]->resolution,
-            'R_YEAR'	    => $year,
-            'R_TYPE_HEADER' => $type,
-            'R_EXPEDICION'	=> $sql[0]->expedition,
-            'R_FIRMA_REC'	=> intval($sql[0]->rector_firm),
-            'R_FIRMA_SEC'	=> intval($sql[0]->signature_secretary),
-            'R_ESCALA'      => RatingScale::getScaleString($school->grade, $year, $db)
+            'isPreSchool'       => $isPreSchool,
+            'watermark'         => $watermark,
+            'model'             => $mod,
+            'year'              => $year,
+            'db'                => $db,
+            'onlyAreas'         => ($tp == 1) ,
+            'studentList'       => $studentList,
+            'certificateHeader' => $header[0],
+            'ratingScale'       => RatingScale::getScaleString($school->grade, $year, $db)
         ];
-
-        return (new JReportModel())->getReportExport($report,$report_export,$school->format,$query,$school->path, $school->school, $params);
+        return $pdfBuilder->build($params, ['mode' => 'utf-8', 'format' => $formatSize]);
     }
 
     /**

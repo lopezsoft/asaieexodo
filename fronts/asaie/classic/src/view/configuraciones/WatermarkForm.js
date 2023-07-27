@@ -124,7 +124,7 @@ Ext.define('Admin.view.configuraciones.WatermarkForm',{
 							fieldLabel  : 'Superior (px, mm, cm, rem)',
 							name        : 'margin_top',
 							width       : 400,
-							value		: '5cm'
+							value		: '3cm'
 						},
 						{
 							fieldLabel  : 'Inferior (px, mm, cm, rem)',

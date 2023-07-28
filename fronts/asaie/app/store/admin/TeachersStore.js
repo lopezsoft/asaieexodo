@@ -1,11 +1,16 @@
-Ext.define('Admin.store.admin.ADocentesStore',{
+Ext.define('Admin.store.admin.TeachersStore',{
     extend  : 'Admin.store.base.StoreApi',
-    storeId : 'ADocentesStore',
+    storeId : 'TeachersStore',
     proxy: {
         extraParams : {
             pdbTable : 'docentes',
-			order    : '{"apellido1": "ASC", "nombre1": "ASC"}'
-        }
+        },
+		api: {
+			create  : 'crud',
+			read    : 'teachers',
+			update  : 'crud',
+			destroy : 'crud'
+		}
     },
     requires: [
         'Admin.model.admin.ADocentesModel'

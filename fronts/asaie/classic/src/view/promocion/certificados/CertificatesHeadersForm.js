@@ -11,11 +11,10 @@ Ext.define('Admin.view.promocion.CertificatesHeadersForm',{
         this.winObject = Ext.create('Admin.view.promocion.CertificatesHeadersSave');
     },
     showWindow: function (btn) {
-        var 
-            ts      = this,
-            data    = ts.down('grid').getSelection()[0],
-            form    = [];
-        if (!ts.getWinObject()) {
+		let ts = this,
+			data = ts.down('grid').getSelection()[0],
+			form = [];
+		if (!ts.getWinObject()) {
             ts.buildWindow();
         }
         form = ts.winObject.down('form');
@@ -23,7 +22,7 @@ Ext.define('Admin.view.promocion.CertificatesHeadersForm',{
             form.loadRecord(data);
         } else {
             form.reset(true);
-        };
+        }
         ts.winObject.show();
     },
     showSaveButton: false,

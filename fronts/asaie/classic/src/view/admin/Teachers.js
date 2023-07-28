@@ -7,7 +7,7 @@ Ext.define('Admin.view.admin.Teachers',{
         var
 			me	= Admin.getApplication();
         me.onStore('general.DocumentosStore');
-        me.onStore('admin.ADocentesStore');
+        me.onStore('admin.TeachersStore');
 		me.onStore('general.CitiesStore');
 		me.onStore('general.CitiesStore4');
 		me.onStore('general.CitiesStore2');
@@ -36,7 +36,7 @@ Ext.define('Admin.view.admin.Teachers',{
 				independent		: true
 			}
 		],
-        store       : 'ADocentesStore',
+        store       : 'TeachersStore',
         columns     : [
             {
                 xtype   : 'customrownumberer',

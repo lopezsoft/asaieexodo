@@ -57,7 +57,7 @@ Ext.define('Admin.view.academico.ListaDocentesView',{
                     var me = this;
                     if (me.up('window').down('#Ck')) {
                         me.up('window').down('#Ck').setDisabled(!selected.length);
-                        if (selected.length == 0){
+                        if (selected.length === 0){
                             me.up('window').down('#Ck').setValue(false);
                         }
                     }
@@ -67,7 +67,6 @@ Ext.define('Admin.view.academico.ListaDocentesView',{
                 {
                     xtype 		: 'pagination',
                     itemId      : 'pToolbar',
-                    displayInfo: false,
                     showPrint : true
                 }
             ]

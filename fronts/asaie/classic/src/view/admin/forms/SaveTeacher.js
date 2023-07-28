@@ -6,7 +6,7 @@ Ext.define('Admin.view.admin.forms.SaveTeacher' ,{
 		this.callParent(arguments);
 		this.setTitle(AppLang.getSTitleNewEdit()+' '+AppLang.getSTitleViewTeachers());
 	},
-	store		: 'ADocentesStore',
+	store		: 'TeachersStore',
 	defaultFocus: 'CbCountries',
     items : [
     	{

@@ -12,6 +12,10 @@ use Illuminate\Http\Request;
 
 class TeachersController extends Controller
 {
+    public function index(Request $request): JsonResponse
+    {
+        return Teachers::index($request);
+    }
     /**
      * @throws \Exception
      */

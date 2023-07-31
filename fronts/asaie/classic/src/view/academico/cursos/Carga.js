@@ -7,8 +7,8 @@ Ext.define('Admin.view.academico.Carga',{
     xtype   : 'carga',
     controller : 'academico',
     initComponent: function () {
-        var me  = Admin.getApplication();
-        me.onStore('general.GradosStore');
+		const me = Admin.getApplication();
+		me.onStore('general.GradosStore');
         me.onStore('general.AreasAsignaturaYearStore');
         me.onStore('general.MatCursoStore');
         me.onStore('general.CargaStore');
@@ -43,16 +43,17 @@ Ext.define('Admin.view.academico.Carga',{
                             ],
                             listeners: {
                                 'selectionchange': function (grid, selected, eOpts) {
-                                    var me = Admin.getApplication(),
-                                        extra = [];
-                                    if (!Ext.isEmpty(selected)) {
-                                        gdo = selected[0].get('id');
-                                        extra = {
-                                            pdbTable: 'matcurso',
-                                            pdbGrado: gdo
-                                        };
-                                        me.setParamStore('MatCursoStore', extra, true);
-                                    }
+									let me = Admin.getApplication(),
+										extra = [];
+									let gdo;
+									if (!Ext.isEmpty(selected)) {
+										gdo = selected[0].get('id');
+										extra = {
+											pdbTable: 'matcurso',
+											pdbGrado: gdo
+										};
+										me.setParamStore('MatCursoStore', extra, true);
+									}
 
                                 }
                             },
@@ -313,14 +314,13 @@ Ext.define('Admin.view.academico.Carga',{
                     items: [
                         {
                             xtype           : 'customgrid',
-                            // title: 'CARGA ACADÉMICA',
                             itemId          : 'gridCarga',
                             store           : 'CargaStore',
                             allowDeselect   : false,
                             listeners :{
-                                selectionchange : function(grid, selected, eOpts) {
-                                    var me	= this;
-                                    if (me.down('#saveButton')){
+                                selectionchange : function(grid, selected) {
+									const me = this;
+									if (me.down('#saveButton')){
                                         me.down('#saveButton').setDisabled(!selected.length);
                                     }
                                     if (me.down('#editButton')){
@@ -330,7 +330,7 @@ Ext.define('Admin.view.academico.Carga',{
                                         me.down('#btnDeleteGrid').setDisabled(!selected.length);
                                     }
                                 },
-                                validateedit : function (editor, e, eOpts ) {
+                                validateedit : function () {
                                     this.down('#btnUndoCarga').setDisabled(false);
                                     this.down('#btnSaveCarga').setDisabled(false);
                                 }
@@ -362,13 +362,13 @@ Ext.define('Admin.view.academico.Carga',{
 								docente : {
 									tooltip: 'Cambiar docente',
 									iconCls: 'x-fa fa-pencil',
-									handler: function (grid, rowIndex, colIndex) {
-										var	win		= grid.up('window'),
-											rec 	= grid.getStore().getAt(rowIndex),
-											me		= Admin.getApplication(),
-											btn1	= win.down('#btnUndoCarga'),
-											btn2	= win.down('#btnSaveCarga');
-                                        me.onStore('admin.DocentesDirGrupoStore');
+									handler: function (grid, rowIndex) {
+										const win = grid.up('window'),
+											rec = grid.getStore().getAt(rowIndex),
+											me = Admin.getApplication(),
+											btn1 = win.down('#btnUndoCarga'),
+											btn2 = win.down('#btnSaveCarga');
+										me.onStore('admin.DocentesDirGrupoStore');
                                         if (btn1.isDisabled()) {
                                             btn1.setDisabled(false);
                                         }
@@ -378,6 +378,92 @@ Ext.define('Admin.view.academico.Carga',{
 										Ext.create('Admin.view.academico.DocentesChangeView',{
 											record	: rec
 										}).show();
+									}
+								},
+								asignatura : {
+									tooltip: 'Cambiar asignatura',
+									iconCls: 'x-fa fa-pencil',
+									handler: function (grid, rowIndex) {
+										const win = grid.up('window'),
+											rec = grid.getStore().getAt(rowIndex),
+											me = Admin.getApplication(),
+											btn1 = win.down('#btnUndoCarga'),
+											btn2 = win.down('#btnSaveCarga');
+										me.onStore('general.AreasAsignaturaYearStore');
+										if (btn1.isDisabled()) {
+											btn1.setDisabled(false);
+										}
+										if (btn2.isDisabled()) {
+											btn2.setDisabled(false);
+										}
+										Ext.create('Admin.view.academico.AsignaturasChangeView', {
+											record	: rec
+										}).show();
+									}
+								},
+								jorn : {
+									tooltip: 'Cambiar jornada',
+									iconCls: 'x-fa fa-pencil',
+									handler: function (grid, rowIndex) {
+										const win = grid.up('window'),
+											rec = grid.getStore().getAt(rowIndex),
+											me = Admin.getApplication(),
+											btn1 = win.down('#btnUndoCarga'),
+											btn2 = win.down('#btnSaveCarga');
+										me.onStore('general.JornadasStore');
+										if (btn1.isDisabled()) {
+											btn1.setDisabled(false);
+										}
+										if (btn2.isDisabled()) {
+											btn2.setDisabled(false);
+										}
+										Ext.create('Admin.view.academico.JornadasChangeView', {
+											record	: rec
+										}).show();
+									}
+								},
+								grado : {
+									tooltip: 'Cambiar grado',
+									iconCls: 'x-fa fa-pencil',
+									handler: function (grid, rowIndex, colIndex) {
+										const win = grid.up('window'),
+											rec = grid.getStore().getAt(rowIndex),
+											me = Admin.getApplication(),
+											btn1 = win.down('#btnUndoCarga'),
+											btn2 = win.down('#btnSaveCarga');
+										me.onStore('general.GradosStore');
+										const win2 = Ext.create('Admin.view.academico.GradosChangeView'),
+											form = win2.down('form');
+										if (btn1.isDisabled()) {
+											btn1.setDisabled(false);
+										}
+										if (btn2.isDisabled()) {
+											btn2.setDisabled(false);
+										}
+										form.loadRecord(rec);
+										win2.show();
+									}
+								},
+								grupo : {
+									tooltip: 'Cambiar grupo',
+									iconCls: 'x-fa fa-pencil',
+									handler: function (grid, rowIndex) {
+										const win = grid.up('window'),
+											rec = grid.getStore().getAt(rowIndex),
+											me = Admin.getApplication(),
+											btn1 = win.down('#btnUndoCarga'),
+											btn2 = win.down('#btnSaveCarga');
+										me.onStore('general.GrupoStore');
+										const win2 = Ext.create('Admin.view.academico.GruposChangeView'),
+											form = win2.down('form');
+										if (btn1.isDisabled()) {
+											btn1.setDisabled(false);
+										}
+										if (btn2.isDisabled()) {
+											btn2.setDisabled(false);
+										}
+										form.loadRecord(rec);
+										win2.show();
 									}
 								}
 							},
@@ -419,6 +505,13 @@ Ext.define('Admin.view.academico.Carga',{
                                     width: 300,
                                     filter: 'list'
                                 },
+								{
+									menuDisabled	: true,
+									sortable		: false,
+									xtype			: 'actioncolumn',
+									width			: 30,
+									items			: ['@asignatura']
+								},
                                 {
                                     text: 'Docentes',
                                     dataIndex: 'docente',
@@ -443,7 +536,14 @@ Ext.define('Admin.view.academico.Carga',{
                                     dataIndex   : 'jornada',
                                     width       : 120,
                                     filter      : 'list'
-                                }
+                                },
+								{
+									menuDisabled	: true,
+									sortable		: false,
+									xtype			: 'actioncolumn',
+									width			: 30,
+									items			: ['@jorn']
+								},
                             ],
                             dockedItems: [
                                 {
@@ -478,18 +578,22 @@ Ext.define('Admin.view.academico.Carga',{
                                             xtype   : 'saveButton',
                                             itemId  : 'btnSaveCarga',
                                             handler: function (btn) {
-                                                var
-                                                    store = Ext.getStore('CargaStore'),
-                                                    me = Admin.getApplication(),
-                                                    win 	= btn.up('window'),
-                                                    btn1	= win.down('#btnUndoCarga');
-                                                store.sync({
+												const store = Ext.getStore('CargaStore'),
+													me = Admin.getApplication(),
+													win = btn.up('window'),
+													btn1 = win.down('#btnUndoCarga');
+												win.mask('Guardando datos...');
+												store.sync({
                                                     success: function (batch, o) {
                                                         me.showResult('Se han guardado los datos');
                                                         btn1.setDisabled(true);
 														store.reload();
                                                         btn.setDisabled(true);
-                                                    }
+														win.unmask();
+                                                    },
+													failure: function (batch, o) {
+														win.unmask();
+													}
                                                 });
                                             }
                                         },
@@ -497,10 +601,10 @@ Ext.define('Admin.view.academico.Carga',{
                                             xtype   : 'undoButton',
                                             itemId  : 'btnUndoCarga',
                                             handler : function (btn) {
-                                                var win 	= btn.up('window'),
-                                                    store 	= Ext.getStore('CargaStore'),
-                                                    btn1	= win.down('#btnSaveCarga');
-                                                btn1.setDisabled(true);
+												const win = btn.up('window'),
+													store = Ext.getStore('CargaStore'),
+													btn1 = win.down('#btnSaveCarga');
+												btn1.setDisabled(true);
                                                 btn.setDisabled(true);
                                                 store.rejectChanges();
                                             }
@@ -509,9 +613,9 @@ Ext.define('Admin.view.academico.Carga',{
                                             xtype   : 'deletebutton',
                                             itemId  : 'btnDeleteGrid',
                                             handler : function (btn) {
-                                                var cbtn = btn,
-                                                    me	 = Admin.getApplication();
-                                                Ext.Msg.show({
+												const cbtn = btn,
+													me = Admin.getApplication();
+												Ext.Msg.show({
                                                     title	: 'Elimiar datos',
                                                     message	: 'Desea eliminar el registro?',
                                                     buttons	: Ext.Msg.YESNO,
@@ -519,10 +623,10 @@ Ext.define('Admin.view.academico.Carga',{
                                                     fn: function(btn) {
                                                         if (btn === 'yes') {
                                                             me.onMsgWait();
-                                                            var grid 	= cbtn.up('#gridCarga'),
-                                                                records = grid.getSelectionModel().getSelection(),
-                                                                store 	= grid.getStore() ;
-                                                            store.remove(records);
+															const grid = cbtn.up('#gridCarga'),
+																records = grid.getSelectionModel().getSelection(),
+																store = grid.getStore();
+															store.remove(records);
                                                             store.sync({
                                                                 success : function (b, o) {
                                                                     Ext.Msg.hide();
@@ -548,10 +652,10 @@ Ext.define('Admin.view.academico.Carga',{
                                             handler: function (btn) {
                                                 const win = Ext.create('Admin.view.academico.AddCargaView');
                                                 win.on('closed',function(){
-                                                    param = {
-                                                        pdbTable    : 'grados',
-                                                        pdbSede     : 0
-                                                    };
+													let param = {
+														pdbTable: 'grados',
+														pdbSede: 0
+													};
                                                     Admin.getApplication().setParamStore('GradosStore', param, true);
                                                 });
                                                 win.show();

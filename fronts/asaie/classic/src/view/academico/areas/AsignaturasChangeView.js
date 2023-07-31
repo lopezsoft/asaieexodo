@@ -9,7 +9,7 @@ Ext.define('Admin.view.academico.AsignaturasChangeView',{
 		'Admin.store.general.AreasAsignaturaYearStore'
 	],
 	height: 550,
-	record : null,
+	store		: 'AreasAsignaturaYearStore',
 	initComponent: function () {
 		this.callParent(arguments);
 		this.setTitle(AppLang.getSTitleViewSubjects() + ' - ' + Global.getYear());
@@ -67,5 +67,16 @@ Ext.define('Admin.view.academico.AsignaturasChangeView',{
 				}
 			]
         }
-    ]
+    ],
+	saveData	: function(storeName,reload){
+		let me		= this,
+			record	= me.getRecord(),
+			rec		= me.down('grid').getSelection()[0];
+		let subject = {
+			id_asig		: rec.subject_id,
+			asignatura	: rec.get('asignatura')
+		}
+		record.set(subject);
+		me.close();
+	}
 });

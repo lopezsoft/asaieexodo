@@ -4,6 +4,7 @@
 Ext.define('Admin.model.general.AreasAsignaturaModel',{
     extend  : 'Admin.model.base.BaseModel',
     fields: [
+        { name: 'subject_id', type:'int'},
         { name: 'id_asign'},
         { name: 'id_area'},
         { name: 'areas' },

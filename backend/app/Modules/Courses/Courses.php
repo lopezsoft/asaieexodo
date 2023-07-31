@@ -83,7 +83,7 @@ class Courses
         }
         $query->orderBy('t2.area');
         $query->orderBy('t3.asignatura');
-        $query->select('t1.*','t2.area','t3.asignatura');
+        $query->select('t1.*','t2.area','t3.asignatura', 't3.id_pk as subject_id');
 
         return self::getResponse([
             'records' => $query->paginate($limit)

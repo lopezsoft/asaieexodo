@@ -66,8 +66,8 @@ Ext.define('Admin.view.academico.DocentesChangeView',{
 			rec		= me.down('grid').getSelection()[0];
 
 		let docente = {
-			id_docente: rec.id,
-			docente: rec.get('nombres')
+			id_docente	: rec.id,
+			docente		: rec.get('nombres')
 		}
 		record.set(docente);
 		me.close();

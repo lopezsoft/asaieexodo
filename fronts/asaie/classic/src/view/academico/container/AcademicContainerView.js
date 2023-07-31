@@ -54,7 +54,7 @@ Ext.define('Admin.view.academico.container.AcademicContainerView',{
 				items   : [
 					{
 						xtype   : 'buttonPanel',
-						text    : 'Carga académica',
+						text    : 'Asignación académica',
 						handler : 'onCreateCarga',
 						iconCls: 'fas fa-chalkboard-teacher'
 					}

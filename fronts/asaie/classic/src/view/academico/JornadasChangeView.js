@@ -4,12 +4,15 @@
 Ext.define('Admin.view.academico.JornadasChangeView',{
     extend  : 'Admin.base.WindowCrud',
     title   : 'Jornadas académicas',
-    controller  : 'Academico',
+	controller  : 'academico',
     alias       : 'widget.JornadasChangeView',
 	requires	: [
 		'Admin.combo.CbJornadas'
 	],
     height	    : 200,
+	width		: 400,
+	maximizable : false,
+	store		: 'JornadasStore',
     items       : [
         {
             xtype   : 'customform',
@@ -20,5 +23,19 @@ Ext.define('Admin.view.academico.JornadasChangeView',{
 				}
             ]
         }
-    ]
+    ],
+	saveData	: function(storeName,reload){
+		let me		= this,
+			record	= me.getRecord(),
+			rec		= me.down('#comboJornadas').getSelection();
+		let subject = {
+			id_jorn: rec.id,
+			jornada: rec.get('jornada')
+		}
+		record.set(subject);
+		me.close();
+	},
+	syncSize	: function(){
+		// this.callParent(arguments);
+	}
 });

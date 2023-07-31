@@ -1,0 +1,2 @@
+ALTER TABLE `file_managers`
+	CHANGE COLUMN `profile` `profile` ENUM('TEACHER','STUDENT','ADMIN','FAMILY','ANY','SCHOOL','USER','SIGNATURE','CERTIFICATE') NOT NULL DEFAULT 'ANY' COLLATE 'utf8mb4_general_ci' AFTER `belong_to_id`;

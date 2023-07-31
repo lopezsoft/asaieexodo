@@ -66,13 +66,6 @@ class FinalReport
                         "%sconfig_const_cert_end WHERE type = %d LIMIT 1 ON DUPLICATE KEY UPDATE total=total + 1",
                         $db, $year, $db, $type);
         DB::statement($up);
-        $sql	= "SELECT t.*, RIGHT(CONCAT('0000000',t2.total),7) cons, t2.year, r.logo, r.escudo, r.pie ".
-                        "FROM ".$db."config_const_cert_end AS t ".
-                        "JOIN ".$db."certificate_numbers AS t2 ON t2.id_parent = t.id ".
-                        "JOIN ".$db."encabezado_reportes AS r ON r.id > 0 ".
-                        " WHERE ".$year." BETWEEN t.year_from AND t.year_until AND t2.year =".$year." AND t.type = ".
-                        $type." LIMIT 1";
-        DB::statement($sql);
         $header         = CallExecute::execute("{$db}sp_header_final_certificate(?, ?)", [$year, 4]);
 
         $studentList    = DB::select($query);
@@ -84,8 +77,8 @@ class FinalReport
                             ->whereRaw("JSON_EXTRACT(`settings`, '$.paper_size') = '".$paperSize."'")
                             ->where('state', 1)
                             ->first();
-
-        $fileDescription= 'Certificado final';
+        $header         = $header[0];
+        $fileDescription= 'Certificado final '.$header->cons;
         $pdfBuilder     = new BuildReportsPDF($reportView, $fileDescription, $school);
         if($watermark){
             $pdfBuilder->setWatermarkImage($watermark->url);
@@ -100,10 +93,10 @@ class FinalReport
             'db'                => $db,
             'onlyAreas'         => ($tp == 1) ,
             'studentList'       => $studentList,
-            'certificateHeader' => $header[0],
+            'certificateHeader' => $header,
             'ratingScale'       => RatingScale::getScaleString($school->grade, $year, $db)
         ];
-        return $pdfBuilder->build($params, ['mode' => 'utf-8', 'format' => $formatSize]);
+        return $pdfBuilder->build($params, ['mode' => 'utf-8', 'format' => $formatSize], true);
     }
 
     /**

@@ -70,7 +70,7 @@ class BuildReportsPDF
         public $school
     )
     {}
-    public function build(mixed $data, $config = ['mode' => 'utf-8', 'format' => 'A4']): JsonResponse
+    public function build(mixed $data, $config = ['mode' => 'utf-8', 'format' => 'A4'], bool $isCertificate = false): JsonResponse
     {
         try {
             $view               = $this->view;
@@ -135,7 +135,7 @@ class BuildReportsPDF
             $cloudPath      = "{$aws_main_path}/{$pathFolder}/{$fileName}";
             $output         = $cloudStorage->url($cloudPath);
 
-            FileManager::create([
+            $fileManager = FileManager::create([
                 'school_id'         => $school->school->id,
                 'user_id'           => $user->id,
                 'file_name'         => $fileName,
@@ -148,11 +148,21 @@ class BuildReportsPDF
                 'last_modified'     => date('Y-m-d H:i:s', $publicStorage->lastModified($localPath)),
                 'state'             => 1,
             ]);
+            // Insert certificate
+            if($isCertificate){
+                DB::table($school->db.'file_managers')
+                    ->insert([
+                        'file_manager_uuid' => $fileManager->uuid,
+                        'profile'           => 'CERTIFICATE',
+                    ]);
+            }
             // Delete local storage
            $publicStorage->delete($localPath);
+            // Return response
             return response()->json([
-                'success'   => true,
-                'pathFile'  => utf8_encode($output),
+                'success'       => true,
+                'pathFile'      => utf8_encode($output),
+                'fileManager'   => $fileManager
             ]);
         }catch (Exception $e){
             throw new Exception($e->getMessage());

@@ -50,7 +50,7 @@ class AdvancedPromotion implements ReportProcessorContract
                 'detailPromoted'        => $result
             ];
             $pdfBuilder     = new BuildReportsPDF('reports.promotion.advanced-promotion', $report_export, $school);
-            return $pdfBuilder->build($params);
+            return $pdfBuilder->build($params, ['mode' => 'utf-8', 'format' => 'Letter'], true);
         }catch (\Exception $e){
             return self::getResponse500([
                 "message" => $e->getMessage()

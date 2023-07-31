@@ -9,6 +9,10 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 class PromotionController extends Controller
 {
+    public function createAdvancePromotion(Request $request): JsonResponse
+    {
+        return AdvancePromotion::createAdvancePromotion($request);
+    }
     public function getFinalLeveling(Request $request): JsonResponse
     {
         return AdvancePromotion::getFinalLeveling($request);

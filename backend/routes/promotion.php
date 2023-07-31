@@ -6,5 +6,6 @@ Route::prefix('promotion')->group(function () {
         Route::post('generate-support-activities', 'generateSupportActivities');
         Route::get('final-leveling', 'getFinalLeveling');
         Route::get('advance-promotion', 'getAdvancePromotion');
+        Route::post('advance-promotion', 'createAdvancePromotion');
     });
 });

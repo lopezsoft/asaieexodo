@@ -463,29 +463,22 @@ Ext.define('Admin.base.BaseController', {
                 xFormat = 'pdf';
                 break;
         }
-        const xParam  = param;
-        Object.defineProperty(xParam,'pFormat',{
-                value : xFormat,
-                writable: true,
-                enumerable: true,
-                configurable: true
-            });
+        const xParam  = {
+			...param,
+			pFormat: xFormat
+		};
         if(!Ext.isEmpty(url)) {
             if (!Ext.isEmpty(vMask)) {
                 vMask.el.mask('Generando reporte...');
             }
-			const {school, profile}	= AuthToken.recoverParams();
-			const dt			= new Date();
-			xParam.schoolId  	= school.id || 0;
-			xParam.profileId   	= profile.id || 0;
-			xParam.year        	= school.year || dt.getFullYear();
             Ext.Ajax.request({
-                timeout : 120000000,
+                timeout : 0,
                 url: cUrl,
-                params: xParam,
-				headers: {
-					'Authorization' : (AuthToken) ? AuthToken.authorization() : ''
+                params: {
+					...xParam,
+					...Global.getSchoolParams()
 				},
+				headers: Global.getHeaders(),
                 success: function (response) {
 					let result = Ext.decode(response.responseText);
                     me.getIframe(result.pathFile, xFormat);
@@ -494,7 +487,7 @@ Ext.define('Admin.base.BaseController', {
 					let result = Ext.decode(response.responseText);
                     me.app.onError(result.message || 'No se pueden cargar los datos');
                 },
-                callback : function (response) {
+                callback : function () {
                     if (!Ext.isEmpty(vMask)) {
                         vMask.el.unmask();
                     }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Processors\ReportProcessor;
 use App\Reports\AcademicAllocation;
 use App\Reports\AcademicHistory;
+use App\Reports\AdvancedPromotion;
 use App\Reports\BirthDates;
 use App\Reports\Consolidated\GenerateConsolidate;
 use App\Reports\ConsolidatedReport;
@@ -34,6 +35,10 @@ use Illuminate\Http\Request;
 
 class ReportsController extends Controller
 {
+    public function getAdvancedPromotion(Request $request): JsonResponse
+    {
+        return ReportProcessor::runReport($request, new AdvancedPromotion());
+    }
     public function getPeriodicLeveling(Request $request): JsonResponse
     {
         return ReportProcessor::runReport($request, new PeriodicLeveling());

@@ -14,10 +14,10 @@ Ext.define('Admin.combo.CbGrados',{
 	store		: 'GradosStore',
 	listeners	: {
 		select : function (cb,record) {
-			extra = {
+			let extra = {
 				pdbTable: 'periodos_academicos',
 				pdbGrado: record.get('id'),
-				pdbType	: 0
+				pdbType: 0
 			};
 			Admin.getApplication().setParamStore('PeriodosStore', extra);
 		}

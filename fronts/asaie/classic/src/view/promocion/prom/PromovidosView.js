@@ -46,34 +46,35 @@ Ext.define('Admin.view.promocion.PromovidosView',{
                     ],
                     listeners : {
                         'selectionchange': function(gr, selected, eOpts) {
-                            var me      = this.up('window'),
-                                form    = me.down('#frmDatos'),
-                                app     = Admin.getApplication(),
-                                store   = Ext.getStore('PromotedObservationStore'),
-                                record  = selected[0];
-                            me.mask();
-                            if (selected.length > 0){
-                                param   = {
-                                    where       : '{"promoted_id":' + record.get('id') + '}',
-                                    pdbTable    : 'promoted_observation'
-                                };
-                                app.setParamStore('PromotedObservationStore',param,false);
-                                store.reload({
-                                    callback : function (res) {
-                                        if (res.length > 0){
-                                            form.loadRecord(res[0]);
-                                        }else{
-                                            form.reset();
-                                        }
-                                        form.setDisabled(!res.length);
-                                        me.unmask();
-                                    }
-                                });
-                            }else {
-                                form.reset();
-                                form.setDisabled(!selected.length);
-                                me.unmask();
-                            }
+							const me = this.up('window'),
+								form = me.down('#frmDatos'),
+								app = Admin.getApplication(),
+								store = Ext.getStore('PromotedObservationStore'),
+								record = selected[0];
+							me.mask();
+							let param;
+							if (selected.length > 0) {
+								param = {
+									where: '{"promoted_id":' + record.get('id') + '}',
+									pdbTable: 'promoted_observation'
+								};
+								app.setParamStore('PromotedObservationStore', param, false);
+								store.reload({
+									callback: function (res) {
+										if (res.length > 0) {
+											form.loadRecord(res[0]);
+										} else {
+											form.reset();
+										}
+										form.setDisabled(!res.length);
+										me.unmask();
+									}
+								});
+							} else {
+								form.reset();
+								form.setDisabled(!selected.length);
+								me.unmask();
+							}
                         }
                     },
                     columns: [
@@ -136,15 +137,19 @@ Ext.define('Admin.view.promocion.PromovidosView',{
                             defaultType : 'customhtmleditor',
                             items   : [
                                 {
-                                   name     : 'titulo'
+									enableFont: true,
+                                   	name     : 'titulo'
                                 },
                                 {
+									enableFont: true,
                                     name    : 'res'
                                 },
                                 {
+									enableFont: true,
                                     name    : 'encabezado'
                                 },
                                 {
+									enableFont: true,
                                     name    : 'consta',
                                     height  : 120
                                 }
@@ -169,12 +174,12 @@ Ext.define('Admin.view.promocion.PromovidosView',{
         }
     ],
     saveData	: function(storeName,reload){
-		var me 		= this.getApp(),
-			win		= this,
-			form    = win.down('form'),
-			record  = form.getRecord(),
-			values  = form.getValues(),
-			store   = Ext.getStore(storeName);
+		const me = this.getApp(),
+			win = this,
+			form = win.down('form'),
+			record = form.getRecord(),
+			values = form.getValues(),
+			store = Ext.getStore(storeName);
 		if (record) { //Edición
 			if (store.getModifiedRecords().length > 0) {
 				win.mask('Guardando...');
@@ -209,6 +214,6 @@ Ext.define('Admin.view.promocion.PromovidosView',{
 					win.unmask();
 				}
 			});
-		};
+		}
 	}
 });

@@ -13,14 +13,11 @@ Ext.define('Admin.container.SedesJorn',{
             xtype: 'CbSedes',
             listeners: {
                 select: function (cb, r) {
-					const {school, profile} =  AuthToken.recoverParams();
 					let me = Admin.getApplication(),
 						param = {
 							pdbTable: 'jornadas',
 							pdbSede: r.id,
-							schoolId: school.id || 0,
-							profileId: profile.id || 0,
-							year: school.year || 0,
+							...Global.getSchoolParams(),
 						};
 
 					me.setParamStore('JornadasStore', param, true);
@@ -28,9 +25,7 @@ Ext.define('Admin.container.SedesJorn',{
                     param = {
                         pdbTable    : 'grados',
                         pdbSede     : r.id,
-						schoolId: school.id || 0,
-						profileId: profile.id || 0,
-						year: school.year || 0,
+						...Global.getSchoolParams(),
                     };
                     me.setParamStore('GradosStore', param, true);
                 }

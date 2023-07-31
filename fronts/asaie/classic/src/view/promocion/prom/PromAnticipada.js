@@ -18,7 +18,7 @@ Ext.define('Admin.view.promocion.PromAnticipada',{
     items   : [
         {
             xtype   : 'customcontainer',
-            width   : 450,
+            width   : 460,
             layout: {
                 type: 'vbox'
 			},
@@ -37,8 +37,8 @@ Ext.define('Admin.view.promocion.PromAnticipada',{
                         labelWidth	: 60
                     },
                     width   : 450,
-					          height  : 255,
-					          margin  : 4,
+					height  : 255,
+					margin  : 4,
                     items   : [
                         {
                             xtype   : 'sedesJorn',
@@ -57,19 +57,18 @@ Ext.define('Admin.view.promocion.PromAnticipada',{
                             iconCls     : 'x-fa fa-search',
                             text        : 'Búscar',
                             bind        : {
-                                visible : '{comboJornadas.value}'
+                                visible : '{comboGrupo.value}'
                             },
                             handler     : function (btn) {
-                                var
-                                    win     = btn.up('form'),
-                                    me      = Admin.getApplication();
-                                extra   = {
-                                    pdbCodGrado : win.down('#comboGrados').getValue(),
-                                    pdbGrupo    : win.down('#comboGrupo').getValue(),
-                                    pdbSede     : win.down('#comboSedes').getValue(),
-                                    pdbJorn     : win.down('#comboJornadas').getValue(),
-                                    pdbTable    : 'matriculas'
-                                };
+								const win = btn.up('form'),
+									me = Admin.getApplication();
+								let extra = {
+									pdbCodGrado	: win.down('#comboGrados').getValue(),
+									pdbGrupo	: win.down('#comboGrupo').getValue(),
+									pdbSede		: win.down('#comboSedes').getValue(),
+									pdbJorn		: win.down('#comboJornadas').getValue(),
+									pdbTable	: 'matriculas'
+								};
                                 me.setParamStore('MatriculadosStore',extra,true);
                             }
                         }
@@ -79,8 +78,8 @@ Ext.define('Admin.view.promocion.PromAnticipada',{
                     xtype   : 'fieldset',
                     itemId  : 'Mat',
                     title   : 'Promover estudiantes a:',
-					          hidden  : true,
-					          margin  : 4,
+					hidden  : true,
+					margin  : 4,
                     defaults : {
                         labelWidth	: 60
                     },
@@ -90,7 +89,26 @@ Ext.define('Admin.view.promocion.PromAnticipada',{
                         {
                             xtype       : 'CbSedes',
                             reference   : 'cbSedes',
-                            itemId      : 'cbSedes'
+                            itemId      : 'cbSedes',
+							listeners: {
+								select: function (cb, r) {
+									let me = Admin.getApplication(),
+										param = {
+											pdbTable: 'jornadas',
+											pdbSede: r.id,
+											...Global.getSchoolParams(),
+										};
+
+									me.setParamStore('JornadasStore', param, true);
+
+									param = {
+										pdbTable    : 'grados',
+										pdbSede     : r.id,
+										...Global.getSchoolParams(),
+									};
+									me.setParamStore('GradosStore', param, true);
+								}
+							}
                         },
                         {
                             xtype       : 'CbJornadas',
@@ -119,7 +137,7 @@ Ext.define('Admin.view.promocion.PromAnticipada',{
                         {
                             xtype       : 'customButton',
                             iconCls     : 'x-fa fa-check',
-                            text        : 'Mover',
+                            text        : 'Promover',
                             bind    : {
                                 visible : '{cbGrupos.value}'
                             },
@@ -156,9 +174,9 @@ Ext.define('Admin.view.promocion.PromAnticipada',{
                 }
             ],
             listeners : {
-                'selectionchange': function(grid, selected, eOpts) {
-                    var me = this;
-                    if (me.up('form').down('#Mat')) {
+                'selectionchange': function(grid, selected) {
+					const me = this;
+					if (me.up('form').down('#Mat')) {
                         me.up('form').down('#Mat').setHidden(!selected.length);
                     }
                 }

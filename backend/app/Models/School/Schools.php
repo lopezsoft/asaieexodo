@@ -40,6 +40,7 @@ class Schools Implements UpdateContract
     {
         $user   = Auth::user();
         $school = SchoolQueries::getSchool($request->input('schoolId') ?? 0);
+        $search = $request->input('query') ?? null;
         $query  = User::query()
                     ->whereNot('id', $user->id)
                     ->whereHas('schools', function ($row) use ($school) {
@@ -49,8 +50,13 @@ class Schools Implements UpdateContract
         if($id) {
             $query->where('id', $id);
         }
+        if($search) {
+            $query->whereRaw("CONCAT(TRIM(first_name),' ',TRIM(last_name)) like '%{$search}%'");
+            $query->orWhere('email', 'like', "%{$search}%");
+        }
         return self::getResponse([
-            'dataRecords'   => $query->paginate()
+            'dataRecords'   => $query->paginate(),
+            'school'        => $school ?? '',
         ]);
     }
 

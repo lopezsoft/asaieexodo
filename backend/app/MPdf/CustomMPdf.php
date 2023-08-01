@@ -3,7 +3,7 @@
 namespace App\MPdf;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\View;
-use Mpdf\MPdf;
+use Mpdf\Mpdf;
 use Mpdf\MpdfException;
 
 class CustomMPdf extends Mpdf

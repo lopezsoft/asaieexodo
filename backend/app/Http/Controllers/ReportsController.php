@@ -155,7 +155,7 @@ class ReportsController extends Controller
     {
         return EnrollmentReports::getCertificate($request,2);
     }
-    public function getCertificate(Request $request): JsonResponse
+    public function getConstancy(Request $request): JsonResponse
     {
         return EnrollmentReports::getCertificate($request, 1);
     }

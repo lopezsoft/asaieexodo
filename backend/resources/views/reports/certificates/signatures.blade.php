@@ -1,5 +1,5 @@
 <div class="date-signature-content">
-    {{$certificateHeader->expedition}}{{getCurrentDateSignature()}}
+    {!!nl2br($certificateHeader->expedition)!!}{{getCurrentDateSignature()}}
 </div>
 
 <table class="table-signatures">

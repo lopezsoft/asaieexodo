@@ -8,7 +8,6 @@ Ext.define('Admin.view.academico.ConstanciasView',{
         me.onStore('general.ConstanciasStore');
         this.callParent(arguments);
         this.setTitle(AppLang.getSTitleViewStudyConstancy() + ' - ' + Global.getYear());
-        this.down('#periodo').setHidden(true);
     },
     alias       : 'widget.constancias',
     itemId      : 'ConstanciasView',
@@ -16,6 +15,7 @@ Ext.define('Admin.view.academico.ConstanciasView',{
     items : [
         {
             xtype   : 'customgrid',
+			selModel: 'rowmodel',
             store   : 'CandidatesSearchStore',
             plugins		: [
                 {
@@ -81,24 +81,10 @@ Ext.define('Admin.view.academico.ConstanciasView',{
 				}
             ],
 			listeners: {
-				'selectionchange': function (grid, selected, eOpts) {
-					var me = Admin.getApplication(),
-						extra = [];
-
+				'selectionchange': function (grid, selected) {
 					if (this.down('#btnPrinter')){
 						this.down('#btnPrinter').setDisabled(!selected.length);
 					}
-					this.down('#periodo').setDisabled(!selected.length);
-					let gdo;
-					if (!Ext.isEmpty(selected)) {
-						gdo = selected[0].get('id_grade');
-						me.setParamStore('PeriodosStore', {
-							pdbTable: 'periodos_academicos',
-							pdbGrado: gdo,
-							pdbType: 0
-						});
-					}
-
 				}
 			},
             dockedItems : [
@@ -117,20 +103,11 @@ Ext.define('Admin.view.academico.ConstanciasView',{
 									m = btn.up('form').getItemId();
 								grid.mask(AppLang.getSMsgLoading());
 								let store = Ext.getStore('ConstanciasStore');
-								let param;
-								if (m === 'CertificadosView') {
-									param = {
-										pdbTable: 'config_const_cert',
-										pdbType: 2,
-										where: '{"type": "2"}'
-									};
-								} else {
-									param = {
-										pdbTable: 'config_const_cert',
-										pdbType: 1,
-										where: '{"type": "1"}'
-									};
-								}
+								const param = {
+									pdbTable: 'config_const_cert',
+									pdbType: 1,
+									where: '{"type": "1"}'
+								};
                                 me.setParamStore(store, param, false);
                                 store.reload({
                                     callback: function (r, e) {
@@ -174,17 +151,7 @@ Ext.define('Admin.view.academico.ConstanciasView',{
                             ]
                         },'-',
                         {
-                            xtype       : 'CbPeriodos',
-                            labelAlign  : 'left',
-                            width       : 160,
-                            hidden      : true,
-							disabled	: true
-                        },
-                        {
                             xtype		: 'printButton',
-                            bind        : {
-                                disabled    : '{!periodo.value}'
-                            }
                         },
                         '->',
                         {

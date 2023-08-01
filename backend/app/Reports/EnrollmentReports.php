@@ -2,10 +2,14 @@
 
 namespace App\Reports;
 
+use App\Common\BuildReportsPDF;
 use App\Core\JReportModel;
+use App\Models\WatermarkFile;
 use App\Modules\Courses\RatingScale;
 use App\Modules\School\SchoolQueries;
 use App\Modules\Settings\GeneralSetting;
+use App\Queries\CallExecute;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -14,7 +18,8 @@ class EnrollmentReports
     /**
      * @throws \Exception
      */
-    public static function getHonorFrame(Request $request): \Illuminate\Http\JsonResponse {
+    public static function getHonorFrame(Request $request): JsonResponse
+    {
         $school     = SchoolQueries::getSchoolRequest($request);
         $ye         = $school->year;
         $format		= $request->input('pFormat');
@@ -54,51 +59,76 @@ class EnrollmentReports
         return (new JReportModel())->getReportExport($report,$report_export,$format,$query,$path, $school->school);
     }
 
-    public static function getCertificate(Request $request, Int $typeReport): \Illuminate\Http\JsonResponse{
-        $school = SchoolQueries::getSchool($request->input('schoolId') ?? 0);
-        $db     = "{$school->database_name}.";
-        $id	    = $request->input('pdbMatric');
-        $year	= $request->input('year') ?? Date('Y');
-        $format	= $request->input('pFormat');
-        $type	= $request->input('pdbType');
-        $per	= $request->input('pdbPeriodo') ?? '1';
-        $Grado 	= $request->input('pdbGrado');
-        $Grupo	= $request->input('pdbGrupo');
-        $Jorn 	= $request->input('pdbJorn');
-        $Sede	= $request->input('pdbSede');
-        $student= $request->input('pdbEstudian');
+    /**
+     * @throws \Exception
+     */
+    public static function getCertificate(Request $request, Int $typeReport): JsonResponse
+    {
+        $school     = SchoolQueries::getSchoolRequest($request);
+        $db         = $school->db;
+        $id	        = $request->input('pdbMatric');
+        $year	    = $school->year;
+        $currentYear= date('Y');
+        $model	    = $request->input('pdbType') ?? 1;
+        $per	    = $request->input('pdbPeriodo') ?? '1';
+        $paperSize  = 'letter';
+        $formatSize = "Letter";
+        $reportView = "reports.certificates.study-constancy";
+        $availableIn= '2';
+        $report     = 'Constancia de estudio';
 
-        $report = 'constancia_estudio';
-        if($typeReport == 2) $report			=	'certificado_estudio_per';
         $up		= sprintf("INSERT INTO %scertificate_numbers(id_parent,year,total,type)
-                        SELECT id,%s,1,1 FROM %sconfig_const_cert WHERE type = %s LIMIT 1
-                        ON DUPLICATE KEY UPDATE total=total + 1", $db, $year, $db, $typeReport);
+                        SELECT id,%s,1,type FROM %sconfig_const_cert WHERE type = %s LIMIT 1
+                        ON DUPLICATE KEY UPDATE total=total + 1", $db, $currentYear, $db, $typeReport);
         DB::select($up);
 
         $query = "SELECT t.*, RIGHT(CONCAT('0000000',t2.total),7) cons, t2.year, r.logo, r.escudo, r.pie ".
                     "FROM ".$db."config_const_cert AS t ".
-                    "LEFT JOIN ".$db."certificate_numbers AS t2 ON t2.id_parent = t.id ".
-                    "LEFT JOIN ".$db."encabezado_reportes AS r ON r.id > 0 ".
-                    "WHERE t2.year =".$year." AND t.type = ".$typeReport." LIMIT 1";
-        $params	= [
-            'R_ID_MATRIC'	=> intval($id),
-            'R_type'		=> intval($type)
-        ];
-
-        if($typeReport == 2 ) {
-            $params['R_PERIODO']    = $per;
-            $params['R_GRADO']      = $Grado;
-            $params['R_ESCALA']     = RatingScale::getScaleString($Grado, $year, $db);
+                    "JOIN ".$db."certificate_numbers AS t2 ON t2.id_parent = t.id ".
+                    "JOIN ".$db."encabezado_reportes AS r ON r.id > 0 ".
+                    "WHERE t.type = t2.type AND t2.year =".$currentYear." AND t.type = ".$typeReport." LIMIT 1";
+        $header     = DB::select($query)[0] ?? null;
+        $studentData= CallExecute::execute($db."sp_cons_estudio(?, ?, ?)", [$year, $id , $model])[0];
+        $studentNotes= null;
+        if($typeReport == 2) {
+            $report			= 'Certificado de estudio periodico';
+            $reportView	    = "reports.certificates.periodic-certificate";
+            $availableIn    = '3';
+            $studentNotes   = CallExecute::execute($db."sp_select_notas_academicas_periodo_final(?, ?, ?, ?)",
+                [$id, $per, $year, $school->grade]);
         }
 
-        $path       = "{$school->folder_name}";
-        return (new JReportModel())->getReportExport($report,$report,$format,$query,$path, $school, $params);
+        $watermark      = WatermarkFile::query()
+                            ->where('school_id', $school->id)
+                            ->whereRaw("JSON_EXTRACT(`settings`, '$.available_in') = '".$availableIn."' OR
+                                            JSON_EXTRACT(`settings`, '$.available_in') = '4'")
+                            ->whereRaw("JSON_EXTRACT(`settings`, '$.paper_size') = '".$paperSize."'")
+                            ->where('state', 1)
+                            ->first();
+        $fileDescription= $report.' '.$header->cons;
+        $pdfBuilder     = new BuildReportsPDF($reportView, $fileDescription, $school);
+        if($watermark){
+            $pdfBuilder->setWatermarkImage($watermark->url);
+            $pdfBuilder->setShowWatermarkImage(true);
+            $pdfBuilder->setShowFooter(($watermark->hide_footer === '0'));
+        }
+        $params	= [
+            'title'             => $report,
+            'watermark'         => $watermark,
+            'year'              => $year,
+            'db'                => $db,
+            'studentData'       => $studentData->constancy_data,
+            'certificateHeader' => $header,
+            'ratingScale'       => RatingScale::getScaleString($school->grade, $year, $db),
+            'studentNotes'      => $studentNotes,
+        ];
+        return $pdfBuilder->build($params, ['mode' => 'utf-8', 'format' => $formatSize], true);
     }
 
     /**
      * @throws \Exception
      */
-    public static function getEnrollmentSheet (Request $request): \Illuminate\Http\JsonResponse
+    public static function getEnrollmentSheet (Request $request): JsonResponse
     {
         $school = SchoolQueries::getSchoolRequest($request);
         $db     = $school->db;

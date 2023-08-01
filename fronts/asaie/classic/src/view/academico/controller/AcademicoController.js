@@ -993,13 +993,13 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
 				var values = win.down('grid').getSelection()[0],
 					rbVal = win.down('#rdGroup').getValue(),
 					param = {
-						pdbGrado: values.get('id_grade'),
-						pdbGrupo: values.get('id_group'),
-						pdbJorn: values.get('id_study_day'),
-						pdbMatric: values.get('id'),
-						pdbSede: values.get('id_headquarters'),
-						pdbType: rbVal.modelo,
-						pdbEstudian: values.get('nombres')
+						pdbGrado	: values.get('id_grade'),
+						pdbGrupo	: values.get('id_group'),
+						pdbJorn		: values.get('id_study_day'),
+						pdbMatric	: values.get('id'),
+						pdbSede		: values.get('id_headquarters'),
+						pdbType		: rbVal.modelo,
+						pdbEstudian	: values.get('nombres')
 					};
 				break;
             case 'CertificadosView' :

@@ -20,6 +20,7 @@ class FinalReport
     {
         $school     = SchoolQueries::getSchoolRequest($request);
         $year       = $school->year;
+        $currentYear= date('Y');
         $db         = $school->db;
         $one	    = $request->input('pdbMatric');
         $h		    = $request->input('pdbHoja');
@@ -62,11 +63,11 @@ class FinalReport
             $query	    = 	"CALL {$db}sp_boletines_reportes(".$school->headquarter.",'".$school->grade."','".$school->group."',".$school->workingDay.",".$year.",'".$periodo."',".$one.")";
         }
         $type	= 4;
-        $up		= sprintf("INSERT INTO %scertificate_numbers(id_parent,year,total,type) SELECT id,%s,1,1 FROM ".
+        $up		= sprintf("INSERT INTO %scertificate_numbers(id_parent,year,total,type) SELECT id,%s,1,type FROM ".
                         "%sconfig_const_cert_end WHERE type = %d LIMIT 1 ON DUPLICATE KEY UPDATE total=total + 1",
-                        $db, $year, $db, $type);
+                        $db, $currentYear, $db, $type);
         DB::statement($up);
-        $header         = CallExecute::execute("{$db}sp_header_final_certificate(?, ?)", [$year, 4]);
+        $header         = CallExecute::execute("{$db}sp_header_final_certificate(?, ?)", [$currentYear, $type]);
 
         $studentList    = DB::select($query);
 

@@ -26,7 +26,7 @@ Route::prefix('reports')->group(function () {
         Route::post('periodic-bulletin', 'getPeriodicBulletin');
         Route::post('consolidated', 'getConsolidated');
         Route::post('enrollment-sheet', 'getEnrollmentSheet');
-        Route::post('certificate', 'getCertificate');
+        Route::post('certificate', 'getConstancy');
         Route::post('periodic-certificate', 'getPeriodicCertificate');
         Route::post('honor-frame', 'getHonorFrame');
         Route::post('observer-sheet', 'getObserverSheet');

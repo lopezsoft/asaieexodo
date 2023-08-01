@@ -15,28 +15,32 @@ Ext.define('Admin.view.academico.ConstanciasSaveView' ,{
 			items	: [
                 {
                     labelAlign  : 'top',
+					enableFont  : true,
                     fieldLabel  : 'Encabezado',
                     name        : 'header1'
                 },
                 {
                     labelAlign  : 'top',
                     fieldLabel  : 'Resolución',
+					enableFont  : true,
                     name        : 'header2'
                 },
                 {
                     labelAlign  : 'top',
                     fieldLabel  : 'Datos de expedición',
+					enableFont  : true,
                     name        : 'body'
                 },
                 {
                     name        : 'message',
-                    enableSourceEdit    : false,
                     enableLinks         : false,
                     enableLists         : false,
+					enableFont  		: true,
                     height              : 120
                 },
                 {
                     name: 'resolution',
+					enableFont  : true,
                     height: 120
                 },
                 {
@@ -59,7 +63,13 @@ Ext.define('Admin.view.academico.ConstanciasSaveView' ,{
                     xtype       : 'customcheckboxfield',
                     boxLabel    : 'Mostrar número de constancia o certificado',
                     name        : 'show_number'
-                }
+                },
+				{
+					xtype       : 'customtextarea',
+					labelAlign  : 'top',
+					fieldLabel  : 'Nombre de la constancia o certificado',
+					name        : 'show_number_message'
+				}
 			]
 		}		    
 	]

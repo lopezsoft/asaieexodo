@@ -18,8 +18,16 @@
 .final-note {
     width: 72px;
 }
+
+.note-width {
+    width: 38px;
+}
 .ih-width {
     width: 24px;
+}
+
+.faltas-width {
+    width: 20px;
 }
 
 .table-final-certificate tbody {

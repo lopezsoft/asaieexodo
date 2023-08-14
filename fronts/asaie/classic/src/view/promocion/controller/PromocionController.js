@@ -291,13 +291,14 @@ Ext.define('Admin.view.promocion.controller.PromocionController', {
 				grid = win.down('grid');
 
 				param = {
-                    pdbGrado: values.id_grado,
-                    pdbJorn: values.cod_jorn,
-                    pdbGrupo: values.grupo,
-                    pdbSede: values.id_sede,
-                    pdbMatric: (values.selection > 0) ? grid.getSelection()[0].get('id') : 0,
-                    pdbPer: values.periodo,
-                    pdbHoja: values.hoja
+                    pdbGrado	: values.id_grado,
+                    pdbJorn		: values.cod_jorn,
+                    pdbGrupo	: values.grupo,
+                    pdbSede		: values.id_sede,
+                    pdbMatric	: (values.selection > 0) ? grid.getSelection()[0].get('id') : 0,
+                    pdbAllPer	: values.periodo,
+                    pdbHoja		: values.hoja,
+					pdbType		: values.tipo,
                 };
                 break;
             default:

@@ -73,7 +73,7 @@ Ext.define('Admin.view.academico.AsignaturasChangeView',{
 			record	= me.getRecord(),
 			rec		= me.down('grid').getSelection()[0];
 		let subject = {
-			id_asig		: rec.subject_id,
+			id_asig		: rec.get('subject_id'),
 			asignatura	: rec.get('asignatura')
 		}
 		record.set(subject);

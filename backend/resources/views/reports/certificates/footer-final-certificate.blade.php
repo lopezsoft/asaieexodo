@@ -1,4 +1,10 @@
-@if(!$isPreSchool)
+@if($isPreSchool)
+    <section>
+        <div class="section-body student-data text-center">
+            <p><b>EL ESTUDIANTE FUE PROMOVIDO AL SIGUIENTE GRADO:</b></p>
+        </div>
+    </section>
+@else
 <table class="table-final-certificate">
     <thead>
         <tr class="td-50">
@@ -21,4 +27,11 @@
         </tr>
     </tbody>
 </table>
+@if(strlen($oldStudent->msg3) > 10)
+    <section>
+        <div class="section-body student-data text-left">
+            <span><b>Observación:</b> {!! $oldStudent->msg3 !!}</span>
+        </div>
+    </section>
+@endif
 @endif

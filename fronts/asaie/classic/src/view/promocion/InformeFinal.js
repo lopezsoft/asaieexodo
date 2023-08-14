@@ -45,13 +45,13 @@ Ext.define('Admin.view.promocion.InformeFinal',{
                         {
                             boxLabel  : 'Final',
                             name      : 'periodo',
-                            inputValue: '1'
+                            inputValue: '1',
+                            checked   : true
                         },
                         {
                             boxLabel  : 'Todos',
                             name      : 'periodo',
-                            inputValue: '0',
-                            checked   : true
+                            inputValue: '2',
                         }
                     ]
                 },
@@ -67,17 +67,37 @@ Ext.define('Admin.view.promocion.InformeFinal',{
                             boxLabel  : 'Hoja oficio',
                             name      : 'hoja',
                             inputValue: '1',
-                            checked   : true,
                             itemId    : 'hOfico'
                         },
                         {
                             boxLabel  : 'Hoja carta',
                             name      : 'hoja',
+                            checked   : true,
                             inputValue: '2',
                             itemId    : 'oCarta'
                         }
                     ]
                 },
+				{
+					xtype       : 'radiogroup',
+					fieldLabel  : 'Opciones',
+					columns     : 1,
+					vertical    : false,
+					labelStyle	: 'font-weight:bold',
+					items   : [
+						{
+							boxLabel  : 'Solo Áreas',
+							name      : 'tipo',
+							inputValue: '1',
+						},
+						{
+							boxLabel  : 'Áreas y asignaturas',
+							name      : 'tipo',
+							checked   : true,
+							inputValue: '2'
+						}
+					]
+				},
                 {
                     xtype   : 'customcheckboxfield',
                     boxLabel: 'Generar todos los grupos del grado!',
@@ -153,7 +173,8 @@ Ext.define('Admin.view.promocion.InformeFinal',{
                 {
                     text: 'Sede',
                     dataIndex: 'sede',
-                    width: 190
+                    minWidth: 190,
+					flex: 1
                 }
             ]
         }

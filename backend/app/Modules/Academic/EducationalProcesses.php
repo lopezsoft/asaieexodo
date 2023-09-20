@@ -51,71 +51,69 @@ class EducationalProcesses
                                     WHERE tn.year={$year} AND tn.id_curso={$curso} AND tn.periodo={$periodo}
                                     AND tm.id_grade={$grado} AND tm.id_state=2";
                 $queryNotes 	= DB::select($queryNotes);
-                if(count($queryNotes) == 0 OR count($queryLog) == 0){
-                    throw new Exception('No se encontraron datos para realizar la operación');
+                if(count($queryNotes) > 0 AND count($queryLog) > 0){
+                    DB::beginTransaction();
+                    /**
+                     *  Se eliminan, para evitar conflictos de duplicidad, los logros e indicadores
+                     * que se hayan insertado a los estudiantes.
+                     */
+                    $params = (Object) [
+                        "queryLog"      => $queryLog,
+                        "queryNotes"    => $queryNotes,
+                        "proceso"       => $proceso,
+                        "school"        => $school,
+                        "grado"         => $grado,
+                        "tableLog"      => $tableLog,
+                    ];
+                    EducationalProcessesInsert::queryNotes($params);
+                    /**
+                     * Recorremos el array con los datos de la tabla con los logros e indicadores
+                     */
+                    EducationalProcessesInsert::queryLog($params);
+                    DB::commit();
                 }
-                DB::beginTransaction();
-                /**
-                 *  Se eliminan, para evitar conflictos de duplicidad, los logros e indicadores
-                 * que se hayan insertado a los estudiantes.
-                 */
-                $params = (Object) [
-                    "queryLog"      => $queryLog,
-                    "queryNotes"    => $queryNotes,
-                    "proceso"       => $proceso,
-                    "school"        => $school,
-                    "grado"         => $grado,
-                    "tableLog"      => $tableLog,
-                ];
-                EducationalProcessesInsert::queryNotes($params);
-                /**
-                 * Recorremos el array con los datos de la tabla con los logros e indicadores
-                 */
-                EducationalProcessesInsert::queryLog($params);
-                DB::commit();
             }else{
                 $queryCourse = "SELECT tc.id,tc.id_jorn, tc.grupo FROM {$db}cursos tc WHERE
                         tc.id_docente = ? AND tc.id_asig = ? AND tc.id_sede = ? AND tc.id_grado = ?
                         AND tc.estado = 1 AND tc.`year` = ? ";
                 $queryCourse = DB::select($queryCourse, [$teacherId, $asig, $sede, $grado, $year]);
-                if (count($queryCourse) === 0 OR count($queryLog) === 0){
-                    throw new Exception('No se encontraron datos para realizar la operación');
-                }
-                foreach($queryCourse as $course){
-                    $curso	    = $course->id;
-                    $queryNotes	= "SELECT tn.id,{$filas},tn.final,
-                                    tn.id_escala,tm.id id_matric FROM {$tableNotes} AS tn
-                                    LEFT JOIN {$db}cursos AS tc ON (tc.id = tn.id_curso AND tc.year = tn.year)
-                                    LEFT JOIN {$db}student_enrollment AS tm ON (tm.id = tn.id_matric AND tm.year = tn.year)
-                                    WHERE tn.year= ? AND tn.id_curso= ? AND tn.periodo = ? AND tm.id_grade = ? AND tm.id_state = 2";
-                    $queryNotes 	= DB::select($queryNotes,[$year, $curso, $periodo, $grado]);
-                    if(count($queryNotes) > 0){
-                        DB::beginTransaction();
-                        $params = (Object) [
-                            "queryLog"      => $queryLog,
-                            "queryNotes"    => $queryNotes,
-                            "proceso"       => $proceso,
-                            "school"        => $school,
-                            "grado"         => $grado,
-                            "tableLog"      => $tableLog,
-                        ];
-                        /**
-                         *  Se eliminan, para evitar conflictos de duplicidad, los logros e indicadores
-                         * que se hayan insertado a los estudiantes.
-                         */
-                        EducationalProcessesInsert::queryNotes($params);
-                        /**
-                         * Recorremos el array con los datos de la tabla con los logros e indicadores
-                         *
-                         */
-                        EducationalProcessesInsert::queryLog($params);
-                        DB::commit();
+                if (count($queryCourse) > 0 AND count($queryLog) > 0){
+                    foreach($queryCourse as $course){
+                        $curso	    = $course->id;
+                        $queryNotes	= "SELECT tn.id,{$filas},tn.final,
+                                        tn.id_escala,tm.id id_matric FROM {$tableNotes} AS tn
+                                        LEFT JOIN {$db}cursos AS tc ON (tc.id = tn.id_curso AND tc.year = tn.year)
+                                        LEFT JOIN {$db}student_enrollment AS tm ON (tm.id = tn.id_matric AND tm.year = tn.year)
+                                        WHERE tn.year= ? AND tn.id_curso= ? AND tn.periodo = ? AND tm.id_grade = ? AND tm.id_state = 2";
+                        $queryNotes 	= DB::select($queryNotes,[$year, $curso, $periodo, $grado]);
+                        if(count($queryNotes) > 0){
+                            DB::beginTransaction();
+                            $params = (Object) [
+                                "queryLog"      => $queryLog,
+                                "queryNotes"    => $queryNotes,
+                                "proceso"       => $proceso,
+                                "school"        => $school,
+                                "grado"         => $grado,
+                                "tableLog"      => $tableLog,
+                            ];
+                            /**
+                             *  Se eliminan, para evitar conflictos de duplicidad, los logros e indicadores
+                             * que se hayan insertado a los estudiantes.
+                             */
+                            EducationalProcessesInsert::queryNotes($params);
+                            /**
+                             * Recorremos el array con los datos de la tabla con los logros e indicadores
+                             *
+                             */
+                            EducationalProcessesInsert::queryLog($params);
+                            DB::commit();
+                        }
                     }
                 }
             }
         }catch (Exception $e){
             DB::rollBack();
-            throw new Exception($e->getMessage());
+            // throw new Exception($e->getMessage());
         }
     }
     public static function getVerify(Request $request): JsonResponse

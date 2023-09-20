@@ -40,7 +40,7 @@ export class UsersService {
             this._http.get(`/school/system-modules`, {schoolId})
                 .subscribe({
                     next: (resp: any) => {
-                        this.schoolModules  = resp.dataRecords.data;
+                        this.schoolModules  = resp.records.data;
                         localStorage.setItem('schoolModules', JSON.stringify(this.schoolModules));
                     },
                     error: (err: any) => {

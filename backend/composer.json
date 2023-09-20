@@ -6,6 +6,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.1",
+        "aws/aws-sdk-php": "^3.281",
         "doctrine/dbal": "^3.6.2",
         "free2one/php-accessor": "~0.3",
         "guzzlehttp/guzzle": "^7.5.0",

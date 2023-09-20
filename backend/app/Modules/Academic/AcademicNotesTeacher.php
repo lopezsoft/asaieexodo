@@ -28,7 +28,8 @@ class AcademicNotesTeacher
             $teacherId  = CoursesOfTeacher::getTeacherId($db);
             $table	    = TablesQuery::getTableNotes($grado);
             $response   = UpdateTable::update($request, $fieldsList, "{$db}$table");
-            EducationalProcessesInsertInNotesJob::dispatch($params, $school, $teacherId);
+            // EducationalProcessesInsertInNotesJob::dispatch($params, $school, $teacherId);
+            EducationalProcesses::insertInNotes($request, $school, $teacherId);
             return $response;
         }catch (Exception $e){
             return self::getResponse500([

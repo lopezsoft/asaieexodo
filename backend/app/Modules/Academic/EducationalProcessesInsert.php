@@ -42,14 +42,15 @@ class EducationalProcessesInsert
                 $scaleId	= $nValue->id_escala;
                 if ($proceso == 3) { //Valores para procesos por competencias
                     if ($id_competencia > 0 AND $estado == 1) { // Asignar por desempeño
+                        $xValue			= (array) $nValue;
                         $x_campo		= 'prom'.$id_competencia;
-                        $nota_campo		= $nValue[$x_campo];
+                        $nota_campo		= $xValue[$x_campo];
                         $scaleId		= RatingScale::getRatingScaleId($school, $grado, $nota_campo);
                     }
                 }
                 if($scaleId > 0){
                     switch($estado){
-                        case 1 : // Asignar segun desempeño
+                        case 1 : // Asignar según desempeño
                             if ($scaleLogId === $scaleId) {
                                 self::insertTableLog($tableLog, $noteId, $id_logro);
                             }

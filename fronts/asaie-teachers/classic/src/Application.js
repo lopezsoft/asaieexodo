@@ -103,7 +103,7 @@ Ext.define('Admin.Application', {
 				const msg	= (token)	? token.user.first_name + ' ' + token.user.last_name : '';
 				toastr.success('Hola ' + msg + ', bienvenid@ al sistema de notas ASAIE ÉXODO.');
 			}else {
-				window.location.href	= '/auth/login';
+				window.location.href	= '#/auth/login';
 			}
 
         });

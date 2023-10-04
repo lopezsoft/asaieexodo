@@ -5,6 +5,12 @@
             Perfil
         </button>
     </div>
+    <div class="col-6 col-sm-4 col-md-2">
+        <button type="button" class="btn btn-custom" (click)="goRoute('user/change-user-name')">
+            <i class="fas fa-id-card"></i>
+            Cambiar nombre de usuario
+        </button>
+    </div>
     <div class="col-6 col-sm-4 col-md-2" *ngIf="user.isRolAccess()">
         <button type="button" class="btn btn-custom" (click)="goRoute('user/list')">
             <i class="fas fa-id-card"></i>

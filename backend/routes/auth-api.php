@@ -28,3 +28,8 @@ Route::get('/verify-email/{id}/{hash}', [VerifyEmailController::class, 'verify']
 Route::post('/email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
     ->middleware('guest')
     ->name('verification.send');
+
+Route::post('/change-user-name', [EmailVerificationNotificationController::class, 'change'])
+    ->middleware('guest')
+    ->name('verification.change');
+

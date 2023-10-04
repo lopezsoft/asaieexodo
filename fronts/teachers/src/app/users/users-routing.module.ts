@@ -2,7 +2,9 @@ import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 
 import {
-    ProfileComponent, UsersEditComponent,
+    ProfileChangeComponent,
+    ProfileComponent,
+    UsersEditComponent,
     UsersListComponent,
 } from "./index";
 import { UsersContainerComponent } from "./users-container.component";
@@ -14,6 +16,10 @@ const routes: Routes = [
     {
         path: "profile",
         component: ProfileComponent,
+    },
+    {
+        path: "change-user-name",
+        component: ProfileChangeComponent,
     },
     {
         path: "list",

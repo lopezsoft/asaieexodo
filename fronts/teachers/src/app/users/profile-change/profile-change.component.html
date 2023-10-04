@@ -1,0 +1,63 @@
+<section class="users-edit">
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-content">
+          <div class="card-header">
+            <h4> <strong> {{ title | uppercase }} </strong> </h4>
+          </div>
+          <div class="card-body">
+            <!-- Account content starts -->
+            <div class="mt-2" id="account">
+              <!-- Account form starts -->
+              <form [formGroup]="customForm">
+                <div class="row">
+                  <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Nombre</label>
+                            <input class="form-control" type="text" formControlName="first_name"
+                                   placeholder="Nombre"
+                                   readonly
+                                   autofocus   #focusElement>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Apellidos</label>
+                            <input class="form-control" type="text" formControlName="last_name"
+                                readonly
+                                placeholder="Apellidos">
+                        </div>
+                    </div>
+                </div>
+                  <div class="row">
+                      <div class="col-md-6">
+                          <div class="form-group">
+                              <label>Nombre de usuario actual</label>
+                              <input class="form-control" type="text" formControlName="user_name"
+                                     [placeholder]="placeholderEmail" readonly>
+                          </div>
+                      </div>
+                      <div class="col-md-6">
+                          <div class="form-group">
+                              <label>Nuevo nombre de usuario</label>
+                              <input class="form-control" type="text" formControlName="email"
+                                     [placeholder]="placeholderEmail" inputmode="email"
+                                     [class.is-invalid]="invalidEmail">
+                              <small class="text-danger" *ngIf="invalidEmail">Correo electrónico incorrecto</small>
+                          </div>
+                      </div>
+                  </div>
+              </form>
+            </div>
+          </div>
+        </div>
+        <div class="card-footer">
+          <app-footer-form [showAaveACreate]="false" [saveAClose]="saveAClose" (closeEvent)="cancel()"
+                            (saveAndCreateEvent)="saveAndCreate()" (saveAndCloseEvent)="saveAndClose()"
+          ></app-footer-form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

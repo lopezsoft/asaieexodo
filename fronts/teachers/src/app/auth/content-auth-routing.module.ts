@@ -7,6 +7,9 @@ import { LockScreenPageComponent } from "./lock-screen/lock-screen-page.componen
 import { LoginPageComponent } from "./login/login-page.component";
 import { MaintenancePageComponent } from "./maintenance/maintenance-page.component";
 import { RegisterPageComponent } from "./register/register-page.component";
+import {ResetPasswordComponent} from "./reset-password/reset-password.component";
+import {NotAuthorizedComponent} from "./not-authorized/not-authorized.component";
+import {EmailResendComponent} from "./email-resend/email-resend.component";
 
 
 const routes: Routes = [
@@ -27,7 +30,20 @@ const routes: Routes = [
           title: 'Forgot Password Page'
         }
       },
-
+      {
+        path: 'password-reset/:token',
+        component: ResetPasswordComponent,
+        data: {
+          title: 'Reset Password Page'
+        }
+      },
+      {
+        path: 'not-authorized',
+        component: NotAuthorizedComponent,
+        data: {
+          title: 'Not authorized page'
+        }
+      },
       {
         path: 'lockscreen',
         component: LockScreenPageComponent,
@@ -47,6 +63,13 @@ const routes: Routes = [
         component: MaintenancePageComponent,
         data: {
           title: 'Maintenance Page'
+        }
+      },
+      {
+        path: 'email-resend',
+        component: EmailResendComponent,
+        data: {
+          title: 'Email Resend Page'
         }
       },
       {

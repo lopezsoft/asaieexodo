@@ -20,3 +20,24 @@ FROM schools AS a, system_modules AS b
 WHERE NOT EXISTS(
 	SELECT 1 FROM  school_modules AS aa WHERE aa.school_id = a.id AND aa.system_module_id = b.id
 )
+
+
+SELECT * FROM schools AS a
+WHERE a.active =1 AND  NOT EXISTS (
+    SELECT 1 FROM school_users AS b WHERE b.school_id = a.id
+    AND b.user_id = 1
+)
+
+
+INSERT INTO user_roles(user_id, school_id, profile_id)
+SELECT 1, a.id, 3 FROM schools AS a
+WHERE a.active =1 AND  NOT EXISTS (
+    SELECT 1 FROM user_roles AS b WHERE b.school_id = a.id AND
+    b.user_id = 1 AND b.profile_id = 3
+)
+INSERT INTO school_users (user_id, school_id)
+SELECT 1, a.id FROM schools AS a
+WHERE a.active =1 AND  NOT EXISTS (
+    SELECT 1 FROM school_users AS b WHERE b.school_id = a.id
+                                      AND b.user_id = 1
+)

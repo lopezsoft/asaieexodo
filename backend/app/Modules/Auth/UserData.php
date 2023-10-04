@@ -29,6 +29,7 @@ class UserData
             }
             $user->first_name   = $records->first_name ?? $user->first_name;
             $user->last_name    = $records->last_name ?? $user->last_name;
+            $user->active       = $records->active ?? $user->active;
             $user->save();
             AuditTable::audit($request->ip(), 'users', "UPDATE", $records);
             return self::getResponse(['user' => $user]);

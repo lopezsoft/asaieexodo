@@ -8,18 +8,18 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
-use Illuminate\Auth\Passwords\CanResetPassword;
 
 /**
  * @method static create(array $array)
  * @method static findOrFail($user_id)
  * @method static find($user_id)
+ * @method static where(string $string, mixed $uud)
  * @property mixed $first_name
  * @property mixed $last_name
  */
 class User extends Authenticatable implements MustVerifyEmail
 {
-    use HasApiTokens, HasFactory, Notifiable, CanResetPassword;
+    use HasApiTokens, HasFactory, Notifiable;
     protected $fillable = [
         'first_name',
         'last_name',

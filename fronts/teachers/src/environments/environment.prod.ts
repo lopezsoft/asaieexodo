@@ -5,5 +5,5 @@ export const environment = {
   APPURL      : 'https://teachers.asaie.co',
   SOCKET_URL  : 'http://localhost:3001',
   APIJWT      : 'teacher-asaie-exodo-jwt',
-  VERSION     : '2.1.5'
+  VERSION     : '2.1.6'
 };

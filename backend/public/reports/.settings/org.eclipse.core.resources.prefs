@@ -115,6 +115,7 @@ encoding/preinforme_carta.jrxml=UTF-8
 encoding/preinforme_oficio.jrxml=UTF-8
 encoding/recuperacionesfinales.jrxml=UTF-8
 encoding/recuperacionesperiodicas.jrxml=UTF-8
+encoding/report_header.jrxml=UTF-8
 encoding/representative_results.jrxml=UTF-8
 encoding/representative_results_polling_stations.jrxml=UTF-8
 encoding/representative_results_white_vote.jrxml=UTF-8

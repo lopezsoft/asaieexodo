@@ -24,5 +24,15 @@
 			<type>1</type>
 			<location>D:/wamp/www/SME/reports/par_contenido_tem_subreport.jasper</location>
 		</link>
+		<link>
+			<name>report_header.jasper</name>
+			<type>1</type>
+			<location>D:/wamp64/www/matiasapp/backend/public/reportsjr/subreports/report_header.jasper</location>
+		</link>
+		<link>
+			<name>report_header.jrxml</name>
+			<type>1</type>
+			<location>D:/wamp64/www/matiasapp/backend/public/reportsjr/subreports/report_header.jrxml</location>
+		</link>
 	</linkedResources>
 </projectDescription>

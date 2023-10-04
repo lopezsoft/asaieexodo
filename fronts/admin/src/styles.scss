@@ -1,7 +1,8 @@
+//@import "./assets/bootstrap/scss/bootstrap";
 @import '@core/scss/core.scss';
-@import './assets/scss/styles';
 @import '@core/scss/base/pages/app-ecommerce.scss';
 @import '@core/scss/angular/libs/ratings.component.scss';
+@import './../node_modules/exodolibs/assets/style.scss';
 .title-center-black {
     color: #111e2c !important;
 }

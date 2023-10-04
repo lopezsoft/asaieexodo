@@ -35,9 +35,9 @@ export class UsersService {
       })
   }
   
-  resendEmail(id: number) {
+  resendEmail(params: any = {}) {
     this.mask.showBlockUI();
-    this._http.get(`/email/resend/${id}`)
+    this._http.post(`/email/verification-notification`, params)
       .subscribe({
         next: (resp: JsonResponse) => {
           this.mask.hideBlockUI();

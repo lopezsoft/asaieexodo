@@ -8,7 +8,8 @@ import { LoginPageComponent } from "./login/login-page.component";
 import { MaintenancePageComponent } from "./maintenance/maintenance-page.component";
 import { RegisterPageComponent } from "./register/register-page.component";
 import {EmailResendComponent} from "./email-resend/email-resend.component";
-
+import {ResetPasswordComponent} from "./reset-password/reset-password.component";
+import {NotAuthorizedComponent} from "./not-authorized/not-authorized.component";
 
 const routes: Routes = [
   {
@@ -28,12 +29,25 @@ const routes: Routes = [
           title: 'Forgot Password Page'
         }
       },
-
+      {
+        path: 'password-reset/:token',
+        component: ResetPasswordComponent,
+        data: {
+          title: 'Reset Password Page'
+        }
+      },
       {
         path: 'lockscreen',
         component: LockScreenPageComponent,
         data: {
           title: 'Lock Screen page'
+        }
+      },
+      {
+        path: 'not-authorized',
+        component: NotAuthorizedComponent,
+        data: {
+          title: 'Not authorized page'
         }
       },
       {
@@ -51,10 +65,10 @@ const routes: Routes = [
         }
       },
       {
-        path: 'email/resend/:id',
+        path: 'email-resend',
         component: EmailResendComponent,
         data: {
-          title: 'Maintenance Page'
+          title: 'Email Resend Page'
         }
       },
       {
@@ -64,7 +78,6 @@ const routes: Routes = [
           title: 'Register Page'
         }
       }
-
     ]
   }
 ];

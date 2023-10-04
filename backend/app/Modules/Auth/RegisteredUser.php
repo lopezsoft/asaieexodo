@@ -28,7 +28,8 @@ class RegisteredUser
     }
     public static function sendEmail($user, $data): void
     {
-        Auth::login($user);
         Notification::send($user, new VerifyEmailNotification($data));
+
+        Auth::login($user);
     }
 }

@@ -2,26 +2,38 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Common\HttpResponseMessages;
 use App\Http\Controllers\Controller;
-use App\Providers\RouteServiceProvider;
+use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class EmailVerificationNotificationController extends Controller
 {
     /**
      * Send a new email verification notification.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
-        if ($request->user()->hasVerifiedEmail()) {
-            return redirect()->intended(RouteServiceProvider::HOME);
+        $uuid   = $request->uuid ?? null;
+        if ($uuid) {
+            $user   = User::where('id', $uuid)->first();
+        }else {
+            $user   = User::where('email', $request->email ?? '')->first();
         }
-
-        $request->user()->sendEmailVerificationNotification();
-
-        return back()->with('status', 'verification-link-sent');
+        if(!$user) {
+            return HttpResponseMessages::getResponse404([
+                'message'   => 'El usuario no existe.'
+            ]);
+        }
+        if ($user->hasVerifiedEmail()) {
+            return HttpResponseMessages::getResponse400([
+                'message'   => 'El correo electrónico ya fue verificado.'
+            ]);
+        }
+        $user->sendEmailVerificationNotification();
+        Auth::login($user);
+        return response()->json(['message' => 'Se ha enviado un correo electrónico de verificación']);
     }
 }

@@ -8,7 +8,7 @@ Route::prefix('educational-processes')->group(function () {
             Route::post('/', 'createByTeacher');
             Route::get('/', 'getByTeacher');
             Route::post('/update', 'updateByTeacher');
-            Route::put('/{$id}', 'updateByTeacher');
+            Route::put('/{id}', 'updateByTeacher');
             Route::post('/delete', 'deleteByTeacher');
             Route::delete('/{id}', 'deleteByTeacher');
         });

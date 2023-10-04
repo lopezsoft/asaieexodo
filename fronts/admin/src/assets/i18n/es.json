@@ -51,10 +51,14 @@
   },
   "resend": {
     "header"      : "Correo de confirmación",
-    "description" : "Ingrese su dirección de correo electrónico y le enviaremos un correo de confirmación.",
+    "description" : "Ingrese su dirección de correo electrónico y le enviaremos un nuevo correo de confirmación.",
     "button"      : {
       "resend"     : "Reenviar correo de confirmación",
       "resending"  : "Reenviando..."
+    },
+    "label"      : {
+      "notReceived"    : "¿No has recibido el correo de confirmación?",
+      "resend"         : "Reenviar correo de confirmación"
     }
   },
   "register" : {

@@ -3,28 +3,34 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Providers\RouteServiceProvider;
+use App\Models\User;
 use Illuminate\Auth\Events\Verified;
-use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\URL;
 
 class VerifyEmailController extends Controller
 {
     /**
      * Mark the authenticated user's email address as verified.
-     *
-     * @param  \Illuminate\Foundation\Auth\EmailVerificationRequest  $request
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function __invoke(EmailVerificationRequest $request)
+    public function verify(Request $request)
     {
-        if ($request->user()->hasVerifiedEmail()) {
-            return redirect()->intended(RouteServiceProvider::HOME.'?verified=1');
+        // Validar que el ID y el hash en la URL coincidan con los del usuario
+        $user = User::findOrFail($request->route('id'));
+
+        if (! URL::hasValidSignature($request)) {
+            return redirect(config('app.frontend_url')."/#/auth/email-resend");
         }
 
-        if ($request->user()->markEmailAsVerified()) {
-            event(new Verified($request->user()));
+        if ($user->hasVerifiedEmail()) {
+            return redirect(config('app.frontend_url')."/#/auth/login");
         }
 
-        return redirect()->intended(RouteServiceProvider::HOME.'?verified=1');
+        if ($user->markEmailAsVerified()) {
+            $user->active = 1;
+            $user->save();
+            event(new Verified($user));
+        }
+        return redirect(config('app.frontend_url')."/#/auth/login");
     }
 }

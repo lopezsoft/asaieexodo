@@ -5,7 +5,6 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\View;
 use Mpdf\Mpdf;
 use Mpdf\MpdfException;
-
 class CustomMPdf extends Mpdf
 {
     /**

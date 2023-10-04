@@ -17,6 +17,7 @@ Route::prefix('v1')->group(function () {
             'records'   => $request->user()
         ]);
     });
+    require_once __DIR__.'/auth-api.php';
     require_once __DIR__.'/authentication.php';
     Route::group(['middleware' => 'auth:api'], function () {
         Route::apiResource('crud', 'SchoolMasterController');

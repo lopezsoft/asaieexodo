@@ -1,6 +1,6 @@
 {
-  "name": "vuexy-admin-template",
-  "version": "8.0.0",
+  "name": "asaie-exodo",
+  "version": "2.1.6",
   "scripts": {
     "ng": "ng",
     "start": "set NODE_OPTIONS=--max_old_space_size=8192 & ng serve --open",
@@ -51,7 +51,7 @@
     "bs-stepper": "1.7.0",
     "chart.js": "3.7.0",
     "core-js": "3.20.2",
-    "exodolibs": "^0.1.4",
+    "exodolibs": "^0.2.0",
     "feather-icons": "4.28.0",
     "flatpickr": "4.6.9",
     "hammerjs": "2.0.8",

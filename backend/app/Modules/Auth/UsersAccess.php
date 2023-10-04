@@ -50,10 +50,15 @@ class UsersAccess implements Authentication
         }
 
         $user           = $request->user();
+        if (!$user->hasVerifiedEmail()) {
+            return response()->json([
+                'message'   => 'El correo electrónico no ha sido verificado.'
+            ], 404);
+        }
         $tokenResult    = $user->createToken($user->email);
         $token          = $tokenResult->token;
         if ($request->remember_me) {
-            $token->expires_at = Carbon::now()->addWeeks(1);
+            $token->expires_at = Carbon::now()->addWeeks();
         }
         $token->save();
 

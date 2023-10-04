@@ -39,7 +39,7 @@ export class UsersListComponent extends JqxCustomGridComponent implements OnInit
 				},
 				cellClick: (row: Users) => {
 					if(!row.email_verified_at){
-						this.user.resendEmail(row.id);
+						this.user.resendEmail({uuid: row.id});
 					}
 				}
 			},
@@ -81,14 +81,21 @@ export class UsersListComponent extends JqxCustomGridComponent implements OnInit
             </div>`;
 					return html;
 				}
+			},
+			{
+				text: 'Activo',
+				dataIndex: 'active',
+				width: 'auto',
+				align: 'center',
+				type: 'boolean',
 			}
 		];
 		super.ngOnInit();
 		ts.crudApi        = {
-			create  : '/users/create',
+			create  : '/user/create',
 			read    : '/school/users',
-			update  : '/users/update/',
-			delete  : '/users/delete/'
+			update  : '/user/update/',
+			delete  : '/user/delete/'
 		};
 
 		this.user.getUserSchools();

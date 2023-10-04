@@ -104,8 +104,8 @@ class BuildReportsPDF
 
             $slugDescription    = Str::slug($fileDescription, '_');
             $fileName           = "{$slugDescription}_{$genericName}_{$date}{$format}";
-
-            $pdf            = new CustomMPdf($config);
+            // $config['tempDir']  = storage_path('tmp');
+            $pdf                = new CustomMPdf($config);
             if($this->isShowFooter()){
                 $pdf->SetHTMLFooter('<hr/>
                     <table class="table-footer">

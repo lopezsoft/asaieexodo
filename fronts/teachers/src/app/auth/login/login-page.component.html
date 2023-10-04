@@ -13,7 +13,7 @@
           <img class="img-fluid" [src]="
             gService.coreConfig.layout.skin === 'dark'
               ? 'assets/images/pages/login-v2-dark.svg'
-              : 'assets/images/pages/login-v2.svg'
+              : 'assets/images/pages/online.svg'
           " alt="Login V2" />
         </div>
       </div>
@@ -62,8 +62,13 @@
             <br>
             <label
               style="padding: 2px;font-size: 12px;">{{ 'login.label.forgotYourPassword' | translate }}
+              <a [routerLink]="['/auth/forgotpassword']"><strong>{{ 'login.label.recoverPassword' | translate }}</strong>
+              </a>
+            </label>
+            <label
+                    style="padding: 2px;font-size: 12px;">{{ 'resend.label.notReceived' | translate }}
               <a
-                [href]="forgotPassword" target="_blank"><strong>{{ 'login.label.recoverPassword' | translate }}</strong>
+                      [routerLink]="['/auth/email-resend']"><strong>{{ 'resend.label.resend' | translate }}</strong>
               </a>
             </label>
           </form>

@@ -4,7 +4,7 @@ body,
 body *:not(html):not(style):not(br):not(tr):not(code) {
     box-sizing: border-box;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif,
-        'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
     position: relative;
 }
 
@@ -34,11 +34,80 @@ a {
 a img {
     border: none;
 }
+/* Custom CSS */
+
+.email-wrapper {
+    width: 100%;
+    background-color: white;
+    border: 1px solid #56abe0;
+    border-radius: 4px;
+    padding: 1rem;
+}
+
+.p-text-justify {
+    text-align: justify !important;
+    width: 100%;
+    color: #171616;
+    font-size: 14px !important;
+}
+
+.table-notification, .table-company {
+    border-collapse: collapse;
+    border-spacing: 0;
+    width: 100%;
+}
+
+.table-notification td {
+    border-bottom: 2px solid #3c6ab2;
+    border-collapse: collapse;
+    height: 6rem;
+    border-top-right-radius: 4px;
+}
+
+
+.td-icon {
+    width: 6rem;
+    color: #fff;
+    background-color: #3c6ab2;
+    text-decoration: none;
+}
+
+.td-icon img {
+    max-width: 5rem;
+    text-align: center;
+    display:block;
+    margin: auto;
+}
+
+
+.table-company td {
+    border-collapse: collapse;
+}
+
+.td-company {
+    height: auto;
+    width: auto;
+    color: #fff;
+    border-radius: 4px;
+    padding: 2px;
+    text-align: center;
+    text-decoration: none;
+}
+
+.td-image {
+    height: auto;
+    max-width: 13rem;
+}
+.link-color {
+    color: #56abe0 !important;
+    font-weight: bold;
+    text-decoration: none;
+}
 
 /* Typography */
 
 h1 {
-    color: #3d4852;
+    color: #2556a3;
     font-size: 18px;
     font-weight: bold;
     margin-top: 0;
@@ -103,7 +172,7 @@ img {
 }
 
 .header a {
-    color: #3d4852;
+    color: #3869d4;
     font-size: 19px;
     font-weight: bold;
     text-decoration: none;
@@ -112,9 +181,8 @@ img {
 /* Logo */
 
 .logo {
-    height: 75px;
-    max-height: 75px;
-    width: 75px;
+    height: 72px;
+    max-height: 72px;
 }
 
 /* Body */
@@ -232,11 +300,11 @@ img {
 
 .button-blue,
 .button-primary {
-    background-color: #2d3748;
-    border-bottom: 8px solid #2d3748;
-    border-left: 18px solid #2d3748;
-    border-right: 18px solid #2d3748;
-    border-top: 8px solid #2d3748;
+    background-color: #2556a3;
+    border-bottom: 8px solid rgba(37, 86, 163, 0.83);
+    border-left: 18px solid rgba(37, 86, 163, 0.83);
+    border-right: 18px solid rgba(37, 86, 163, 0.83);
+    border-top: 8px solid rgba(37, 86, 163, 0.83);
 }
 
 .button-green,

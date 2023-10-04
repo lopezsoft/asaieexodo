@@ -43,10 +43,10 @@ export class MessagesService {
   }
 
   onMessage(title: string, msg: string) {
-    Swal.fire((title.length > 1) ? title :  "Matias APP", msg, "info");
+    Swal.fire((title.length > 1) ? title :  "ASAIE ÉXODO", msg, "info");
   }
   errorMessage(title: string, msg: string) {
-    Swal.fire((title.length > 1) ? title :  "Error Matias APP", msg, "error");
+    Swal.fire((title.length > 1) ? title :  "Error ASAIE ÉXODO", msg, "error");
   }
 
 }

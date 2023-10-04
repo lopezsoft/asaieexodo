@@ -53,7 +53,7 @@ export class UsersEditComponent extends FormComponent implements OnInit, AfterVi
     ngOnInit(): void {
       const ts    = this;
       super.ngOnInit();
-      ts.PutURL   = '/user';
+      ts.PutURL   = '/user/update/';
       ts.PostURL  = '/user/register';
       ts.showSpinner();
       ts.usersSer.getUserTypes()

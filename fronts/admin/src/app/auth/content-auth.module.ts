@@ -20,6 +20,8 @@ import { NgSelectModule } from '@ng-select/ng-select';
 import CoreModule from '../core/core-app.module';
 import {BlockUIModule} from "ng-block-ui";
 import {EmailResendComponent} from "./email-resend/email-resend.component";
+import {AuthMasterComponent} from "./auth-master/auth-master.component";
+import {ResetPasswordComponent} from "./reset-password/reset-password.component";
 
 export function createTranslateLoader(http: HttpClient) {
   return new TranslateHttpLoader(http, "./assets/i18n/", ".json");
@@ -50,7 +52,9 @@ export function createTranslateLoader(http: HttpClient) {
     LoginPageComponent,
     MaintenancePageComponent,
     RegisterPageComponent,
-    EmailResendComponent
+    EmailResendComponent,
+    AuthMasterComponent,
+    ResetPasswordComponent
   ]
 })
 export class ContentAuthModule { }

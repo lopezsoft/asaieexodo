@@ -57,6 +57,8 @@ table {
 
 .table-footer, .header-table, .table-signatures {
     border-collapse: collapse;
+    font-family: arial, sans-serif, verdana, helvetica, 'Courier New';
+    font-size: 12px;
 }
 
 .table-footer, .header-table th {

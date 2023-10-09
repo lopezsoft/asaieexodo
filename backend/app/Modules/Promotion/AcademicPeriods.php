@@ -66,7 +66,7 @@ class AcademicPeriods
         $db     = $school->db;
         $year   = $school->year;
         return DB::table($db."periodos_academicos","td")
-            ->select("td.periodo")
+            ->selectRaw("MAX(td.periodo) AS periodo")
             ->join($db."grados_agrupados AS t1", "td.id_grado_agrupado", "=", "t1.id")
             ->join($db."aux_grados_agrupados AS t2", "t2.id_grado_agrupado", "=", "t1.id")
             ->where( "td.year", $year)

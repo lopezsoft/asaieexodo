@@ -11,7 +11,7 @@
 @endif
 @if($showHeader)
 <header>
-    <table class="header-table">
+    <table class="header-table final-certificate-font-style">
         <tr>
             <td>
                 <img src="{{$storagePath}}{{$header->logo}}" alt="" class="img-table">
@@ -24,7 +24,7 @@
             </td>
         </tr>
     </table>
-    <table class="header-table">
+    <table class="header-table final-certificate-font-style">
         <tr>
             <td>
                 {!! $certificateHeader->header2 !!}
@@ -34,26 +34,26 @@
 </header>
 @endif
 <section>
-    <div class="section-body">
+    <div class="section-body final-certificate-font-style">
         {!! $certificateHeader->body !!}
     </div>
 </section>
 <section>
     @if($certificateHeader->show_number == 1)
-    <div class="section-body certificate-number">
+    <div class="section-body certificate-number final-certificate-font-style">
         {{$certificateHeader->show_number_message}} <b>{{$certificateHeader->cons}}</b>
     </div>
     @endif
-    <div class="section-body">
+    <div class="section-body final-certificate-font-style">
         {!! $certificateHeader->message !!}
     </div>
 </section>
 <section>
-    <div class="section-body student-data">
+    <div class="section-body student-data final-certificate-font-style">
         {!! $studentData !!}{!! $certificateHeader->resolution !!}
     </div>
 </section>
-<table class="table-final-certificate">
+<table class="table-final-certificate final-certificate-font-style">
     <thead>
     <tr>
         <td style="width: 60px">

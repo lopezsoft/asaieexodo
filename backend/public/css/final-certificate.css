@@ -6,7 +6,9 @@
     padding: 4px;
 }
 
-.table-final-certificate {
+
+
+.table-final-certificate, .final-certificate-font-style {
     border-collapse: collapse;
     font-family: arial, sans-serif, verdana, helvetica, 'Courier New';
     font-size: 12px;

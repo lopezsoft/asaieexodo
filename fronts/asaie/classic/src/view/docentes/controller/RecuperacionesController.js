@@ -83,31 +83,32 @@ Ext.define('Admin.view.docentes.controller.RecuperacionesController',{
 
 
     onSetReport: function (btn, e, eOpts) {
-        var url     = '',
-            win     = btn.up('window'),
-            name    = win.getItemId();
-        switch (name){
+		let param;
+		let url = '',
+			win = btn.up('window'),
+			name = win.getItemId();
+		let select;
+		switch (name){
             case 'RecuperacionesFinalesView' :
-                var
-                    grid	= win.down('grid'),
-                    select	= grid.getSelection()[0];
-                url	= 'reports/recuperaciones_finales';
+				const grid = win.down('grid');
+				select = grid.getSelection()[0];
+				url	= 'reports/final-leveling';
                 param  = {
-                    pdbDocente     : select.get('id_docente')
+                    pdbDocente     : select.get('id_docente'),
+					pdbGrade       : select.get('id_grade'),
                 };
                 break;
             default :
-                var
-                    url     = 'reports/periodic-leveling',
-                    select	= win.down('grid').getSelection()[0],
-                    param   = {
-                        pdbGrado 	: select.get('id_grado'),
-						pdbTeacherId: 0,
-                        pdbNivel    : 0,
-                        pdbReport   : 0,
-                        pdbPeriodo  : select.get('periodo')
-                    };
-                break;
+				url = 'reports/periodic-leveling';
+				select = win.down('grid').getSelection()[0];
+				param = {
+					pdbGrado: select.get('id_grado'),
+					pdbTeacherId: 0,
+					pdbNivel: 0,
+					pdbReport: 0,
+					pdbPeriodo: select.get('periodo')
+				};
+				break;
         }
         this.onGenReport(btn,url,param);
     },

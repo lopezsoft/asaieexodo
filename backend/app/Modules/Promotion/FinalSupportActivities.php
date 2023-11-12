@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Modules\Promotion;
+use App\Modules\Academic\ControlClosingDates;
 use App\Modules\Courses\RatingScale;
 use App\Modules\School\SchoolQueries;
 use App\Modules\Settings\GeneralSetting;
@@ -18,20 +19,22 @@ class FinalSupportActivities
     public function generateFinalActivities(Request $request): \Illuminate\Http\JsonResponse
     {
         $teacherId	= $request->input('pdbDocente');
-        $type	    = intval($request->input('pdbType')) ?? 5;
         $school     = SchoolQueries::getSchoolRequest($request);
-        $gradeId    = ($type == 0) ? 5 : 24;
+        $gradeId    = intval($request->input('pdbProcess'));;
         try {
+            ControlClosingDates::validateFinalPeriod($school, $gradeId);
             $queryConfig    = GeneralSetting::getGeneralSettingByGrade($school, $gradeId);
-            $queryResp      = $this->getQueryResp($school, $type);
+            $queryResp      = $this->getQueryResp($school, $gradeId);
 
             $queryResp->where("tc.id_docente", $teacherId);
             $queryResp  = $queryResp->first();
             if(!$queryResp) {
-                $queryResp  = $this->getQueryResp($school, $type)->first();
+                $queryResp  = $this->getQueryResp($school, $gradeId)->first();
+                $nro        = ($queryResp) ? $queryResp->nro_acta + 1 : 1;
+            }else {
+                $nro        = $queryResp->nro_acta;
             }
-            $nro        = ($queryResp) ? $queryResp->nro_acta + 1 : 1;
-            $this->generateAct($teacherId, $nro, $school, $type, $queryConfig);
+            $this->generateAct($teacherId, $nro, $school, $gradeId, $queryConfig);
             return self::getResponse([]);
         }catch (\Exception $e){
             return self::getResponse500([
@@ -39,15 +42,19 @@ class FinalSupportActivities
             ]);
         }
     }
-    private function generateAct(int $teacherId, $nro, $school, $type = 0, $setting): void {
+    private function generateAct(int $teacherId, $nro, $school, $gradeId, $setting): void {
         $query  = DB::table("{$school->db}cursos")
                     ->where('estado', 1)
                     ->where('year', $school->year)
                     ->where('id_docente', $teacherId);
-        if($type == 0) {
+        if($gradeId == 5) { // No es ciclos adultos
             $query->whereNotBetween("id_grado", [18, 23]);
         }else {
-            $query->whereBetween("id_grado", [18, 23]);
+            if($gradeId == 21){
+                $query->whereBetween("id_grado", [20, 21]);
+            }else {
+                $query->where("id_grado", $gradeId);
+            }
         }
         $query->orderByRaw("id_grado,grupo");
         $query  = $query->get();
@@ -132,17 +139,21 @@ class FinalSupportActivities
         }
     }
 
-    private function getQueryResp(mixed $school, $type = 0): \Illuminate\Database\Query\Builder
+    private function getQueryResp(mixed $school, $gradeId = 5): \Illuminate\Database\Query\Builder
     {
         $queryResp  = DB::table("{$school->db}respeciales", "t")
             ->select('t.nro_acta')
             ->leftJoin("{$school->db}student_enrollment AS tm", "t.id_matric", "=", "tm.id")
             ->leftJoin("{$school->db}cursos AS tc", "t.id_curso", "=", "tc.id")
             ->where("tc.year", $school->year);
-        if($type == 0) {
+        if($gradeId == 5) { // No es ciclos adultos
             $queryResp->whereNotBetween("tc.id_grado", [18, 23]);
         }else {
-            $queryResp->whereBetween("tc.id_grado", [18, 23]);
+            if($gradeId == 21){
+                $queryResp->whereBetween("tc.id_grado", [20, 21]);
+            }else {
+                $queryResp->where("tc.id_grado", $gradeId);
+            }
         }
         return $queryResp;
     }

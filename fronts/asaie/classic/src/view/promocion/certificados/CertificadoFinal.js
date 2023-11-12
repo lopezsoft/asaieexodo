@@ -135,10 +135,10 @@ Ext.define('Admin.view.promocion.CertificadoFinal',{
             ],
             listeners : {
                 'selectionchange': function(grid, selected, eOpts) {
-                    var me = this;
-                    if (me.up('form').down('#ckEst')) {
+					const me = this;
+					if (me.up('form').down('#ckEst')) {
                         me.up('form').down('#ckEst').setDisabled(!selected.length);
-                        if (selected.length == 0){
+                        if (selected.length === 0){
                             me.up('form').down('#ckEst').setValue(false);
                         }
                     }
@@ -190,16 +190,15 @@ Ext.define('Admin.view.promocion.CertificadoFinal',{
                         disabled : '{!comboJornadas.value}'
                     },
                     handler     : function (btn) {
-                        var
-                            ts      = btn.up('form'),
-                            me      = Admin.getApplication();
-                        extra   = {
-                            pdbCodGrado : ts.down('#comboGrados').getValue(),
-                            pdbGrupo    : ts.down('#comboGrupo').getValue(),
-                            pdbSede     : ts.down('#comboSedes').getValue(),
-                            pdbJorn     : ts.down('#comboJornadas').getValue(),
-                            pdbTable    : 'matriculas'
-                        };
+						const ts = btn.up('form'),
+							me = Admin.getApplication();
+						let extra = {
+							pdbCodGrado: ts.down('#comboGrados').getValue(),
+							pdbGrupo: ts.down('#comboGrupo').getValue(),
+							pdbSede: ts.down('#comboSedes').getValue(),
+							pdbJorn: ts.down('#comboJornadas').getValue(),
+							pdbTable: 'matriculas'
+						};
                         me.setParamStore('MatriculadosStore',extra,true);
                     }
                 },'-',
@@ -226,13 +225,9 @@ Ext.define('Admin.view.promocion.CertificadoFinal',{
 								pdbGrupo: ts.down('#comboGrupo').getValue(),
 								pdbSede: ts.down('#comboSedes').getValue(),
 								pdbAll: 0,
-								pdbPer: values.periodo
+								pdbPer: values.periodo,
+								...Global.getSchoolParams()
 							};
-						const {school, profile} = AuthToken.recoverParams();
-						const dt	= new Date();
-						param.schoolId	= school.id || 0;
-						param.profileId	= profile.id || 0;
-						param.year     	= school.year || dt.getFullYear();
 						ts.mask('Procesando petición...');
                         Ext.Ajax.request({
                             url     : Global.getApiUrl() + '/promotion/generate-final-report',
@@ -241,13 +236,15 @@ Ext.define('Admin.view.promocion.CertificadoFinal',{
 							headers : {
 								'Authorization' : (AuthToken) ? AuthToken.authorization() : ''
 							},
-                            success: function(response, opts) {
+                            success: function() {
                                 me.showResult('Se ha generado el libro.');
                             },
-                            failure: function(response, opts) {
+                            failure: function(response) {
+								const obj = Ext.decode(response.responseText);
                                 console.log('server-side failure with status code ' + response.status);
+								me.showResult(obj.message || obj.error, 'error');
                             },
-                            callback    : function (e, r) {
+                            callback    : function () {
                                ts.unmask();
                             }
                         });

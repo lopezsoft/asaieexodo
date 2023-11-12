@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Modules\Auth;
+use App\Jobs\User\RegisterJob;
 use App\Models\User;
 use App\Queries\AuditTable;
 use App\Traits\MessagesTrait;
@@ -32,6 +33,7 @@ class UserData
             $user->active       = $records->active ?? $user->active;
             $user->save();
             AuditTable::audit($request->ip(), 'users', "UPDATE", $records);
+            RegisterJob::dispatch($user->id, $records->school_id, $records->profile_id );
             return self::getResponse(['user' => $user]);
         }catch (\Exception $e) {
             return self::getResponse500([

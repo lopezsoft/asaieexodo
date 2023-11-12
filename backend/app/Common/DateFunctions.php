@@ -21,6 +21,16 @@ class DateFunctions
         return $localDate;
     }
 
+    public static function getDateToTime($date = null): int
+    {
+        $tz         = new \DateTimeZone('America/Bogota');
+        if(!$date){
+            $date = now();
+        }
+        $localDate  = new \DateTime($date, $tz);
+        return $localDate->getTimestamp();
+    }
+
     public static function getRealDateXls($date = null): string
     {
         $tz         = new \DateTimeZone('America/Bogota');

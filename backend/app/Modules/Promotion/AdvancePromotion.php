@@ -50,10 +50,11 @@ class AdvancePromotion{
             $params = [
                 $school->year,
                 $request->input('pdbDocente') ?? CoursesOfTeacher::getTeacherId($db),
-                1
+                1,
+                $request->input('pdbProcess') ?? 5,
             ];
             return self::getResponse(['records' => [
-                'data' => CallExecute::execute("{$db}sp_select_respeciales_docente(?,?,?)", $params)
+                'data' => CallExecute::execute("{$db}sp_select_respeciales_docente(?,?,?,?)", $params)
             ]]);
         }catch (Exception $e){
             return self::getResponse500([

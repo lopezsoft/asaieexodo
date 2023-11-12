@@ -70,11 +70,39 @@ Ext.define('Admin.view.promocion.NivelacionesFinales',{
                     xtype   : 'customToolbar',
                     dock    : 'bottom',
                     items   :[
-                        {
-                            xtype   : 'customcheckboxfield',
-                            boxLabel: 'Nocturna/Fin de semana',
-                            itemId  : 'CkNoct'
-                        },
+						{
+							xtype   : 'fieldSet',
+							title   : 'Generar el acta para:',
+							items   : [
+								{
+									xtype   : 'customradiogroup',
+									itemId  : 'rdgProcess',
+									items   : [
+										{
+											boxLabel    : 'Básica y media',
+											name        : 'process',
+											checked     : true,
+											inputValue  : 5
+										},
+										{
+											boxLabel    : 'Ciclos III y IV',
+											name        : 'process',
+											inputValue  : 21
+										},
+										{
+											boxLabel    : 'Ciclo V',
+											name        : 'process',
+											inputValue  : 22
+										},
+										{
+											boxLabel    : 'Ciclo VI',
+											name        : 'process',
+											inputValue  : 23
+										}
+									]
+								}
+							]
+						},
                         {
                             xtype   : 'customButton',
                             text    : 'Generar acta',
@@ -85,8 +113,6 @@ Ext.define('Admin.view.promocion.NivelacionesFinales',{
 								const win = btn.up('window'),
 									grid = win.down('grid'),
 									me = Admin.getApplication();
-								const {school, profile} = AuthToken.recoverParams();
-								const dt	= new Date();
 								win.mask('Generando...');
                                 Ext.Ajax.request({
                                     url     : Global.getApiUrl()  +  '/promotion/generate-support-activities',
@@ -96,16 +122,15 @@ Ext.define('Admin.view.promocion.NivelacionesFinales',{
 									},
                                     params  : {
                                         pdbDocente  : grid.getSelection()[0].get('id_docente'),
-                                        pdbType     : win.down('#CkNoct').getValue() ? 1 : 0,
-										schoolId	: school.id || 0,
-										profileId	: profile.id || 0,
-										year		: school.year || dt.getFullYear()
+                                        pdbProcess 	: win.down('#rdgProcess').getValue(),
+										...Global.getSchoolParams()
                                     },
-                                    success: function(response, opts) {
+                                    success: function() {
                                         me.showResult('Se ha realizado el proceso correctamente.');
                                     },
-                                    failure: function(response, opts) {
-                                        me.onError('Error');
+                                    failure: function(response) {
+										const obj = Ext.decode(response.responseText);
+                                        me.onError(obj.message || obj.error || 'Error en el proceso.');
                                     },
                                     callback    : function(res){
                                         win.unmask();
@@ -122,14 +147,38 @@ Ext.define('Admin.view.promocion.NivelacionesFinales',{
 								const win = btn.up('window'),
 									grid = win.down('grid'),
 									me = Admin.getApplication();
+								const id_grade = win.down('#rdgProcess').getValue();
 
-								me.onStore('docentes.RecuperacionesFinalesStore');
-								let param = {
-									pdbDocente: grid.getSelection()[0].get('id_docente'),
-									pdbTable: 'respeciales'
-								};
-                                me.setParamStore('RecuperacionesFinalesStore',param,false);
-                                Ext.create('Admin.view.docentes.RecuperacionesFinalesView').show();
+								win.mask(AppLang.getSMsgLoading());
+								const cUrl = Global.getApiUrl() + '/competence/competences';
+								Ext.Ajax.request({
+									headers: {
+										'Authorization' : (AuthToken) ? AuthToken.authorization() : ''
+									},
+									url: cUrl,
+									params : {
+										...Global.getSchoolParams(),
+										idGrado: id_grade
+									},
+									success: function(response){
+										win.unmask();
+										let result = Ext.decode(response.responseText);
+										Global.setScale(result.ratingScale);
+										Global.setDbConfig(result.generalSetting);
+										me.onStore('docentes.RecuperacionesFinalesStore');
+										let param = {
+											pdbDocente	: grid.getSelection()[0].get('id_docente'),
+											pdbTable	: 'respeciales',
+											pdbProcess 	: win.down('#rdgProcess').getValue(),
+										};
+										me.setParamStore('RecuperacionesFinalesStore',param,false);
+										Ext.create('Admin.view.docentes.RecuperacionesFinalesView').show();
+									},
+									failure: function () {
+										win.unmask();
+										me.onAler('No se pueden cargar los datos');
+									}
+								});
                             },
                             itemId  : 'btnNotas'
                         }

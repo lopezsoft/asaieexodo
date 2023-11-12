@@ -58,11 +58,11 @@ LIMIT 1]]>
 	</background>
 	<detail>
 		<band height="72" splitType="Stretch">
-			<image onErrorType="Icon">
+			<image onErrorType="Blank">
 				<reportElement x="459" y="0" width="72" height="72" isRemoveLineWhenBlank="true" uuid="4a14be13-4dfe-46fb-bf75-a51379e9be22"/>
 				<imageExpression><![CDATA[$P{AWS_PATH}.trim() + $F{escudo}]]></imageExpression>
 			</image>
-			<image onErrorType="Icon">
+			<image onErrorType="Blank">
 				<reportElement x="0" y="0" width="72" height="72" uuid="0852d335-e433-4fc1-82ca-86ff58e7c760">
 					<property name="com.jaspersoft.studio.unit.x" value="px"/>
 				</reportElement>

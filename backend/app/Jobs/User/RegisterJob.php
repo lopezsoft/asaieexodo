@@ -46,7 +46,9 @@ class RegisterJob implements ShouldQueue
                 'state'     => 1,
             ]);
         }
-
+        DB::table('user_roles')->where('user_id', $this->user_id)
+            ->where('school_id', $this->school_id)
+            ->delete();
         foreach ($this->roles as $role) {
             DB::table('user_roles')->insert([
                 'user_id'   => $this->user_id,

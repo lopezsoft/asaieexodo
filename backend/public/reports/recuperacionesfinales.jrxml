@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Created with Jaspersoft Studio version 6.8.0.final using JasperReports Library version 6.8.0-2ed8dfabb690ff337a5797129f2cd92902b0c87b  -->
+<!-- Created with Jaspersoft Studio version 6.18.1.final using JasperReports Library version 6.18.1-9d75d1969e774d4f179fb3be8401e98a0e6d1611  -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="recuperacionesfinales" pageWidth="842" pageHeight="595" orientation="Landscape" columnWidth="786" leftMargin="28" rightMargin="28" topMargin="43" bottomMargin="20" uuid="33974257-97b3-4498-8fe2-7887b59433ce">
 	<property name="ireport.zoom" value="1.5"/>
 	<property name="ireport.x" value="198"/>
@@ -13,30 +13,19 @@
 	<property name="com.jaspersoft.studio.property.dataset.dialog.DatasetDialog.sash.w1" value="448"/>
 	<property name="com.jaspersoft.studio.property.dataset.dialog.DatasetDialog.sash.w2" value="540"/>
 	<subDataset name="dataset1" uuid="6ffdfc28-5c76-4e28-9770-1597c15cfe5e"/>
-	<parameter name="FILTRO_AÑO" class="java.lang.String">
-		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
-	</parameter>
 	<parameter name="SQL_PARAM" class="java.lang.String">
 		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
 	</parameter>
-	<parameter name="R_TITLE" class="java.lang.String"/>
-	<parameter name="R_DANE" class="java.lang.String"/>
-	<parameter name="R_NIT" class="java.lang.String"/>
-	<parameter name="R_RESOL" class="java.lang.String"/>
 	<parameter name="R_FOOTER" class="java.lang.String"/>
-	<parameter name="R_DATE" class="java.lang.String"/>
-	<parameter name="R_IMG_LEFT" class="java.lang.String"/>
-	<parameter name="R_IMG_RIGHT" class="java.lang.String"/>
 	<parameter name="R_MARKETING" class="java.lang.String"/>
-	<parameter name="R_ESCUDO" class="java.lang.String"/>
-	<parameter name="R_ESCALA" class="java.lang.String"/>
 	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
-		<defaultValueExpression><![CDATA["D:\\wamp\\www\\SME\\reports\\"]]></defaultValueExpression>
+		<defaultValueExpression><![CDATA["D:\\wamp64\\www\\asaieexodo\\backend\\public\\reports\\subreports\\"]]></defaultValueExpression>
 	</parameter>
+	<parameter name="HOME_DIR" class="java.lang.String"/>
+	<parameter name="P_USER" class="java.lang.String"/>
+	<parameter name="AWS_PATH" class="java.lang.String"/>
 	<queryString>
-		<![CDATA[$P!{SQL_PARAM}
-
-]]>
+		<![CDATA[$P!{SQL_PARAM}]]>
 	</queryString>
 	<field name="id" class="java.lang.Integer">
 		<property name="com.jaspersoft.studio.field.label" value="id"/>
@@ -85,6 +74,7 @@
 		<property name="com.jaspersoft.studio.field.label" value="id_grade"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="student_enrollment"/>
 	</field>
+	<field name="grado" class="java.lang.String"/>
 	<field name="grupo" class="java.lang.String">
 		<property name="com.jaspersoft.studio.field.label" value="grupo"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="student_enrollment"/>
@@ -136,7 +126,7 @@
 					</textElement>
 					<text><![CDATA[DOCENTE:]]></text>
 				</staticText>
-				<textField isStretchWithOverflow="true">
+				<textField textAdjust="StretchHeight">
 					<reportElement positionType="Float" x="56" y="49" width="109" height="11" uuid="a7852299-4097-469d-a74b-f1cf55de88bf"/>
 					<textElement>
 						<font fontName="DejaVu Serif" size="8"/>
@@ -164,7 +154,7 @@
 					</textElement>
 					<textFieldExpression><![CDATA[$F{sede}]]></textFieldExpression>
 				</textField>
-				<textField isStretchWithOverflow="true">
+				<textField textAdjust="StretchHeight">
 					<reportElement positionType="Float" x="56" y="38" width="213" height="11" uuid="1b97b4a7-deb3-4555-a787-4a820011ca4e"/>
 					<textElement>
 						<font fontName="DejaVu Serif" size="8"/>
@@ -238,7 +228,7 @@
 					</graphicElement>
 				</line>
 				<staticText>
-					<reportElement x="24" y="72" width="188" height="12" uuid="e952d4fd-6ac9-4002-bfe4-3da8bab790a6"/>
+					<reportElement x="24" y="72" width="156" height="12" uuid="e952d4fd-6ac9-4002-bfe4-3da8bab790a6"/>
 					<textElement textAlignment="Center" verticalAlignment="Middle">
 						<font fontName="DejaVu Serif" size="6" isBold="true"/>
 					</textElement>
@@ -312,6 +302,20 @@
 						<pen lineWidth="0.75"/>
 					</graphicElement>
 				</line>
+				<textField>
+					<reportElement positionType="Float" mode="Opaque" x="4" y="60" width="208" height="11" backcolor="#F0F0F0" uuid="51092cdd-6900-457b-bc31-87bbc5954cd3"/>
+					<box topPadding="0" leftPadding="2" bottomPadding="0" rightPadding="0">
+						<pen lineWidth="0.25"/>
+						<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font fontName="DejaVu Serif" size="9" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{grado}.toUpperCase()]]></textFieldExpression>
+				</textField>
 			</band>
 		</groupHeader>
 		<groupFooter>
@@ -343,36 +347,17 @@
 		<band splitType="Stretch"/>
 	</background>
 	<title>
-		<band height="75" splitType="Stretch">
-			<image>
-				<reportElement x="4" y="1" width="72" height="72" uuid="050c12c3-77ad-4902-8576-a0ff82eaa249"/>
-				<imageExpression><![CDATA[$P{R_IMG_LEFT}]]></imageExpression>
-			</image>
-			<textField pattern="EEEEE dd MMMMM yyyy">
-				<reportElement positionType="Float" isPrintRepeatedValues="false" x="93" y="48" width="600" height="10" isRemoveLineWhenBlank="true" uuid="5e471478-f487-4d32-8e1d-ffcbb42bfd1b"/>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Arial" size="7" isBold="false"/>
-				</textElement>
-				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
-			</textField>
-			<image>
-				<reportElement x="711" y="1" width="72" height="72" uuid="055bb3e5-f3a2-4788-ab4c-77b839c36ef7"/>
-				<imageExpression><![CDATA[$P{R_IMG_RIGHT}]]></imageExpression>
-			</image>
-			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement positionType="Float" isPrintRepeatedValues="false" x="93" y="1" width="600" height="47" uuid="e4d7208d-1cc0-440d-a5b2-08e0e909ffed"/>
-				<textElement textAlignment="Center" verticalAlignment="Top" markup="html">
-					<font fontName="Arial" size="12" isBold="false"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$P{R_TITLE}.trim()]]></textFieldExpression>
-			</textField>
-			<textField pattern="h.mm.ss a">
-				<reportElement positionType="Float" isPrintRepeatedValues="false" x="93" y="58" width="600" height="10" isRemoveLineWhenBlank="true" uuid="4ca50a72-ce42-4ad4-ae2f-d90aae91e172"/>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font fontName="Arial" size="7" isBold="false"/>
-				</textElement>
-				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
-			</textField>
+		<band height="72" splitType="Stretch">
+			<subreport>
+				<reportElement positionType="Float" stretchType="ContainerHeight" x="116" y="0" width="555" height="72" uuid="fce9a973-63a1-408c-aa69-929536adf843">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<subreportParameter name="AWS_PATH">
+					<subreportParameterExpression><![CDATA[$P{AWS_PATH}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "report_header.jasper"]]></subreportExpression>
+			</subreport>
 		</band>
 	</title>
 	<pageHeader>
@@ -445,20 +430,20 @@
 			</line>
 			<textField>
 				<reportElement positionType="Float" stretchType="RelativeToBandHeight" x="25" y="1" width="187" height="11" uuid="e82fd717-023f-4f3f-8ec6-c5b8aa3497ee"/>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
+				<textElement textAlignment="Left" verticalAlignment="Middle">
 					<font fontName="DejaVu Serif" size="7"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{estudiante}]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement positionType="Float" stretchType="RelativeToBandHeight" x="395" y="1" width="147" height="11" uuid="f63cb401-f68d-474f-aec9-c85395f756a6"/>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
+				<textElement textAlignment="Left" verticalAlignment="Middle">
 					<font fontName="DejaVu Serif" size="7"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{area}]]></textFieldExpression>
 			</textField>
-			<textField pattern="dd-MMM-yy">
-				<reportElement positionType="Float" x="343" y="1" width="49" height="11" uuid="0e02234a-dd99-4a33-b768-5fa9acb815df"/>
+			<textField pattern="dd-MMM-yy" isBlankWhenNull="true">
+				<reportElement positionType="Float" x="343" y="1" width="49" height="11" isRemoveLineWhenBlank="true" uuid="0e02234a-dd99-4a33-b768-5fa9acb815df"/>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font fontName="DejaVu Serif" size="7"/>
 				</textElement>
@@ -508,13 +493,6 @@
 	</columnFooter>
 	<pageFooter>
 		<band height="30" splitType="Stretch">
-			<textField isStretchWithOverflow="true">
-				<reportElement x="140" y="1" width="507" height="21" uuid="60f4683a-0284-4fea-9cb7-bb6a102fcce2"/>
-				<textElement textAlignment="Center">
-					<font fontName="DejaVu Serif" size="8" isItalic="false"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$P{R_FOOTER}]]></textFieldExpression>
-			</textField>
 			<textField>
 				<reportElement x="788" y="1" width="21" height="10" uuid="184a72c7-f142-4496-b933-89d1fe3009b0"/>
 				<textElement>
@@ -522,13 +500,20 @@
 				</textElement>
 				<textFieldExpression><![CDATA[$V{PAGE_NUMBER}]]></textFieldExpression>
 			</textField>
-			<textField isStretchWithOverflow="true">
+			<textField textAdjust="StretchHeight">
 				<reportElement stretchType="RelativeToBandHeight" x="140" y="22" width="507" height="8" uuid="7829f300-5387-4522-b2ae-d6bf773009d8"/>
 				<textElement textAlignment="Center">
 					<font fontName="DejaVu Serif" size="6" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$P{R_MARKETING}]]></textFieldExpression>
 			</textField>
+			<subreport>
+				<reportElement x="115" y="2" width="556" height="17" isRemoveLineWhenBlank="true" uuid="6c64ba89-bb2b-42a5-8060-c6f561583960">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "report_footer.jasper"]]></subreportExpression>
+			</subreport>
 		</band>
 	</pageFooter>
 	<summary>

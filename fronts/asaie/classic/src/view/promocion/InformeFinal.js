@@ -220,13 +220,9 @@ Ext.define('Admin.view.promocion.InformeFinal',{
 							pdbGrupo: win.down('#comboGrupo').getValue(),
 							pdbSede: win.down('#comboSedes').getValue(),
 							pdbAll: win.down('#ckAll').getValue() ? 1 : 0,
-							pdbPer: values.periodo
+							pdbPer: values.periodo,
+							...Global.getSchoolParams()
 						};
-					const {school, profile} = AuthToken.recoverParams();
-					const dt	= new Date();
-					param.schoolId	= school.id || 0;
-					param.profileId	= profile.id || 0;
-					param.year     	= school.year || dt.getFullYear();
 					win.mask('Procesando petición...');
                     Ext.Ajax.request({
                         url     : gb.getApiUrl() + '/promotion/generate-final-report',
@@ -235,13 +231,15 @@ Ext.define('Admin.view.promocion.InformeFinal',{
 							'Authorization' : (AuthToken) ? AuthToken.authorization() : ''
 						},
                         timeout : 0,
-                        success: function(response, opts) {
+                        success: function() {
                             me.showResult('Se ha generado el libro.');
                         },
-                        failure: function(response, opts) {
+                        failure: function(response) {
+							const obj = Ext.decode(response.responseText);
                             console.log('server-side failure with status code ' + response.status);
+							me.showResult(obj.message || obj.error, 'error');
                         },
-                        callback    : function (e, r) {
+                        callback    : function () {
                             win.unmask();
                         }
                     });

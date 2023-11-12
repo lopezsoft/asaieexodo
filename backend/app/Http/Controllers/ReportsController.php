@@ -12,6 +12,7 @@ use App\Reports\ConsolidatedReport;
 use App\Reports\DisplacedStudents;
 use App\Reports\EnrollmentReports;
 use App\Reports\FamilyMembers;
+use App\Reports\FinalLeveling;
 use App\Reports\FinalReport;
 use App\Reports\ListsWithLoad;
 use App\Reports\ListsWithoutLoad;
@@ -38,6 +39,10 @@ class ReportsController extends Controller
     public function getAdvancedPromotion(Request $request): JsonResponse
     {
         return ReportProcessor::runReport($request, new AdvancedPromotion());
+    }
+    public function getFinalLeveling(Request $request): JsonResponse
+    {
+        return ReportProcessor::runReport($request, new FinalLeveling());
     }
     public function getPeriodicLeveling(Request $request): JsonResponse
     {

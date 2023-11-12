@@ -5,6 +5,7 @@
 /vendor
 .env
 .zip
+*.zip
 /.zip
 /backend/.zip
 /front/.zip
@@ -38,3 +39,4 @@ fronts/teachers_old
 #local
 /db/*.sql
 /documentacion
+*.settings

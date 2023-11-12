@@ -61,17 +61,21 @@ class AcademicPeriods
             ->groupByRaw('td.id_grado_agrupado')
             ->first();
     }
+    /**
+     * Ultimo periodo activo
+    */
     public static function getLastPeriod($school, $gradeId = 5): ?object
     {
         $db     = $school->db;
         $year   = $school->year;
         return DB::table($db."periodos_academicos","td")
-            ->selectRaw("MAX(td.periodo) AS periodo")
+            ->selectRaw("td.id, td.periodo, td.fecha_cierre")
             ->join($db."grados_agrupados AS t1", "td.id_grado_agrupado", "=", "t1.id")
             ->join($db."aux_grados_agrupados AS t2", "t2.id_grado_agrupado", "=", "t1.id")
             ->where( "td.year", $year)
             ->where( "td.estado", 1)
             ->where("t2.id_grado", $gradeId)
+            ->orderByRaw("td.periodo DESC")
             ->first();
     }
     public static function getClosingDates($school, $gradeId = 5, $period   = 1): ?object

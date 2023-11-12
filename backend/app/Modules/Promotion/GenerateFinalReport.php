@@ -2,12 +2,15 @@
 
 namespace App\Modules\Promotion;
 
+use App\Common\DateFunctions;
+use App\Modules\Academic\ControlClosingDates;
 use App\Modules\Courses\Courses;
 use App\Modules\School\SchoolQueries;
 use App\Modules\Settings\GeneralSetting;
 use App\Queries\CallExecute;
 use App\Traits\MessagesTrait;
 use App\Traits\SystemTablesTrait;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -23,6 +26,10 @@ class GenerateFinalReport
     private int $_t_año_lectivo = 0;
 
     use MessagesTrait, SystemTablesTrait;
+
+    /**
+     * @throws Exception
+     */
     public function generateFinalSavannas(Request $request): JsonResponse {
         $all	= $request->input('pdbAll') ?? 0;
         $school = SchoolQueries::getSchoolRequest($request);
@@ -37,7 +44,7 @@ class GenerateFinalReport
             }
             DB::commit();
             return self::getResponse();
-        }catch(\Exception $e){
+        }catch(Exception $e){
             DB::rollback();
             return self::getResponse500([
                 'error'      => $e->getMessage(),
@@ -46,48 +53,46 @@ class GenerateFinalReport
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function generateReport(Request $request): JsonResponse
     {
         $Grado 	= $request->input('pdbGrado');
-        $Grupo	= $request->input('pdbGrupo');
         $Sede	= $request->input('pdbSede');
         $Jorn	= $request->input('pdbJorn');
         $all	= $request->input('pdbAll') ?? 0;
-        $per	= $request->input('pdbPer');
 
-        $school = SchoolQueries::getSchoolRequest($request);
-        $db	    = $school->db;
-        $year   = $school->year;
-
-        $sql    = GeneralSetting::getGeneralSettingByGrade($school, $Grado);
-        if ($sql){
-            $this->_n_decimales	    = $sql->Ndecimales;
-            $this->_n_promocion	    = $sql->promocion;
-            $this->_n_red		    = $sql->nota_redondeo;
-            $this->_n_final_red	    = $sql->nota_final_redondeo;
-            $this->_n_aplica	    = $sql->aplicar_redondeo_fin_año;
-            $this->_t_año_lectivo	= $sql->t_año_lectivo;
-        }
-
-        switch($this->_n_promocion){
-            case 3 : // Periodo final
-            case 4 : // cuarto periodo
-                $query  = AcademicPeriods::getLastPeriod($school, $Grado);
-                if($query){
-                    $this->_n_per_div = $query->periodo;
-                }
-                break;
-            default:
-                $query  = AcademicPeriods::getPeriodsTotal($school, $Grado);;
-                if($query){
-                    $this->_n_per_div = $query->total;
-                }
-                break;
-        }
-        $query  = $this->getEnrollmentQuery($db, $school, $all);
         try{
+            $school = SchoolQueries::getSchoolRequest($request);
+            $db	    = $school->db;
+            $year   = $school->year;
+
+            $sql    = GeneralSetting::getGeneralSettingByGrade($school, $Grado);
+            if ($sql){
+                $this->_n_decimales	    = $sql->Ndecimales;
+                $this->_n_promocion	    = $sql->promocion;
+                $this->_n_red		    = $sql->nota_redondeo;
+                $this->_n_final_red	    = $sql->nota_final_redondeo;
+                $this->_n_aplica	    = $sql->aplicar_redondeo_fin_año;
+                $this->_t_año_lectivo	= $sql->t_año_lectivo;
+            }
+
+            $finalPeriod = ControlClosingDates::validateFinalPeriod($school, $Grado);
+            switch($this->_n_promocion){
+                case 3 : // Periodo final
+                case 4 : // cuarto periodo
+                    if($finalPeriod){
+                        $this->_n_per_div = $finalPeriod->periodo;
+                    }
+                    break;
+                default:
+                    $query  = AcademicPeriods::getPeriodsTotal($school, $Grado);;
+                    if($query){
+                        $this->_n_per_div = $query->total;
+                    }
+                    break;
+            }
+            $query  = $this->getEnrollmentQuery($db, $school, $all);
             DB::beginTransaction();
             foreach($query as $row){
                 $this->finalBook($Sede,$Grado,$row->grupo,$year,$row->id_matric,$Jorn, $db);
@@ -96,7 +101,7 @@ class GenerateFinalReport
             }
             DB::commit();
             return self::getResponse();
-        }catch(\Exception $e){
+        }catch(Exception $e){
             DB::rollback();
             return self::getResponse500([
                 'error'      => $e->getMessage(),

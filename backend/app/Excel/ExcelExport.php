@@ -4,6 +4,7 @@ namespace App\Excel;
 
 use App\Modules\School\SchoolQueries;
 use App\Queries\CallExecute;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class ExcelExport
@@ -11,7 +12,7 @@ class ExcelExport
     /**
      * @throws \Exception
      */
-    public static function getConsolidatedWithoutNotes(Request $request): \Illuminate\Http\JsonResponse
+    public static function getConsolidatedWithoutNotes(Request $request): JsonResponse
     {
         try {
             $user           = $request->user();
@@ -43,7 +44,7 @@ class ExcelExport
     /**
      * @throws \Exception
      */
-    public static function getConsolidatedEnrollment(Request $request): \Illuminate\Http\JsonResponse
+    public static function getConsolidatedEnrollment(Request $request): JsonResponse
     {
         try {
             $user           = $request->user();

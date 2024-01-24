@@ -123,6 +123,8 @@ class WaterMarkFiles
             'hide_footer'   => $request->hide_footer ?? 1,
             'margin_top'    => $request->margin_top ?? '5cm',
             'margin_bottom' => $request->margin_bottom ?? '0cm',
+            'opacity'       => $request->opacity ?? 50,
+            'image_type'    => $request->image_type ?? 1,
         ];
     }
 

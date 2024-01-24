@@ -4,12 +4,12 @@ Ext.define('Admin.view.academico.AsignaturasForm',{
     xtype   : 'asignaturas',
     controller: 'academico',
     initComponent: function () {
-        var 
-            me  = Admin.getApplication();
-            me.onStore('general.AreasStore');
-            me.onStore('general.AsignaturaCertificadoStore');
-            me.onStore('general.AsignaturaStore');
-            me.onStore('general.AreasAsignaturaStore');
+		const me = Admin.getApplication();
+		me.onStore('general.AreasStore');
+		me.onStore('general.AsignaturaCertificadoStore');
+		me.onStore('general.AsignaturaStore');
+		me.onStore('general.AreasAsignaturaStore');
+		me.onStore('general.AsignaturasTypeStore');
         this.callParent(arguments);
         this.setTitle(AppLang.getSTitleViewSubjects());
     },
@@ -80,12 +80,18 @@ Ext.define('Admin.view.academico.AsignaturasForm',{
                 dataIndex   : 'estado',
                 width       : 60,
                 disabled    : true
-            }
+            },
+			{
+				text        : 'Tipo',
+				dataIndex   : 'type',
+				width       : 60,
+				disabled    : true
+			},
         ],
         listeners   : {
-            'selectionchange': function(grid, selected, eOpts) {
-                var me	= this;
-                if (me.down('#btnDistrib')){
+            'selectionchange': function(grid, selected) {
+				const me = this;
+				if (me.down('#btnDistrib')){
                     me.down('#btnDistrib').setDisabled(!selected.length);
                 }
                 if (me.down('#btnAreas')){

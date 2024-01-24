@@ -44,7 +44,7 @@ Ext.define('Admin.view.academico.NivelacionesPeriodicas',{
                 }
             ],
             listeners : {
-                'selectionchange': function(grid, selected, eOpts) {
+                'selectionchange': function(grid, selected) {
 					const me = this;
 					if (me.up('window').down('#btnActa')) {
                         me.up('window').down('#btnActa').setDisabled(!selected.length);
@@ -59,6 +59,7 @@ Ext.define('Admin.view.academico.NivelacionesPeriodicas',{
 					xtype       : 'pagination',
 					showPrint   : false,
 				},
+
                 {
                     xtype   : 'customToolbar',
                     dock    : 'bottom',
@@ -71,11 +72,16 @@ Ext.define('Admin.view.academico.NivelacionesPeriodicas',{
                             disabled: true,
                             itemId  : 'btnNotas',
                             handler : function (btn) {
-								const select = btn.up('window').down('grid').getSelection()[0];
-								let stitle = 'Actividades de apoyo - ' + select.get('nombres');
+								const win 		= btn.up('window');
+								const select 	= win.down('grid').getSelection()[0];
+								let title		= 'Actividades de apoyo - ' + select.get('nombres');
+								const store     = Ext.getStore('RecuperacionesPeriodicasStore');
+								if (store && store.getCount() > 0) {
+									store.removeAll();
+								}
                                 Ext.create('Admin.view.academico.NivelacionesPeriodicasView',{
-                                    title   : stitle,
-                                    record  : select
+                                    title   : title,
+                                    record  : select,
                                 }).show();
                             }
                         }

@@ -7,7 +7,7 @@ Ext.define('Admin.store.inscripciones.InscripcionesStore',{
 			order 		: '{"apellido1" : "ASC", "apellido2" : "ASC", "nombre1": "ASC"}'
         },
 		api: {
-			create  : 'crud',
+			create  : 'students',
 			read    : 'students/index',
 			update  : 'crud',
 			destroy : 'crud'

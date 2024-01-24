@@ -69,17 +69,16 @@ Ext.define('Admin.base.WindowCrud' ,{
 
 	/**Mostrador de ventanas*/
 	showWindow	: function(btn){
-		var me	= this;
+		const me = this;
 		if(me.getModalView()){
-			var 
-				data	= btn.up('window').down('grid').getSelection()[0];
-			
+			const data = btn.up('window').down('grid').getSelection()[0];
+
 			if(!me.getWinObject()){
 				me.buildWindow();
 			}
-			form 	= me.getWinObject().down('form'),
+			const form 	= me.getWinObject().down('form');
 			form.reset(true);
-			if(btn.itemId == 'editButton'){
+			if(btn.itemId === 'editButton'){
 				form.loadRecord(data);
 			}
 			if(me.getRecord()){

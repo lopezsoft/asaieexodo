@@ -4,9 +4,8 @@ Ext.define('Admin.view.academico.inscripciones.InscripcionesView',{
     xtype   : 'inscripcionesView',
     controller: 'academico',
     initComponent: function () {
-        var
-            me  = Admin.getApplication();
-        me.onStore('general.DocumentosStore');
+		const me = Admin.getApplication();
+		me.onStore('general.DocumentosStore');
         me.onStore('general.CountryStore');
         me.onStore('general.CitiesStore');
         me.onStore('general.CitiesStore2');

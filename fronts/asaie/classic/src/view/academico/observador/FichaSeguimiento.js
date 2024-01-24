@@ -27,7 +27,6 @@ Ext.define('Admin.view.academico.FichaSeguimiento',{
                         ptype			: 'gridSearch',
                         readonlyIndexes	: ['note'],
                         disableIndexes	: ['pctChange'],
-                        mode            : 'local',
                         flex			: 1,
                         autoFocus		: true,
                         independent		: true

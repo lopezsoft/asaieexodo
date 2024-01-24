@@ -2,9 +2,79 @@
 
 use App\Queries\CallExecute;
 use Carbon\Carbon;
+use Illuminate\Support\Collection;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Protection;
 
+function getRatingScale(Collection $scale, int $grade, float $note): string
+{
+    $scaleName = '';
+    $scale = $scale->where('id_grado', $grade);
+    foreach ($scale as $item) {
+        if ($note >= $item->desde && $note <= $item->hasta) {
+            $scaleName = $item->nombre_escala;
+            break;
+        }
+    }
+    return $scaleName;
+}
+function getSubjectFinalReport(Collection $subjects, $student): string
+{
+    $subjectId      = $student->id_asign;
+    $certificates   = $subjects->where('subject_parent_id', $subjectId);
+    $data = $certificates->map(function ($item) use ($student) {
+        return '<tr>
+        <td class="subject-name">
+            '.trim($item->asignatura).'
+        </td>
+        <td class="text-right ih-width">
+           '.number_format($item->ih).'
+        </td>
+        <td class="text-right final-note">
+            '.number_format($student->final, 2).'
+        </td>
+        <td class="scale-width">
+            '.$student->nombre_escala.'
+        </td>
+        <td class="faltas-width text-right">
+            '.$student->faltas.'
+        </td>
+        <td class="faltas-width text-right">
+            '.$student->injustificadas.'
+        </td>
+        <td class="faltas-width text-right">
+            '.$student->retraso.'
+        </td>
+    </tr>';
+    });
+    return $data->implode('');
+}
+function getSubjectCertificate(Collection $subjects, $student): string
+{
+    $subjectId      = $student->id_asign;
+    $certificates   = $subjects->where('subject_parent_id', $subjectId);
+    $data = $certificates->map(function ($item) use ($student) {
+        return '<tr>
+        <td class="subject-name">
+            '.trim($item->asignatura).'
+        </td>
+        <td class="text-right ih-width">
+           '.number_format($item->ih).'
+        </td>
+        <td class="text-right final-note">
+            '.number_format($student->final, 2).'
+        </td>
+        <td class="scale-width">
+            '.$student->nombre_escala.'
+        </td>
+    </tr>';
+    });
+    return $data->implode('');
+}
+function countSubjectCertificates(Collection $subjects, $subjectId): int
+{
+    return $subjects->where('subject_parent_id', $subjectId)->count();
+}
 function CallExecute($callName, $params = []): array
 {
     return CallExecute::execute($callName, $params);

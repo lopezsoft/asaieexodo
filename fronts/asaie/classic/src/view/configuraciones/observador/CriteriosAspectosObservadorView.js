@@ -15,11 +15,12 @@ Ext.define('Admin.view.configuraciones.CriteriosAspectosObservadorView',{
     },
     showWindow  : function(btn){
         win     = Ext.create('Admin.view.configuraciones.CriteriosAspectosObservadorSaveView');
-        if(btn.itemId == 'editButton'){
-            record  = btn.up('window').down('grid').getSelection()[0];
-            form    = win.down('form');
-            form.loadRecord(record);
-        }
+		let record;
+		if (btn.itemId == 'editButton') {
+			record = btn.up('window').down('grid').getSelection()[0];
+			form = win.down('form');
+			form.loadRecord(record);
+		}
         win.down('#id_item_modelo').setValue(this.getRecord().get('id'));
         win.show();
     },

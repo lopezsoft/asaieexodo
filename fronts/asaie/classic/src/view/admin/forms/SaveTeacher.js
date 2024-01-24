@@ -17,20 +17,23 @@ Ext.define('Admin.view.admin.forms.SaveTeacher' ,{
 					title	: 'DATOS BÁSICOS',
 					items: [
 						{
-							xtype: 'CbCountries'
+							xtype: 'CbCountries',
+							value: '45'
 						},
 						{
                             fieldLabel  : 'Número del documento',
-                            name        : 'documento'
+                            name        : 'documento',
 						},
                         {
                             xtype       : 'CbDocumentos',
-							name		: 'id_documento'
+							name		: 'id_documento',
+							value		: '1'
                         },
                         {
                             xtype       : 'CbCiudades',
                             fieldLabel  : 'Lugar de expedición',
-							name		: 'mun_exp'
+							name		: 'mun_exp',
+							value		: '149',
                         },
                         {
                             fieldLabel  : 'Primer apellido',
@@ -52,7 +55,8 @@ Ext.define('Admin.view.admin.forms.SaveTeacher' ,{
                         },
                         {
                             xtype       : 'CbRH',
-							name		: 'tipo_sangre'
+							name		: 'tipo_sangre',
+							value		: 'O+'
                         },
 						{
 							xtype       : 'CbSexo',
@@ -70,6 +74,7 @@ Ext.define('Admin.view.admin.forms.SaveTeacher' ,{
 							name		: 'mun_nac',
 							itemId		: 'mun_lug_nac',
 							displayField: 'name_city',
+							value		: '149',
 							valueField	: 'id'
 						}
 					]
@@ -93,13 +98,16 @@ Ext.define('Admin.view.admin.forms.SaveTeacher' ,{
 							allowBlank 	: true
 						},
 						{
-							xtype		: 'CbNivelEns'
+							xtype		: 'CbNivelEns',
+							value		: '2'
 						},
 						{
-							xtype		: 'CbAreaEns'
+							xtype		: 'CbAreaEns',
+							value		: '2'
 						},
 						{
-							xtype		: 'CbEscalafon'
+							xtype		: 'CbEscalafon',
+							value		: '4'
 						},
 						{
 							name		: 'email',
@@ -108,7 +116,8 @@ Ext.define('Admin.view.admin.forms.SaveTeacher' ,{
 							allowBlank	: true
 						},
 						{
-							xtype		: 'CbNivelEdu'
+							xtype		: 'CbNivelEdu',
+							value		: '6'
 						},
 						{
 							xtype		: 'customradiogroup',
@@ -118,6 +127,7 @@ Ext.define('Admin.view.admin.forms.SaveTeacher' ,{
 								{
 									boxLabel	: 'Activo',
 									name		: 'estado',
+									checked		: true,
 									inputValue	: 'true'
 								},
 								{

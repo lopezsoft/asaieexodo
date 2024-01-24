@@ -105,6 +105,13 @@ Ext.define('Admin.view.configuraciones.AspectosObservadorView',{
                             disabled    : true,
                             itemId      : 'btnCriterios'
                         },
+						{
+							xtype	: 'customButton',
+							iconCls : 'x-fa fa-spinner',
+							text    : 'Importar',
+							tooltip : 'Importar Criterios de observación',
+							handler : 'onImportCriteria',
+						},
                         {
                             xtype	: 'facebookButton'
                         },

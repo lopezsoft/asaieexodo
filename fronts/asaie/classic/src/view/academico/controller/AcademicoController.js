@@ -484,15 +484,15 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
 		let param = {
 			pdbPeriodo	: win.down('#periodo').value,
 			pdbTeacherId: select.get('id_docente'),
-			pdbNivel	: win.down('#CbNivelAcademico').getValue()
+			pdbNivel	: win.down('#CbNivelAcademico').getValue(),
+			pdbProcess	: win.down('#rdgProcess').getValue(),
 		};
         app.setParamStore('RecuperacionesPeriodicasStore',param, true);
     },
 
-    onActividadesApoyo : function (btn) {
-        var
-            me  = this.app;
-        me.setParamStore('PeriodosStore',{
+    onActividadesApoyo : function () {
+		const me = this.app;
+		me.setParamStore('PeriodosStore',{
             pdbTable 	: 'periodos_academicos',
             pdbGrado	: 5,
             pdbType		: 2
@@ -732,7 +732,7 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
                         id_asig     : selectAsig[cCount].get('id_asig'),
                         id_docente  : selectDocente.get('id_docente'),
                         estado      : true,
-                        id_sede     : win.down('#comboSedes').getSelection().data.ID,
+                        id_sede     : win.down('#comboSedes').getSelection().data.id,
                         grupo       : win.down('#comboGrupo').getSelection().data.grupo,
                         id_jorn     : win.down('#comboJornadas').getSelection().data.cod_jorn,
 						year		: school.year || dt.getFullYear()
@@ -780,7 +780,7 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
 		const me = Admin.getApplication(),
 			record = btn.up('form').down('grid').getSelection()[0];
 		const param   = {
-            pdbTable : 'asignaturas_certificados',
+            pdbTable : 'subject_certificates',
             pdbId    : record.get('id_pk')
         };
         me.setParamStore('AsignaturaCertificadoStore',param, false);

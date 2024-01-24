@@ -7,21 +7,60 @@ Ext.define('Admin.view.configuraciones.controller.ConfiguracionesController',{
     init: function () {
         this.setConfigVar();
     },
-	onExtraModules : function (btn) {
+	onExtraModules : function () {
 		const me = this.app;
 		me.onStore('general.ExtraModulesStore');
 		Ext.create('Admin.view.configuraciones.ExtraModulesView').show();
 	},
-	onWatermark : function (btn) {
+	onWatermark : function () {
 		const me = this.app;
 		me.onStore('general.WatermarkStore');
 		Ext.create('Admin.view.configuraciones.WatermarkView').show();
 	},
-    onCarnets : function(btn){
+    onCarnets : function(){
 		const me = this.app;
 		me.onStore('general.CarnetsStore');
         Ext.create('Admin.view.configuraciones.Carnets').show();
     },
+	onImportCriteria : function(uBtn){
+		let me  	= this;
+		Ext.Msg.show({
+			title: 'Importar criterios',
+			message: '¿Seguro que desea importar los criterios del ultimo año?',
+			buttons: Ext.Msg.YESNO,
+			icon: Ext.Msg.QUESTION,
+			fn: function(btn) {
+				if (btn === 'yes') {
+					const cUrl	= Global.getApiUrl() +'/observer/import';
+					const vMask = uBtn.up('window');
+					vMask.el.mask('Importando datos');
+					Ext.Ajax.request({
+						timeout : 0,
+						url: cUrl,
+						method: 'POST',
+						params: {
+							...Global.getSchoolParams()
+						},
+						headers: Global.getHeaders(),
+						success: function () {
+							vMask.el.unmask();
+							me.showResult('Datos importados correctamente');
+							const store = Ext.getStore('AspectosObservadorStore');
+							store.reload();
+						},
+						failure: function (response) {
+							vMask.el.unmask();
+							let result = Ext.decode(response.responseText);
+							me.app.onError(result.message || 'No se pueden cargar los datos');
+						},
+						callback : function () {
+							vMask.el.unmask();
+						}
+					});
+				}
+			}
+		});
+	},
 
 	onMatOnline : function (btn) {
         var me  = this.app;

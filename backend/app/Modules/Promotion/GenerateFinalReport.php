@@ -2,7 +2,6 @@
 
 namespace App\Modules\Promotion;
 
-use App\Common\DateFunctions;
 use App\Modules\Academic\ControlClosingDates;
 use App\Modules\Courses\Courses;
 use App\Modules\School\SchoolQueries;
@@ -265,7 +264,7 @@ class GenerateFinalReport
                         $curso	= $this->activeCourse($row->id_curso, $db);
                         if($this->_n_red > 0 AND $this->_n_aplica > 0){
                             if (count($select) > 0){
-                                if($final >= $this->_n_red AND $final <= $select[0]->hasra){
+                                if($final >= $this->_n_red AND $final <= $select[0]->hasta){
                                     $final = $this->_n_final_red;
                                 }
                             }

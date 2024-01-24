@@ -4,10 +4,12 @@
 Ext.define('Admin.model.general.AsignaturaCertificadoModel',{
     extend  : 'Admin.model.base.BaseModel',
     fields: [
-        { name: 'id_asig_padre'},
+        { name: 'subject_parent_id', type : 'int'},
+        { name: 'subject_related_id', type : 'int'},
         { name: 'nombre'},
         { name: 'abrev'},
-        { name: 'estado', type : 'int'},
+        { name: 'state', type : 'int'},
+        { name: 'year', type : 'int'},
         { name: 'ih', type : 'float'}
     ]
 });

@@ -1,4 +1,4 @@
-<table class="table-signatures">
+<table class="table-signatures" style="margin-top: 32px">
     <tbody>
     @if($signatures->firmarector === 1 && $signatures->firmasecre === 1)
         <tr class="td-50">

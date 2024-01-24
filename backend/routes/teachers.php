@@ -2,6 +2,7 @@
 Route::prefix('teachers')->group(function () {
     Route::controller('Administrative\TeachersController')->group(function () {
         Route::get('/', 'index');
+        Route::post('/', 'create');
         Route::get('get-by-year', 'getByYear');
         Route::get('courses', 'getCourses');
         Route::get('grouped-courses', 'getGroupedCourses');

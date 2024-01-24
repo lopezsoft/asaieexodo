@@ -29,7 +29,7 @@
                     $studentData    = $student;
                     $enrolledId     = $student->id_matric;
                 @endphp
-            @include('reports.header')
+            {{--@include('reports.header')--}}
             @include('reports.certificates.final-report-header')
             @endif
             @include('reports.certificates.final-report-student-data')

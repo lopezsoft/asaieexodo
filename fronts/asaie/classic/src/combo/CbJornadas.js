@@ -14,5 +14,6 @@ Ext.define('Admin.combo.CbJornadas',{
     itemId		: 'comboJornadas',
     reference 	: 'comboJornadas',
     publishes   : 'value',
-    store		: 'JornadasStore'
+    store		: 'JornadasStore',
+	value		: 2
 });

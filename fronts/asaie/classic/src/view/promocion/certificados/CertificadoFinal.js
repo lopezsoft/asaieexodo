@@ -101,7 +101,6 @@ Ext.define('Admin.view.promocion.CertificadoFinal',{
                         {
                             xtype   : 'customcheckboxfield',
                             boxLabel: 'Aplicar distribución de asignaturas',
-                            disabled: true,
                             itemId  : 'CkDistrib'
                         }
                     ]

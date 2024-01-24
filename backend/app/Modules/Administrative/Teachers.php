@@ -2,8 +2,11 @@
 
 namespace App\Modules\Administrative;
 
+use App\Common\HttpResponseMessages;
 use App\Modules\School\SchoolQueries;
-use App\Traits\MessagesTrait;
+use App\Queries\InsertTable;
+use App\Services\TableValidationService;
+use Exception;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -11,7 +14,6 @@ use Illuminate\Support\Facades\DB;
 
 class Teachers
 {
-    use MessagesTrait;
     public static function index(Request $request): JsonResponse
     {
         try {
@@ -19,8 +21,43 @@ class Teachers
             $db	    = $school->db;
             $query  = self::getData($db)->select("td.*");
             return self::getResponseData($request, $query);
-        }catch (\Exception $e){
-            return self::getResponse500([
+        }catch (Exception $e){
+            return HttpResponseMessages::getResponse500([
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+    public static function create(Request $request): JsonResponse
+    {
+        try{
+            $school     = SchoolQueries::getSchoolRequest($request);
+            $db	        = $school->db;
+            $table      = "{$db}docentes";
+            $records    = json_decode($request->records) ?? null;
+            $teacher    = DB::table($table)
+                            ->where('documento', $records->documento)->first();
+            if($teacher){
+                return HttpResponseMessages::getResponse400([
+                    'message' => "El docente con documento {$records->documento} ya existe"
+                ]);
+            }
+            $validator  = new TableValidationService();
+            $validator  = $validator->generateValidator((array) $records, $table);
+            if ($validator->fails()) {
+                return HttpResponseMessages::getResponse400([
+                    'message' => $validator->errors()->first()
+                ]);
+            }
+            $response   = InsertTable::insert($request, $records, $table, false);
+            $teacher    = DB::table($table)
+                ->where('documento', $records->documento)->first();
+            DB::table("{$db}aux_docentes")->insert([
+                'id_docente'    => $teacher->id_docente,
+                'year'          => date('Y')
+            ]);
+            return $response;
+        }catch (Exception $e){
+            return HttpResponseMessages::getResponse500([
                 'message' => $e->getMessage()
             ]);
         }
@@ -38,8 +75,8 @@ class Teachers
                         ->where('td.estado', 1)
                         ->where('t1.year', $year);
             return self::getResponseData($request, $query);
-        }catch (\Exception $e){
-            return self::getResponse500([
+        }catch (Exception $e){
+            return HttpResponseMessages::getResponse500([
                 'message' => $e->getMessage()
             ]);
         }
@@ -61,9 +98,10 @@ class Teachers
         }
         $query->selectRaw("CONCAT(RTRIM(td.apellido1),' ',RTRIM(td.apellido2),' ',RTRIM(td.nombre1),' ',RTRIM(td.nombre2)) AS nombres");
         $query->orderBy('nombres');
-        return self::getResponse([
+        return HttpResponseMessages::getResponse([
             'records' => $query->paginate($limit)
         ]);
     }
+
 
 }

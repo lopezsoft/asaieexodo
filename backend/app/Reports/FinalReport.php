@@ -2,13 +2,12 @@
 
 namespace App\Reports;
 use App\Common\BuildReportsPDF;
-use App\Core\JReportModel;
 use App\Models\WatermarkFile;
 use App\Modules\Courses\RatingScale;
 use App\Modules\Grades\SchoolLevel;
 use App\Modules\School\SchoolQueries;
+use App\Modules\Subject\Subject;
 use App\Queries\CallExecute;
-use App\Traits\MessagesTrait;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -32,6 +31,7 @@ class FinalReport
         $paperSize  = 'letter';
         $formatSize = "Letter";
         $reportView = "reports.certificates.final-certificate";
+        $ratingScale= collect();
         $isPreSchool= ($levelId == 1);
         if ($h == '1'){
             $formatSize = "Legal";
@@ -44,6 +44,7 @@ class FinalReport
             }else{
                 // Solo Áreas
                 if ($tp == 1){
+                    $ratingScale= RatingScale::getRatingByYear($school, $year);
                     $query	= "CALL {$db}sp_select_areasf_agrupada(".$year.",".$school->headquarter.",'".$school->grade."','".$school->group."',".$school->workingDay.",".$one.")";
                 }else{
                     $query	= "CALL {$db}sp_select_areasf(".$year.",".$school->headquarter.",'".$school->grade."','".$school->group."',".$school->workingDay.",".$one.",0)";
@@ -72,17 +73,17 @@ class FinalReport
 
         $studentList    = DB::select($query);
 
-        $watermark      = WatermarkFile::query()
-                            ->where('school_id', $school->id)
-                            ->whereRaw("JSON_EXTRACT(`settings`, '$.available_in') = '1' OR
-                            JSON_EXTRACT(`settings`, '$.available_in') = '4'")
-                            ->whereRaw("JSON_EXTRACT(`settings`, '$.paper_size') = '".$paperSize."'")
-                            ->where('state', 1)
-                            ->first();
+        $subjectCertificate = Subject::getSubjectCertificateBuilder($db)
+                                ->where('sc.year', $year)
+                                ->get();
+
+        $watermark      = self::getWatermark($school, $paperSize);
         $header         = $header[0];
         $fileDescription= 'Certificado final '.$header->cons;
         $pdfBuilder     = new BuildReportsPDF($reportView, $fileDescription, $school);
         if($watermark){
+            $pdfBuilder->setWatermarkImageType($watermark->image_type ?? 1);
+            $pdfBuilder->setWatermarkImageAlpha($watermark->opacity ?? 0.2);
             $pdfBuilder->setWatermarkImage($watermark->url);
             $pdfBuilder->setShowWatermarkImage(true);
             $pdfBuilder->setShowFooter(($watermark->hide_footer === '0'));
@@ -96,6 +97,8 @@ class FinalReport
             'onlyAreas'         => ($tp == 1) ,
             'studentList'       => $studentList,
             'certificateHeader' => $header,
+            'subjectCertificate'=> $subjectCertificate,
+            'scale'             => $ratingScale,
             'ratingScale'       => RatingScale::getScaleString($school->grade, $year, $db)
         ];
         return $pdfBuilder->build($params, ['mode' => 'utf-8', 'format' => $formatSize], true);
@@ -118,6 +121,7 @@ class FinalReport
         $formatSize = "Letter";
         $reportView = "reports.certificates.final-report";
         $isPreSchool= ($levelId == 1);
+        $ratingScale= collect();
         if ($h == '1'){
             $formatSize = "Legal";
             $paperSize  = 'legal';
@@ -126,6 +130,7 @@ class FinalReport
         if (!$isPreSchool){
             // Solo Áreas
             if ($tp == 1){
+                $ratingScale= RatingScale::getRatingByYear($school, $year);
                 $query	= "CALL {$db}sp_select_areasf_agrupada(".$year.",".$school->headquarter.",'".$school->grade."','".$school->group."',".$school->workingDay.",".$one.")";
             }else{
                 $query	= "CALL {$db}sp_select_areasf(".$year.",".$school->headquarter.",'".$school->grade."','".$school->group."',".$school->workingDay.",".$one.",0)";
@@ -145,16 +150,16 @@ class FinalReport
         }
         $studentList    = DB::select($query);
 
-        $watermark      = WatermarkFile::query()
-            ->where('school_id', $school->id)
-            ->whereRaw("JSON_EXTRACT(`settings`, '$.available_in') = '1' OR
-                            JSON_EXTRACT(`settings`, '$.available_in') = '4'")
-            ->whereRaw("JSON_EXTRACT(`settings`, '$.paper_size') = '".$paperSize."'")
-            ->where('state', 1)
-            ->first();
+        $subjectCertificate = Subject::getSubjectCertificateBuilder($db)
+            ->where('sc.year', $year)
+            ->get();
+
+        $watermark      = self::getWatermark($school, $paperSize);
         $fileDescription= 'Informe final de evaluacion';
         $pdfBuilder     = new BuildReportsPDF($reportView, $fileDescription, $school);
         if($watermark){
+            $pdfBuilder->setWatermarkImageType($watermark->image_type ?? 1);
+            $pdfBuilder->setWatermarkImageAlpha($watermark->opacity ?? 0.2);
             $pdfBuilder->setWatermarkImage($watermark->url);
             $pdfBuilder->setShowWatermarkImage(true);
             $pdfBuilder->setShowFooter(($watermark->hide_footer === '0'));
@@ -167,8 +172,24 @@ class FinalReport
             'allPer'            => ($allPer == 2),
             'onlyAreas'         => ($tp == 1) ,
             'studentList'       => $studentList,
+            'subjectCertificate'=> $subjectCertificate,
+            'scale'             => $ratingScale,
             'ratingScale'       => RatingScale::getScaleString($school->grade, $year, $db)
         ];
         return $pdfBuilder->build($params, ['mode' => 'utf-8', 'format' => $formatSize], true);
+    }
+    private static function getWatermark($school, $paperSize): ?object {
+        $watermark      = WatermarkFile::query()
+                            ->where('state', 1)
+                            ->where('school_id', $school->id)
+                            ->first();
+        if ($watermark){
+           $settings = $watermark->settings;
+           if (isset($settings['available_in']) && ($settings['available_in'] == 1 || $settings['available_in'] == 4) &&
+               isset($settings['paper_size']) && $settings['paper_size'] == $paperSize){
+               return $watermark;
+           }
+        }
+        return null;
     }
 }

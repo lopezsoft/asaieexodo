@@ -3,9 +3,9 @@
 namespace App\Reports;
 
 use App\Common\BuildReportsPDF;
+use App\Common\HttpResponseMessages;
 use App\Modules\School\SchoolQueries;
 use App\Queries\CallExecute;
-use App\Traits\MessagesTrait;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -14,7 +14,6 @@ use Illuminate\Support\Str;
 
 class ObserverReports
 {
-    use MessagesTrait;
     public static function getObserverSheet(Request $request): JsonResponse
     {
         try {
@@ -31,10 +30,11 @@ class ObserverReports
             if (!$observerData){
                 throw new Exception("No se encontró el modelo de observador");
             }
-            $studentData    = CallExecute::execute("{$db}sp_select_datos_observador(?, ?, ?)", [$year, $Matric, 3])[0];
-            if(!$studentData){
+            $studentData    = CallExecute::execute("{$db}sp_select_datos_observador(?, ?, ?)", [$year, $Matric, 3]);
+            if(count($studentData) === 0){
                 throw new Exception("No se encontró el estudiante");
             }
+            $studentData        = $studentData[0];
             $studentItems       = CallExecute::execute("{$db}sp_select_criterios_obs_m3(?, ?)", [$year, $Matric]);
             if(count($studentItems) === 0){
                 throw new Exception("No se encontraron los aspectos y criterios del estudiante");
@@ -63,15 +63,15 @@ class ObserverReports
                 'year'				=> $year,
                 'items'				=> $studentItems,
                 'annotations'		=> $studentAnnotations,
-                'groupDirectorSignature'    => $groupDirectorSignature[0] ?? null
+                'groupDirectorSignature'    => count($groupDirectorSignature) > 0 ? $groupDirectorSignature[0] : null
             ];
-
             $fileDescription= 'Ficha del observador';
             $pdfBuilder     = new BuildReportsPDF("reports.observer.observer-mod3", $fileDescription, $school);
             return $pdfBuilder->build($params);
         }catch (Exception $e){
-            return self::getResponse500([
-                'message'   => $e->getMessage()
+            return HttpResponseMessages::getResponse500([
+                'message'   => $e->getMessage(),
+                'line'      => $e->getLine(),
             ]);
         }
     }

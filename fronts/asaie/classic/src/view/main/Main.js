@@ -157,12 +157,7 @@ Ext.define('Admin.view.main.Main', {
                         iconCls :'x-fa fa-navicon',
                         menu    : [
                             {
-                                text    : 'Perfíl',
-                                iconCls : 'far fa-id-badge',
-                                handler : 'onProfile'
-                            },'-',
-                            {
-                                text    : 'Salir',
+                                text    : 'Volver al modulo de accesos',
                                 iconCls : 'fas fa-sign-out-alt',  
                                 handler : 'onCloseSesion'
                             }

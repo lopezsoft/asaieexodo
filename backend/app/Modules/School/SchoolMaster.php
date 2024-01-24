@@ -15,6 +15,9 @@ class SchoolMaster implements CrudInterface
     public static function create(Request $request): JsonResponse
     {
        $params  = self::extractParams($request);
+       if(!isset($params->records->year)) {
+           $params->records->year = $request->input('year') ?? Date('Y');
+         }
         return InsertTable::insert($request, $params->records, $params->table);
     }
 

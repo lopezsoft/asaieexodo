@@ -9,7 +9,7 @@ Ext.define('Admin.store.general.AsignaturaStore', {
     proxy: {
         extraParams : {
             pdbTable : 'asignaturas',
-			order       : '{"asignatura": "ASC"}'
+			order       : '{"type": "ASC", "asignatura": "ASC"}',
         }
     }
 });

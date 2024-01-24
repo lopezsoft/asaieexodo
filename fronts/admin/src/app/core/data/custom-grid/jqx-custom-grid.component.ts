@@ -85,10 +85,10 @@ export class JqxCustomGridComponent extends BaseComponent implements OnInit, Aft
 	}
 
 	loadDataGrid(params?: any): void {
-		this.exodoGrid.gridService.proxy.api = {
+		this.exodoGrid.proxy.api = {
 			read: `${this.gService.http.getUrl()}${this.crudApi.read}`,
 		};
-		this.exodoGrid.gridService.onLoad(params);
+		this.exodoGrid.onLoad(params);
 	}
   editData(data: any): void {
     // Implements
@@ -109,15 +109,15 @@ export class JqxCustomGridComponent extends BaseComponent implements OnInit, Aft
       cancelButtonText: lang.instant('buttons.not')
     }).then((result) => {
       if (result.value) {
-        ts.exodoGrid.gridService.isLoading = true;
+        ts.exodoGrid.isLoading = true;
         ts.gService.http.delete(`${ts.crudApi.delete}${data.uid || data.id}`)
         .subscribe({
 					next: () => {
-						ts.exodoGrid.gridService.isLoading = false;
-						ts.exodoGrid.gridService.searchQuery();
+						ts.exodoGrid.isLoading = false;
+						ts.exodoGrid.searchQuery(this.exodoGrid.getSearchFieldValue());
 					},
 					error:  (err: string) => {
-						ts.exodoGrid.gridService.isLoading = false;
+						ts.exodoGrid.isLoading = false;
 						ts.gService.msg.errorMessage(lang.instant('general.error'), err);
 					}
 				});

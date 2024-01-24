@@ -6,7 +6,7 @@ Ext.define('Admin.store.admin.TeachersStore',{
             pdbTable : 'docentes',
         },
 		api: {
-			create  : 'crud',
+			create  : 'teachers',
 			read    : 'teachers',
 			update  : 'crud',
 			destroy : 'crud'

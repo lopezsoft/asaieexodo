@@ -9,6 +9,10 @@ use Illuminate\Http\Request;
 
 class ObserverController extends Controller
 {
+    public function importCriteria(Request $request): JsonResponse
+    {
+        return Observer::importCriteria($request);
+    }
     public function setItemsModel3(Request $request): JsonResponse
     {
         return Observer::setItemsModel3($request);

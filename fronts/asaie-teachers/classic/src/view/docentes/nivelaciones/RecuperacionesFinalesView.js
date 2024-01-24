@@ -235,6 +235,54 @@ Ext.define('Admin.view.docentes.RecuperacionesFinalesView',{
                 {
                     xtype: 'toolbarCrud',
                     items: [
+						{
+							xtype   : 'fieldSet',
+							title   : 'Digitar notas para:',
+							vertical: false,
+							columns	: 1,
+							items   : [
+								{
+									xtype   : 'customradiogroup',
+									itemId  : 'rdgProcess',
+									items   : [
+										{
+											boxLabel    : 'Básica y media',
+											name        : 'process',
+											checked     : true,
+											inputValue  : 5
+										},
+										{
+											boxLabel    : 'Ciclos III y IV',
+											name        : 'process',
+											inputValue  : 21
+										},
+										{
+											boxLabel    : 'Ciclo V',
+											name        : 'process',
+											inputValue  : 22
+										},
+										{
+											boxLabel    : 'Ciclo VI',
+											name        : 'process',
+											inputValue  : 23
+										}
+									]
+								}
+							]
+						},
+						{
+							xtype   : 'customButton',
+							text    : 'Buscar notas',
+							iconCls : 'x-fa fa-search',
+							handler : function (btn) {
+								const store     	= Ext.getStore('RecuperacionesFinalesStore');
+								let params 			= store.getProxy().getExtraParams();
+								const win 			= btn.up('window');
+								params.pdbProcess	= win.down('#rdgProcess').getValue();
+								store.getProxy().setExtraParams(params);
+								store.load();
+							}
+						},
                         '->',
                         {
                             xtype       : 'saveButton',

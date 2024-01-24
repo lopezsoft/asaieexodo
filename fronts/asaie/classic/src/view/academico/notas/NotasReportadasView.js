@@ -32,7 +32,6 @@ Ext.define('Admin.view.academico.NotasReportadasView',{
                     readonlyIndexes	: ['note'],
                     disableIndexes	: ['pctChange'],
                     minChars		: 1,
-                    mode            : 'local',
                     flex			: 1,
                     autoFocus		: true,
                     independent		: true

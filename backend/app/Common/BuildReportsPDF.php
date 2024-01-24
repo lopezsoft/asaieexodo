@@ -10,12 +10,35 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use \App\MPdf\CustomMPdf;
+use \Mpdf\WatermarkImage;
 
 class BuildReportsPDF
 {
     private bool $showFooter = true;
     private string|null $watermarkImage = null;
     private bool $showWatermarkImage = false;
+    private float $watermarkImageAlpha = 0.2;
+    private int $watermarkImageType = 1;
+
+    public function getWatermarkImageType(): int
+    {
+        return $this->watermarkImageType;
+    }
+
+    public function setWatermarkImageType(int $watermarkImageType): void
+    {
+        $this->watermarkImageType = $watermarkImageType;
+    }
+    public function getWatermarkImageAlpha(): float
+    {
+        return $this->watermarkImageAlpha;
+    }
+
+    public function setWatermarkImageAlpha(float $watermarkImageAlpha): void
+    {
+        $opacity = ($watermarkImageAlpha > 1) ? ($watermarkImageAlpha / 100) : $watermarkImageAlpha;
+        $this->watermarkImageAlpha = $opacity;
+    }
 
     /**
      * @return bool
@@ -104,7 +127,7 @@ class BuildReportsPDF
 
             $slugDescription    = Str::slug($fileDescription, '_');
             $fileName           = "{$slugDescription}_{$genericName}_{$date}{$format}";
-            // $config['tempDir']  = storage_path('tmp');
+            $config['tempDir']  = storage_path('tmp');
             $pdf                = new CustomMPdf($config);
             if($this->isShowFooter()){
                 $pdf->SetHTMLFooter('<hr/>
@@ -119,7 +142,13 @@ class BuildReportsPDF
             }
             $watermark  = $this->getWatermarkImage();
             if($watermark !== null && $this->isShowWatermarkImage()) {
-                $pdf->SetWatermarkImage($watermark, .2, 'D', [0, 0]);
+                $alpha = $this->getWatermarkImageAlpha();
+                if($this->getWatermarkImageType() === 1){
+                    $pdf->SetWatermarkImage($watermark, $alpha, 'D', [0, 0]);
+                }else{
+                    $watermark = new WatermarkImage($watermark, 'D', [0, 0], $alpha, true);
+                    $pdf->SetWatermarkImage($watermark);
+                }
                 $pdf->showWatermarkImage = true;
             }
             $pdf->loadView($view, $data);

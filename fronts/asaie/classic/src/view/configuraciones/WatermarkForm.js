@@ -102,6 +102,27 @@ Ext.define('Admin.view.configuraciones.WatermarkForm',{
 					]
 				},
 				{
+					xtype   : 'fieldSet',
+					title   : 'Usar como:',
+					items   : [
+						{
+							xtype   : 'customradiogroup',
+							items   : [
+								{
+									boxLabel    : 'Marca de agua',
+									name        : 'image_type',
+									inputValue  : 1
+								},
+								{
+									boxLabel    : 'Imagen de fondo',
+									name        : 'image_type',
+									inputValue  : 2
+								},
+							]
+						}
+					]
+				},
+				{
 					xtype   : 'customcheckboxfield',
 					name    : 'hide_header',
 					checked : true,
@@ -112,6 +133,11 @@ Ext.define('Admin.view.configuraciones.WatermarkForm',{
 					checked : true,
 					name    : 'hide_footer',
 					boxLabel: 'Ocultar pie de página.'
+				},
+				{
+					xtype	: 'customnumberfield',
+					name	: 'opacity',
+					fieldLabel: '% Opacidad',
 				},
 				{
 					xtype       : 'fieldSet',

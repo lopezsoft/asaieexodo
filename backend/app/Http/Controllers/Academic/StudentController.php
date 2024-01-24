@@ -14,6 +14,10 @@ class StudentController extends Controller
     {
         return StudentEnrollment::getInscriptions($request);
     }
+    public function createInscription(Request $request): JsonResponse
+    {
+        return StudentEnrollment::createInscription($request);
+    }
 
     /**
      * @throws \Exception

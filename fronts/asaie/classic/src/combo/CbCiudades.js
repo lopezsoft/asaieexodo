@@ -10,5 +10,6 @@ Ext.define('Admin.combo.CbCiudades',{
     displayField: 'name_city',
     valueField	: 'id',
     store		: 'CitiesStore',
-    autoLoadOnValue : true
+    autoLoadOnValue : true,
+	value	: 149,
 });

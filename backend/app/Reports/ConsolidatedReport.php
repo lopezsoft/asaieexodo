@@ -6,19 +6,19 @@ use App\Core\JReportModel;
 use App\Modules\Courses\RatingScale;
 use App\Modules\School\SchoolQueries;
 use App\Traits\MessagesTrait;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class ConsolidatedReport
 {
     use MessagesTrait;
-    public static function getConsolidated(Request $request): \Illuminate\Http\JsonResponse
+    public static function getConsolidated(Request $request): JsonResponse
     {
         try {
             $school = SchoolQueries::getSchoolRequest($request);
             $per	= $request->input('pdbPeriodo');
             $hoj	= $request->input('pHojaReport');
             $type	= $request->input('pTypeReport');
-            $all	= $request->input('pdbAllPer');
             $c_gdo	= $request->input('pdbCodGrado');
             $gpo	= $request->input('pdbGrupo');
             $jorn	= $request->input('pdbIdJorn');
@@ -27,11 +27,7 @@ class ConsolidatedReport
             $db	    = $school->db;
             $year	= $school->year;
 
-            if ($all == '1'){
-                $z_per = '0';
-            }else{
-                $z_per = $per;
-            }
+            $z_per = $per;
 
             if ($type == '1') {
                 if ($hoj == '1') {

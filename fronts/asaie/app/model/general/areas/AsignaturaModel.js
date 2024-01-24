@@ -12,6 +12,7 @@ Ext.define('Admin.model.general.AsignaturaModel',{
         { name: 'abrev'},
         { name: 'ordenar'},
         { name: 'excluir',type : 'int'},
+        { name: 'excluir',type : 'int'},
         { name: 'electiva',type : 'int'},
         { name: 'estado', type : 'int'}
     ]

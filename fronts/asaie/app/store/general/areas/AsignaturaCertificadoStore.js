@@ -11,7 +11,7 @@ Ext.define('Admin.store.general.AsignaturaCertificadoStore', {
     pageSize    : 15,
     proxy: {
         extraParams : {
-            pdbTable : 'asignaturas_certificados'
+            pdbTable : 'subject_certificates'
         },
         api: {
 			create  : 'crud',

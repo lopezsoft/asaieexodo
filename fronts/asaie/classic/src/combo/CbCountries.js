@@ -10,5 +10,6 @@ Ext.define('Admin.combo.CbCountries',{
     displayField: 'country_name',
     valueField	: 'id',
     store		: 'CountryStore',
-    autoLoadOnValue : true
+    autoLoadOnValue : true,
+	value		: 45,
 });

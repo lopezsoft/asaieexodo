@@ -414,14 +414,14 @@
 				<textElement verticalAlignment="Middle">
 					<font size="9" isBold="true"/>
 				</textElement>
-				<text><![CDATA[Curso:]]></text>
+				<text><![CDATA[Grado:]]></text>
 			</staticText>
 			<staticText>
-				<reportElement positionType="Float" x="362" y="29" width="63" height="12" uuid="ed7e7208-566b-46a1-8295-85db31ae93c6"/>
+				<reportElement positionType="Float" x="362" y="29" width="35" height="12" uuid="ed7e7208-566b-46a1-8295-85db31ae93c6"/>
 				<textElement verticalAlignment="Middle">
 					<font size="9" isBold="true"/>
 				</textElement>
-				<text><![CDATA[CONS. Sede:]]></text>
+				<text><![CDATA[Grupo:]]></text>
 			</staticText>
 			<staticText>
 				<reportElement positionType="Float" x="362" y="43" width="94" height="12" uuid="447ba99b-7349-4d4b-8da2-5feeed9deb1c"/>
@@ -437,7 +437,7 @@
 				</textElement>
 				<textFieldExpression><![CDATA[$F{lug_nacimiento}]]></textFieldExpression>
 			</textField>
-			<textField pattern="MMMMM dd, yyyy">
+			<textField pattern="dd/MM/yyyy">
 				<reportElement positionType="Float" x="254" y="29" width="103" height="13" uuid="a9bd0a26-eee0-41e6-bf88-614f6313c419"/>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font size="8"/>
@@ -522,20 +522,13 @@
 				<textFieldExpression><![CDATA[$F{jornada}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement positionType="Float" x="543" y="15" width="12" height="12" uuid="dbc569a3-d643-4066-8d0c-156d48987dea"/>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font size="8"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$F{id_group}]]></textFieldExpression>
-			</textField>
-			<textField>
-				<reportElement positionType="Float" x="426" y="29" width="128" height="12" uuid="7e36479f-152b-4483-8b84-04b2ac90cd4a"/>
+				<reportElement positionType="Float" x="397" y="29" width="146" height="12" uuid="7e36479f-152b-4483-8b84-04b2ac90cd4a"/>
 				<textElement>
 					<font size="9"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{cons_sede}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{id_group}]]></textFieldExpression>
 			</textField>
-			<textField pattern="dd-MMM-yyyy">
+			<textField pattern="dd/MM/yyyy">
 				<reportElement positionType="Float" x="453" y="44" width="101" height="12" uuid="9f05cbcf-770a-4b9a-9d16-8e2f110bdbfb"/>
 				<textElement>
 					<font size="9"/>

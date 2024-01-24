@@ -8,6 +8,20 @@
         <td class="text-center ih-width">
             <b>I/H</b>
         </td>
+        @if($allPer && !$onlyAreas)
+        <td class="text-center ih-width">
+            <b>P1</b>
+        </td>
+        <td class="text-center ih-width">
+            <b>P2</b>
+        </td>
+        <td class="text-center ih-width">
+            <b>P3</b>
+        </td>
+        <td class="text-center ih-width">
+            <b>P4</b>
+        </td>
+        @endif
         <td class="text-center final-note">
             <b>NOTA FINAL</b>
         </td>

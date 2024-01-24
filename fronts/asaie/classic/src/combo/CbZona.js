@@ -11,5 +11,6 @@ Ext.define('Admin.combo.CbZona',{
     itemId		: 'CbZona',
 	reference 	: 'CbZona',
     publishes   : 'value',
-    store		: 'ZonaStore'
+    store		: 'ZonaStore',
+	value		: 1,
 });

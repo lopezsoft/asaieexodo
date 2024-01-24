@@ -56,7 +56,7 @@ class AcademicPeriods
             ->join($db."grados_agrupados AS t1", "td.id_grado_agrupado", "=", "t1.id")
             ->join($db."aux_grados_agrupados AS t2", "t2.id_grado_agrupado", "=", "t1.id")
             ->where( "td.year", $year)
-            ->where( "td.estado", 1)
+            // ->where( "td.estado", 1)
             ->where("t2.id_grado", $gradeId)
             ->groupByRaw('td.id_grado_agrupado')
             ->first();
@@ -73,7 +73,7 @@ class AcademicPeriods
             ->join($db."grados_agrupados AS t1", "td.id_grado_agrupado", "=", "t1.id")
             ->join($db."aux_grados_agrupados AS t2", "t2.id_grado_agrupado", "=", "t1.id")
             ->where( "td.year", $year)
-            ->where( "td.estado", 1)
+            // ->where( "td.estado", 1)
             ->where("t2.id_grado", $gradeId)
             ->orderByRaw("td.periodo DESC")
             ->first();
@@ -88,7 +88,7 @@ class AcademicPeriods
             ->join($db."aux_grados_agrupados AS t2", "t2.id_grado_agrupado", "=", "t1.id")
             ->where( "td.year", $year)
             ->where( "td.periodo", $period)
-            ->where( "td.estado", 1)
+            // ->where( "td.estado", 1)
             ->where("t2.id_grado", $gradeId)
             ->first();
     }

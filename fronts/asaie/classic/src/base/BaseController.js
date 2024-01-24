@@ -156,7 +156,8 @@ Ext.define('Admin.base.BaseController', {
     */
 
     onCloseSesion : function () {
-        Ext.Msg.show({
+		window.location.href = Global.getUrlLocation();
+        /*Ext.Msg.show({
             title	: 'Cerrar sesión',
             message	: 'Desea cerrar la sesión?',
             buttons	: Ext.Msg.YESNO,
@@ -166,20 +167,20 @@ Ext.define('Admin.base.BaseController', {
                     AuthToken.onLogout();
                 }
             }
-        });
+        });*/
     },
 
     onToggleNavigationSize: function (btn) {
-        var me              = this,
-            refs            = me.getReferences(),
-            navigationList  = refs.navigationTreeList,
-            wrapContainer   = refs.mainContainerWrap,
-            collapsing      = !navigationList.getMicro(),
-            new_width       = collapsing ? 64 : 250;
-        if(!btn){
-            collapsing  = (parseInt(localStorage.getItem('collapsing')) > 0) ? true : false;
+		let me = this,
+			refs = me.getReferences(),
+			navigationList = refs.navigationTreeList,
+			wrapContainer = refs.mainContainerWrap,
+			collapsing = !navigationList.getMicro(),
+			new_width = collapsing ? 64 : 250;
+		if(!btn){
+            collapsing  = (parseInt(localStorage.getItem('collapsing')) > 0);
             new_width   = collapsing ? 64 : 250;
-        };
+        }
 
         localStorage.setItem('collapsing', collapsing ? 1: 0);
 
@@ -273,7 +274,7 @@ Ext.define('Admin.base.BaseController', {
 
     onDeleteView : function(cbtn){
         Ext.Msg.show({
-            title: 'Elimiar datos',
+            title: 'Eliminar datos',
             message: 'Desea eliminar el registro?',
             buttons: Ext.Msg.YESNO,
             icon: Ext.Msg.QUESTION,

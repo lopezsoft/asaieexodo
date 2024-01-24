@@ -20,7 +20,7 @@ class FinalSupportActivities
     {
         $teacherId	= $request->input('pdbDocente');
         $school     = SchoolQueries::getSchoolRequest($request);
-        $gradeId    = intval($request->input('pdbProcess'));;
+        $gradeId    = intval($request->input('pdbProcess'));
         try {
             ControlClosingDates::validateFinalPeriod($school, $gradeId);
             $queryConfig    = GeneralSetting::getGeneralSettingByGrade($school, $gradeId);
@@ -86,9 +86,11 @@ class FinalSupportActivities
         $grado  = $row->id_grado;
         $extraName  = "";
         $where      = "";
-        if($setting->promocion == 3) {
+        $finalField = "final";
+        if($setting->promocion == 3) { // Promoción por periodo final
             $where	    = " AND a.periodo ='{$lastPeriod->periodo}' ";
             $extraName	= "_periodos";
+            $finalField = "prom";
         }
         foreach ($query as $enrollment) {
             if ($setting->porcentaje_areas == 1) { // Si se está trabajando el año lectivo con porcentajes en las áreas
@@ -118,10 +120,10 @@ class FinalSupportActivities
             if ($totalAreas > 0 && ($totalAreas < $setting->areas_pierde)) {
                 foreach ($queryAreas as $area) {
                     $querySubjects = DB::select("
-                        SELECT a.id_matric, a.id_asig, a.id_area, a.final
+                        SELECT a.id_matric, a.id_asig, a.id_area, a.{$finalField} AS final
                         FROM {$db}{$table}{$view}{$extraName} AS a
                         WHERE a.id_matric = {$area->id_matric} AND a.prom BETWEEN {$desde} AND {$hasta}
-                            AND a.id_area = {$area->id_area} AND a.id_asig = {$asig}
+                            AND a.id_area = {$area->id_area} AND a.id_asig = {$asig}{$where}
                     ");
 
                     foreach ($querySubjects as $subject) {

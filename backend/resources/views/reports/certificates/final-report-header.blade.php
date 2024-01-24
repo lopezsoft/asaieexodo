@@ -1,3 +1,17 @@
+@php
+    $showHeader = true;
+    $topMargin  = '';
+    if(isset($watermark)){
+        $showHeader = ($watermark->hide_header === '0');
+        $topMargin  = $watermark->margin_top;
+    }
+@endphp
+@if(!$showHeader)
+    <div style="height: {{$topMargin}};width: 100%;"></div>
+@endif
+@if($showHeader)
+@include('reports.header')
+@endif
 <section>
     <div class="section-body student-data text-center">
         <span><b>INFORME FINAL DE EVALUACIÓN</b></span>

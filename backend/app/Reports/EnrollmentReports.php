@@ -99,11 +99,11 @@ class EnrollmentReports
         }
 
         $watermark      = WatermarkFile::query()
-                            ->where('school_id', $school->id)
                             ->whereRaw("JSON_EXTRACT(`settings`, '$.available_in') = '".$availableIn."' OR
                                             JSON_EXTRACT(`settings`, '$.available_in') = '4'")
                             ->whereRaw("JSON_EXTRACT(`settings`, '$.paper_size') = '".$paperSize."'")
                             ->where('state', 1)
+                            ->where('school_id', $school->id)
                             ->first();
         $fileDescription= $report.' '.$header->cons;
         $pdfBuilder     = new BuildReportsPDF($reportView, $fileDescription, $school);

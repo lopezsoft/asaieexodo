@@ -48,6 +48,24 @@ Ext.define('Admin.view.academico.AsignaturasView' ,{
                                 }
                             ]
                         },
+						{
+							xtype		: 'customradiogroup',
+							columns		: 1,
+							vertical	: true,
+							fieldLabel	: 'Tipo de asignatura',
+							items		: [
+								{
+									boxLabel	: 'Única',
+									name		: 'type',
+									inputValue	: 1
+								},
+								{
+									boxLabel	: 'Para grupos de asignaturas',
+									name		: 'type',
+									inputValue	: 2
+								}
+							]
+						},
                         {
                             xtype		: 'customradiogroup',
                             columns		: 2,

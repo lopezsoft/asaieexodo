@@ -46,6 +46,8 @@ class WatermarkFile extends Model
         'hide_header',
         'margin_bottom',
         'margin_top',
+        'opacity',
+        'image_type'
     ];
     protected static function boot(): void
     {
@@ -115,6 +117,14 @@ class WatermarkFile extends Model
     public function setSettingsAttribute($value): void
     {
         $this->attributes['settings'] = json_encode($value);
+    }
+    public function getOpacityAttribute()
+    {
+        return $this->settings['opacity'] ?? 20;
+    }
+    public function getImageTypeAttribute()
+    {
+        return $this->settings['image_type'] ?? 1;
     }
     public function getPaperSizeAttribute()
     {

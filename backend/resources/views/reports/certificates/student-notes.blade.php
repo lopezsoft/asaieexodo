@@ -10,7 +10,7 @@
         {{number_format($student->final, 2)}}
     </td>
     <td class="scale-width">
-        {{$student->nombre_escala}}
+    {{getRatingScale($scale, $student->id_grade, $student->final)}}
     </td>
 </tr>
 @else
@@ -25,12 +25,15 @@
             </td>
         </tr>
     @endif
+    @if($subjectCertificate && countSubjectCertificates($subjectCertificate, $student->id_asign ?? 0) > 0)
+        {!! getSubjectCertificate($subjectCertificate, $student) !!}
+    @else
     <tr>
         <td class="subject-name">
             {{trim($student->asignatura)}}
         </td>
         <td class="text-right ih-width">
-            {{$student->ih}}
+            {{number_format($student->ih)}}
         </td>
         <td class="text-right final-note">
             {{number_format($student->final, 2)}}
@@ -39,4 +42,5 @@
             {{$student->nombre_escala}}
         </td>
     </tr>
+    @endif
 @endif

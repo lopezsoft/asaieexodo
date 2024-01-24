@@ -40,3 +40,4 @@ fronts/teachers_old
 /db/*.sql
 /documentacion
 *.settings
+backend/storage/tmp/*

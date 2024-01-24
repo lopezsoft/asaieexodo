@@ -16,6 +16,10 @@ class TeachersController extends Controller
     {
         return Teachers::index($request);
     }
+    public  function create(Request $request): JsonResponse
+    {
+        return Teachers::create($request);
+    }
     /**
      * @throws \Exception
      */

@@ -10,5 +10,6 @@ Ext.define('Admin.combo.CbRH',{
     valueField	: 'tipo_sangre',
     itemId		: 'CbRH',
     store		: 'RHStore',
-    queryMode	: 'local'
+    queryMode	: 'local',
+	value		: 'O+', // Default value
 });

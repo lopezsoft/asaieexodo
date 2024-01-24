@@ -14,15 +14,15 @@ Ext.define('Admin.view.academico.AsignaturasCertificadosFormView' ,{
 		if (storeName) {
 		   const me = this.getApp(),
 			  win = this,
-			  form = win.down('form'),
-			  record = form.getRecord(),
-			  values = form.getValues();
+			  form 		= win.down('form'),
+			  record	= form.getRecord(),
+			  values	= form.getValues();
+		  let store		= Ext.getStore(storeName);
 		   if(record) { // edit
-			  this.saveData(store, me.getReloadStore());
+			  this.saveData(store, true);
 		   }else {
-			  let subjectData    = this.getRecord();
-			  let store     = Ext.getStore(storeName);
-			  values.id_asig_padre = subjectData.id_pk;
+			  let subjectData    		= this.getRecord();
+			  values.subject_parent_id 	= subjectData.id_pk;
 			  win.mask('Guardando...');
 			  store.insert(0,values);
 			  store.sync({
@@ -50,18 +50,17 @@ Ext.define('Admin.view.academico.AsignaturasCertificadosFormView' ,{
 					title	: 'DATOS DE LA ASIGNATURA',
 					items 	: [
 						{
-                            fieldLabel  : 'Nombre de la asignatura',
-                            name        : 'nombre'
+							xtype		: 'CbAsignaturasType',
 						},
-                        {
-                            fieldLabel  : 'Abreviatura',
-							name		: 'abrev'
-                        },
                         {
                             xtype       : 'customnumberfield',
                             fieldLabel  : 'I/H',
                             name		: 'ih'
                         },
+						{
+							xtype		: 'yearField',
+							name		: 'year'
+						},
                         {
                             xtype		: 'customradiogroup',
                             columns		: 1,
@@ -70,12 +69,12 @@ Ext.define('Admin.view.academico.AsignaturasCertificadosFormView' ,{
                             items		: [
                                 {
                                     boxLabel	: 'Activa',
-                                    name		: 'estado',
+                                    name		: 'state',
                                     inputValue	: 1
                                 },
                                 {
                                     boxLabel	: 'Inactiva',
-                                    name		: 'estado',
+                                    name		: 'state',
                                     inputValue	: 0
                                 }
                             ]

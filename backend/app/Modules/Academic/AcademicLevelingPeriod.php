@@ -23,8 +23,9 @@ class AcademicLevelingPeriod
             $year       = $school->year;
             $teacherId  = $request->input('pdbTeacherId') ?? CoursesOfTeacher::getTeacherId($db);
             $level      = $request->input('pdbNivel') ?? 0;
+            $process    = $request->input('pdbProcess') ?? 5;
             $period     = $request->input('pdbPeriodo') ?? 1;
-            $gradeId    = self::getGradeId($request, $db, $level);;
+            $gradeId    = self::getGradeId($request, $db, $level, $process);
             $subjectId  = $request->input('pdbAsig') ?? null;
             $now	    = date('Y');
             $table      = TablesQuery::getTableNotes($gradeId ?? 4);
@@ -44,6 +45,14 @@ class AcademicLevelingPeriod
                 ->join($db.'student_enrollment as tm', 'tn.id_matric', '=', 'tm.id')
                 ->join($db.'inscripciones as ti', 'tm.id_student', '=', 'ti.id');
 
+            if ($process > 5) { // Ciclos
+                if($process == 21) {
+                    $queryNotes->whereBetween('tc.id_grado', [$gradeId - 1, $gradeId]);
+                } else {
+                    $queryNotes->where('tc.id_grado', $gradeId);
+                }
+            }
+
             if($level == 0){
                 $queryNotes->where('tc.id_grado', $gradeId);
                 $queryNotes->where('tm.id_grade', $gradeId);
@@ -51,15 +60,32 @@ class AcademicLevelingPeriod
             }
             $queryNotes->where('tn.year', $year)
                 ->where('tn.periodo', $period)
-                ->whereBetween('tn.final', [$scaleMin->desde, $scaleMin->hasta])
                 ->where('tc.id_docente', $teacherId)
                 ->where('tc.year', $year)
                 ->where('tm.year', $year)
                 ->where('tm.id_state', 2)
                 ->orderByRaw('tc.id_grado,  tc.grupo, tc. id_asig,  tc.id_jorn, nombres');
 
-            if($year == $now) {
-                $notes  = $queryNotes->get();
+            if($year == $now) { // Año actual
+                // Corrección de notas perdidas cuando la nota final es mayor a la nota perdida
+                $notes  = clone $queryNotes;
+                $notes  = $notes->where('tn.nota_perdida', '>',0)
+                                    ->whereRaw("tn.final > tn.nota_perdida")
+                                    ->get();
+                foreach ($notes as $note) {
+                    DB::Table("{$db}{$table}")
+                        ->where('id', $note->id)
+                        ->limit(1)
+                        ->update([
+                            'nota_perdida' => 0,
+                            'nota_habilitacion' => 0,
+                            'fecha' => null,
+                        ]);
+                }
+
+                $notes  = clone $queryNotes;
+                $notes  = $notes->whereBetween('tn.final', [$scaleMin->desde, $scaleMin->hasta])
+                            ->get();
                 $date	= date('Y-m-d');
                 foreach ($notes as $note) {
                     DB::Table("{$db}{$table}")
@@ -70,18 +96,8 @@ class AcademicLevelingPeriod
                             'nota_perdida' => $note->final,
                             'fecha' => $date,
                         ]);
-
-                    DB::Table("{$db}{$table}")
-                        ->where('id', $note->id)
-                        ->where('nota_perdida', '>',0)
-                        ->whereRaw("final > nota_perdida")
-                        ->limit(1)
-                        ->update([
-                            'nota_perdida' => 0,
-                            'nota_habilitacion' => 0,
-                            'fecha' => null,
-                        ]);
                 }
+
             }
 
             $queryNotes->selectRaw("ta.asignatura, ta.abrev, tar.area, tg.cod_grado")
@@ -114,8 +130,9 @@ class AcademicLevelingPeriod
             $db         = $school->db;
             $level      = $request->input('pdbNivel') ?? 0;
             $period     = $request->input('pdbPeriodo') ?? 1;
+            $process    = $request->input('pdbProcess') ?? 5;
             ControlClosingDates::isCurrentYear($school->year);
-            $gradeId    = self::getGradeId($request, $db, $level);
+            $gradeId    = self::getGradeId($request, $db, $level, $process);
             ControlClosingDates::validateLevelingDate($school, $gradeId, $period);
             $table      = TablesQuery::getTableNotes($gradeId ?? 4);
             $fields     = json_decode($request->input('records'));
@@ -130,21 +147,33 @@ class AcademicLevelingPeriod
     /**
      * @throws Exception
      */
-    public static function getGradeId(Request $request, $db, $level) {
+    public static function getGradeId(Request $request, $db, $level, $process = 5) {
         $gradeId    = $request->input('pdbGrado') ?? null;
         if ($level > 0) {
             $grade = DB::Table("{$db}grados")
-                ->select('id')
-                ->where('id_nivel', $level)
-                ->first();
+                ->select('id');
+            if ($process == 5) { // Básica y Media
+                $grade->where('id_nivel', $level);
+            } else if ($process > 5) { // Ciclos
+                $grade->where('id', $process);
+            } else {
+                self::noFoundGrade();
+            }
+
+            $grade  = $grade->first();
             if (!$grade) {
-                throw new Exception("No se encontró el grado");
+                self::noFoundGrade();
             }
             $gradeId = $grade->id;
         }
         if (!$gradeId) {
-            throw new Exception("No se encontró el grado");
+            self::noFoundGrade();
         }
         return $gradeId;
+    }
+
+    private static function noFoundGrade()
+    {
+        throw new Exception("No se encontró el grado");
     }
 }

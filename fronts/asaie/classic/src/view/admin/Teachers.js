@@ -4,9 +4,8 @@ Ext.define('Admin.view.admin.Teachers',{
     showSaveButton  : false,
     controller      : 'admin',
 	initComponent : function(){
-        var
-			me	= Admin.getApplication();
-        me.onStore('general.DocumentosStore');
+		const me = Admin.getApplication();
+		me.onStore('general.DocumentosStore');
         me.onStore('admin.TeachersStore');
 		me.onStore('general.CitiesStore');
 		me.onStore('general.CitiesStore4');
@@ -83,6 +82,7 @@ Ext.define('Admin.view.admin.Teachers',{
             {
                 text        : 'Dirección',
                 dataIndex   : 'direccion',
+				allowBlank	: true,
                 width       : 250
             },
             {

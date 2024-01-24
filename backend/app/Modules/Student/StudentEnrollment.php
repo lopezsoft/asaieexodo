@@ -2,9 +2,12 @@
 
 namespace App\Modules\Student;
 
+use App\Common\HttpResponseMessages;
 use App\Modules\Grades\GradesQuery;
 use App\Modules\School\SchoolQueries;
 use App\Queries\CallExecute;
+use App\Queries\InsertTable;
+use App\Services\TableValidationService;
 use App\Traits\MessagesTrait;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -182,6 +185,7 @@ class StudentEnrollment
             if($search) {
                 $query->where(function ($row) use ($search) {
                     $row->whereRaw("CONCAT(rtrim(nombre1),' ',rtrim(nombre2),' ',rtrim(apellido1),' ',rtrim(apellido2)) LIKE '%{$search}%'");
+                    $row->orWhere('nro_documento', 'like' , "%{$search}%");
                 });
             }
             $query->orderByRaw('apellido1, apellido2, nombre1, nombre2');
@@ -191,6 +195,62 @@ class StudentEnrollment
         }catch (Exception $e) {
             return self::getResponse500([
                 'message'   => $e->getMessage()
+            ]);
+        }
+    }
+
+    public static function createInscription(Request $request): JsonResponse
+    {
+        try{
+            $school     = SchoolQueries::getSchoolRequest($request);
+            $db	        = $school->db;
+            $table      = "{$db}inscripciones";
+            $tableEnroll= "{$db}student_enrollment";
+            $records    = json_decode($request->records) ?? null;
+            $teacher    = DB::table($table)
+                ->where('nro_documento', $records->nro_documento)->first();
+            if($teacher){
+                return HttpResponseMessages::getResponse400([
+                    'message' => "El estudiante con número de documento {$records->nro_documento} ya se encuentra registrado."
+                ]);
+            }
+            $validator          = new TableValidationService();
+            $validatorStudent   = $validator->generateValidator((array) $records, $table);
+            if ($validatorStudent->fails()) {
+                return HttpResponseMessages::getResponse400([
+                    'message' => $validatorStudent->errors()->first()
+                ]);
+            }
+            $records->id_student            = 1;
+            $records->folio                 = 1;
+            $records->registration_number   = 1;
+            $records->book                  = 1;
+            $records->promoted              = 0;
+            $records->year                  = date('Y');
+            $validatorEnroll    = $validator->generateValidator((array) $records, $tableEnroll);
+            if ($validatorEnroll->fails()) {
+                return HttpResponseMessages::getResponse400([
+                    'message' => $validatorEnroll->errors()->first()
+                ]);
+            }
+            DB::beginTransaction();
+            $studentData            = InsertTable::getTableData($records, $table);
+            $studentId              = DB::table($table)->insertGetId($studentData);
+            $records->id_student    = $studentId;
+
+            $enrollmentData         = InsertTable::getTableData($records, $tableEnroll);
+            DB::table($tableEnroll)->insert($enrollmentData);
+            $student                = DB::table($table)
+                                        ->where('id', $studentId)
+                                        ->first();
+            DB::commit();
+            return HttpResponseMessages::getResponse([
+                'record' => $student
+            ]);
+        }catch (Exception $e){
+            DB::rollback();
+            return HttpResponseMessages::getResponse500([
+                'message' => $e->getMessage()
             ]);
         }
     }

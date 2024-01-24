@@ -16,16 +16,14 @@ Ext.define('Admin.view.academico.AsignaturasCertificadosView',{
         this.setTitle(AppLang.getSTitleViewSubjects());
     },
     buildWindow: function () {
-        var
-            me = this.getApp();
-        this.winObject = Ext.create('Admin.view.academico.AsignaturasCertificadosFormView');
+		this.winObject = Ext.create('Admin.view.academico.AsignaturasCertificadosFormView');
     },
     showWindow: function (btn) {
-        var me = this.app,
-            ts = this,
-            data = ts.down('grid').getSelection()[0],
-            form = [];
-        Ext.require([
+		let
+			ts = this,
+			data = ts.down('grid').getSelection()[0],
+			form = [];
+		Ext.require([
             'Admin.view.academico.AsignaturasCertificadosFormView'
         ]);
 
@@ -34,11 +32,11 @@ Ext.define('Admin.view.academico.AsignaturasCertificadosView',{
                 ts.buildWindow();
             }
             form = ts.winObject.down('form');
-            if (btn.itemId == 'editButton') {
+            if (btn.itemId === 'editButton') {
                 form.loadRecord(data);
             } else {
                 form.reset(true);
-            };
+            }
              ts.winObject.show();
 			      ts.winObject.setRecord(ts.getRecord());
 			      ts.winObject.show();
@@ -73,7 +71,7 @@ Ext.define('Admin.view.academico.AsignaturasCertificadosView',{
             },
             {
                 text        : 'Nombre de la asignatura',
-                dataIndex   : 'nombre',
+                dataIndex   : 'asignatura',
                 width       : 300
             },
             {
@@ -86,10 +84,15 @@ Ext.define('Admin.view.academico.AsignaturasCertificadosView',{
                 dataIndex   : 'ih',
                 width       : 50
             },
+			{
+				text        : 'Año',
+				dataIndex   : 'year',
+				width       : 60
+			},
             {
                 xtype       : 'checkcolumn',
                 text        : 'Estado (Activo)',
-                dataIndex   : 'estado',
+                dataIndex   : 'state',
                 width       : 120,
                 disabled    : true
             }

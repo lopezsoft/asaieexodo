@@ -7,6 +7,7 @@ Route::prefix('students')->group(function () {
         Route::get('enrollment-list', 'getEnrollmentList');
         Route::post('move-students', 'moveStudents');
         Route::post('old-registration', 'oldRegistration');
+        Route::post('/', 'createInscription');
     });
 });
 

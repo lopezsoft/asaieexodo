@@ -43,7 +43,7 @@ class GradesQuery
         return $query[0] ?? null;
     }
 
-    public static function getPromotionGrade($grade = 0, $db)
+    public static function getPromotionGrade($grade, $db)
     {
         $query  = DB::table("{$db}grados_agrupados", "t1")
                     ->leftJoin("{$db}aux_grados_agrupados AS t2", "t2.id_grado_agrupado", "=", "t1.id")

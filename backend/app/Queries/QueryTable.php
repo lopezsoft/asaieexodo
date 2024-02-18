@@ -4,13 +4,14 @@ namespace App\Queries;
 
 use App\Traits\MessagesTrait;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class QueryTable
 {
     use MessagesTrait;
-    public static function query(Request $request, String $table = null, $where = [], $order = []): \Illuminate\Http\JsonResponse
+    public static function query(Request $request, String $table = null, $where = [], $order = []): JsonResponse
     {
         try {
             $primaryKey = 'id';
@@ -57,7 +58,7 @@ class QueryTable
         }
     }
 
-    public static function table(String $table, Array $where = [], $perPage = 15): \Illuminate\Http\JsonResponse
+    public static function table(String $table, Array $where = [], $perPage = 15): JsonResponse
     {
         try {
             $query          = DB::table($table);

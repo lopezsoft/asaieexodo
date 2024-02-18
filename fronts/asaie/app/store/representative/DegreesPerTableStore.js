@@ -11,7 +11,7 @@ Ext.define('Admin.store.representative.DegreesPerTableStore',{
         },
         api : {
             create  : 'crud',
-            read    : 'polling-station/assigned-courses',
+            read    : 'representative/polling-station/assigned-courses',
             update  : 'crud',
             destroy : 'crud'
         }

@@ -1,6 +1,7 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Representative;
+use App\Http\Controllers\Controller;
 use App\Modules\Representative\Vote;
 use Illuminate\Http\Request;
 

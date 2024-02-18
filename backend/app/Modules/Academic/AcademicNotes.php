@@ -1,5 +1,6 @@
 <?php
 namespace App\Modules\Academic;
+use App\Common\HttpResponseMessages;
 use App\Modules\Courses\Courses;
 use App\Modules\School\SchoolQueries;
 use App\Queries\CallExecute;
@@ -145,12 +146,26 @@ class AcademicNotes
         try {
             $school     = SchoolQueries::getSchoolRequest($request);
             $db	        = $school->db;
-            $grade      = $request->input('pdbGrado');
-            $table	    = TablesQuery::getTableNotes($grade ?? 4);  // Función auxiliar que devuelve el nombre de la tabla de notas según el grado
+            $student    = DB::table("{$db}student_enrollment")->where('id', $request->input('pdbId') ?? 0)->first();
+            if (!$student) {
+                throw new Exception("No se encontró el estudiante");
+            }
+            $grade      = $student->id_grade;
+            $table	    = TablesQuery::getTableNotes($grade);
             $fields     = json_decode($request->input('pdbList'));
+            $params     = (Object)[
+                'year'          => $student->year,
+                'gradeId'       => $student->id_grade,
+                'groupId'       => $student->id_group,
+                'headquarterId' => $student->id_headquarters,
+                'workingDayId'  => $student->id_study_day,
+                'courseId'      => 0,
+                'db'            => $db
+            ];
             DB::beginTransaction();
             foreach ($fields as $field) {
-                $course = Courses::getActiveCourse($field->id_curso, $db);
+                $params->courseId = $field->id_curso;
+                $course = Courses::getCurrentlyActiveCourse($params);
                 if (($course <> $field->id_curso) AND ($course > 0)) {
                     DB::Table("{$db}{$table}")->where('id', $field->id)->update(['id_curso' => $course]);
                 }
@@ -159,7 +174,7 @@ class AcademicNotes
             return self::getResponse();
         }catch (Exception $e){
             DB::rollBack();
-            return self::getResponse500([
+            return HttpResponseMessages::getResponse([
                 "message" => $e->getMessage()
             ]);
         }

@@ -24,3 +24,32 @@
     }
   }
 }
+.grid-search {
+  font-family: 'Arial', sans-serif;
+  background-color: #eaf3f9 !important;
+
+  input {
+    border-color: #a3c7e0 !important;
+    box-shadow: none;
+    transition: border-color 0.5s ease;
+    font-size: 13px;
+    min-height: 32px;
+    height: 32px;
+  }
+
+  button.btn {
+    background-color: #a3c7e0 !important;
+    border-color: #a3c7e0 !important;
+    transition: background-color 0.5s ease;
+    min-height: 32px;
+    height: 32px;
+    width: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    &:hover, &:focus {
+      background-color: darken(#a3c7e0, 10%) !important;
+    }
+  }
+}
+

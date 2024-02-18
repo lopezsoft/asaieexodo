@@ -60,7 +60,7 @@ Ext.define('Admin.view.promocion.AntiguosView',{
 									const win = cb.up('form'),
 										gdo = record.get('id'),
 										gb = Global;
-									if (gdo == 22 || gdo == 23){
+									if (gdo === 22 || gdo === 23){
                                         win.down('#yr').setValue(gb.getYear());
                                     }else {
                                         win.down('#yr').setValue(gb.getYear() - 1);
@@ -101,7 +101,7 @@ Ext.define('Admin.view.promocion.AntiguosView',{
 									pdbTable: 'student_enrollment',
 									promoted:  0
 								};
-								if (gdo == 22 || gdo == 23) {
+								if (gdo === 22 || gdo === 23) {
 									extra.pdbYear = Global.getYear();
 								}
                                 me.setParamStore('ListaMatriculaStore',extra,true);
@@ -141,7 +141,7 @@ Ext.define('Admin.view.promocion.AntiguosView',{
                             itemId      : 'cbJornadas'
                         },
                         {
-                            xtype       : 'customnumberfield',
+                            xtype       : 'yearField',
                             fieldLabel  : 'Año',
                             disabled    : true,
                             value       : Global.getYear()

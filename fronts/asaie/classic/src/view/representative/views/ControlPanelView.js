@@ -10,16 +10,6 @@ Ext.define('Admin.view.representative.ControlPanelView',{
             xtype   		: 'customform',
 			defaultFocus	: 'customnumberfield',
             items   : [
-
-				{
-                    xtype       : 'fieldset',
-                    name        : 'school_name',
-					items   : [
-						        {
-						            xtype       : 'CbSedes'
-						        }]
-                },
-				
                 {
                     xtype       : 'customnumberfield',
                     fieldLabel  : 'Votos por mesa',
@@ -58,7 +48,7 @@ Ext.define('Admin.view.representative.ControlPanelView',{
                     },
                     items       : [
                         {
-                            boxLabel    : 'Local, fisicamente',
+                            boxLabel    : 'Local, físicamente',
                             inputValue  : 1,
                             // checked     : true
                         },
@@ -69,7 +59,7 @@ Ext.define('Admin.view.representative.ControlPanelView',{
                     ]
                 },
                 {
-                    fieldLabel  : 'Nombre de la Instución o centro educativo',
+                    fieldLabel  : 'Nombre de la Institución o centro educativo',
                     name        : 'school_name',
                     hidden      : true,
                     allowBlank  : true
@@ -102,14 +92,9 @@ Ext.define('Admin.view.representative.ControlPanelView',{
                 },
 
 				{
-                    
-                    name        : 'year',
-                    fieldLabel  : 'año',
-					value: new Date().getFullYear(),
-					
-                },
-				
-				  
+					xtype		: 'yearField',
+					readOnly	: true,
+                }
             ]
         }
     ]

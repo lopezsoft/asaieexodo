@@ -3,7 +3,7 @@ Ext.define('Admin.view.representative.CandidatesView',{
     alias   	: 'widget.candidatesview',
     controller  : 'representative',
     title       : 'Candidatos',
-    maxHeight   : 280,
+    maxHeight   : 380,
 	store   	: 'CandidatesStore',
 	defaultFocus	: 'cbenrolledstudents',
     items       : [
@@ -29,14 +29,9 @@ Ext.define('Admin.view.representative.CandidatesView',{
 					labelWidth	: 100,
                 },
 				{
-					xtype: 'numberfield',
-					fieldLabel: 'Year',
-					name: 'year',
-					minValue: 2010, 
-					maxValue: new Date().getFullYear() ,
-					hideTrigger: true,
-					allowBlank: false
-				} 
+					xtype: 'yearField',
+					readOnly: true,
+				}
             ]
         }
     ],

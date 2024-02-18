@@ -10,7 +10,9 @@ Ext.define('Admin.store.representative.ControlPanelStore',{
     model   : 'Admin.model.representative.ControlPanelModel',
     proxy   : {
         extraParams : {
-            pdbTable    : 'tp_control_panel'
+            pdbTable    : 'tp_control_panel',
+			order		: "{year: 'DESC'}",
+			perYear		: true
         }
     }
 });

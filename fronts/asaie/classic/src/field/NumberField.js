@@ -17,7 +17,6 @@ Ext.define('Admin.field.NumberField',{
 	labelWidth	: 180,
     listeners: {
 	    'focus' : function (textField, event, eOpts) {
-	        var me = this;
 	        if (!Ext.isEmpty(this.tooltip)) {
 	            new Ext.ToolTip({
 	                target : this.id,

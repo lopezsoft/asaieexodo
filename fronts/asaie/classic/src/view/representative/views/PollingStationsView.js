@@ -3,7 +3,7 @@ Ext.define('Admin.view.representative.PollingStationsView',{
     alias   	: 'widget.pollingstationsview',
     controller  : 'representative',
     title   	: 'Mesas de votación',
-    maxHeight  	: 380,
+    maxHeight  	: 480,
 	store   	: 'PollingStationsStore',
     items   : [
         {
@@ -13,7 +13,8 @@ Ext.define('Admin.view.representative.PollingStationsView',{
             items   : [
                 {
                     fieldLabel  : '* Nombre de la mesa',
-                    name        : 'table_name'
+                    name        : 'table_name',
+					autofocus	: true,
                 },
                 {
                     xtype       : 'customnumberfield',
@@ -29,13 +30,9 @@ Ext.define('Admin.view.representative.PollingStationsView',{
                     name        : 'table_location',
 					allowBlank	: true,
                 },
-
 				{
-                    
-                    name        : 'year',
-                    fieldLabel  : 'año',
-					value: new Date().getFullYear(),
-					
+                    xtype		: 'yearField',
+					readOnly	: true,
                 },
             ]
         }

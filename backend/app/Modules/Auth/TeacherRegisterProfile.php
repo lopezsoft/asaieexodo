@@ -2,6 +2,7 @@
 
 namespace App\Modules\Auth;
 
+use App\Common\HttpResponseMessages;
 use App\Contracts\Auth\AuthenticationRegisterContract;
 use App\Jobs\User\RegisterJob;
 use App\Models\User;
@@ -25,14 +26,19 @@ class TeacherRegisterProfile implements AuthenticationRegisterContract
             $school         = SchoolQueries::getSchoolRequest($request);
             $db             = $school->db;
             $teacherList    = DB::table("{$db}docentes", "a")
+                                ->selectRaw("a.*, COUNT(a.documento) AS total")
                                 ->where('a.estado', 1)
                                 ->whereNotExists(function ($query) use ($db) {
                                     $query->select(DB::raw(1))
                                         ->from("users as b")
                                         ->whereRaw("b.email = a.documento");
                                 })
+                                ->groupBy('a.documento')
                                 ->get();
             foreach ($teacherList as $teacher) {
+                if ($teacher->total > 1) {
+                    continue;
+                }
                 $user = User::create([
                     'email'             => $teacher->documento,
                     'password'          => Hash::make($teacher->documento),
@@ -49,10 +55,14 @@ class TeacherRegisterProfile implements AuthenticationRegisterContract
                 RegisterJob::dispatch($user->id, $request->schoolId, [4] );
             }
             DB::commit();
-            return self::getResponse201();
+            return HttpResponseMessages::getResponse([
+                'message' => 'Se ha registrado correctamente los usuarios'
+            ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return self::getResponse500(['error' => $e->getMessage()]);
+            return HttpResponseMessages::getResponse500([
+                'message' => $e->getMessage()
+            ]);
         }
     }
 }

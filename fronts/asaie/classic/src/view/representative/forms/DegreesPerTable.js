@@ -17,11 +17,11 @@ Ext.define('Admin.view.representative.DegreesPerTable',{
                     dataIndex   : 'grado',
                     flex        : 1
                 },
-                // {
-				// 	text        : 'Grupo',
-                //     dataIndex   : 'group_name',
-                //     width       : 60
-                // },
+                {
+					text        : 'Grupo',
+                    dataIndex   : 'group_name',
+                    width       : 60
+                },
                 {
                     dataIndex   : 'table_name',
                     text        : 'Mesa',

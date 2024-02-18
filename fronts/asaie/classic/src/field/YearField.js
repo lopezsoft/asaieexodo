@@ -1,7 +1,7 @@
 Ext.define('Admin.field.YearField',{
 	extend	: 'Admin.field.NumberField',
 	allowBlank	: false,
-	name		: 'año',
+	name		: 'year',
 	value		: new Date().getFullYear(),
 	maxValue	: 2030,
 	minValue	: 1950,

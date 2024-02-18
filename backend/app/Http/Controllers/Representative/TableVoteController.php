@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
-use App\Modules\Table\{Headquarter,AssignedCourses};
+namespace App\Http\Controllers\Representative;
+use App\Http\Controllers\Controller;
+use App\Modules\Table\{AssignedCourses, Headquarter};
 use Illuminate\Http\Request;
 
 
@@ -17,8 +18,5 @@ class TableVoteController extends Controller{
     {
         return AssignedCourses::getDegreesPerTable($request);
     }
-
-
-
 
 }

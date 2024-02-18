@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
-use App\Modules\Representative\{Representative,Jury};
+namespace App\Http\Controllers\Representative;
+use App\Http\Controllers\Controller;
+use App\Modules\Representative\{Jury, Representative};
 use Illuminate\Http\Request;
 
 

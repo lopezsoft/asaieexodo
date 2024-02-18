@@ -3,7 +3,7 @@ Ext.define('Admin.view.representative.WhiteVoteView',{
     alias   	: 'widget.whitevoteview',
     controller  : 'representative',
     title       : 'Candidatos',
-    maxHeight   : 180,
+    maxHeight   : 250,
 	store   	: 'CandidatesStore',
 
 	defaultFocus	: 'cbcandidacies',
@@ -16,14 +16,9 @@ Ext.define('Admin.view.representative.WhiteVoteView',{
 					xtype: 'cbcandidacies'
 				},
 				{
-					xtype: 'numberfield',
-					fieldLabel: 'Year',
-					name: 'year',
-					minValue: 2010, 
-					maxValue: new Date().getFullYear() ,
-					hideTrigger: true,
-					allowBlank: false
-				} 
+					xtype: 'yearField',
+					readOnly: true,
+				}
             ]
         }
     ],

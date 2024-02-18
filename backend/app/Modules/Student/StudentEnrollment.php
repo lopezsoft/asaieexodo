@@ -32,48 +32,50 @@ class StudentEnrollment
                 $sqlActa    = DB::table("{$db}acta_promocion")
                                 ->where('id_matric', $value->id)
                                 ->first();
-                if ($school->grade <= 4){
+                $grade      = intval($school->grade);
+                if ($grade <= 4){
                     $in = true;
                 }else{
                     $in = (bool)$sqlActa;
                 }
-                if($in) {
-                    $sqlMat = DB::table("{$db}student_enrollment", "tm")
-                                ->selectRaw("tm.*, ts.headquarters_name AS sede, ts.address AS dir_sede")
-                                ->leftJoin("{$db}sedes AS ts", "tm.id_headquarters", "=", "ts.id")
-                                ->where("tm.id", $value->id)
-                                ->first();
-
-                    if($school->grade > 4){
-                        $estado	= $sqlActa->estado;
-                    }else{
-                        $estado	= 1;
-                    }
-                    if(!$sqlMat) continue;
-
-                    $grade = match ($estado) {
-                        3 => $school->grade,
-                        default => GradesQuery::getPromotionGrade($school->grade, $db),
-                    };
-
-                    $data	= array(
-                        'id_student'		=> $sqlMat->id_student,
-                        'id_grade'			=> $grade,
-                        'id_group'			=> $school->group,
-                        'id_headquarters'	=> $school->headquarter,
-                        'id_study_day'		=> $school->workingDay,
-                        'year'				=> $school->year,
-                        'id_state'			=> 2,
-                        'inst_address'		=> $sqlMat->dir_sede,
-                        'inst_origin'		=> $sqlMat->sede
-                    );
-                    DB::table("{$db}student_enrollment")
-                            ->insert($data);
-
-                    DB::table("{$db}student_enrollment")
-                            ->where("id", $value->id)
-                            ->update(['promoted' => 1]);
+                if(!$in) {
+                    continue;
                 }
+                $sqlMat = DB::table("{$db}student_enrollment", "tm")
+                            ->selectRaw("tm.*, ts.headquarters_name AS sede, ts.address AS dir_sede")
+                            ->leftJoin("{$db}sedes AS ts", "tm.id_headquarters", "=", "ts.id")
+                            ->where("tm.id", $value->id)
+                            ->first();
+
+                if($grade > 4){
+                    $estado	= $sqlActa->estado;
+                }else{
+                    $estado	= 1;
+                }
+                if(!$sqlMat) continue;
+
+                $grade = match ($estado) {
+                    3 => $school->grade,
+                    default => GradesQuery::getPromotionGrade($grade, $db),
+                };
+
+                $data	= array(
+                    'id_student'		=> $sqlMat->id_student,
+                    'id_grade'			=> $grade,
+                    'id_group'			=> $school->group,
+                    'id_headquarters'	=> $school->headquarter,
+                    'id_study_day'		=> $school->workingDay,
+                    'year'				=> $school->year,
+                    'id_state'			=> 2,
+                    'inst_address'		=> $sqlMat->dir_sede,
+                    'inst_origin'		=> $sqlMat->sede
+                );
+                DB::table("{$db}student_enrollment")
+                        ->insert($data);
+
+                DB::table("{$db}student_enrollment")
+                        ->where("id", $value->id)
+                        ->update(['promoted' => 1]);
             }
             DB::commit();
             return self::getResponse();

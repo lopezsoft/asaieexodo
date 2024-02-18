@@ -7,7 +7,8 @@ Ext.define('Admin.store.representative.PollingStationsStore',{
     model   : 'Admin.model.representative.PollingStationsModel',
     proxy   : {
         extraParams : {
-            pdbTable    : 'tp_polling_stations'
+            pdbTable    : 'tp_polling_stations',
+			perYear		: true
         }
     }
 });

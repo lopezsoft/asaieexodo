@@ -3,7 +3,7 @@ Ext.define('Admin.view.representative.controller.RepresentativeController',{
     extend      : 'Admin.base.BaseController',
     alias       : 'controller.representative',
     init    : function () {
-        me  = this;
+		let me = this;
         me.setConfigVar();
     },
 
@@ -79,20 +79,26 @@ Ext.define('Admin.view.representative.controller.RepresentativeController',{
 		me.onStore('representative.CandidatesSearchStore');
 		me.onStore('representative.CandidaciesStore');
 
-		extra   = {
-			pdbTable    : 'tp_white_vote', 
-			pdbType     : 1
+		let extra = {
+			pdbTable: 'tp_white_vote',
+			pdbType: 1
 		};
 
 		me.setParamStore('CandidatesStore',extra);
-
-		if (store.getCount() > 0) {
-			Ext.create('Admin.view.representative.WhiteVote',{
-				title	: 'Ficha de voto en blanco'
-			}).show();
-		} else {
-			me.showResult('Por favor configure el panel de control...');
-		}
+		const mask = btn.up('container');
+		mask.mask('Cargando...');
+		store.reload({
+			callback: function () {
+				mask.unmask();
+				if (store.getCount() > 0) {
+					Ext.create('Admin.view.representative.WhiteVote',{
+						title	: 'Ficha de voto en blanco'
+					}).show();
+				} else {
+					me.showResult('Por favor configure el panel de control...');
+				}
+			}
+		});
     },
 
 	/**
@@ -100,23 +106,23 @@ Ext.define('Admin.view.representative.controller.RepresentativeController',{
 	 * @param {*} btn 
 	 */
     onCreateDegreesPerTable : function (btn) {
-        var  me  = Admin.getApplication();
+		const me = Admin.getApplication();
 
-            me.onStore('representative.DegreesPerTableStore');
-            me.onStore('general.GradosStore');
-            me.onStore('general.GrupoStore');
+		me.onStore('representative.DegreesPerTableStore');
+		me.onStore('general.GradosStore');
+		me.onStore('general.GrupoStore');
 
-            extra = {
-                pdbTable    			: 'tp_degrees_per_table',
-                pdbPolling_stattion_id 	: btn.up('window').down('grid').getSelection()[0].get('id')
-            };
+		let extra = {
+			pdbTable: 'tp_degrees_per_table',
+			pdbPolling_stattion_id: btn.up('window').down('grid').getSelection()[0].get('id')
+		};
 
-            me.setParamStore('DegreesPerTableStore',extra,false);
+		me.setParamStore('DegreesPerTableStore', extra, false);
 
-       		Ext.create('Admin.view.representative.DegreesPerTable',{
-				title	: 'Grados por mesa de votación',
-				records	: btn.up('window').down('grid').getSelection()[0]
-			}).show();
+		Ext.create('Admin.view.representative.DegreesPerTable',{
+			title	: 'Grados por mesa de votación',
+			records	: btn.up('window').down('grid').getSelection()[0]
+		}).show();
 
     },
 	 /**
@@ -124,8 +130,8 @@ Ext.define('Admin.view.representative.controller.RepresentativeController',{
 	  * @param {*} btn 
 	  */
     onCandidacies : function (btn) {
-        var  me  = Admin.getApplication();
-            me.onStore('representative.CandidaciesStore');
+		 const me = Admin.getApplication();
+		 me.onStore('representative.CandidaciesStore');
             Ext.create('Admin.view.representative.Candidacies',{
 				title	: 'Ficha de candidaturas'
 			}).show();
@@ -144,9 +150,8 @@ Ext.define('Admin.view.representative.controller.RepresentativeController',{
 
 
     /**
-     * Funcion para crear la vista de las mesas de votacion
-     * @param btn
-     */
+	 * Funcion para crear la vista de las mesas de votacion
+	 */
     onPollingStations : function (btn) {
        const
 	   	me  	= Admin.getApplication(),
@@ -156,11 +161,18 @@ Ext.define('Admin.view.representative.controller.RepresentativeController',{
 		me.onStore('general.GradosStore');
 		me.onStore('representative.TableHeadquartersStore');
 		me.onStore('representative.JuriesStore');
-		if (store.getCount() > 0) {
-			Ext.create('Admin.view.representative.PollingStations').show();
-		}else{
-			me.showResult('Por favor configure el panel de control...');
-		}
+		const mask = btn.up('container');
+		mask.mask('Cargando...');
+		store.reload({
+			callback: function () {
+				mask.unmask();
+				if (store.getCount() > 0) {
+					Ext.create('Admin.view.representative.PollingStations').show();
+				}else{
+					me.showResult('Por favor configure el panel de control...');
+				}
+			}
+		});
     },
 
     /**
@@ -176,9 +188,9 @@ Ext.define('Admin.view.representative.controller.RepresentativeController',{
 		me.onStore('representative.CandidatesSearchStore');
 		me.onStore('representative.CandidaciesStore');
 
-		extra   = {
-			pdbTable    : 'tp_candidates', 
-			pdbType     : 2,
+		let extra = {
+			pdbTable: 'tp_candidates',
+			pdbType: 2,
 		};
 		
 		me.setParamStore('CandidatesStore',extra);
@@ -187,14 +199,20 @@ Ext.define('Admin.view.representative.controller.RepresentativeController',{
 			fields		: JSON.stringify(['nombres','grado','id_group', 'sede'])
 		};
 		me.setParamStore('CandidatesSearchStore', extra);
-
-		if (store.getCount() > 0) {
-			Ext.create('Admin.view.representative.Candidates',{
-				title	: 'Ficha de candidatos'
-			}).show();
-		} else {
-			me.showResult('Por favor configure el panel de control...');
-		}
+		const mask = btn.up('container');
+		mask.mask('Cargando...');
+		store.reload({
+			callback: function () {
+				mask.unmask();
+				if (store.getCount() > 0) {
+					Ext.create('Admin.view.representative.Candidates',{
+						title	: 'Ficha de candidatos'
+					}).show();
+				} else {
+					me.showResult('Por favor configure el panel de control...');
+				}
+			}
+		});
     },
 
 
@@ -203,30 +221,35 @@ Ext.define('Admin.view.representative.controller.RepresentativeController',{
      * @param btn
      */
     onCreateHeadquarters   : function (btn) {
-        var me      = Admin.getApplication(),
-            store   = Ext.getStore('ControlPanelStore'),
-            records = btn.up('window').down('grid').getSelection()[0];
-
-        record  = store.data.items[0].data;
-
-        if (record.discrimination_based == 1) {
-
-            extra = {
-                pdbTable    		: 'tp_table_headquarters',
-                pdbPolingStationId	: records.get('id')
-            };
-            me.setParamStore('TableHeadquartersStore',extra);
-            Ext.create('Admin.view.representative.TableHeadquarters',{
-				records: records
-			}).show();
-
-        }else {
-            me.showResult('El módulo no está configurado para trabajar sedes.');
-        }
+		const me 		= Admin.getApplication();
+		const records 	= btn.up('window').down('grid').getSelection()[0];
+		const mask 		= btn.up('window').down('grid');
+		const store   	= Ext.getStore('ControlPanelStore');
+		mask.mask('Cargando...');
+		store.reload({
+			callback: function () {
+				mask.unmask();
+				if (store.getCount() > 0) {
+					const record  = store.data.items[0].data;
+					if (record.discrimination_based === 1) {
+						const
+							extra = {
+								pdbTable: 'tp_table_headquarters',
+								pdbPolingStationId: records.get('id')
+							};
+						me.setParamStore('TableHeadquartersStore', extra);
+						Ext.create('Admin.view.representative.TableHeadquarters', {
+							records: records
+						}).show();
+					} else {
+						me.showResult('El módulo no está configurado para trabajar sedes.');
+					}
+				} else {
+					me.showResult('Por favor configure el panel de control...');
+				}
+			}
+		});
     },
-
-
-
     /**
      * Funcion para crear la vista de los jurados de mesa
      * @param btn
@@ -235,10 +258,10 @@ Ext.define('Admin.view.representative.controller.RepresentativeController',{
         const 
             me      = Admin.getApplication(),
             record  = btn.up('window').down('grid').getSelection()[0];
-        extra = {
-            pdbTable    		: 'tp_juries',
-            pdbPolingStationId  : record.get('id')
-        };
+		let extra = {
+			pdbTable: 'tp_juries',
+			pdbPolingStationId: record.get('id')
+		};
         me.setParamStore('JuriesStore',extra);
         Ext.create('Admin.view.representative.Juries',{
 			title	: 'Lista de jurados',

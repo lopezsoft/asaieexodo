@@ -7,7 +7,7 @@ Ext.define('Admin.view.config.Configs', {
         avatarWomen: "/assets/img/avatars/woman.png",
         avatarUnknoun: "/assets/img/avatars/unknown.png",
         socket: null,
-      /*  hostSocket	: 'https://ns547829.ip-66-70-178.net:3001',
+/*        hostSocket	: 'https://ns547829.ip-66-70-178.net:3001',
         urlBase		: "https://api.asaie.co",
         urlLocation	: "https://admin.asaie.co",
 		apiUrl		: "https://api.asaie.co/api/v1",*/

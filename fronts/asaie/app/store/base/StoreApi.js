@@ -6,7 +6,7 @@ Ext.define('Admin.store.base.StoreApi',{
 		type	: 'rest',
 	    api: {
 			create  : 'crud',
-			read    : 'crud/index',
+			read    : 'crud',
 			update  : 'crud',
 			destroy : 'crud'
 		},

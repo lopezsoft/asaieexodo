@@ -44,7 +44,7 @@ Ext.define('Admin.view.academico.NotasTransView',{
 							},
 							{
 								text		: 'GRUPO',
-								dataIndex	: 'id_group',
+								dataIndex	: 'grupo',
 								width		: 70,
 								locked   	: true,
 								menuDisabled: true,

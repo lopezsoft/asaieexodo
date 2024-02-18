@@ -7,6 +7,8 @@ Ext.define('Admin.model.docentes.NotasModel', {
 		{ name	: 'id_matric'},
 		{ name	: 'id_jorn'},
 		{ name	: 'grupo'},
+		{ name	: 'id_group'},
+		{ name	: 'id_grupo'},
 		{ name	: 'periodo'},
 		{ name	: 'asignatura'},
 		{ name	: 'year'},

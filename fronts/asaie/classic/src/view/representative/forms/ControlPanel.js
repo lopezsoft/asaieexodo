@@ -23,7 +23,7 @@ Ext.define('Admin.view.representative.ControlPanel',{
                     dataIndex   : 'discrimination_based',
                     width       : 160,
                     renderer 	:  function(val) {
-                        if (val == 1) {
+                        if (val === 1) {
                             value   = '<span style="color:#7e55ef;"> <b> Si </b></span>';
                         }else{
                             value   = '<span style="color:#7e12ef;"> <b> No </b></span>';
@@ -36,8 +36,8 @@ Ext.define('Admin.view.representative.ControlPanel',{
                     dataIndex   : 'voting_type',
                     width       : 170,
                     renderer 	:  function(val) {
-                        if (val == 1) {
-                            value   = '<span style="color:#7e55ef;"> <b> Local, fisicamente </b></span>';
+                        if (val === 1) {
+                            value   = '<span style="color:#7e55ef;"> <b> Local, físicamente </b></span>';
                         }else{
                             value   = '<span style="color:#7e55ef;"> <b> Desde casa </b></span>';
                         }
@@ -53,7 +53,12 @@ Ext.define('Admin.view.representative.ControlPanel',{
                     text        : 'Fecha de inicio de la jornada',
                     dataIndex   : 'start_date',
                     width       : 200
-                }
+                },
+				{
+					text		: 'Año',
+					dataIndex	: 'year',
+					width		: 65
+				}
             ],
             dockedItems : [
                 {

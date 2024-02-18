@@ -1,7 +1,16 @@
 <section>
     <div class="card">
-        <div class="card-header">ESTIMADO USUARIO USTED TIENE ACCESO A:</div>
+        <div class="card-header p-1">ESTIMADO USUARIO USTED TIENE ACCESO A:</div>
         <div class="card-body" *ngIf="!(user.schools.length > 0)">NO TIENE ACCESOS</div>
+        <div class="p-1 w-100">
+            <div class="grid-search">
+                <input type="search"
+                       #searchField class="form-control" placeholder="Búsqueda"
+                       (input)="inputSearch($event)"
+                       (change)="$event.stopPropagation()"
+                       autofocus>
+            </div>
+        </div>
     </div>
 </section>
 <section *ngFor="let school of user.schools">

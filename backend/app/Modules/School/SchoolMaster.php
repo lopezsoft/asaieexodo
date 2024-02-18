@@ -53,6 +53,10 @@ class SchoolMaster implements CrudInterface
         $records    = json_decode($request->records) ?? null;
         $where      = json_decode($request->where, true) ?? [];
         $order      = json_decode($request->order, true) ?? [];
+        $perYear    = $request->input('perYear') ?? false;
+        if($perYear) {
+            $where['year'] = $request->input('year') ?? Date('Y');
+        }
 
         return (object) [
             'table'     => $table,

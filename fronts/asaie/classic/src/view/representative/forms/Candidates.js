@@ -70,23 +70,24 @@ Ext.define('Admin.view.representative.Candidates',{
                         {
                             iconCls: 'x-fa fa-upload',
                             tooltip: 'Editar foto',
-                            handler: function(grid, rowIndex, colIndex) {
-                                var rec = grid.getStore().getAt(rowIndex),
-                                    me  = Admin.getApplication();
+                            handler: function(grid, rowIndex) {
+								const rec = grid.getStore().getAt(rowIndex),
+									me = Admin.getApplication();
 
-                                if (rec.get('type') == 1){
-                                    extra   = {
-                                        pdbTable    : 'tp_voto_blanco',
-                                        pdbType     : 1,
-                                        pdbId       : rec.get('id')
-                                    };
-                                }else {
-                                    extra   = {
-                                        pdbTable    : 'tp_candidates',
-                                        pdbType     : 2,
-                                        pdbId       : rec.get('id')
-                                    };
-                                }
+								let extra;
+								if (rec.get('type') === 1) {
+									extra = {
+										pdbTable: 'tp_voto_blanco',
+										pdbType: 1,
+										pdbId: rec.get('id')
+									};
+								} else {
+									extra = {
+										pdbTable: 'tp_candidates',
+										pdbType: 2,
+										pdbId: rec.get('id')
+									};
+								}
 
                                 Ext.create('Admin.base.UploadPhoto',{
 									title		: 'Subir foto',

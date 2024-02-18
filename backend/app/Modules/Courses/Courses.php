@@ -21,6 +21,37 @@ class Courses
     {
         return CoursesOfTeacher::getCourses($request);
     }
+    public static function getCurrentlyActiveCourse($params)
+    {
+        $gdo    = $params->gradeId;
+        $gpo    = $params->groupId;
+        $sede   = $params->headquarterId;
+        $jorn   = $params->workingDayId;
+        $a      = $params->year;
+        $curso  = $params->courseId;
+        $db     = $params->db;
+
+        // Primera consulta para obtener id_asig
+        $idAsig = DB::table("{$db}cursos")
+            ->where('id', $curso)
+            ->value('id_asig'); // Directamente obteniendo el valor de 'id_asig'
+
+        $result = 0;
+        if ($idAsig) {
+            // Segunda consulta usando los parámetros proporcionados y 'id_asig' obtenido de la primera consulta
+            $result = DB::table("{$db}cursos")
+                ->where('id_grado', $gdo)
+                ->where('id_sede', $sede)
+                ->where('grupo', $gpo)
+                ->where('id_jorn', $jorn)
+                ->where('year', $a)
+                ->where('estado', 1)
+                ->where('id_asig', $idAsig)
+                ->value('id'); // Directamente obteniendo el valor de 'id'
+        }
+
+        return $result;
+    }
     public static function getActiveCourse($courseId, $db){
         $sql    = DB::table("{$db}cursos")->where('id', $courseId)->first();
         $result	= $courseId;

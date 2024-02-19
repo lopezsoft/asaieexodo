@@ -3,18 +3,17 @@
 namespace App\Modules\Auth;
 
 use App\Common\HttpResponseMessages;
+use App\Common\MessageExceptionResponse;
 use App\Contracts\Auth\AuthenticationRegisterContract;
 use App\Jobs\User\RegisterJob;
 use App\Models\User;
 use App\Modules\School\SchoolQueries;
-use App\Traits\MessagesTrait;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 class TeacherRegisterProfile implements AuthenticationRegisterContract
 {
-    use MessagesTrait;
 
     /**
      * @throws Exception
@@ -56,13 +55,11 @@ class TeacherRegisterProfile implements AuthenticationRegisterContract
             }
             DB::commit();
             return HttpResponseMessages::getResponse([
-                'message' => 'Se ha registrado correctamente los usuarios'
+                'message' => 'Se han registrado correctamente los usuarios'
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return HttpResponseMessages::getResponse500([
-                'message' => $e->getMessage()
-            ]);
+            return MessageExceptionResponse::response($e);
         }
     }
 }

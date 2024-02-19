@@ -13,7 +13,7 @@
         </div>
     </div>
 </section>
-<section *ngFor="let school of user.schools">
+<section *ngFor="let school of schools()">
     <div class="row">
         <div class="col-12 col-md-4" *ngFor="let role of school.roles">
             <div class="card">

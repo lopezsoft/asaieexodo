@@ -5,13 +5,14 @@ import { map } from 'rxjs/operators';
 import { JsonResponse } from '../../interfaces';
 import {HttpServerService, MessagesService} from '../../utils';
 
-import { Users, UserTypes } from '../../models/users-model';
+import {RolContract, Users, UserTypes} from '../../models/users-model';
 import {SchoolContract, SchoolModuleContract, Schools} from "../../models/school-contract";
 import {LoadMaskService} from "../../core/common/load-mask.service";
 @Injectable({
   providedIn: 'root'
 })
 export class UsersService {
+  public hasRolListId = new Set<number>([4]);
   public schools        : Schools[] = [];
   public schoolModules  : SchoolModuleContract[] = [];
   constructor(
@@ -55,6 +56,10 @@ export class UsersService {
             .subscribe({
               next: (resp: any) => {
                 this.schools  = resp.records.schools;
+                this.schools  = this.schools.filter((school: Schools) => school.school.active);
+                this.schools.forEach((school: Schools) => {
+                  school.roles = school.roles.filter((role: RolContract) => this.hasRolListId.has(role.profile.id));
+                });
               },
               error: (err: any) => {
                 console.log(err);

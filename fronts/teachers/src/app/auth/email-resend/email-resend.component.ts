@@ -62,7 +62,8 @@ export class EmailResendComponent extends AuthMasterComponent implements OnInit 
     }
     this.loading = true;
     this.api.post(`/email/verification-notification`, {
-      email: me.value
+      email: me.value,
+      accessModule: 2, // Access module 2 is for the teacher
       })
       .subscribe({
         next: (resp) => {

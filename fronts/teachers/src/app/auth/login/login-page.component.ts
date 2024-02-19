@@ -83,6 +83,7 @@ export class LoginPageComponent extends FormComponent implements OnInit {
     this.showSpinner(lang.instant('login.button.loggingIn'));
     const values = me.value;
     values.withOutEmail = true;
+    values.accessModule = 2; // Access module 2 is for the teacher
     this.gService.http.post('/auth/login', values)
       .subscribe({
         next: (resp) => {

@@ -19,3 +19,4 @@ export class UsersContainerComponent extends BaseComponent implements OnInit {
     this.user.getUserSchools();
   }
 }
+

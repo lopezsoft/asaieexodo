@@ -2,6 +2,7 @@
 
 namespace App\Modules\Auth;
 
+use App\Common\MessageExceptionResponse;
 use App\Contracts\Auth\Authentication;
 use App\Traits\MessagesTrait;
 use Carbon\Carbon;
@@ -42,41 +43,44 @@ class UsersAccess implements Authentication
             'password'    => 'required|string',
             'remember_me' => 'boolean',
         ]);
+        try {
+            $credentials = request(['email', 'password']);
+            $credentials['active'] = 1;
+            if (!Auth::attempt($credentials)) {
+                throw new Exception('Credenciales inválidas', 401);
+            }
 
-        $credentials = request(['email', 'password']);
-        $credentials['active'] = 1;
-        if (!Auth::attempt($credentials)) {
-            return self::getResponse401();
-        }
-
-        $user           = $request->user();
-        if (!$user->hasVerifiedEmail()) {
+            $user           = $request->user();
+            if (!$user->hasVerifiedEmail()) {
+                throw new Exception('El correo electrónico no ha sido verificado.', 404);
+            }
+            DB::beginTransaction();
+            $tokenResult    = $user->createToken($user->email);
+            $token          = $tokenResult->token;
+            if ($request->remember_me) {
+                $token->expires_at = Carbon::now()->addWeeks();
+            }
+            $token->save();
+            DB::commit();
             return response()->json([
-                'message'   => 'El correo electrónico no ha sido verificado.'
-            ], 404);
+                'access_token'  => $tokenResult->accessToken,
+                'token_type'    => 'Bearer',
+                'user'          => [
+                    'id'          => $user->id,
+                    'email'       => $user->email,
+                    'avatar'      => $user->avatar,
+                    'first_name'  => $user->first_name,
+                    'last_name'   => $user->last_name,
+                    'fullname'    => $user->fullname,
+                ],
+                'message'       => 'Token de acceso generado con exitoso',
+                'success'       => true,
+                'expires_at'    => Carbon::parse($tokenResult->token->expires_at)->toDateTimeString()
+            ]);
+        }catch (Exception $e) {
+            DB::rollBack();
+            return MessageExceptionResponse::response($e);
         }
-        $tokenResult    = $user->createToken($user->email);
-        $token          = $tokenResult->token;
-        if ($request->remember_me) {
-            $token->expires_at = Carbon::now()->addWeeks();
-        }
-        $token->save();
-
-        return response()->json([
-            'access_token'  => $tokenResult->accessToken,
-            'token_type'    => 'Bearer',
-            'user'          => [
-                'id'          => $user->id,
-                'email'       => $user->email,
-                'avatar'      => $user->avatar,
-                'first_name'  => $user->first_name,
-                'last_name'   => $user->last_name,
-                'fullname'    => $user->fullname,
-            ],
-            'message'       => 'Token de acceso generado con exitoso',
-            'success'       => true,
-            'expires_at'    => Carbon::parse($tokenResult->token->expires_at)->toDateTimeString()
-        ]);
 
     }
 

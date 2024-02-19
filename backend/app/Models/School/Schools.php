@@ -45,7 +45,6 @@ class Schools Implements UpdateContract
                     ->whereNot('id', $user->id)
                     ->whereHas('schools', function ($row) use ($school) {
                         $row->where('school_id', $school->id ?? 0);
-                        $row->where('state', 1);
                     });
         if($id) {
             $query->where('id', $id);

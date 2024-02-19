@@ -21,7 +21,10 @@ export class DashboardComponent implements OnInit {
   ngOnInit(): void {
     this.user.getUserSchools();
   }
-
+  
+  schools(): Schools[] {
+    return this.user.schools;
+  }
   clickOnModule(school: SchoolContract, role: RolContract): void {
       this.blockUI.start('Cargando módulo...'); // Start blocking
       const params  = <any>this._http.getToken();

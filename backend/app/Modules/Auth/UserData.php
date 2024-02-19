@@ -1,16 +1,17 @@
 <?php
 
 namespace App\Modules\Auth;
+use App\Common\HttpResponseMessages;
+use App\Common\MessageExceptionResponse;
 use App\Jobs\User\RegisterJob;
 use App\Models\User;
 use App\Queries\AuditTable;
-use App\Traits\MessagesTrait;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class UserData
 {
-    use MessagesTrait;
     public static function updateAccount(Request $request, $id): \Illuminate\Http\JsonResponse
     {
         try {
@@ -30,17 +31,12 @@ class UserData
             }
             $user->first_name   = $records->first_name ?? $user->first_name;
             $user->last_name    = $records->last_name ?? $user->last_name;
-            $user->active       = $records->active ?? $user->active;
             $user->save();
             AuditTable::audit($request->ip(), 'users', "UPDATE", $records);
             RegisterJob::dispatch($user->id, $records->school_id, $records->profile_id );
-            return self::getResponse(['user' => $user]);
-        }catch (\Exception $e) {
-            return self::getResponse500([
-                'message'   => $e->getMessage(),
-                'line'      => $e->getLine(),
-                'file'      => $e->getFile()
-            ]);
+            return HttpResponseMessages::getResponse(['user' => $user]);
+        }catch (Exception $e) {
+            return MessageExceptionResponse::response($e);
         }
     }
 

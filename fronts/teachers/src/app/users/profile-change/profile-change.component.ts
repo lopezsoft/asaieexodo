@@ -93,7 +93,8 @@ export class ProfileChangeComponent extends FormComponent implements OnInit, Aft
         values      = frm.value;
         ts.gService.http.post(`/change-user-name`, {
             email: values.email,
-            uuid: ts.uid
+            uuid: ts.uid,
+            accessModule: 2, // Access module 2 is for the teacher
         })
         .subscribe({
             next: (resp) => {

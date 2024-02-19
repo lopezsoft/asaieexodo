@@ -73,7 +73,10 @@ export class ForgotPasswordPageComponent extends AuthMasterComponent implements 
     }
 
     ts._globalSettings.mask.showBlockUI();
-    ts.api.post('/forgot-password', { email: ts.customForm.get('email').value }).
+    ts.api.post('/forgot-password', {
+      email: ts.customForm.get('email').value,
+      accessModule: 2, // Access module 2 is for the teacher
+    }).
       subscribe({
 				next: (resp) => {
 					ts._globalSettings.mask.hideBlockUI();

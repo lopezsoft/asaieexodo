@@ -14,12 +14,13 @@ class UserRole extends CoreModel
         'school_id', 'profile_id', 'state', 'user_id',
     ];
 
-    protected $appends = [
-      'profile'
+    protected $with = [
+        'profile'
     ];
 
-    public function getProfileAttribute(): object
+    public function profile(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
-        return $this->hasMany(UserProfile::class,'id', 'profile_id')->first();
+        return $this->hasOne(UserProfile::class, 'id', 'profile_id')->where('active', 1);
     }
+
 }

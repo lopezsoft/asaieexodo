@@ -77,6 +77,7 @@ export class ResetPasswordComponent extends AuthMasterComponent implements OnIni
     const values = ts.customForm.getRawValue();
     values.token = ts.token;
     values.email = ts.email;
+    values.accessModule = 2; // Access module 2 is for the teacher
     ts._globalSettings.mask.showBlockUI();
     ts.api.post('/reset-password', values).
     subscribe({

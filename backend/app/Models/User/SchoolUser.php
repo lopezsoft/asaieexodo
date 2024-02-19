@@ -29,13 +29,14 @@ class SchoolUser extends Model
 
     public function school(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(School::class);
+        return $this->belongsTo(School::class)->where('state', 1)->where('active', 1);
     }
     public function getRolesAttribute(): \Illuminate\Database\Eloquent\Collection
     {
         return UserRole::where([
             'user_id'   => $this->user_id,
             'school_id' => $this->school_id,
+            'state'     => 1
         ])->get();
     }
 }

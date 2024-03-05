@@ -22,7 +22,6 @@ Ext.define('Admin.view.admin.SchoolHeadquarters',{
 				ptype			: 'gridSearch',
 				readonlyIndexes	: ['note'],
 				disableIndexes	: ['pctChange'],
-				mode            : 'local',
 				flex			: 1,
 				autoFocus		: false,
 				independent		: true

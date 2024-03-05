@@ -24,7 +24,6 @@ Ext.define('Admin.view.admin.Admins',{
 				ptype			: 'gridSearch',
 				readonlyIndexes	: ['note'],
 				disableIndexes	: ['pctChange'],
-				mode            : 'local',
 				flex			: 1,
 				autoFocus		: false,
 				independent		: true

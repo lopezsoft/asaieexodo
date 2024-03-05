@@ -2,14 +2,14 @@
 
 namespace App\Modules\School;
 
+use App\Common\MessageExceptionResponse;
 use App\Models\School\School;
-use App\Traits\MessagesTrait;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class SchoolQueries
 {
-    use MessagesTrait;
 
     /**
      * @throws \Exception
@@ -18,6 +18,9 @@ class SchoolQueries
     {
         try{
             $school     = self::getSchool($request->input('schoolId') ?? 0);
+            if (!$school) {
+                throw new Exception('No se encontró la escuela');
+            }
             $year       = $request->input('year') ?? Date('Y');
             return (object) [
                 'id'                => $school->id,
@@ -37,16 +40,16 @@ class SchoolQueries
                 'profileId'		    => $request->input('profileId') ?? 0,
                 'path'              => "{$school->folder_name}"
             ];
-        }catch( \Exception $e) {
-            throw new \Exception($e->getMessage());
+        }catch( Exception $e) {
+            throw new Exception($e->getMessage());
         }
     }
     public static function getSchool($id): object | null
     {
         try {
             return DB::table('schools')->where('id', $id)->first();
-        } catch (\Exception $e) {
-            return self::getResponse500(['error' => $e->getMessage()]);
+        } catch (Exception $e) {
+            return MessageExceptionResponse::response($e);
         }
     }
 

@@ -38,19 +38,19 @@ class EnrollmentReports
         $report     = 'cuadro_honor';
         $query      = "";
         if($CkGrado == 0 AND $CkSede == 0 AND $Nivel == 0 AND $Photo == 0){
-            $query  = "CALL `sp_select_cuadro_honor`(".$ye.",".$Sede.",'".$Grado."','".$Grupo."','".$per."',".$lm.",1,0,".$ck.")";
+            $query  = "CALL sp_select_cuadro_honor(".$ye.",".$Sede.",'".$Grado."','".$Grupo."','".$per."',".$lm.",1,0,".$ck.")";
         }else if ($Photo == 1){
             $report	=	'cuadro_honor2';
-            $query  = "CALL `sp_select_cuadro_honor`(".$ye.",".$Sede.",'".$Grado."','".$Grupo."','".$per."',".$lm.",2,0,".$ck.")";
+            $query  = "CALL sp_select_cuadro_honor(".$ye.",".$Sede.",'".$Grado."','".$Grupo."','".$per."',".$lm.",2,0,".$ck.")";
         }else if($CkGrado == 1){
             $report =	'cuadro_honor3';
-            $query  = "CALL `sp_select_cuadro_honor`(".$ye.",".$Sede.",'".$Grado."','".$Grupo."','".$per."',".$lm.",3,0,".$ck.")";
+            $query  = "CALL sp_select_cuadro_honor(".$ye.",".$Sede.",'".$Grado."','".$Grupo."','".$per."',".$lm.",3,0,".$ck.")";
         }else if($CkSede == 1){
             $report = 'cuadro_honor4';
-            $query  = "CALL `sp_select_cuadro_honor`(".$ye.",".$Sede.",'".$Grado."','".$Grupo."','".$per."',".$lm.",4,0,".$ck.")";
+            $query  = "CALL sp_select_cuadro_honor(".$ye.",".$Sede.",'".$Grado."','".$Grupo."','".$per."',".$lm.",4,0,".$ck.")";
         }else if($Nivel == 1){
             $report	= 'cuadro_honor5';
-            $query 	= "CALL `sp_select_cuadro_honor`(".$ye.",".$Sede.",'".$Grado."','".$Grupo."','".$per."',".$lm.",5,'".$niv."',".$ck.")";
+            $query 	= "CALL sp_select_cuadro_honor(".$ye.",".$Sede.",'".$Grado."','".$Grupo."','".$per."',".$lm.",5,'".$niv."',".$ck.")";
         }
 
         // Nombre dado al informe de salida

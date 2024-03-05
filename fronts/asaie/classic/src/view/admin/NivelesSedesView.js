@@ -33,10 +33,10 @@ Ext.define('Admin.view.admin.NivelesSedesView',{
 			if (!ts.getWinObject()){
 				ts.buildWindow();
 			}
-			if (btn.itemId == 'editButton'){
+			if (btn.itemId === 'editButton'){
 				form = ts.winObject.down('form');
 				form.loadRecord(data);
-			};
+			}
 			ts.winObject.show();
 		});
 	},

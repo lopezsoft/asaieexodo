@@ -10,18 +10,6 @@ Ext.define('Admin.view.representative.Candidates',{
 			selModel	: 'rowmodel',
             plugins		: [
                 {
-                    ptype: 'rowexpander',
-                    selectRowOnExpand : true,
-                    rowBodyTpl : new Ext.XTemplate(
-                        '<div class="thumb-wrap">',
-                            '<div class="thumb">',
-                                '<img alt="{names}" src="{image}"/>',
-                            '</div>',
-                            '<span>{names}</span>',
-                        '</div>'
-                    )
-                },
-                {
                     ptype : 'gridfilters'
                 }
             ],
@@ -71,8 +59,7 @@ Ext.define('Admin.view.representative.Candidates',{
                             iconCls: 'x-fa fa-upload',
                             tooltip: 'Editar foto',
                             handler: function(grid, rowIndex) {
-								const rec = grid.getStore().getAt(rowIndex),
-									me = Admin.getApplication();
+								const rec = grid.getStore().getAt(rowIndex);
 
 								let extra;
 								if (rec.get('type') === 1) {
@@ -91,7 +78,7 @@ Ext.define('Admin.view.representative.Candidates',{
 
                                 Ext.create('Admin.base.UploadPhoto',{
 									title		: 'Subir foto',
-									urlPhoto 	: me.getUrlBase()+'representative/uploadCandidatePhoto',
+									urlPhoto 	: Global.getApiUrl() + '/representative/upload-candidate-photo',
 									extParam	: extra,
 									store       : 'CandidatesStore',
 								}).show();

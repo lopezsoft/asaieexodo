@@ -12,7 +12,7 @@ class ControlClosingDates
     public static function isCurrentYear($year): void
     {
         $currentYear    = date('Y');
-        if($year <> $currentYear) {
+        if($year <> $currentYear && $year >= 2024) {
             throw new Exception("El año escolar ($year) no es válido.");
         }
     }

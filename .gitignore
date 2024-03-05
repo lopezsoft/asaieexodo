@@ -41,3 +41,4 @@ fronts/teachers_old
 /documentacion
 *.settings
 backend/storage/tmp/*
+**/*.log

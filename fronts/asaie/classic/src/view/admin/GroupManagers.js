@@ -37,7 +37,6 @@ Ext.define('Admin.view.admin.GroupManagers',{
                     readonlyIndexes	: ['note'],
                     disableIndexes	: ['pctChange'],
                     minChars		: 1,
-                    mode            : 'local',
                     flex			: 1,
                     autoFocus		: true,
                     independent		: true

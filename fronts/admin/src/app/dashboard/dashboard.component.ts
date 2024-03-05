@@ -55,7 +55,7 @@ export class DashboardComponent implements OnInit {
     }
     if (value.length > 0) {
       this.user.schools = this.currentSchools.filter((school: Schools) => {
-        return school.school.nameschool.toLowerCase().includes(value.toLowerCase());
+        return school?.school?.nameschool?.toLowerCase().includes(value.toLowerCase());
       });
     } else {
       this.user.schools = this.currentSchools;

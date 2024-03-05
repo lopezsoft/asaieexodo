@@ -33,7 +33,8 @@ Ext.define('Admin.view.representative.StartVoting',{
                     text        : 'Estado',
                     dataIndex   : 'state',
                     renderer    : function (val) {
-                        switch ( parseInt(val)) {
+						let value = '';
+						switch ( parseInt(val)) {
                             case 2 :
                                 value   = '<p style="color:blue"> <b> ABIERTA </b></p>';
                                 break;

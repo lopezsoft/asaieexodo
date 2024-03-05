@@ -25,9 +25,6 @@
             </td>
         </tr>
     @endif
-    @if($subjectCertificate && countSubjectCertificates($subjectCertificate, $student->id_asign ?? 0) > 0)
-        {!! getSubjectCertificate($subjectCertificate, $student) !!}
-    @else
     <tr>
         <td class="subject-name">
             {{trim($student->asignatura)}}
@@ -42,5 +39,4 @@
             {{$student->nombre_escala}}
         </td>
     </tr>
-    @endif
 @endif

@@ -103,7 +103,12 @@ Ext.define('Admin.view.promocion.InformeFinal',{
                     boxLabel: 'Generar todos los grupos del grado!',
                     name    : 'all',
                     itemId  : 'ckAll'
-                }
+                },
+				{
+					xtype   : 'customcheckboxfield',
+					boxLabel: 'Aplicar distribución de asignaturas',
+					itemId  : 'CkDistrib'
+				}
             ]
         },
         {

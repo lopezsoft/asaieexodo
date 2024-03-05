@@ -27,15 +27,26 @@ class TeacherRegisterProfile implements AuthenticationRegisterContract
             $teacherList    = DB::table("{$db}docentes", "a")
                                 ->selectRaw("a.*, COUNT(a.documento) AS total")
                                 ->where('a.estado', 1)
-                                ->whereNotExists(function ($query) use ($db) {
-                                    $query->select(DB::raw(1))
-                                        ->from("users as b")
-                                        ->whereRaw("b.email = a.documento");
-                                })
                                 ->groupBy('a.documento')
                                 ->get();
             foreach ($teacherList as $teacher) {
                 if ($teacher->total > 1) {
+                    continue;
+                }
+                $user       = User::where('email', $teacher->documento)->first();
+                $teacherId  = $teacher->id_docente ?? $teacher->id;
+                if ($user) {
+                    $teacherAndUser = DB::table("{$db}teachers_and_users_ids")
+                                        ->where('teacher_id', $teacherId)
+                                        ->where('user_id', $user->id)
+                                        ->first();
+                    if (!$teacherAndUser){
+                        DB::table("{$db}teachers_and_users_ids")->insert([
+                            'teacher_id'    => $teacherId,
+                            'user_id'       => $user->id,
+                        ]);
+                        RegisterJob::dispatch($user->id, $request->schoolId, [4] );
+                    }
                     continue;
                 }
                 $user = User::create([
@@ -48,7 +59,7 @@ class TeacherRegisterProfile implements AuthenticationRegisterContract
                 $user->email_verified_at = now();
                 $user->save();
                 DB::table("{$db}teachers_and_users_ids")->insert([
-                    'teacher_id'    => $teacher->id ?? $teacher->id_docente,
+                    'teacher_id'    => $teacherId,
                     'user_id'       => $user->id,
                 ]);
                 RegisterJob::dispatch($user->id, $request->schoolId, [4] );

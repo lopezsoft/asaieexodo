@@ -299,6 +299,7 @@ Ext.define('Admin.view.promocion.controller.PromocionController', {
                     pdbAllPer	: values.periodo,
                     pdbHoja		: values.hoja,
 					pdbType		: values.tipo,
+					pdbDistrib	: win.down('#CkDistrib').getValue() ? 1 : 0
                 };
                 break;
             default:

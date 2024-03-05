@@ -26,29 +26,25 @@ class FinalReport
         $h		    = $request->input('pdbHoja');
         $tp		    = $request->input('pdbType');
         $mod	    = $request->input('pdbModelo');
-        $dist	    = $request->input('pdbDistrib');
+        $dist	    = $request->input('pdbDistrib') ?? 0;
         $levelId    = SchoolLevel::getLevelId($db, $school->grade);
         $paperSize  = 'letter';
         $formatSize = "Letter";
         $reportView = "reports.certificates.final-certificate";
         $ratingScale= collect();
         $isPreSchool= ($levelId == 1);
+        $isAreaDistributed = ($dist == 1); // Distribución de áreas
         if ($h == '1'){
             $formatSize = "Legal";
             $paperSize  = 'legal';
         }
         if ($levelId > 1){
-            if ($dist == 1){
-                //$report	= 'certificado_final_carta_distri';
-                $query	= "CALL {$db}sp_select_areasf(".$year.",".$school->headquarter.",'".$school->grade."','".$school->group."',".$school->workingDay.",".$one.",".$dist.")";
+            // Solo Áreas
+            if ($tp == 1 && !$isAreaDistributed){
+                $ratingScale= RatingScale::getRatingByYear($school, $year);
+                $query	= "CALL {$db}sp_select_areasf_agrupada(".$year.",".$school->headquarter.",'".$school->grade."','".$school->group."',".$school->workingDay.",".$one.")";
             }else{
-                // Solo Áreas
-                if ($tp == 1){
-                    $ratingScale= RatingScale::getRatingByYear($school, $year);
-                    $query	= "CALL {$db}sp_select_areasf_agrupada(".$year.",".$school->headquarter.",'".$school->grade."','".$school->group."',".$school->workingDay.",".$one.")";
-                }else{
-                    $query	= "CALL {$db}sp_select_areasf(".$year.",".$school->headquarter.",'".$school->grade."','".$school->group."',".$school->workingDay.",".$one.",0)";
-                }
+                $query	= "CALL {$db}sp_select_areasf(".$year.",".$school->headquarter.",'".$school->grade."','".$school->group."',".$school->workingDay.",".$one.",0)";
             }
         }else{
             $periodo = 5;
@@ -99,6 +95,8 @@ class FinalReport
             'certificateHeader' => $header,
             'subjectCertificate'=> $subjectCertificate,
             'scale'             => $ratingScale,
+            'sumIH'             => 0,
+            'isAreaDistributed' => $isAreaDistributed,
             'ratingScale'       => RatingScale::getScaleString($school->grade, $year, $db)
         ];
         return $pdfBuilder->build($params, ['mode' => 'utf-8', 'format' => $formatSize], true);
@@ -116,11 +114,13 @@ class FinalReport
         $h		    = $request->input('pdbHoja');
         $allPer	    = $request->input('pdbAllPer') ?? 2;
         $tp		    = $request->input('pdbType') ?? 2;
+        $dist	    = $request->input('pdbDistrib') ?? 0;
         $levelId    = SchoolLevel::getLevelId($db, $school->grade);
         $paperSize  = 'letter';
         $formatSize = "Letter";
         $reportView = "reports.certificates.final-report";
         $isPreSchool= ($levelId == 1);
+        $isAreaDistributed = ($dist == 1); // Distribución de áreas
         $ratingScale= collect();
         if ($h == '1'){
             $formatSize = "Legal";
@@ -129,7 +129,7 @@ class FinalReport
 
         if (!$isPreSchool){
             // Solo Áreas
-            if ($tp == 1){
+            if ($tp == 1 && !$isAreaDistributed){
                 $ratingScale= RatingScale::getRatingByYear($school, $year);
                 $query	= "CALL {$db}sp_select_areasf_agrupada(".$year.",".$school->headquarter.",'".$school->grade."','".$school->group."',".$school->workingDay.",".$one.")";
             }else{
@@ -174,6 +174,8 @@ class FinalReport
             'studentList'       => $studentList,
             'subjectCertificate'=> $subjectCertificate,
             'scale'             => $ratingScale,
+            'isAreaDistributed' => $isAreaDistributed,
+            'sumIH'             => 0,
             'ratingScale'       => RatingScale::getScaleString($school->grade, $year, $db)
         ];
         return $pdfBuilder->build($params, ['mode' => 'utf-8', 'format' => $formatSize], true);

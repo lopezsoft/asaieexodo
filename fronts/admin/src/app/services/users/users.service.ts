@@ -57,7 +57,7 @@ export class UsersService {
             .subscribe({
               next: (resp: any) => {
                 this.schools  = resp.records.schools;
-                this.schools  = this.schools.filter((school: Schools) => school.school.active);
+                this.schools  = this.schools.filter((school: Schools) => school?.school?.active && school?.school);
                 this.schools.forEach((school: Schools) => {
                   school.roles = school.roles.filter((role: RolContract) => this.hasRolListId.has(role.profile.id));
                 });

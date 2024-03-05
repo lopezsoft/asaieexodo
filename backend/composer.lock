@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "96d84019f498e8d7183772dfbbd3851d",
+    "content-hash": "b109044c3be8c7cabc9ec6b13478c0f0",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -1265,6 +1265,57 @@
                 "source": "https://github.com/firebase/php-jwt/tree/v6.10.0"
             },
             "time": "2023-12-01T16:26:39+00:00"
+        },
+        {
+            "name": "free2one/laravel-php-accessor",
+            "version": "0.4.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/kkguan/laravel-php-accessor.git",
+                "reference": "1179b8c97554ee5b0805e54dd1c7872403d28118"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/kkguan/laravel-php-accessor/zipball/1179b8c97554ee5b0805e54dd1c7872403d28118",
+                "reference": "1179b8c97554ee5b0805e54dd1c7872403d28118",
+                "shasum": ""
+            },
+            "require": {
+                "free2one/php-accessor": "~0.5.0",
+                "illuminate/console": "^9.0|^10.0",
+                "illuminate/support": "^9.0|^10.0",
+                "php": ">=8.0"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Laravel\\PhpAccessor\\PhpAccessorProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Laravel\\PhpAccessor\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "PHP Accessor SDK for Laravel framework",
+            "keywords": [
+                "laravel",
+                "php"
+            ],
+            "support": {
+                "issues": "https://github.com/kkguan/laravel-php-accessor/issues",
+                "source": "https://github.com/kkguan/laravel-php-accessor/tree/0.4.0"
+            },
+            "time": "2023-10-27T06:41:31+00:00"
         },
         {
             "name": "free2one/php-accessor",
@@ -10834,5 +10885,5 @@
         "php": "^8.1"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.3.0"
+    "plugin-api-version": "2.6.0"
 }

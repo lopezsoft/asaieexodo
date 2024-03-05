@@ -6,8 +6,8 @@ Ext.define('Admin.base.UploadPhoto',{
 	title		: 'Fotografia',
     iconCls		: 'icon-cloud',
 	config	: {
-		urlPhoto: '',  // Propiedad donde se guarda la URL donde se envirá la petición
-		extParam: {},  // Propiedad de tipo objeto, donde se guardan parametros adiciones que se envien en la petición 
+		urlPhoto: '',  // Propiedad donde se guarda la URL donde se enviará la petición
+		extParam: {},  // Propiedad de tipo objeto, donde se guardan parámetros adiciones que se envien en la petición
 		store	: '',  // Propiedad donde se guarda el Store que se actualizará con los datos de la foto (solo INSERT).
 	},
 	items	: [
@@ -67,17 +67,82 @@ Ext.define('Admin.base.UploadPhoto',{
 				iconCls	: 'icon-upload',
 				scale	: 'medium',
 		        handler: function() {
-		            var form 	= this.up('form').getForm(),
-		            	win		= this.up('window'),
-		            	xParam	= win.getExtParam(),
-		            	url 	= win.getUrlPhoto(),
-		            	store	= win.getStore();
+					let form = this.up('form').getForm(),
+						win = this.up('window'),
+						xParam = win.getExtParam(),
+						url = win.getUrlPhoto(),
+						store = win.getStore();
+					Ext.define('Ext.ux.data.Html5Connection', {
+						override: 'Ext.data.Connection',
+						overrideAccept: true,
+						isHtml5Supported: function () {
+							return typeof FileReader != "undefined";
+						},
+						isFormUpload: function (options) {
+							return !this.isHtml5Supported() && this.callParent(arguments);
+						},
+						setOptions: function (options, scope) {
+							var opts = this.callParent(arguments);
+							if (this.isHtml5Supported() && options.isUpload && options.form) {
+								opts.data = new FormData(options.form);
+							}
+							return opts;
+						},
+						createRequest: function (options, requestOptions) {
+							var request = this.callParent(arguments);
+							if (this.isHtml5Supported() && options.isUpload && options.progress) {
 
-		            if(form.isValid()){
+								if (!options.headers) options.headers = {};
+								options.headers['Content-Type'] = null;
+							}
+
+							return request;
+						}
+					});
+					Ext.define('Ext.ux.data.Html5Request', {
+						override: 'Ext.data.request.Ajax',
+						openRequest: function (options, requestOptions, async, username, password) {
+							var me = this;
+							var xhr = this.callParent(arguments);
+							if (options.isUpload && options.progress) {
+								xhr.upload.onprogress = options.progress;
+							}
+							return xhr;
+						},
+						setupHeaders: function (xhr, options, data, params) {
+							var acceptHeader = "Accept";
+							if (this.overrideAccept && options.isUpload) {
+								if (!options.headers) options.headers = {};
+								options.headers[acceptHeader] = "text/html";
+							}
+							return this.callParent(arguments);
+						}
+					});
+					Ext.define('Ext.ux.form.action.Action', {
+						override: 'Ext.form.action.Action',
+						createCallback: function () {
+							var me = this;
+							var callback = this.callParent();
+							callback.progress = function (e) {
+								var prog = e.loaded / e.total;
+								Ext.callback(me.progress, me.scope || me, [me, prog, e]);
+							};
+							return callback;
+						}
+					});
+					if(form.isValid()){
+						xParam	= {
+							...xParam,
+							...Global.getSchoolParams()
+						}
 		                form.submit({
 		                    url		: url,
 		                    params 	: xParam,
 		                    waitMsg	: 'Subiendo foto...',
+							method	: 'POST',
+							headers: {
+								'Authorization' : (AuthToken) ? AuthToken.authorization() : ''
+							},
 		                    success	: function(fp, o) {
 		                    	const me	= Admin.getApplication();
 		                    	const img 	= win.down('#imgPhoto'),

@@ -2,14 +2,13 @@
 
 namespace App\Modules\Grades;
 
+use App\Common\HttpResponseMessages;
 use App\Modules\School\SchoolQueries;
-use App\Traits\MessagesTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class GroupsAcademic
 {
-    use MessagesTrait;
     /**
      * @throws \Exception
      */
@@ -76,7 +75,7 @@ class GroupsAcademic
                 );
             }
         }
-        return MessagesTrait::getResponse([
+        return HttpResponseMessages::getResponse([
             'records' => [
                 'data' => $value
             ]

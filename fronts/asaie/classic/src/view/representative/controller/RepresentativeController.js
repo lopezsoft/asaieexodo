@@ -380,7 +380,7 @@ Ext.define('Admin.view.representative.controller.RepresentativeController',{
                     }
                 }
             });
-        }else if (record.get('state') == 2){
+        }else if (record.get('state') === 2){
 			if(!panelRecord.length > 0) {
 				Ext.create('Admin.view.representative.VotingView',{
 					record : record

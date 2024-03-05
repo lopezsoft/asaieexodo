@@ -2,7 +2,8 @@
 
 namespace App\Modules\School;
 
-use App\Traits\MessagesTrait;
+use App\Common\HttpResponseMessages;
+use App\Common\MessageExceptionResponse;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -10,7 +11,6 @@ use Illuminate\Support\Facades\DB;
 
 class Statistics
 {
-    use MessagesTrait;
     public static function getStudentsEnrolled(Request $request): JsonResponse
     {
         try {
@@ -33,15 +33,13 @@ class Statistics
                 ->where('t2.year', $year)
                 ->count();
 
-            return self::getResponse([
+            return HttpResponseMessages::getResponse([
                 'registered'    => $m,
                 'retired'       => $r,
                 'teachers'      => $d
             ]);
         }catch (Exception $e){
-            return self::getResponse500([
-                'message'     => $e->getMessage()
-            ]);
+            return MessageExceptionResponse::response($e);
         }
     }
 
@@ -50,9 +48,7 @@ class Statistics
         try {
             return self::getStudentTotal($request, '=');
         }catch (Exception $e){
-            return self::getResponse500([
-                'message'     => $e->getMessage()
-            ]);
+            return MessageExceptionResponse::response($e);
         }
     }
 
@@ -61,9 +57,7 @@ class Statistics
         try {
             return self::getStudentTotal($request, '>');
         }catch (Exception $e){
-            return self::getResponse500([
-                'message'     => $e->getMessage()
-            ]);
+            return MessageExceptionResponse::response($e);
         }
     }
 
@@ -80,7 +74,7 @@ class Statistics
                 ->where('id_state', $operator,2)
                 ->groupBy('year')
                 ->get();
-            return self::getResponse([
+            return HttpResponseMessages::getResponse([
                 'records'   => [
                     'data'  => $result,
                     'total' => $result->count(),
@@ -103,16 +97,14 @@ class Statistics
                 ->groupBy('t2.year')
                 ->get();
 
-            return self::getResponse([
+            return HttpResponseMessages::getResponse([
                 'records'   => [
                     'data'  => $result,
                     'total' => $result->count(),
                 ]
             ]);
         }catch (Exception $e){
-            return self::getResponse500([
-                'message'     => $e->getMessage()
-            ]);
+            return MessageExceptionResponse::response($e);
         }
     }
 }

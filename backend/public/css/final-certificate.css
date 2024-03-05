@@ -27,9 +27,16 @@
 .ih-width {
     width: 24px;
 }
+.ih-width-d {
+    width: 48px;
+}
 
 .faltas-width {
     width: 20px;
+}
+
+.font-size-10 {
+    font-size: 8px !important;
 }
 
 .table-final-certificate tbody {

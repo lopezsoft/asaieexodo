@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 Route::prefix('v1')->group(function () {
+    require_once __DIR__.'/voting-public.php';
     Route::middleware('auth:api')->get('/user', function (Request $request) {
         return response()->json([
             'records'   => $request->user()

@@ -500,8 +500,7 @@ Ext.define('Admin.Application', {
      * @param cUrl String
      */
     onOpenUrl: function(cUrl, target) {
-        var
-            Url = encodeURI(cUrl);
-        window.open(Url, target);
+		const Url = encodeURI(cUrl);
+		window.open(Url, target);
     }
 });

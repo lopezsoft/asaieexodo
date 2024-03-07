@@ -311,20 +311,25 @@ Ext.define('Admin.view.representative.controller.RepresentativeController',{
             me.onStore('representative.CandidatesStore');
             me.onStore('representative.PollingStationsStore');
             me.onStore('representative.VotosStore');
-
-            extra   = {
-                pdbTable    : 'tp_candidates',
-                pdbType     : 3
-            };
-
-            me.setParamStore('CandidatesStore',extra);
-		if (store.getCount() > 0) {
-            Ext.create('Admin.view.representative.StartVoting',{
-				title: 'Abrir mesas de jornada electoral'
-			}).show();
-		}else{
-			me.showResult('Por favor configure el panel de control...');
-		}
+		let extra = {
+			pdbTable: 'tp_candidates',
+			pdbType: 3
+		};
+		me.setParamStore('CandidatesStore',extra);
+		const mask = btn.up('container');
+		mask.mask('Cargando...');
+		store.reload({
+			callback: function () {
+				mask.unmask();
+				if (store.getCount() > 0) {
+					Ext.create('Admin.view.representative.StartVoting',{
+						title: 'Abrir mesas de jornada electoral'
+					}).show();
+				}else{
+					me.showResult('Por favor configure el panel de control...');
+				}
+			}
+		});
 
     },
 
@@ -337,11 +342,8 @@ Ext.define('Admin.view.representative.controller.RepresentativeController',{
         const
 			record  	= btn.up('window').down('grid').getSelection()[0],
             me      	= Admin.getApplication(),
-            store   	= btn.up('window').down('grid').getStore(),
-			panelStore  = Ext.getStore('ControlPanelStore');
-
-		const panelRecord	= panelStore.queryRecords('voting_type', 2);
-
+            store   	= btn.up('window').down('grid').getStore();
+		const mask = btn.up('window');
 		const
 			extra   = {
                 pdbTable    		: 'tp_candidates',
@@ -359,33 +361,43 @@ Ext.define('Admin.view.representative.controller.RepresentativeController',{
                 icon	: Ext.Msg.QUESTION,
                 fn: function(btn) {
                     if (btn === 'yes') {
+						mask.mask('Cargando...');
                         const data = {
-                            state      	: 2
+                            state      	: 2,
+							...Global.getSchoolParams(),
+							pdbPolingStationId	: record.get('id'),
                         };
-                        record.set(data);
-                        store.sync({
-                            success: function () {
-								if(!panelRecord.length > 0) {
-									Ext.create('Admin.view.representative.VotingView',{
-										record : record
-									}).show();
+                       Ext.Ajax.request({
+						   url     : Global.getApiUrl() + '/representative/vote/open-voting',
+						   method  : 'POST',
+						   params  : data,
+						   headers : {
+							   'Authorization' : (AuthToken) ? AuthToken.authorization() : ''
+						   },
+							success : function(response) {
+								const obj = Ext.decode(response.responseText);
+								mask.unmask();
+								if (obj.success) {
+									store.reload();
+									me.showResult('Se realizó la apertura correctamente');
+									const url = Global.getUrlRepresentative() + obj.extraData.path;
+									me.onAler(`Enlace de acceso: <a href="${url}" target="_blank">${url}</a>`, 'info');
+								} else {
+									me.showResult('No se ha podido abrir la mesa de votación...');
 								}
-							    store.reload();
-                            },
-
-                            failure: function () {
-                                me.showResult('No se ha podido abrir la mesa de votación...');
-                            }
-                        });
+							},
+							failure: function(response, opts) {
+							   mask.unmask();
+							   console.log("response = ",response);
+							   const message = Ext.decode(response.responseText);
+							   me.onError(message.message);
+							}
+					   });
                     }
                 }
             });
         }else if (record.get('state') === 2){
-			if(!panelRecord.length > 0) {
-				Ext.create('Admin.view.representative.VotingView',{
-					record : record
-				}).show();
-			}
+			me.showResult('La mesa ya se encuentra abierta');
         }
         else{
             me.showResult('No se puede realizar la operación');
@@ -397,11 +409,12 @@ Ext.define('Admin.view.representative.controller.RepresentativeController',{
      * @param btn
      */
 	 onCloseVoting : function (btn) {
-        var record  = btn.up('window').down('grid').getSelection()[0],
-            me      = Admin.getApplication(),
-            store   = btn.up('window').down('grid').getStore();
+		const record = btn.up('window').down('grid').getSelection()[0],
+			me = Admin.getApplication(),
+			store = btn.up('window').down('grid').getStore();
+		const mask = btn.up('window');
 
-        if (parseInt(record.get('state')) !== 0) {
+		if (parseInt(record.get('state')) !== 0) {
             Ext.Msg.show({
                 title	: 'Cerrar mesa',
                 message	: 'Desea cerrar esta mesa de votación?',
@@ -409,19 +422,38 @@ Ext.define('Admin.view.representative.controller.RepresentativeController',{
                 icon	: Ext.Msg.QUESTION,
                 fn: function(btn) {
                     if (btn === 'yes') {
-                        const data = {
-                            state	: 0
-                        };
-                        record.set(data);
-                        store.sync({
-                            success: function () {
-                                store.reload();
-                                me.showResult('Se realizó el cierre correctamente');
-                            },
-                            failure: function () {
-                                me.showResult('No se ha podido cerrar la mesa de votación...');
-                            }
-                        });
+						mask.mask('Cargando...');
+						const extra = JSON.parse(record.get('extra_data'));
+						const data = {
+							state      	: 2,
+							...Global.getSchoolParams(),
+							pdbPolingStationId	: record.get('id'),
+							uuid		: extra.uuid
+						};
+						Ext.Ajax.request({
+							url     : Global.getApiUrl() + '/representative/vote/close-voting',
+							method  : 'POST',
+							params  : data,
+							headers : {
+								'Authorization' : (AuthToken) ? AuthToken.authorization() : ''
+							},
+							success : function(response) {
+								const obj = Ext.decode(response.responseText);
+								mask.unmask();
+								if (obj.success) {
+									store.reload();
+									me.showResult('Se realizó el cierre correctamente');
+								} else {
+									me.showResult('No se ha podido cerrar la mesa de votación...');
+								}
+							},
+							failure: function(response, opts) {
+								mask.unmask();
+								console.log("response = ",response);
+								const message = Ext.decode(response.responseText);
+								me.onError(message.message);
+							}
+						});
                     }
                 }
             });

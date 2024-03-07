@@ -1,0 +1,100 @@
+
+
+.voting-info {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin-bottom: 10px;
+  padding: .5rem;
+  .img-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 4px;
+    img {
+      max-width: 96px;
+      margin: 2px;
+    }
+  }
+  p {
+    margin: 2px;
+    text-align: justify;
+    line-height: 1.2;
+  }
+}
+
+
+.voting-card {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  min-width: 324px;
+  padding: 5px;
+}
+
+
+.voting-content {
+  margin-top: 5px;
+  border-radius: 5px;
+  background-color: rgba(220, 220, 220, 0.55);
+  padding: 1rem;
+  width: 100%;
+  .voting-content-card {
+    transition: transform 0.3s ease;
+    &.selected {
+      border: 2px dotted #007bff;
+    }
+    &:hover {
+      transform: translateY(-3px);
+      cursor: pointer;
+    }
+    box-shadow: -2px 2px 4px #0003;
+    height: 104px;
+    width: 100%;
+    border-radius: 5px;
+    background-color: white;
+    padding: 5px;
+    display: grid;
+    flex-direction: column;
+    grid-template-columns: 98px 1fr;
+    grid-gap: 6px;
+    justify-content: center;
+    .column-one {
+      width: 100%;
+      img {
+        width: 96px;
+        height: 96px;
+        transition: .5s;
+        background-color: white;
+      }
+    }
+    .column-two {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      border-radius: 5px;
+      .voting-title {
+        font-size:1rem;
+        font-weight: 600;
+        margin-bottom: 2px;
+        line-height: 1;
+      }
+      .voting-description {
+        font-size: 2rem;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 2px;
+        line-height: 1;
+      }
+      .voting-footer {
+        text-align: center;
+        line-height: 1;
+        font-size: .85rem;
+        font-weight: 400;
+      }
+    }
+  }
+}

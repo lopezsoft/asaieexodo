@@ -116,4 +116,20 @@ class Schools Implements UpdateContract
             ]);
         }
     }
+
+    public static function getSchoolData(Request $request): JsonResponse
+    {
+        try {
+            $school = SchoolQueries::getSchoolRequest($request);
+            return self::getResponse([
+                'dataRecords'   => [
+                    'data'  => $school->school,
+                ],
+            ]);
+        }catch (Exception $e) {
+            return self::getResponse500([
+                'message' => $e->getMessage(),
+            ]);
+        }
+    }
 }

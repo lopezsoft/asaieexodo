@@ -96,6 +96,14 @@ Ext.define('Admin.view.representative.Candidates',{
                     dataIndex   : 'candidacy_name',
                     width       : 120
                 },
+				{
+					text        : 'Estado de disponibilidad',
+					dataIndex   : 'availability_status',
+					width       : 250,
+					renderer	: function (val) {
+						return val === 1 ? 'Mostrar en todos los grados y mesas' : 'Mostrar solo en el grado y/o mesa de matricula';
+					}
+				},
                 {
 					text        : 'Año',
                     dataIndex   : 'year',

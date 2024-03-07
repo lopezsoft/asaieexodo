@@ -1,0 +1,49 @@
+/* ---------------------
+ *** Theme Scss ***
+-----------------------*/
+
+/* Ngx-owl-carousel-o */
+
+@import "/node_modules/ngx-owl-carousel-o/lib/styles/prebuilt-themes/owl.carousel.min.css";
+@import "/node_modules/ngx-owl-carousel-o/lib/styles/prebuilt-themes/owl.theme.default.min.css"; // date picker
+@import "@danielmoncada/angular-datetime-picker/assets/style/picker.min.css";
+//ng select
+@import "~@ng-select/ng-select/themes/default.theme.css";
+// bootstrap css
+@import "/node_modules/bootstrap/scss/bootstrap.scss";
+/* Leaflet Map */
+
+@import "~leaflet/dist/leaflet.css";
+// light Box css
+@import '~@angular/cdk/overlay-prebuilt.css';
+// calendar
+@import "/node_modules/angular-calendar/css/angular-calendar.css";
+// ba rating
+@import "node_modules/ngx-bar-rating/themes/br-horizontal-theme";
+@import "node_modules/ngx-bar-rating/themes/br-vertical-theme";
+@import "node_modules/ngx-bar-rating/themes/br-default-theme";
+@import "node_modules/ngx-bar-rating/themes/br-stars-theme";
+@import "node_modules/ngx-bar-rating/themes/br-movie-theme";
+@import "node_modules/ngx-bar-rating/themes/br-square-theme";
+@import "node_modules/ngx-bar-rating/themes/br-default-theme";
+//font awasome
+@import "/node_modules/font-awesome/css/font-awesome.css";
+//calender
+@import "/node_modules/flatpickr/dist/flatpickr.css";
+// todo 
+@import './vendors/todo.scss';
+// toaster
+@import 'ngx-toastr/toastr'; // chart list 
+@import "./chartlist.scss";
+@import "style.scss";
+//responsive 
+@import "responsive.scss";
+@import "./general";
+@import "./photoswape";
+@import "./datatable";
+@import "../scss/vendors/scrollable.scss";
+//icon 
+@import "./themify.scss";
+@import "./whether.scss";
+@import "./icoicon.scss";
+// @import "./feather-icon.scss";

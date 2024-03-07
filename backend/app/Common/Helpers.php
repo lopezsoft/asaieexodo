@@ -6,6 +6,13 @@ use Illuminate\Support\Collection;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Protection;
 
+
+function getObservationPreReport($idMatric, $idCurso, $periodo, $grado, $db)
+{
+    $query = CallExecute::execute($db.'sp_select_preinforme(?, ? , ?, ?)', [$idMatric, $idCurso, $periodo, $grado]);
+    return $query[0]->obs ?? '';
+}
+
 function getRatingScale(Collection $scale, int $grade, float $note): string
 {
     $scaleName = '';
@@ -17,37 +24,6 @@ function getRatingScale(Collection $scale, int $grade, float $note): string
         }
     }
     return $scaleName;
-}
-function getSubjectFinalReport(Collection $subjects, $student): string
-{
-    $subjectId      = $student->id_asign;
-    $certificates   = $subjects->where('subject_parent_id', $subjectId);
-    $data = $certificates->map(function ($item) use ($student) {
-        return '<tr>
-        <td class="subject-name">
-            '.trim($item->asignatura).'
-        </td>
-        <td class="text-right ih-width">
-           '.number_format($item->ih).'
-        </td>
-        <td class="text-right final-note">
-            '.number_format($student->final, 2).'
-        </td>
-        <td class="scale-width">
-            '.$student->nombre_escala.'
-        </td>
-        <td class="faltas-width text-right">
-            '.$student->faltas.'
-        </td>
-        <td class="faltas-width text-right">
-            '.$student->injustificadas.'
-        </td>
-        <td class="faltas-width text-right">
-            '.$student->retraso.'
-        </td>
-    </tr>';
-    });
-    return $data->implode('');
 }
 function countSubjectCertificates(Collection $subjects, $subjectId): int
 {

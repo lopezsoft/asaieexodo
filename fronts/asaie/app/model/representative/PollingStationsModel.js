@@ -7,6 +7,7 @@ Ext.define('Admin.model.representative.PollingStationsModel',{
         { name  : 'start_time'},
         { name  : 'closing_time'},
         { name  : 'state'},
+        { name  : 'extra_data'},
         { name  : 'year'}
     ]
 });

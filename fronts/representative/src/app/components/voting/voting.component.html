@@ -1,0 +1,112 @@
+<ng-container *ngIf="votingService.hasError">
+    <div class="alert alert-danger"
+         role="alert">
+        {{ votingService.errorMessage }}
+    </div>
+</ng-container>
+<ng-container *ngIf="!votingService.hasError">
+<div class="card" *ngIf="!votingService.hasError && votingService.validateData">
+    <div class="card-header b-l-primary pb-0">
+        <h5><span title="Hora de inicio de la jornada"><i class="far fa-calendar-check"></i>
+            {{votingService.validateData.startDate}}
+        </span>,
+            <span title="Hora de finalización de la jornada"><i class="fas fa-calendar-times-o"></i>
+                {{votingService.validateData.dateEnd}}
+            </span>
+        </h5>
+        <p class="mb-0">
+            Puesto de votación: <b>{{votingService.votingStation.table_name}}#{{votingService.votingStation.table_number}}</b>,
+            Lugar: <b>{{votingService.votingStation.table_location}}.</b>
+        </p>
+        <app-countdown
+                (closeTimer)="closeVoting()"
+                [targetDateString]="convertTo24HourFormat(votingService.validateData.dateEndCarbon)"></app-countdown>
+    </div>
+    <div class="card-body p-3">
+        <div class="voting-info">
+            <div class="img-content">
+                <img src="/assets/site/voting-info.png"
+                     alt="voting image" class="img-fluid">
+            </div>
+            <p>
+                Estimado usuario, a continuación se presentan las opciones de votación para la elección
+                estudiantíl del año {{votingService.validateData.control.year}}, <b>{{getSchoolName()}}</b>.
+                <br/>
+                <br/>
+                <ng-container *ngIf="!hasCandidates()">
+                Para ejercer su derecho al voto, digite su código de votación y presione el botón <strong>"Validar"</strong>.
+                <br>
+                <br>
+                </ng-container>
+                <ng-container *ngIf="hasCandidates()">
+                    Hola <b>{{currentStudent.names.toUpperCase()}}</b>, en la lista emergente, seleccione el candidato o
+                    candidatos de su preferencia y presione el botón <strong>"Votar"</strong>.
+                <br>
+                </ng-container>
+                <ng-container *ngIf="!hasCandidates()">
+                En caso de no tener su código de votación, por favor comuníquese con el administrador del sistema.<br/>
+                </ng-container>
+                <b>Recuerde que solo puede votar una vez.</b>
+            </p>
+        </div>
+        <ng-container *ngIf="!hasCandidates()">
+        <p>Por favor digite su código de votación</p>
+        <div class="input-group">
+            <input type="text" class="form-control"
+                   autofocus #votingCodeInput
+                   placeholder="Código de votación" [(ngModel)]="votingCode">
+            <button class="btn btn-primary" (click)="codeValidation()">Validar</button>
+        </div>
+        </ng-container>
+        <ng-container *ngIf="hasCandidates()">
+            <div class="d-flex justify-content-between">
+                <button [disabled]="!canVote()"
+                        class="btn btn-primary w-100" (click)="vote()">
+                    <i class="fas fa-vote-yea"></i>
+                    Votar
+                </button>
+                <button class="btn btn-danger w-100 ml-2" (click)="cancelVote()">
+                    <i class="fas fa-eraser"></i>
+                    Cancelar
+                </button>
+            </div>
+        </ng-container>
+        <ng-container *ngIf="candidates.length > 0">
+            <div class="voting-content">
+                <div class="row gy-3">
+                    <div class="col-md-6" *ngFor="let candidate of candidates">
+                        <div class="voting-content-card small-shadow"
+                             [ngClass]="{'b-l-primary': candidate.type == 2,
+                             'b-l-secondary': candidate.type == 1, 'selected': candidate.selected}"
+                             (click)="selectCandidate(candidate)"
+                             (dblclick)="candidate.selected = !candidate.selected"
+                        >
+                            <div class="column-one">
+                                <img [src]="candidate.image"
+                                     alt="{{candidate.names}}"
+                                     class="img-100 rounded-circle">
+                            </div>
+                            <div class="column-two card-header p-0"
+                                 [ngClass]="candidate.type == 2 ? 'b-r-primary' : 'b-r-secondary'">
+                                <p class="voting-title">
+                                    {{candidate.candidacy_name}}
+                                </p>
+                                <h5 class="voting-description">
+                                    {{candidate.number}}
+                                </h5>
+                                <p class="voting-footer">
+                                    {{candidate.names}}
+                                    <ng-container *ngIf="candidate.type == 2">
+                                    <br/>
+                                    {{candidate.grado}} - {{candidate.group_name}}
+                                    </ng-container>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </ng-container>
+    </div>
+</div>
+</ng-container>

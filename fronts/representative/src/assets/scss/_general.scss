@@ -1,0 +1,110 @@
+ngx-dropzone {
+    border: 2px dashed var(--theme-default) !important;
+    background-color: rgba($primary-color, 0.1) !important;
+    height: auto !important;
+    padding: 50px;
+    i {
+        font-size: 48px !important;
+        color: var(--theme-default);
+    }
+}
+
+ngx-dropzone-label {
+    z-index: 6 !important;
+}
+
+.dz-message {
+    h6 {
+        font-weight: 600;
+        font-size: 16px;
+        color: $dark;
+    }
+    span {
+        color: $dark;
+        font-size: 14px;
+    }
+}
+
+.dz-message {
+    h4 {
+        font-weight: 200;
+        margin-top: 20px;
+    }
+}
+
+.node-content-wrapper.node-content-wrapper-active {
+    &:hover {
+        background-color: $primary-color;
+        color: $white;
+    }
+}
+
+.node-content-wrapper-active.node-content-wrapper-focused {
+    background-color: $primary-color;
+    color: $white;
+}
+
+.product-details {
+    .product-details {
+        h4 {
+            font-weight: 600;
+            color: #2b2b2b;
+            font-size: 20px;
+            line-height: 1;
+            margin-bottom: 5px;
+            text-transform: capitalize;
+        }
+        .product-price {
+            font-size: 16px;
+            font-weight: 500;
+            color: #3e5fce;
+        }
+        .product-view {
+            padding: 20px 0;
+            border-top: 1px solid rgba(62, 95, 206, 0.2);
+            border-bottom: 1px solid rgba(62, 95, 206, 0.2);
+        }
+        .product-size {
+            margin: 20px 0;
+            ul {
+                li {
+                    display: inline-block;
+                    background-color: rgba(62, 95, 206, 0.1);
+                    border-radius: 5px;
+                    button {
+                        color: #3e5fce;
+                        width: 35px;
+                        height: 35px;
+                        font-size: 16px;
+                        padding: 0;
+                        font-weight: 500;
+                        border-radius: 5px;
+                    }
+                }
+            }
+        }
+    }
+}
+
+.bg-size {
+    background-size: cover;
+    background-position: center center;
+    display: block;
+}
+
+.border-tab {
+    &.nav-success {
+        .nav-item {
+            .nav-link.active {
+                border-bottom: none !important;
+            }
+        }
+    }
+    &.nav-info {
+        .nav-item {
+            .nav-link.active {
+                border-bottom: none !important;
+            }
+        }
+    }
+}

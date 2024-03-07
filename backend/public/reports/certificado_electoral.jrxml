@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Created with Jaspersoft Studio version 6.8.0.final using JasperReports Library version 6.8.0-2ed8dfabb690ff337a5797129f2cd92902b0c87b  -->
+<!-- Created with Jaspersoft Studio version 6.21.2.final using JasperReports Library version 6.21.2-8434a0bd7c3bbc37cbf916f2968d35e4b165821a  -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="certificado_electoral" columnCount="2" pageWidth="595" pageHeight="842" columnWidth="269" leftMargin="28" rightMargin="28" topMargin="43" bottomMargin="20" uuid="33974257-97b3-4498-8fe2-7887b59433ce">
 	<property name="ireport.zoom" value="1.5"/>
 	<property name="ireport.x" value="0"/>
@@ -7,141 +7,138 @@
 	<property name="ireport.callouts" value="##Sun Dec 13 17:00:36 COT 2015\ncallouts.1.text=Informe plantilla base para crear los dem\u00E1s informes\n\ncallouts.1.bounds=-12,404,240,51"/>
 	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="0"/>
 	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="1000"/>
-	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Asaie"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="altos-db"/>
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<subDataset name="dataset1" uuid="6ffdfc28-5c76-4e28-9770-1597c15cfe5e"/>
-<<<<<<< HEAD
-	<parameter name="FILTRO_AÑO" class="java.lang.String">
-		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
-	</parameter>
 	<parameter name="SQL_PARAM" class="java.lang.String">
 		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
 	</parameter>
-	<parameter name="R_TITLE" class="java.lang.String"/>
-	<parameter name="R_DANE" class="java.lang.String"/>
-	<parameter name="R_NIT" class="java.lang.String"/>
-	<parameter name="R_RESOL" class="java.lang.String"/>
 	<parameter name="R_FOOTER" class="java.lang.String"/>
-	<parameter name="R_DATE" class="java.lang.String"/>
-	<parameter name="R_IMG_LEFT" class="java.lang.String"/>
-	<parameter name="R_IMG_RIGHT" class="java.lang.String"/>
 	<parameter name="R_MARKETING" class="java.lang.String"/>
-	<parameter name="R_ESCUDO" class="java.lang.String"/>
-	<parameter name="R_ESCALA" class="java.lang.String"/>
 	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
-		<defaultValueExpression><![CDATA["D:\\wamp\\www\\SME\\reports\\"]]></defaultValueExpression>
+		<defaultValueExpression><![CDATA["D:\\wamp64\\www\\asaieexodo\\backend\\public\\reports\\subreports\\"]]></defaultValueExpression>
 	</parameter>
-	<queryString>
-		<![CDATA[$P!{SQL_PARAM}]]>
-=======
-	<parameter name="FILTRO_AÑO" class="java.lang.String" isForPrompting="false">
-		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
-	</parameter>
-	<parameter name="SQL_PARAM" class="java.lang.String" isForPrompting="false">
-		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
-	</parameter>
-	<parameter name="R_FOOTER" class="java.lang.String" isForPrompting="false"/>
-	<parameter name="R_IMG_LEFT" class="java.lang.String" isForPrompting="false"/>
-	<parameter name="R_MARKETING" class="java.lang.String" isForPrompting="false"/>
-	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
-		<defaultValueExpression><![CDATA["D:\\wamp\\www\\SME\\reports\\"]]></defaultValueExpression>
-	</parameter>
-	<parameter name="P_GRADE_ID" class="java.lang.String"/>
+	<parameter name="HOME_DIR" class="java.lang.String"/>
+	<parameter name="P_USER" class="java.lang.String"/>
+	<parameter name="AWS_PATH" class="java.lang.String"/>
 	<parameter name="P_YEAR" class="java.lang.String"/>
-	<parameter name="HOME_DIR" class="java.lang.String" isForPrompting="false"/>
-	<parameter name="P_USER" class="java.lang.String" isForPrompting="false"/>
-	<parameter name="AWS_PATH" class="java.lang.String" isForPrompting="false"/>
+	<parameter name="P_GRADE_ID" class="java.lang.String"/>
 	<parameter name="P_HEADQUARTER_ID" class="java.lang.String"/>
+	<parameter name="P_SCHOOL_NAME" class="java.lang.String"/>
+	<parameter name="P_DNI" class="java.lang.String"/>
+	<parameter name="P_LOGO" class="java.lang.String"/>
+	<parameter name="P_ESCUDO" class="java.lang.String"/>
 	<queryString>
-		<![CDATA[CALL sp_electoral_certificate( $P{P_YEAR} ,$P{P_GRADE_ID},  $P{P_HEADQUARTER_ID} )]]>
->>>>>>> 1da26347782c673ccad62f63ae0401285e47a164
+		<![CDATA[CALL sp_electoral_certificate($P{P_YEAR}, $P{P_GRADE_ID}, $P{P_HEADQUARTER_ID})]]>
 	</queryString>
 	<field name="id" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="id"/>
 		<property name="com.jaspersoft.studio.field.label" value="id"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="student_enrollment"/>
 	</field>
 	<field name="id_headquarters" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="id_headquarters"/>
 		<property name="com.jaspersoft.studio.field.label" value="id_headquarters"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="student_enrollment"/>
 	</field>
 	<field name="id_study_day" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="id_study_day"/>
 		<property name="com.jaspersoft.studio.field.label" value="id_study_day"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="student_enrollment"/>
 	</field>
 	<field name="id_student" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="id_student"/>
 		<property name="com.jaspersoft.studio.field.label" value="id_student"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="student_enrollment"/>
 	</field>
 	<field name="id_grade" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="id_grade"/>
 		<property name="com.jaspersoft.studio.field.label" value="id_grade"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="student_enrollment"/>
 	</field>
 	<field name="id_state" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="id_state"/>
 		<property name="com.jaspersoft.studio.field.label" value="id_state"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="student_enrollment"/>
 	</field>
 	<field name="folio" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="folio"/>
 		<property name="com.jaspersoft.studio.field.label" value="folio"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="student_enrollment"/>
 	</field>
 	<field name="registration_number" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="registration_number"/>
 		<property name="com.jaspersoft.studio.field.label" value="registration_number"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="student_enrollment"/>
 	</field>
 	<field name="book" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="book"/>
 		<property name="com.jaspersoft.studio.field.label" value="book"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="student_enrollment"/>
 	</field>
 	<field name="id_group" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="id_group"/>
 		<property name="com.jaspersoft.studio.field.label" value="id_group"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="student_enrollment"/>
 	</field>
 	<field name="inst_address" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="inst_address"/>
 		<property name="com.jaspersoft.studio.field.label" value="inst_address"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="student_enrollment"/>
 	</field>
 	<field name="inst_origin" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="inst_origin"/>
 		<property name="com.jaspersoft.studio.field.label" value="inst_origin"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="student_enrollment"/>
 	</field>
 	<field name="obs" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="obs"/>
 		<property name="com.jaspersoft.studio.field.label" value="obs"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="student_enrollment"/>
 		<fieldDescription><![CDATA[]]></fieldDescription>
 	</field>
 	<field name="date" class="java.sql.Date">
+		<property name="com.jaspersoft.studio.field.name" value="date"/>
 		<property name="com.jaspersoft.studio.field.label" value="date"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="student_enrollment"/>
 	</field>
 	<field name="year" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="year"/>
 		<property name="com.jaspersoft.studio.field.label" value="year"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="student_enrollment"/>
 	</field>
 	<field name="promoted" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="promoted"/>
 		<property name="com.jaspersoft.studio.field.label" value="promoted"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="student_enrollment"/>
 	</field>
 	<field name="timestamp" class="java.sql.Timestamp">
+		<property name="com.jaspersoft.studio.field.name" value="timestamp"/>
 		<property name="com.jaspersoft.studio.field.label" value="timestamp"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="student_enrollment"/>
 	</field>
 	<field name="nombres" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="nombres"/>
 		<property name="com.jaspersoft.studio.field.label" value="nombres"/>
 		<fieldDescription><![CDATA[]]></fieldDescription>
 	</field>
 	<field name="grado" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="grado"/>
 		<property name="com.jaspersoft.studio.field.label" value="grado"/>
 		<fieldDescription><![CDATA[]]></fieldDescription>
 	</field>
 	<field name="sede" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="sede"/>
 		<property name="com.jaspersoft.studio.field.label" value="sede"/>
 	</field>
 	<field name="foto" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="foto"/>
 		<property name="com.jaspersoft.studio.field.label" value="foto"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="inscripciones"/>
 		<fieldDescription><![CDATA[]]></fieldDescription>
 	</field>
 	<field name="mime" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="mime"/>
 		<property name="com.jaspersoft.studio.field.label" value="mime"/>
 		<property name="com.jaspersoft.studio.field.tree.path" value="inscripciones"/>
 		<fieldDescription><![CDATA[]]></fieldDescription>
@@ -156,18 +153,7 @@
 		</groupFooter>
 	</group>
 	<background>
-<<<<<<< HEAD
 		<band splitType="Stretch"/>
-=======
-		<band height="40" splitType="Stretch">
-			<staticText>
-				<reportElement isPrintRepeatedValues="false" x="10" y="10" width="70" height="10" uuid="8f9dd7fa-ff66-412a-8947-3e66a9b54d4d">
-					<property name="com.jaspersoft.studio.element.name" value="prueba"/>
-				</reportElement>
-				<text><![CDATA[Prueba:]]></text>
-			</staticText>
-		</band>
->>>>>>> 1da26347782c673ccad62f63ae0401285e47a164
 	</background>
 	<title>
 		<band splitType="Stretch"/>
@@ -179,29 +165,20 @@
 		<band splitType="Stretch"/>
 	</columnHeader>
 	<detail>
-<<<<<<< HEAD
-		<band height="91" splitType="Stretch">
+		<band height="93" splitType="Stretch">
 			<rectangle>
-				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Transparent" x="0" y="0" width="265" height="90" uuid="ada132c8-8de5-4228-8d02-5dd94332d72c"/>
-=======
-		<band height="119" splitType="Stretch">
-			<rectangle>
-				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Transparent" x="0" y="0" width="270" height="100" uuid="ada132c8-8de5-4228-8d02-5dd94332d72c"/>
->>>>>>> 1da26347782c673ccad62f63ae0401285e47a164
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Transparent" x="0" y="0" width="265" height="90" isPrintWhenDetailOverflows="true" uuid="ada132c8-8de5-4228-8d02-5dd94332d72c"/>
 				<graphicElement>
 					<pen lineWidth="0.75"/>
 				</graphicElement>
 			</rectangle>
-<<<<<<< HEAD
-			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
 				<reportElement x="30" y="16" width="232" height="9" isRemoveLineWhenBlank="true" uuid="e4d7208d-1cc0-440d-a5b2-08e0e909ffed"/>
-				<textElement textAlignment="Center" verticalAlignment="Top" markup="html">
+				<textElement textAlignment="Center" verticalAlignment="Top">
 					<font fontName="SansSerif" size="7" isBold="true"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$P{R_TITLE}.trim()]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$P{P_SCHOOL_NAME}]]></textFieldExpression>
 			</textField>
-=======
->>>>>>> 1da26347782c673ccad62f63ae0401285e47a164
 			<textField pattern="EEEEE dd MMMMM yyyy">
 				<reportElement positionType="Float" x="34" y="26" width="225" height="10" isRemoveLineWhenBlank="true" uuid="7a72684c-06da-4627-bba3-32c6d1497d59"/>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
@@ -244,16 +221,16 @@
 				</textElement>
 				<text><![CDATA[CERTIFICADO ELECTORAL]]></text>
 			</staticText>
-			<image>
+			<image onErrorType="Blank">
 				<reportElement x="4" y="16" width="24" height="24" uuid="050c12c3-77ad-4902-8576-a0ff82eaa249"/>
-				<imageExpression><![CDATA[$P{R_IMG_LEFT}]]></imageExpression>
+				<imageExpression><![CDATA[$P{AWS_PATH} + $P{P_ESCUDO}]]></imageExpression>
 			</image>
 			<textField>
 				<reportElement positionType="Float" x="41" y="40" width="66" height="13" uuid="10c910e4-2acf-4e0a-8c5b-eb7c489ffa77"/>
 				<textElement verticalAlignment="Middle">
 					<font size="8" isBold="true"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{registration_number}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{id_student}]]></textFieldExpression>
 			</textField>
 			<staticText>
 				<reportElement positionType="Float" x="6" y="53" width="101" height="9" uuid="f73f773a-7ca7-45da-9d90-f9d8fd930407"/>

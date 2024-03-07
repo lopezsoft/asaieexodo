@@ -1,0 +1,741 @@
+[
+    {
+        "id": 1,
+        "img": "assets/images/ecommerce/01.jpg",
+        "name": "Denim Shirt",
+        "note": "Gray Denim Regular Men's Denim Shirt",
+        "discription": "Lorate Solid Men's Fashion Full Sleeves Latest Jacket for Men With Button Closure Long Sleeve Casual Torn Lycra Men Denim Shirt.",
+        "discountPrice": "150.00",
+        "status": "none",
+        "price": "120.00",
+        "stock": "In stock",
+        "review": "(250 review)",
+        "category": "Man",
+        "rating": 3,
+        "colors": [
+            "White",
+            "gray"
+        ],
+        "size": [
+            "M",
+            "L",
+            "XL"
+        ],
+        "tags": [
+            "Diesel",
+            "Hudson",
+            "Lee"
+        ],
+        "variants": [
+            {
+                "color": "White",
+                "images": "assets/images/ecommerce/01.jpg"
+            },
+            {
+                "color": "gray",
+                "images": "assets/images/ecommerce/02.jpg"
+            },
+            {
+                "color": "black",
+                "images": "assets/images/ecommerce/03.jpg"
+            },
+            {
+                "color": "pink",
+                "images": "assets/images/ecommerce/04.jpg"
+            }
+        ]
+    },
+    {
+        "id": 2,
+        "img": "assets/images/ecommerce/02.jpg",
+        "name": "Women's Dress",
+        "note": "Solid Women's Dress",
+        "discription": "Rock Paper Scissors Women's Tank Dress High Neck Cotton Top Stylish Women Dress..",
+        "discountPrice": "320.00",
+        "status": "Sale",
+        "price": "260.00",
+        "stock": "In stock",
+        "review": "(250 review)",
+        "category": "Woman",
+        "rating": 5,
+        "colors": [
+            "green",
+            "gray"
+        ],
+        "size": [
+            "M",
+            "L",
+            "XL"
+        ],
+        "tags": [
+            "Levis",
+            "Hudson",
+            "Lee"
+        ],
+        "variants": [
+            {
+                "color": "White",
+                "images": "assets/images/ecommerce/01.jpg"
+            },
+            {
+                "color": "gray",
+                "images": "assets/images/ecommerce/02.jpg"
+            },
+            {
+                "color": "black",
+                "images": "assets/images/ecommerce/03.jpg"
+            },
+            {
+                "color": "pink",
+                "images": "assets/images/ecommerce/04.jpg"
+            }
+        ]
+    },
+    {
+        "id": 3,
+        "img": "assets/images/ecommerce/03.jpg",
+        "name": "Men's Jacket",
+        "note": "Cotton Blend Men's Black Jacket",
+        "discription": "Glamcci Men's Cotton Blend Printed One Piece Party Jacket.",
+        "discountPrice": "480.00",
+        "price": "426.00 ",
+        "status": "none",
+        "stock": "Out of stock",
+        "review": "(250 review)",
+        "category": "Woman",
+        "rating": 4,
+        "colors": [
+            "White",
+            "gray",
+            "blue"
+        ],
+        "size": [
+            "M",
+            "L",
+            "XL"
+        ],
+        "tags": [
+            "Diesel",
+            "Spykar",
+            "Lee"
+        ],
+        "variants": [
+            {
+                "color": "White",
+                "images": "assets/images/ecommerce/01.jpg"
+            },
+            {
+                "color": "gray",
+                "images": "assets/images/ecommerce/02.jpg"
+            },
+            {
+                "color": "black",
+                "images": "assets/images/ecommerce/03.jpg"
+            },
+            {
+                "color": "pink",
+                "images": "assets/images/ecommerce/04.jpg"
+            }
+        ]
+    },
+    {
+        "id": 4,
+        "img": "assets/images/ecommerce/05.jpg",
+        "name": "Party wear",
+        "note": "Cotton Regular Fit Women's Party Wear",
+        "discription": "Women's Classic Stretchy All Time Trendy Pleated Skirt Western Wear midi Skirt plited Lehenga.",
+        "discountPrice": "610.00 ",
+        "price": "526.00",
+        "status": "50%",
+        "stock": "In stock",
+        "review": "(250 review)",
+        "category": "Man",
+        "rating": 4,
+        "colors": [
+            "red",
+            "gray",
+            "blue"
+        ],
+        "size": [
+            "M",
+            "L",
+            "XL"
+        ],
+        "tags": [
+            "Levis",
+            "Lee",
+            "Hudson"
+        ],
+        "variants": [
+            {
+                "color": "White",
+                "images": "assets/images/ecommerce/01.jpg"
+            },
+            {
+                "color": "gray",
+                "images": "assets/images/ecommerce/02.jpg"
+            },
+            {
+                "color": "black",
+                "images": "assets/images/ecommerce/03.jpg"
+            },
+            {
+                "color": "pink",
+                "images": "assets/images/ecommerce/04.jpg"
+            }
+        ]
+    },
+    {
+        "id": 5,
+        "img": "assets/images/ecommerce/05.jpg",
+        "name": "Women's T-shirt",
+        "note": "Cotton Regular Fit Women's T-shirt",
+        "discription": "Rock Paper Scissors Women's Tank Top High Neck Cotton Top Stylish Women T-shirt..",
+        "discountPrice": "650.00",
+        "price": "626.00",
+        "stock": "In stock",
+        "status": "50%",
+        "review": "(250 review)",
+        "category": "Man",
+        "rating": 3,
+        "colors": [
+            "green",
+            "gray",
+            "blue"
+        ],
+        "size": [
+            "M",
+            "L",
+            "XL"
+        ],
+        "tags": [
+            "Denien",
+            "Diesel",
+            "Spykar"
+        ],
+        "variants": [
+            {
+                "color": "White",
+                "images": "assets/images/ecommerce/01.jpg"
+            },
+            {
+                "color": "gray",
+                "images": "assets/images/ecommerce/02.jpg"
+            },
+            {
+                "color": "black",
+                "images": "assets/images/ecommerce/03.jpg"
+            },
+            {
+                "color": "pink",
+                "images": "assets/images/ecommerce/04.jpg"
+            }
+        ]
+    },
+    {
+        "id": 6,
+        "img": "assets/images/ecommerce/01.jpg",
+        "name": "Denim Shirt",
+        "note": "Gray Denim Regular Men's Denim Shirt",
+        "discription": "Lorate Solid Men's Fashion Full Sleeves Latest Jacket for Men With Button Closure Long Sleeve Casual Torn Lycra Men Denim Shirt.",
+        "discountPrice": "170.00",
+        "price": "150.00",
+        "status": "none",
+        "stock": "In stock",
+        "review": "(250 review)",
+        "category": "Woman",
+        "rating": 5,
+        "colors": [
+            "purple",
+            "orange",
+            "blue"
+        ],
+        "size": [
+            "M",
+            "L",
+            "XL"
+        ],
+        "tags": [
+            "Lee",
+            "Lifestyle",
+            "Nike"
+        ],
+        "variants": [
+            {
+                "color": "White",
+                "images": "assets/images/ecommerce/01.jpg"
+            },
+            {
+                "color": "gray",
+                "images": "assets/images/ecommerce/02.jpg"
+            },
+            {
+                "color": "black",
+                "images": "assets/images/ecommerce/03.jpg"
+            },
+            {
+                "color": "pink",
+                "images": "assets/images/ecommerce/04.jpg"
+            }
+        ]
+    },
+    {
+        "id": 7,
+        "img": "assets/images/ecommerce/02.jpg",
+        "name": "Women's Dress",
+        "note": "Solid Women's Dress",
+        "discription": "Rock Paper Scissors Women's Tank Dress High Neck Cotton Top Stylish Women Dress..",
+        "discountPrice": "370.00",
+        "price": "350.00",
+        "status": "Sale",
+        "stock": "In stock",
+        "review": "(250 review)",
+        "category": "Woman",
+        "rating": 5,
+        "colors": [
+            "orange",
+            "pink",
+            "blue"
+        ],
+        "size": [
+            "M",
+            "L",
+            "XL"
+        ],
+        "tags": [
+            "Lee"
+        ],
+        "variants": [
+            {
+                "color": "White",
+                "images": "assets/images/ecommerce/01.jpg"
+            },
+            {
+                "color": "gray",
+                "images": "assets/images/ecommerce/02.jpg"
+            },
+            {
+                "color": "black",
+                "images": "assets/images/ecommerce/03.jpg"
+            },
+            {
+                "color": "pink",
+                "images": "assets/images/ecommerce/04.jpg"
+            }
+        ]
+    },
+    {
+        "id": 8,
+        "img": "assets/images/ecommerce/03.jpg",
+        "name": "Men's Jacket",
+        "note": "Cotton Blend Men's Black Jacket",
+        "discription": "Glamcci Men's Cotton Blend Printed One Piece Party Jacket.",
+        "discountPrice": "450.00",
+        "price": "430.00",
+        "status": "none",
+        "stock": "In stock",
+        "review": "(250 review)",
+        "category": "Man",
+        "rating": 2,
+        "colors": [
+            "purple",
+            "pink",
+            "blue"
+        ],
+        "size": [
+            "M",
+            "L",
+            "XL"
+        ],
+        "tags": [
+            "Hudson",
+            "Lee"
+        ],
+        "variants": [
+            {
+                "color": "White",
+                "images": "assets/images/ecommerce/01.jpg"
+            },
+            {
+                "color": "gray",
+                "images": "assets/images/ecommerce/02.jpg"
+            },
+            {
+                "color": "black",
+                "images": "assets/images/ecommerce/03.jpg"
+            },
+            {
+                "color": "pink",
+                "images": "assets/images/ecommerce/04.jpg"
+            }
+        ]
+    },
+    {
+        "id": 9,
+        "img": "assets/images/ecommerce/03.jpg",
+        "name": "Men's Jacket",
+        "note": "Cotton Blend Men's Black Jacket",
+        "discription": "Glamcci Men's Cotton Blend Printed One Piece Party Jacket.",
+        "discountPrice": "520.00",
+        "price": "500.00",
+        "status": "none",
+        "stock": "In stock",
+        "review": "(250 review)",
+        "category": "Man",
+        "rating": 3,
+        "colors": [
+            "White",
+            "pink",
+            "blue"
+        ],
+        "size": [
+            "M",
+            "L",
+            "XL"
+        ],
+        "tags": [
+            "Spykar"
+        ],
+        "variants": [
+            {
+                "color": "White",
+                "images": "assets/images/ecommerce/01.jpg"
+            },
+            {
+                "color": "gray",
+                "images": "assets/images/ecommerce/02.jpg"
+            },
+            {
+                "color": "black",
+                "images": "assets/images/ecommerce/03.jpg"
+            },
+            {
+                "color": "pink",
+                "images": "assets/images/ecommerce/04.jpg"
+            }
+        ]
+    },
+    {
+        "id": 10,
+        "img": "assets/images/ecommerce/05.jpg",
+        "name": "Party wear",
+        "note": "Cotton Regular Fit Women's Party Wear",
+        "discription": "Women's Classic Stretchy All Time Trendy Pleated Skirt Western Wear midi Skirt plited Lehenga.",
+        "discountPrice": "580.00",
+        "price": "540.00",
+        "status": "50%",
+        "stock": "In stock",
+        "review": "(250 review)",
+        "category": "Man",
+        "rating": 5,
+        "colors": [
+            "purple",
+            "pink",
+            "blue"
+        ],
+        "size": [
+            "M",
+            "L",
+            "XL"
+        ],
+        "tags": [
+            "Hudson",
+            "Lee"
+        ],
+        "variants": [
+            {
+                "color": "White",
+                "images": "assets/images/ecommerce/01.jpg"
+            },
+            {
+                "color": "gray",
+                "images": "assets/images/ecommerce/02.jpg"
+            },
+            {
+                "color": "black",
+                "images": "assets/images/ecommerce/03.jpg"
+            },
+            {
+                "color": "pink",
+                "images": "assets/images/ecommerce/04.jpg"
+            }
+        ]
+    },
+    {
+        "id": 11,
+        "img": "assets/images/ecommerce/01.jpg",
+        "name": "Denim Shirt",
+        "note": "Gray Denim Regular Men's Denim Shirt",
+        "discription": "Lorate Solid Men's Fashion Full Sleeves Latest Jacket for Men With Button Closure Long Sleeve Casual Torn Lycra Men Denim Shirt.",
+        "discountPrice": "250.00",
+        "price": "200.00",
+        "status": "none",
+        "stock": "In stock",
+        "review": "(250 review)",
+        "category": "Woman",
+        "rating": 2,
+        "colors": [
+            "White",
+            "pink",
+            "blue"
+        ],
+        "size": [
+            "M",
+            "L",
+            "XL"
+        ],
+        "tags": [
+            "Diesel",
+            "Hudson",
+            "Lee"
+        ],
+        "variants": [
+            {
+                "color": "White",
+                "images": "assets/images/ecommerce/01.jpg"
+            },
+            {
+                "color": "gray",
+                "images": "assets/images/ecommerce/02.jpg"
+            },
+            {
+                "color": "black",
+                "images": "assets/images/ecommerce/03.jpg"
+            },
+            {
+                "color": "pink",
+                "images": "assets/images/ecommerce/04.jpg"
+            }
+        ]
+    },
+    {
+        "id": 12,
+        "img": "assets/images/ecommerce/02.jpg",
+        "name": "Women's Dress",
+        "note": "Solid Women's Dress",
+        "discription": "Rock Paper Scissors Women's Tank Dress High Neck Cotton Top Stylish Women Dress..",
+        "discountPrice": "450.00",
+        "price": "420.00",
+        "status": "Sale",
+        "stock": "In stock",
+        "review": "(250 review)",
+        "category": "Woman",
+        "rating": 1,
+        "colors": [
+            "White",
+            "pink",
+            "blue"
+        ],
+        "size": [
+            "M",
+            "L",
+            "XL"
+        ],
+        "tags": [
+            "Diesel",
+            "Hudson",
+            "Lee"
+        ],
+        "variants": [
+            {
+                "color": "White",
+                "images": "assets/images/ecommerce/01.jpg"
+            },
+            {
+                "color": "gray",
+                "images": "assets/images/ecommerce/02.jpg"
+            },
+            {
+                "color": "black",
+                "images": "assets/images/ecommerce/03.jpg"
+            },
+            {
+                "color": "pink",
+                "images": "assets/images/ecommerce/04.jpg"
+            }
+        ]
+    },
+    {
+        "id": 13,
+        "img": "assets/images/ecommerce/02.jpg",
+        "name": "Women's Dress",
+        "note": "Solid Women's Dress",
+        "discription": "Rock Paper Scissors Women's Tank Dress High Neck Cotton Top Stylish Women Dress..",
+        "discountPrice": "480.00",
+        "price": "460.00",
+        "status": "Sale",
+        "stock": "In stock",
+        "review": "(250 review)",
+        "category": "Man",
+        "rating": 5,
+        "colors": [
+            "White",
+            "pink",
+            "blue"
+        ],
+        "size": [
+            "M",
+            "L",
+            "XL"
+        ],
+        "tags": [
+            "Diesel",
+            "Hudson",
+            "Lee"
+        ],
+        "variants": [
+            {
+                "color": "White",
+                "images": "assets/images/ecommerce/01.jpg"
+            },
+            {
+                "color": "gray",
+                "images": "assets/images/ecommerce/02.jpg"
+            },
+            {
+                "color": "black",
+                "images": "assets/images/ecommerce/03.jpg"
+            },
+            {
+                "color": "pink",
+                "images": "assets/images/ecommerce/04.jpg"
+            }
+        ]
+    },
+    {
+        "id": 14,
+        "img": "assets/images/ecommerce/06.jpg",
+        "name": "Men's Jacket",
+        "note": "Cotton Blend Men's Black Jacket",
+        "discription": "Glamcci Men's Cotton Blend Printed One Piece Party Jacket.",
+        "discountPrice": "620.00",
+        "price": "590.00",
+        "status": "none",
+        "stock": "In stock",
+        "review": "(250 review)",
+        "category": "Man",
+        "rating": 3,
+        "colors": [
+            "White",
+            "blue",
+            "yellow"
+        ],
+        "size": [
+            "M",
+            "L",
+            "XL"
+        ],
+        "tags": [
+            "Diesel",
+            "Lee"
+        ],
+        "variants": [
+            {
+                "color": "White",
+                "images": "assets/images/ecommerce/01.jpg"
+            },
+            {
+                "color": "gray",
+                "images": "assets/images/ecommerce/02.jpg"
+            },
+            {
+                "color": "black",
+                "images": "assets/images/ecommerce/03.jpg"
+            },
+            {
+                "color": "pink",
+                "images": "assets/images/ecommerce/04.jpg"
+            }
+        ]
+    },
+    {
+        "id": 15,
+        "img": "assets/images/ecommerce/07.jpg",
+        "name": "Women's T-shirt",
+        "note": "Cotton Regular Fit Women's T-shirt",
+        "discription": "Rock Paper Scissors Women's Tank Top High Neck Cotton Top Stylish Women T-shirt..",
+        "discountPrice": "45.00",
+        "price": "38.00",
+        "status": "50%",
+        "stock": "In stock",
+        "review": "(250 review)",
+        "category": "Woman",
+        "rating": 2,
+        "colors": [
+            "black",
+            "blue",
+            "yellow"
+        ],
+        "size": [
+            "M",
+            "L",
+            "XL"
+        ],
+        "tags": [
+            "Lee"
+        ],
+        "variants": [
+            {
+                "color": "White",
+                "images": "assets/images/ecommerce/01.jpg"
+            },
+            {
+                "color": "gray",
+                "images": "assets/images/ecommerce/02.jpg"
+            },
+            {
+                "color": "black",
+                "images": "assets/images/ecommerce/03.jpg"
+            },
+            {
+                "color": "pink",
+                "images": "assets/images/ecommerce/04.jpg"
+            }
+        ]
+    },
+    {
+        "id": 16,
+        "img": "assets/images/ecommerce/07.jpg",
+        "name": "Denim Shirt",
+        "note": "Gray Denim Regular Men's Denim Shirt",
+        "discription": "Lorate Solid Men's Fashion Full Sleeves Latest Jacket for Men With Button Closure Long Sleeve Casual Torn Lycra Men Denim Shirt.",
+        "discountPrice": "300.00",
+        "price": "270.00",
+        "status": "none",
+        "stock": "In stock",
+        "review": "(250 review)",
+        "category": "Woman",
+        "rating": 2,
+        "colors": [
+            "black",
+            "blue",
+            "yellow"
+        ],
+        "size": [
+            "M",
+            "L",
+            "XL"
+        ],
+        "tags": [
+            "Lee"
+        ],
+        "variants": [
+            {
+                "color": "White",
+                "images": "assets/images/ecommerce/01.jpg"
+            },
+            {
+                "color": "gray",
+                "images": "assets/images/ecommerce/02.jpg"
+            },
+            {
+                "color": "black",
+                "images": "assets/images/ecommerce/03.jpg"
+            },
+            {
+                "color": "pink",
+                "images": "assets/images/ecommerce/04.jpg"
+            }
+        ]
+    }
+]

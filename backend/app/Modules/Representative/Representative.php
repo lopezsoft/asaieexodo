@@ -5,7 +5,6 @@ namespace App\Modules\Representative;
 use App\Common\HttpResponseMessages;
 use App\Common\MessageExceptionResponse;
 use App\Modules\School\SchoolQueries;
-use App\Traits\MessagesTrait;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -14,8 +13,6 @@ use Illuminate\Support\Facades\Storage;
 
 class Representative
 {
-    use MessagesTrait;
-
     public static function getCandidates($request): JsonResponse
     {
         try {
@@ -75,7 +72,8 @@ class Representative
                     ->leftJoin("{$db}tp_candidacies AS tc", 'tp.candidacy_id', '=', 'tc.id')
                     ->where('tp.year', '=',  $currentYear))
                 ->orderBy('candidacy_id')
-                ->orderBy('id');}
+                ->orderBy('id');
+            }
 
             return HttpResponseMessages::getResponse([
                 'records' => $query->paginate($limit),
@@ -99,9 +97,7 @@ class Representative
             }
             $fileSize       = $file->getSize();
             if ($fileSize > 2048000) {
-                return self::getResponse400([
-                    'error'			=> 'No puede subir archivos mayores a 2 MB'
-                ]);
+                throw new Exception('No puede subir archivos mayores a 2 MB', 400);
             }
             $query = DB::table("{$db}tp_candidates")
                 ->where('id', '=', $id)

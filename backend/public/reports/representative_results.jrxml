@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Created with Jaspersoft Studio version 6.18.1.final using JasperReports Library version 6.18.1-9d75d1969e774d4f179fb3be8401e98a0e6d1611  -->
-<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="representative_results" pageWidth="595" pageHeight="842" columnWidth="539" leftMargin="28" rightMargin="28" topMargin="43" bottomMargin="20" uuid="33974257-97b3-4498-8fe2-7887b59433ce">
+<!-- Created with Jaspersoft Studio version 6.21.2.final using JasperReports Library version 6.21.2-8434a0bd7c3bbc37cbf916f2968d35e4b165821a  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="representative_results" pageWidth="612" pageHeight="792" columnWidth="556" leftMargin="28" rightMargin="28" topMargin="43" bottomMargin="20" uuid="33974257-97b3-4498-8fe2-7887b59433ce">
 	<property name="ireport.zoom" value="1.5"/>
 	<property name="ireport.x" value="70"/>
 	<property name="ireport.y" value="0"/>
@@ -9,6 +9,15 @@
 	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="1000"/>
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Asaie"/>
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
 	<parameter name="P_YEAR" class="java.lang.String"/>
 	<parameter name="SQL_PARAM" class="java.lang.String">
 		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
@@ -21,6 +30,10 @@
 	<parameter name="HOME_DIR" class="java.lang.String"/>
 	<parameter name="P_USER" class="java.lang.String"/>
 	<parameter name="AWS_PATH" class="java.lang.String"/>
+	<parameter name="P_SCHOOL_NAME" class="java.lang.String"/>
+	<parameter name="P_DNI" class="java.lang.String"/>
+	<parameter name="P_LOGO" class="java.lang.String"/>
+	<parameter name="P_ESCUDO" class="java.lang.String"/>
 	<queryString>
 		<![CDATA[SELECT tp.id, tp.enrollment_id, tp.candidacy_id, 
 	tp.number, tp.image, tp.`type`,
@@ -76,17 +89,38 @@
 		<band splitType="Stretch"/>
 	</background>
 	<title>
-		<band height="89" splitType="Stretch">
-			<subreport>
-				<reportElement positionType="Float" stretchType="ContainerHeight" x="0" y="0" width="537" height="72" uuid="5491b763-bea5-47f8-a1d7-75767d899b0e">
-					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+		<band height="72" splitType="Stretch">
+			<textField>
+				<reportElement x="80" y="0" width="400" height="30" isRemoveLineWhenBlank="true" uuid="339ebaf9-4755-4670-8769-1ac6cfc0d551"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{P_SCHOOL_NAME}]]></textFieldExpression>
+			</textField>
+			<image onErrorType="Blank">
+				<reportElement x="0" y="0" width="72" height="72" uuid="cf109272-b083-4af4-b01a-69c3435c1607">
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
 				</reportElement>
-				<subreportParameter name="AWS_PATH">
-					<subreportParameterExpression><![CDATA[$P{AWS_PATH}]]></subreportParameterExpression>
-				</subreportParameter>
-				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
-				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "report_header.jasper"]]></subreportExpression>
-			</subreport>
+				<imageExpression><![CDATA[$P{AWS_PATH} +$P{P_LOGO}]]></imageExpression>
+			</image>
+			<textField>
+				<reportElement x="79" y="30" width="400" height="18" isRemoveLineWhenBlank="true" uuid="b57dcf25-9f27-4f08-93fd-1f10537a9b4a"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{P_DNI}]]></textFieldExpression>
+			</textField>
+			<textField pattern="EEEEE dd MMMMM yyyy">
+				<reportElement positionType="Float" x="88" y="48" width="387" height="12" isRemoveLineWhenBlank="true" uuid="5e397902-4009-4d6f-b54a-197880b87591"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<image onErrorType="Blank">
+				<reportElement x="484" y="0" width="72" height="72" isRemoveLineWhenBlank="true" uuid="3d7221e0-db1f-45c1-9cda-0bcfcc7959c1"/>
+				<imageExpression><![CDATA[$P{AWS_PATH}.trim() + $P{P_ESCUDO}]]></imageExpression>
+			</image>
 		</band>
 	</title>
 	<pageHeader>
@@ -223,7 +257,7 @@
 		<band splitType="Stretch"/>
 	</columnFooter>
 	<pageFooter>
-		<band height="31" splitType="Stretch">
+		<band height="33" splitType="Stretch">
 			<textField>
 				<reportElement x="542" y="1" width="21" height="10" uuid="184a72c7-f142-4496-b933-89d1fe3009b0"/>
 				<textElement>
@@ -232,14 +266,14 @@
 				<textFieldExpression><![CDATA[$V{PAGE_NUMBER}]]></textFieldExpression>
 			</textField>
 			<textField textAdjust="StretchHeight">
-				<reportElement positionType="Float" x="16" y="23" width="507" height="8" uuid="7829f300-5387-4522-b2ae-d6bf773009d8"/>
-				<textElement verticalAlignment="Middle">
-					<font fontName="SansSerif" size="6" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false"/>
+				<reportElement stretchType="RelativeToBandHeight" x="26" y="25" width="507" height="8" uuid="08df4ec2-4c8b-4b34-b38c-e00522a511ce"/>
+				<textElement textAlignment="Center">
+					<font fontName="Arial" size="6" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$P{R_MARKETING}]]></textFieldExpression>
 			</textField>
 			<subreport>
-				<reportElement x="0" y="7" width="537" height="17" isRemoveLineWhenBlank="true" uuid="ee8e45be-314c-48c3-ae60-8b4d14754b79">
+				<reportElement x="0" y="7" width="556" height="17" isRemoveLineWhenBlank="true" uuid="4af6b31f-ad0a-4fcc-86ea-036f773e5113">
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
 				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>

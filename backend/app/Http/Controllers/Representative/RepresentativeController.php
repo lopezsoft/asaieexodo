@@ -15,6 +15,10 @@ class RepresentativeController extends Controller{
     {
         return Representative::getCandidates($request);
     }
+
+    /**
+     * @throws \Exception
+     */
     public function getJuries(Request $request): JsonResponse
     {
         return Jury::getJuries($request);

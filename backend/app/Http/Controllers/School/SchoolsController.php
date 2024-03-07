@@ -9,6 +9,10 @@ use Illuminate\Http\Request;
 
 class SchoolsController extends Controller
 {
+    public function getSchoolData(Request $request): JsonResponse
+    {
+        return Schools::getSchoolData($request);
+    }
     public function getSystemModules(Request $request): JsonResponse
     {
         return Schools::getSystemModules($request);

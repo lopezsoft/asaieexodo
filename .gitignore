@@ -42,3 +42,7 @@ fronts/teachers_old
 *.settings
 backend/storage/tmp/*
 **/*.log
+**/*.idea*
+**/*.angular*
+**/*dist*
+**/*node_modules*

@@ -1,14 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Created with Jaspersoft Studio version 6.18.1.final using JasperReports Library version 6.18.1-9d75d1969e774d4f179fb3be8401e98a0e6d1611  -->
-<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="representative_results" pageWidth="595" pageHeight="842" columnWidth="539" leftMargin="28" rightMargin="28" topMargin="43" bottomMargin="20" uuid="33974257-97b3-4498-8fe2-7887b59433ce">
+<!-- Created with Jaspersoft Studio version 6.21.2.final using JasperReports Library version 6.21.2-8434a0bd7c3bbc37cbf916f2968d35e4b165821a  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="representative_results_polling_stations" pageWidth="612" pageHeight="792" columnWidth="556" leftMargin="28" rightMargin="28" topMargin="43" bottomMargin="20" uuid="33974257-97b3-4498-8fe2-7887b59433ce">
 	<property name="ireport.zoom" value="1.5"/>
 	<property name="ireport.x" value="70"/>
 	<property name="ireport.y" value="0"/>
 	<property name="ireport.callouts" value="##Sat Feb 27 09:07:45 COT 2016\ncallouts.1.text=Informe plantilla base para crear los dem\u00E1s informes\n\ncallouts.1.bounds=-15,530,240,51"/>
 	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="0"/>
 	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="1000"/>
-	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Asaie"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="altos-db"/>
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<property name="com.jaspersoft.studio.property.dataset.dialog.DatasetDialog.sash.w1" value="672"/>
+	<property name="com.jaspersoft.studio.property.dataset.dialog.DatasetDialog.sash.w2" value="314"/>
 	<parameter name="P_YEAR" class="java.lang.String"/>
 	<parameter name="SQL_PARAM" class="java.lang.String">
 		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
@@ -21,6 +32,10 @@
 	<parameter name="HOME_DIR" class="java.lang.String"/>
 	<parameter name="P_USER" class="java.lang.String"/>
 	<parameter name="AWS_PATH" class="java.lang.String"/>
+	<parameter name="P_SCHOOL_NAME" class="java.lang.String"/>
+	<parameter name="P_DNI" class="java.lang.String"/>
+	<parameter name="P_LOGO" class="java.lang.String"/>
+	<parameter name="P_ESCUDO" class="java.lang.String"/>
 	<queryString>
 		<![CDATA[(SELECT tp.id, tp.enrollment_id, tp.candidacy_id, 
 	tp.number, tp.image, tp.`type`,
@@ -49,7 +64,8 @@ UNION
 	LEFT JOIN tp_polling_stations AS tb ON ta.polling_station_id = tb.id
 	WHERE tp.year = $P{P_YEAR}  AND ta.year = $P{P_YEAR} AND tb.year = $P{P_YEAR}
 	GROUP BY ta.white_vote_id, ta.polling_station_id, ta.candidacy_id
-	ORDER BY tc.candidacy_name , total DESC)]]>
+	ORDER BY tc.candidacy_name , total DESC)
+	ORDER BY table_name]]>
 	</queryString>
 	<field name="id" class="java.lang.Long">
 		<property name="com.jaspersoft.studio.field.label" value="id"/>
@@ -96,17 +112,38 @@ UNION
 		<band splitType="Stretch"/>
 	</background>
 	<title>
-		<band height="89" splitType="Stretch">
-			<subreport>
-				<reportElement positionType="Float" stretchType="ContainerHeight" x="0" y="0" width="537" height="72" uuid="0bf175f1-6c45-4394-871a-09e8c6e57863">
-					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+		<band height="72" splitType="Stretch">
+			<image onErrorType="Blank">
+				<reportElement x="484" y="0" width="72" height="72" isRemoveLineWhenBlank="true" uuid="e614182e-5ed8-4686-9217-0e2f38a7ee2f"/>
+				<imageExpression><![CDATA[$P{AWS_PATH}.trim() + $P{P_ESCUDO}]]></imageExpression>
+			</image>
+			<textField>
+				<reportElement x="80" y="0" width="400" height="30" isRemoveLineWhenBlank="true" uuid="a4e77a3c-dbd8-4807-81fc-5e089994bbdc"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{P_SCHOOL_NAME}]]></textFieldExpression>
+			</textField>
+			<textField pattern="EEEEE dd MMMMM yyyy">
+				<reportElement positionType="Float" x="88" y="48" width="387" height="12" isRemoveLineWhenBlank="true" uuid="62049137-7546-4da9-a028-49fa50051af9"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<image onErrorType="Blank">
+				<reportElement x="0" y="0" width="72" height="72" uuid="bf7762ee-66a8-4914-a946-73174fe2979a">
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
 				</reportElement>
-				<subreportParameter name="AWS_PATH">
-					<subreportParameterExpression><![CDATA[$P{AWS_PATH}]]></subreportParameterExpression>
-				</subreportParameter>
-				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
-				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "report_header.jasper"]]></subreportExpression>
-			</subreport>
+				<imageExpression><![CDATA[$P{AWS_PATH} +$P{P_LOGO}]]></imageExpression>
+			</image>
+			<textField>
+				<reportElement x="79" y="30" width="400" height="18" isRemoveLineWhenBlank="true" uuid="7e6510ea-c965-4ef8-8aa4-d132a83c4dce"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{P_DNI}]]></textFieldExpression>
+			</textField>
 		</band>
 	</title>
 	<pageHeader>
@@ -264,7 +301,7 @@ UNION
 		<band splitType="Stretch"/>
 	</columnFooter>
 	<pageFooter>
-		<band height="31" splitType="Stretch">
+		<band height="33" splitType="Stretch">
 			<textField>
 				<reportElement x="542" y="1" width="21" height="10" uuid="184a72c7-f142-4496-b933-89d1fe3009b0"/>
 				<textElement>
@@ -272,20 +309,20 @@ UNION
 				</textElement>
 				<textFieldExpression><![CDATA[$V{PAGE_NUMBER}]]></textFieldExpression>
 			</textField>
-			<textField textAdjust="StretchHeight">
-				<reportElement positionType="Float" x="16" y="23" width="507" height="8" uuid="7829f300-5387-4522-b2ae-d6bf773009d8"/>
-				<textElement verticalAlignment="Middle">
-					<font fontName="SansSerif" size="6" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$P{R_MARKETING}]]></textFieldExpression>
-			</textField>
 			<subreport>
-				<reportElement x="0" y="11" width="539" height="17" isRemoveLineWhenBlank="true" uuid="aab6966b-5863-4a3b-aab7-63511eb414ba">
+				<reportElement x="0" y="7" width="556" height="17" isRemoveLineWhenBlank="true" uuid="d5afa524-2894-4a1c-a58a-4d9542133169">
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
 				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
 				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "report_footer.jasper"]]></subreportExpression>
 			</subreport>
+			<textField textAdjust="StretchHeight">
+				<reportElement stretchType="RelativeToBandHeight" x="26" y="25" width="507" height="8" uuid="883e5ce7-c0ef-49be-8689-cbf290177131"/>
+				<textElement textAlignment="Center">
+					<font fontName="Arial" size="6" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{R_MARKETING}]]></textFieldExpression>
+			</textField>
 		</band>
 	</pageFooter>
 	<summary>

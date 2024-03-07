@@ -1,0 +1,16 @@
+<div class="page-wrapper" [class]="this.layoutService.config.settings.sidebar_type">
+    <div class="page-header" [ngClass]="{'close_icon' :navServices.collapseSidebar }" >
+        <app-header></app-header>
+    </div>
+    <div class="page-body-wrapper">
+        <div class="sidebar-wrapper" [attr.icon]="layoutService.config.settings.icon"
+            [ngClass]="{'close_icon' :navServices.collapseSidebar }">
+            <app-sidebar></app-sidebar>
+        </div>
+        <div class="page-body">
+            <app-breadcrumb></app-breadcrumb>
+            <router-outlet></router-outlet>
+        </div>
+        <app-footer></app-footer>
+    </div>
+</div>

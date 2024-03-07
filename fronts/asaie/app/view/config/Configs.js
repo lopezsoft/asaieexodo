@@ -11,6 +11,7 @@ Ext.define('Admin.view.config.Configs', {
         urlBase		: "https://api.asaie.co",
         urlLocation	: "https://admin.asaie.co",
         pathStorage	: "https://api.asaie.co/storage/",
+        urlRepresentative: "https://representative.asaie.co",
 		apiUrl		: "https://api.asaie.co/api/v1",*/
 		year		: 0,
 		hostSocket	: 'http://localhost:8081',
@@ -19,6 +20,7 @@ Ext.define('Admin.view.config.Configs', {
 		apiUrl		: "http://asaieexodo.test/api/v1",
 		pathStorage	: "http://asaieexodo.test/storage",
 		reportUrl	: "http://asaie.rep",
+		urlRepresentative: "http://representative.test:4700",
 		competences: [],
 		scale: [],
 		columnsNotes: [],

@@ -59,6 +59,17 @@ Ext.define('Admin.view.representative.StartVoting',{
 					dataIndex   : 'closing_time',
 					width        : 150,
                 },
+				{
+					text: 'Enlace',
+					dataIndex: 'extra_data',
+					width: 100,
+					renderer: function (val) {
+						if (!val)
+							return '';
+						const data = JSON.parse(val);
+						return '<a href="' + Global.getUrlRepresentative() + data.path + '" target="_blank">Ver mesa</a>';
+					}
+				},
                 {
                     text        : 'Año',
 					width        : 55,

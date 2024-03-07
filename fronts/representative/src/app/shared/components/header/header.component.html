@@ -1,0 +1,27 @@
+<div class="header-wrapper row m-0">
+  <div class="header-logo-wrapper col-auto p-0">
+    <div class="logo-wrapper">
+      <a [routerLink]="['/dashboard/default']">
+        <img class="img-fluid" src="assets/images/logo/login.png" alt=""></a>
+    </div>
+    <div class="toggle-sidebar" (click)="sidebarToggle()">
+      <app-feateher-icon [class]="'status_toggle middle sidebar-toggle'" [icon]="'align-center'"></app-feateher-icon>
+    </div>
+  </div>
+  <div class="nav-right col-8 pull-right right-header p-0">
+    <ul class="nav-menus">
+      <li class="language-nav" (click)="languageToggle()">
+        <app-language></app-language>
+      </li>
+      <li>
+        <app-mode></app-mode>
+      </li>
+      <li class="maximize">
+        <app-maximize></app-maximize>
+      </li>
+      <li class="profile-nav onhover-dropdown p-0 me-0">
+        <app-my-account></app-my-account>
+      </li>
+    </ul>
+  </div>
+</div>

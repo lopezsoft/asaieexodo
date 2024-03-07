@@ -60,4 +60,16 @@ class SchoolQueries
     public static function getSchoolByCode($school_code = null){
         return School::where('statecode', $school_code)->first();
     }
+
+    public static function getSchoolAndHeaderReportParams($db): array
+    {
+        $sqlData = DB::select("SELECT a.encabezado, a.logo, a.escudo, a.pie,
+       b.school_name, b.dni, b.address FROM {$db}encabezado_reportes AS a, {$db}school AS b LIMIT 1")[0];
+        return [
+            "P_SCHOOL_NAME"     => $sqlData->school_name,
+            "P_DNI"             => $sqlData->dni,
+            "P_LOGO"            => $sqlData->logo,
+            "P_ESCUDO"          => $sqlData->escudo,
+        ];
+    }
 }

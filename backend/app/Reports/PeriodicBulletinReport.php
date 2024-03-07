@@ -1,16 +1,17 @@
 <?php
 
 namespace App\Reports;
+use App\Common\BuildReportsPDF;
+use App\Common\MessageExceptionResponse;
 use App\Core\JReportModel;
 use App\Modules\Courses\RatingScale;
 use App\Modules\Grades\GradesQuery;
 use App\Modules\School\SchoolQueries;
-use App\Traits\MessagesTrait;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 class PeriodicBulletinReport
 {
-    use MessagesTrait;
     public static function getPeriodicBulletin(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
@@ -89,21 +90,40 @@ class PeriodicBulletinReport
                 }
             }
 
-            $query  = "CALL {$db}sp_boletines_reportes({$headquarterId},{$gradoId},'{$groupCode}',{$studyDayId},{$year},{$period},{$matric})";
-            $queryp = DB::Table("{$db}configboletin")->first();
+            $query      = "CALL {$db}sp_boletines_reportes({$headquarterId},{$gradoId},'{$groupCode}',{$studyDayId},{$year},{$period},{$matric})";
+            $queryp     = DB::Table("{$db}configboletin")->first();
             $escala	    = RatingScale::getScaleString($gradoId, $year, $db);
             $params = [
                 'R_ESCALA'		=> $escala,
                 'R_MSG_IND'		=> $queryp->activeindica ?? 0,
                 'R_MSG_ACT'		=> $queryp->activamsg ?? 0
             ];
-
+            // Pre informe
+            if ($typeReport == 10) {
+                $studentList    = DB::select($query);
+                $formatSize     = "Letter";
+                if($hojaReport == 1){
+                    $formatSize = "Legal";
+                }
+                $reportView     = "reports.bulletin.pre-report";
+                $fileDescription= 'Pre informe escolar periodic '.$period;
+                $pdfBuilder     = new BuildReportsPDF($reportView, $fileDescription, $school);
+                $params	= [
+                    'year'              => $year,
+                    'db'                => $db,
+                    'studentList'       => $studentList,
+                    'ratingScale'       => $escala,
+                    'allPer'            => false,
+                    'onlyAreas'         => false,
+                    'isAreaDistributed' => false,
+                    'isPreSchool'       => false,
+                ];
+                return $pdfBuilder->build($params, ['mode' => 'utf-8', 'format' => $formatSize]);
+            }
             $path       = "{$school->path}";
             return (new JReportModel())->getReportExport($reportName,$reportDescription,$format,$query,$path, $school->school, $params);
-        } catch (\Exception $e) {
-            return self::getResponse500([
-                'error' => $e->getMessage()
-            ]);
+        } catch (Exception $e) {
+            return MessageExceptionResponse::response($e);
         }
     }
 }

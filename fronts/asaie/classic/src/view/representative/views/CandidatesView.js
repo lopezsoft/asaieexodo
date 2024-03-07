@@ -29,6 +29,27 @@ Ext.define('Admin.view.representative.CandidatesView',{
 					labelWidth	: 100,
                 },
 				{
+					xtype       : 'radiogroup',
+					fieldLabel  : 'Estado de disponibilidad',
+					labelStyle  : 'font-weight:bold',
+					labelWidth  : 180,
+					defaults    : {
+						name    : 'availability_status'
+					},
+					items       : [
+						{
+							boxLabel    : 'Mostrar en todos los grados y mesas',
+							title     	: 'El candidato  estará disponible en todos los grados y mesas',
+							inputValue  : '1',
+						},
+						{
+							boxLabel    : 'Mostrar solo en el grado y/o mesa de matricula',
+							title     : 'El candidato solo estará disponible en el grado donde está matriculado, o en el grado y mesa de su matricula',
+							inputValue  : '2'
+						}
+					]
+				},
+				{
 					xtype: 'yearField',
 					readOnly: true,
 				}

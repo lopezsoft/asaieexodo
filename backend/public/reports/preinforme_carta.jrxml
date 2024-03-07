@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.21.2.final using JasperReports Library version 6.21.2-8434a0bd7c3bbc37cbf916f2968d35e4b165821a  -->
-<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="preinforme_carta" language="groovy" pageWidth="612" pageHeight="792" columnWidth="572" leftMargin="20" rightMargin="20" topMargin="40" bottomMargin="20" uuid="33974257-97b3-4498-8fe2-7887b59433ce">
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="preinforme_carta" pageWidth="612" pageHeight="792" columnWidth="572" leftMargin="20" rightMargin="20" topMargin="40" bottomMargin="20" uuid="33974257-97b3-4498-8fe2-7887b59433ce">
 	<property name="ireport.zoom" value="1.5"/>
 	<property name="ireport.x" value="34"/>
 	<property name="ireport.y" value="384"/>
@@ -9,6 +9,15 @@
 	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="0"/>
 	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="1000"/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
 	<parameter name="R_ESCALA" class="java.lang.String"/>
 	<parameter name="R_MSG_IND" class="java.lang.String">
 		<parameterDescription><![CDATA[Parametro que permite mostrar, o no, los indicadores en desempeño ALTO Y SUPERIOR.]]></parameterDescription>
@@ -28,6 +37,10 @@
 	<parameter name="HOME_DIR" class="java.lang.String"/>
 	<parameter name="P_USER" class="java.lang.String"/>
 	<parameter name="AWS_PATH" class="java.lang.String"/>
+	<parameter name="P_SCHOOL_NAME" class="java.lang.String"/>
+	<parameter name="P_DNI" class="java.lang.String"/>
+	<parameter name="P_LOGO" class="java.lang.String"/>
+	<parameter name="P_ESCUDO" class="java.lang.String"/>
 	<queryString>
 		<![CDATA[$P!{SQL_PARAM}]]>
 	</queryString>
@@ -663,16 +676,37 @@
 					</textElement>
 					<text><![CDATA[PRE-INFORME ESCOLAR PERIÓDICO DE EVALUACIÓN]]></text>
 				</staticText>
-				<subreport>
-					<reportElement positionType="Float" stretchType="ContainerHeight" x="0" y="0" width="555" height="72" uuid="a712d66b-8b26-423b-b1f8-8094cd78e60c">
-						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				<textField>
+					<reportElement x="80" y="0" width="400" height="30" isRemoveLineWhenBlank="true" uuid="5e0454df-ef80-415f-98ad-52a7546c92e4"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Arial" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$P{P_SCHOOL_NAME}]]></textFieldExpression>
+				</textField>
+				<image onErrorType="Blank">
+					<reportElement x="484" y="0" width="72" height="72" isRemoveLineWhenBlank="true" uuid="afbdd615-921d-4a47-a098-0c87dd322f48"/>
+					<imageExpression><![CDATA[$P{AWS_PATH}.trim() + $P{P_ESCUDO}]]></imageExpression>
+				</image>
+				<image onErrorType="Blank">
+					<reportElement x="0" y="0" width="72" height="72" uuid="0b7ed63d-a460-46e7-ae30-d89c1cd58b2b">
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
 					</reportElement>
-					<subreportParameter name="AWS_PATH">
-						<subreportParameterExpression><![CDATA[$P{AWS_PATH}]]></subreportParameterExpression>
-					</subreportParameter>
-					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
-					<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "report_header.jasper"]]></subreportExpression>
-				</subreport>
+					<imageExpression><![CDATA[$P{AWS_PATH} +$P{P_LOGO}]]></imageExpression>
+				</image>
+				<textField pattern="EEEEE dd MMMMM yyyy">
+					<reportElement positionType="Float" x="88" y="48" width="387" height="12" isRemoveLineWhenBlank="true" uuid="95a7af62-73ab-420e-816d-0ef60a3e0a40"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Arial" size="8" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="79" y="30" width="400" height="18" isRemoveLineWhenBlank="true" uuid="99965175-b219-4a40-9b3e-b84735364acd"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Arial" size="8" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$P{P_DNI}]]></textFieldExpression>
+				</textField>
 			</band>
 		</groupHeader>
 		<groupFooter>
@@ -697,32 +731,6 @@
 						<pen lineWidth="0.75"/>
 					</graphicElement>
 				</line>
-				<subreport>
-					<reportElement positionType="Float" x="13" y="50" width="546" height="12" isRemoveLineWhenBlank="true" isPrintWhenDetailOverflows="true" uuid="d1e50223-21ab-4455-b2d3-e74b110911a5"/>
-					<subreportParameter name="SUBREPORT_DIR">
-						<subreportParameterExpression><![CDATA[$P{SUBREPORT_DIR}]]></subreportParameterExpression>
-					</subreportParameter>
-					<subreportParameter name="grupo">
-						<subreportParameterExpression><![CDATA[$F{grupo}]]></subreportParameterExpression>
-					</subreportParameter>
-					<subreportParameter name="id_grado">
-						<subreportParameterExpression><![CDATA[$F{id_grado}]]></subreportParameterExpression>
-					</subreportParameter>
-					<subreportParameter name="year">
-						<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
-					</subreportParameter>
-					<subreportParameter name="id_sede">
-						<subreportParameterExpression><![CDATA[$F{id_sede}]]></subreportParameterExpression>
-					</subreportParameter>
-					<subreportParameter name="id_jorn">
-						<subreportParameterExpression><![CDATA[$F{id_jorn}]]></subreportParameterExpression>
-					</subreportParameter>
-					<subreportParameter name="R_PATH_DIR">
-						<subreportParameterExpression><![CDATA[$P{HOME_DIR}]]></subreportParameterExpression>
-					</subreportParameter>
-					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
-					<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "firmas_subreport.jasper"]]></subreportExpression>
-				</subreport>
 			</band>
 		</groupFooter>
 	</group>

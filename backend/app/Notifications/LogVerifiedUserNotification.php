@@ -39,19 +39,7 @@ class LogVerifiedUserNotification extends Notification implements ShouldQueue
                     ->cc(env('MAIL_CC_ADDRESS', 'registro@matias.com.co'))
                     ->subject(Lang::get('Verified Email Address'))
                     ->line(Lang::get('Your email address has been verified.'))
-                    ->action(Lang::get('Login'), config('app.site_url'))
+                    ->action(Lang::get('Login'), "https://asaie.co" )
                     ->line(Lang::get('If you did not create an account, no further action is required.'));
-    }
-
-    /**
-     * Get the array representation of the notification.
-     *
-     * @return array<string, mixed>
-     */
-    public function toArray(object $notifiable): array
-    {
-        return [
-            //
-        ];
     }
 }

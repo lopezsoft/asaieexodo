@@ -51,7 +51,7 @@
     [
         'actionText' => $actionText,
     ]
-) <span class="break-all">{{ $actionUrl }}</span>
+) <span class="break-all">[{{ $displayableActionUrl }}]({{ $actionUrl }})</span>
 </x-slot:subcopy>
 @endisset
 </x-mail::message>

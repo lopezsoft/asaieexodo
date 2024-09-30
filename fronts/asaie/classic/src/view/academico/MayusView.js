@@ -37,17 +37,15 @@ Ext.define('Admin.view.academico.MayusView',{
                         '->',
                         {
                             xtype       : 'customButton',
-                            text        : 'Porcesar...',
+                            text        : 'Procesar...',
                             iconCls     : 'x-fa fa-spinner',
                             bind        : {
                                 disabled    : '{!periodo.value}'
                             },
                             handler     : function (btn) {
-                                var
-                                    win = btn.up('window'),
-                                    me  = Admin.getApplication(),
-                                    gb  = Global;
-                                Ext.Msg.show({
+								const win = btn.up('window'),
+									me = Admin.getApplication();
+								Ext.Msg.show({
                                     title	: 'Pasar a Mayúsculas',
                                     message	: 'Desea pasar a Mayúsculas tanto logros e indicadores?. ' +
                                     'Tenga en cuenta que este proceso es irreversible.',
@@ -57,12 +55,15 @@ Ext.define('Admin.view.academico.MayusView',{
                                         if (btn === 'yes') {
                                             win.mask('Actualizado...');
                                             Ext.Ajax.request({
+												method  : 'POST',
+												headers : Global.getHeaders(),
                                                 params  : {
-                                                    pdbPeriodo : win.down('#periodo').value
+                                                    pdbPeriodo : win.down('#periodo').value,
+													...Global.getSchoolParams()
                                                 },
-                                                url: gb.getUrlBase() +'academic/get_mayus',
+                                                url: Global.getApiUrl() +'/educational-processes/turn-to-uppercase',
 
-                                                success: function(response, opts) {
+                                                success: function() {
                                                     me.showResult('Proceso realizado correctamente');
                                                 },
                                                 failure: function(response, opts) {

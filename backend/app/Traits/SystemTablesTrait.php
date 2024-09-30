@@ -19,7 +19,7 @@ trait SystemTablesTrait
                         ->where('year', $year)
                         ->where('id_asig', $course->id_asig)
                         ->where('estado', 1)
-                        ->where('grupo', "'{$gpo}'")
+                        ->where('grupo', "{$gpo}")
                         ->first();
             if ($query){
                 $result	= $query->id;

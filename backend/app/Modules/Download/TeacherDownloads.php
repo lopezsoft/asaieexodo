@@ -332,7 +332,12 @@ class TeacherDownloads
                         case 'PORC':
                            $worksheet->setCellValue($beforeCol.'3','%');
                            $courseList  = (array)$query_cur;
-                           $val	        = $courseList['proc'.$field->id] > 0 ? $courseList['proc'.$field->id] : $field->porcentaje;
+                           $fieldId     = $field->id;
+                           if ($fieldId > 4) {
+                                $val	        = $field->porcentaje;
+                           } else {
+                                $val	        = $courseList['proc'.$field->id] > 0 ? $courseList['proc'.$field->id] : $field->porcentaje;
+                           }
                            $val	        = number_format($val,0,',', '.');
                            $worksheet->setCellValue($beforeCol.'2',$val.'%');
                            cellColor($worksheet, $beforeCol.'2','F7BE81');

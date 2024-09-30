@@ -10,11 +10,6 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>notas_promo_anticipada_subreport.jrxml</name>
-			<type>1</type>
-			<location>D:/wamp64/www/asaie/reports/notas_promo_anticipada_subreport.jrxml</location>
-		</link>
-		<link>
 			<name>par_cl_subreport_1.jasper</name>
 			<type>1</type>
 			<location>D:/wamp/www/SME/reports/par_cl_subreport.jasper</location>
@@ -23,16 +18,6 @@
 			<name>par_contenido_tem_subreport_1.jasper</name>
 			<type>1</type>
 			<location>D:/wamp/www/SME/reports/par_contenido_tem_subreport.jasper</location>
-		</link>
-		<link>
-			<name>report_header.jasper</name>
-			<type>1</type>
-			<location>D:/wamp64/www/matiasapp/backend/public/reportsjr/subreports/report_header.jasper</location>
-		</link>
-		<link>
-			<name>report_header.jrxml</name>
-			<type>1</type>
-			<location>D:/wamp64/www/matiasapp/backend/public/reportsjr/subreports/report_header.jrxml</location>
 		</link>
 	</linkedResources>
 </projectDescription>

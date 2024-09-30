@@ -73,13 +73,13 @@ Ext.define('Admin.view.academico.container.AcademicContainerView',{
 			},
 			{
 				xtype   : 'containerButton',
-				disabled: isSecretary || isCoordinador,
-				hidden	: isSecretary || isCoordinador,
+				disabled: isSecretary,
+				hidden	: isSecretary,
 				items   : [
 					{
 						xtype   : 'buttonPanel',
 						text    : 'Notas académicas',
-						handler : 'onNotasAcademicas',
+						handler : "onNotasAcademicas",
 						iconCls: 'fas fa-chalkboard-teacher'
 					}
 				]
@@ -196,7 +196,6 @@ Ext.define('Admin.view.academico.container.AcademicContainerView',{
 				xtype   : 'containerButton',
 				disabled: isSecretary,
 				hidden	: isSecretary,
-				disabled: true,
 				items: [
 					{
 						xtype   : 'buttonPanel',

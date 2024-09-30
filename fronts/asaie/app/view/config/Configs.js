@@ -67,11 +67,11 @@ Ext.define('Admin.view.config.Configs', {
 			return {};
 		}
 		const {school, profile}	= AuthToken.recoverParams();
-		const dt		= new Date();
-		let param		= {};
-		param.schoolId  	= school.id || 0;
-		param.profileId   	= profile.id || 0;
-		param.year        	= school.year || dt.getFullYear();
+		const dt			= new Date();
+		let param			= {};
+		param.schoolId  	= school ? school.id : 0;
+		param.profileId   	= profile ? profile.id : 0;
+		param.year        	= school ? school.year : dt.getFullYear();
 
 		return param;
 	},

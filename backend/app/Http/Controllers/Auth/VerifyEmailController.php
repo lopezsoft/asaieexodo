@@ -23,7 +23,7 @@ class VerifyEmailController extends Controller
         }
 
         if ($user->hasVerifiedEmail()) {
-            return redirect(config('app.frontend_url')."/#/auth/login");
+            return redirect(config('app.site_url')."/#/");
         }
 
         if ($user->markEmailAsVerified()) {
@@ -31,6 +31,6 @@ class VerifyEmailController extends Controller
             $user->save();
             event(new Verified($user));
         }
-        return redirect(config('app.frontend_url')."/#/auth/login");
+        return redirect(config('app.site_url')."/#/");
     }
 }

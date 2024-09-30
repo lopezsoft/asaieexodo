@@ -18,6 +18,7 @@ Route::prefix('educational-processes')->group(function () {
             Route::post('/delete', 'deleteByStudents');
         });
         Route::get('verify', 'getVerify');
+        Route::post('turn-to-uppercase', 'turnToUppercase');
     });
 });
 

@@ -34,6 +34,14 @@ class TeacherRegisterProfile implements AuthenticationRegisterContract
                     continue;
                 }
                 $user       = User::where('email', $teacher->documento)->first();
+                if(!$user) {
+                    $teacherAndUser = DB::table("{$db}teachers_and_users_ids")
+                                        ->where('teacher_id', $teacher->id_docente)
+                                        ->first();
+                    if ($teacherAndUser){
+                        $user   = User::where('id', $teacherAndUser->user_id)->first();
+                    }
+                }
                 $teacherId  = $teacher->id_docente ?? $teacher->id;
                 if ($user) {
                     $teacherAndUser = DB::table("{$db}teachers_and_users_ids")

@@ -11,12 +11,12 @@
 	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="1000"/>
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="asaie "/>
 	<parameter name="R_CUERPO" class="java.lang.String"/>
-	<parameter name="P_ANIO" class="java.lang.String"/>
-	<parameter name="P_ID_MATRIC" class="java.lang.String"/>
+	<parameter name="P_ANIO" class="java.lang.Integer"/>
+	<parameter name="P_ID_MATRIC" class="java.lang.Integer"/>
 	<parameter name="P_GRADO" class="java.lang.String"/>
 	<parameter name="P_GRUPO" class="java.lang.String"/>
-	<parameter name="P_ID_JORN" class="java.lang.String"/>
-	<parameter name="P_ID_SEDE" class="java.lang.String"/>
+	<parameter name="P_ID_JORN" class="java.lang.Integer"/>
+	<parameter name="P_ID_SEDE" class="java.lang.Integer"/>
 	<parameter name="P_IMAGE_PROF" class="java.lang.String"/>
 	<parameter name="SQL_PARAM" class="java.lang.String">
 		<defaultValueExpression><![CDATA[]]></defaultValueExpression>

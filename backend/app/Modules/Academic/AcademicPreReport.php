@@ -3,7 +3,6 @@
 namespace App\Modules\Academic;
 
 use App\Modules\School\SchoolQueries;
-use App\Modules\Teacher\CoursesOfTeacher;
 use App\Queries\CallExecute;
 use App\Queries\TablesQuery;
 use App\Queries\UpdateTable;

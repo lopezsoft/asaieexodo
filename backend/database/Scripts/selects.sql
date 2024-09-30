@@ -198,3 +198,27 @@ INSERT INTO `aux_docentes` (
 FROM `aux_docentes` WHERE `year` = 2023 AND NOT EXISTS (
     SELECT 1 FROM `aux_docentes` AS b WHERE b.id_docente = `aux_docentes`.id_docente AND b.`year` = `aux_docentes`.`year` + 1
 );
+
+
+// ---- otros ----
+DELETE FROM config_columns_theacher WHERE id IN(SELECT a.id FROM config_columns_theacher AS a
+                                                                     JOIN cursos AS b ON b.id = a.id_curso
+                                                WHERE b.`year` = 2024);
+
+UPDATE inscripciones AS a SET a.edad = FLOOR(TIMESTAMPDIFF(YEAR, a.fecha_nacimiento, CURDATE()));
+
+
+// Promocion anticipada
+
+INSERT INTO detail_promoted(promoted_id, subject_id, final)
+SELECT 4 AS promoted_id, c.id_asig, a.final FROM nscp001 AS a
+JOIN cursos AS c ON c.id = a.id_curso
+WHERE a.id_matric = 44896;
+
+INSERT INTO detail_promoted(promoted_id, subject_id, final)
+SELECT 3 AS promoted_id, c.id_asig, a.final FROM nscp001 AS a
+JOIN cursos AS c ON c.id = a.id_curso
+WHERE a.id_matric = 45137 AND a.periodo = 1;
+
+
+INSERT INTO `myschoolsadmin_exodo`.`user_roles` (`school_id`, user_id, profile_id) VALUES (8, 1729, 4);

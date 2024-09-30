@@ -13,7 +13,6 @@ use Illuminate\Support\Facades\DB;
 class Courses
 {
     use MessagesTrait;
-
     /**
      * @throws \Exception
      */
@@ -42,7 +41,7 @@ class Courses
             $result = DB::table("{$db}cursos")
                 ->where('id_grado', $gdo)
                 ->where('id_sede', $sede)
-                ->where('grupo', $gpo)
+                ->where('grupo', "{$gpo}")
                 ->where('id_jorn', $jorn)
                 ->where('year', $a)
                 ->where('estado', 1)

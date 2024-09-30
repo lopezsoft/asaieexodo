@@ -85,9 +85,9 @@ class GenerateFinalReport
                     }
                     break;
                 default:
-                    $query  = AcademicPeriods::getPeriodsTotal($school, $Grado);;
-                    if($query){
-                        $this->_n_per_div = $query->total;
+                    $totalPeriod  = AcademicPeriods::getPeriodsTotal($school, $Grado);;
+                    if($totalPeriod){
+                        $this->_n_per_div = $totalPeriod->total;
                     }
                     break;
             }
@@ -213,7 +213,7 @@ class GenerateFinalReport
                                 }
                             }
                         }
-                        $final	= 	$row->final;
+                        $final	= $row->final;
                         $curso	= $this->activeCourse($row->id_curso, $db);
                         if($this->_n_red > 0 AND $this->_n_aplica > 0){
                             if (count($select) > 0){

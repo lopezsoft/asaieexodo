@@ -50,9 +50,9 @@ Ext.define('Admin.view.docentes.controller.CargaController',{
     },
 
     onLoadExcel : function (btn) {
+		const addLind = Global.getBulletinSetting() ? parseInt(Global.getBulletinSetting().permi_ind || 2) : 2;
 		let win = btn.up('form'),
 			me = this,
-			addLind = parseInt(Global.getBulletinSetting().permi_ind || 5),
 			result = false,
 			msg = '';
 		me.onStopTimer(btn);
@@ -695,15 +695,15 @@ Ext.define('Admin.view.docentes.controller.CargaController',{
 				});
 			});
 			const competences = Global.getCompetencesFilter();
-			aStore.each(function (rec, index) {
+			aStore.each(function (record) {
 				let x = 0;
 				let nFinal = 0;
 				competences.forEach(function (data) {
 					x = ++x;
-					const pA 	= parseFloat(parseFloat(rec.get('proc' + x.toString())).toFixed(2));
-					const pB 	= parseFloat(parseFloat(data.porcentaje).toFixed(2));
+					const pA 	= parseFloat(parseFloat(record.get('proc' + x.toString())).toFixed(2));
+					const pB 	= parseFloat(parseFloat(data.porcentaje).toFixed(2)); // Porcentaje de la competencia
 					const p 	= isNaN(pA) ? pB : (pA === 0) ? pB : pA;
-					const val 	= parseFloat(me.onEachColumnsCalcular(p, data.id_pk, rec));
+					const val 	= parseFloat(me.onEachColumnsCalcular(p, data.id_pk, record));
 					nFinal = nFinal + val;
 				});
 				if (_n_red > 0 && _n_aplica > 0) {
@@ -711,11 +711,11 @@ Ext.define('Admin.view.docentes.controller.CargaController',{
 						nFinal = _n_final_red;
 					}
 				}
-				rec.set('final', nFinal.toFixed(2));
+				record.set('final', nFinal.toFixed(2));
 				let aScale = me.getDesempeños(nFinal.toFixed(2));
 				let escala = me.getEscala(nFinal.toFixed(2));
-				rec.set('nombre_escala', aScale);
-				rec.set('id_escala', escala);
+				record.set('nombre_escala', aScale);
+				record.set('id_escala', escala);
 			});
 			grid.el.unmask();
 
@@ -792,27 +792,22 @@ Ext.define('Admin.view.docentes.controller.CargaController',{
 				switch (data.get('tipo')){
 					case 'NOTA' :
 						activa	= data.get('activa');
+						porNota	= parseFloat(data.get('porciento'));
+						porNotaM= parseFloat(data.get('porcentual'));
+						if (porNotaM !== porNota	){
+							porNota = porNotaM;
+						}
+						if (porNota > 0){
+							porcient += porNota;
+						}
 						if (activa){ // Si la columna está visible o activa
 							nota	= parseFloat(record.get(data.get('name_column')));
-							porNota	= parseFloat(data.get('porciento'));
-							porNotaM= parseFloat(data.get('porcentual'));
 							if (nota > 0){
-								if (porNotaM != porNota	){
-									if(porNotaM > 0){
-										sumaPor = sumaPor + (nota * porNotaM / 100);
-										porcient= porcient + porNotaM;
-									}else {
-										notaSuma = notaSuma + nota;
-										contNota = ++contNota;
-									}
-								}else{
-									if(porNota > 0){
-										sumaPor = sumaPor + (nota * porNota / 100);
-										porcient= porcient + porNota;
-									}else {
-										notaSuma = notaSuma + nota;
-										contNota = ++contNota;
-									}
+								if(porNota > 0){
+									sumaPor = sumaPor + (nota * porNota / 100);
+								}else {
+									notaSuma += nota;
+									contNota += 1;
 								}
 								suma = suma + nota;
 								cont = ++cont;
@@ -843,7 +838,7 @@ Ext.define('Admin.view.docentes.controller.CargaController',{
 					porc 	 = sumaPor;
 				}
 			}else{
-				porc 	= (prom * p)/100;
+				porc 	= (prom * (p - porcient))/100;
 			}
 			colProm.length > 0 ? record.set(colProm,prom > 0 ? prom.toFixed(2) : 0) :  colProm = '';
 			colPorc.length > 0 ? record.set(colPorc,porc > 0 ? porc.toFixed(2) : 0) :  colPorc = '';

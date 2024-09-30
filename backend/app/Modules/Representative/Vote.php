@@ -135,8 +135,7 @@ class Vote{
                 'uuid'  => $uuid,
                 'start' => $start,
                 'end'   => null,
-                'ip'    => null,
-                'agent' => null,
+                'access'=> [],
                 'path'  => "/#/voting/{$id}/{$school->id}/{$uuid}",
             ];
             DB::table("{$db}tp_polling_stations")
@@ -198,21 +197,22 @@ class Vote{
             $validate   = RepresentativeValidatorService::panelControlValidator($db);
             $id         = $request->input('id') ?? 0;
             $query      = self::getStation($request, $db);
-            $extraData = json_decode($query->extra_data);
+            $extraData  = json_decode($query->extra_data);
             if (!$extraData){
                 throw new Exception("Datos de la mesa incorrectos", 400);
             }
-            if (!$extraData->ip) {
-                $extraData->ip      = $request->ip();
-                $extraData->agent   = $request->header('User-Agent');
-                DB::table("{$db}tp_polling_stations")
-                    ->where('id', $id)
-                    ->update([
-                        'extra_data'    => json_encode($extraData),
-                    ]);
-            } else if ($extraData->ip != $request->ip()) {
-                throw new Exception("La mesa esta siendo usada por otro dispositivo", 400);
-            }
+            $access             = $extraData->access ?? [];
+            $access[]           = [
+                'ip'        => $request->ip(),
+                'agent'     => $request->userAgent(),
+                'date'      => date('Y-m-d H:i:s'),
+            ];
+            $extraData->access  = $access;
+            DB::table("{$db}tp_polling_stations")
+                ->where('id', $id)
+                ->update([
+                    'extra_data'    => json_encode($extraData),
+                ]);
             $uuid      = $request->input('uuid');
             if ($uuid != $extraData->uuid) {
                 throw new Exception("Identificador de la mesa incorrecto.", 400);

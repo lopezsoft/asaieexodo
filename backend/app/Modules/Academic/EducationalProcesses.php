@@ -2,6 +2,8 @@
 
 namespace App\Modules\Academic;
 
+use App\Common\HttpResponseMessages;
+use App\Common\MessageExceptionResponse;
 use App\Modules\Courses\RatingScale;
 use App\Modules\School\SchoolQueries;
 use App\Modules\Settings\ColumnNotes;
@@ -262,6 +264,22 @@ class EducationalProcesses
             return self::getResponse500([
                 'message' => $exception->getMessage()
             ]);
+        }
+    }
+
+    public static function turnToUppercase(Request $request): JsonResponse
+    {
+        try {
+            $school     = SchoolQueries::getSchoolRequest($request);
+            $db         = $school->db;
+            $year       = $school->year;
+            $periodo    = $request->input('pdbPeriodo');
+            CallExecute::execute($db.'sp_update_mayus(?, ?)', [$year, $periodo]);
+            return HttpResponseMessages::getResponse([
+                'message' => 'Se ha actualizado correctamente.'
+            ]);
+        }catch (Exception $exception) {
+            return MessageExceptionResponse::response($exception);
         }
     }
 }

@@ -7,6 +7,10 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 class EducationalProcessesController extends Controller
 {
+    public function turnToUppercase(Request $request): JsonResponse
+    {
+        return EducationalProcesses::turnToUppercase($request);
+    }
     public function getByStudents(Request $request): JsonResponse
     {
         return EducationalProcesses::getByStudents($request);

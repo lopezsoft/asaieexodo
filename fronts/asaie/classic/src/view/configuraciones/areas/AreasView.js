@@ -5,7 +5,7 @@ Ext.define('Admin.view.configuraciones.areas.AreasView' ,{
 	maximized	: false,
     controller: 'configuraciones',
     maxWidth: 550,
-    maxHeight: 150,
+    maxHeight: 200,
     closeAction: 'hide',
     store: 'PromotionAreasStore',
     config  : {
@@ -15,13 +15,13 @@ Ext.define('Admin.view.configuraciones.areas.AreasView' ,{
         this.callParent(arguments);
         this.setTitle(AppLang.getSTitleViewAreas());
     },
-    saveData	: function(storeName,reload){
-		var me 		= this.getApp(),
-			win		= this,
-			form    = win.down('form'),
-			record  = form.getRecord(),
-			values  = form.getValues(),
-			store   = Ext.getStore(storeName);
+    saveData	: function(storeName){
+		const me = this.getApp(),
+			win = this,
+			form = win.down('form'),
+			record = form.getRecord(),
+			values = form.getValues(),
+			store = Ext.getStore(storeName);
 		if (record) { //Edición
 			if (store.getModifiedRecords().length > 0) {
 				win.mask('Guardando...');

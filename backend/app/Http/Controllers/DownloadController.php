@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Modules\Download\AcademicConsolidatedDownload;
 use App\Modules\Download\StudentDownloads;
 use App\Modules\Download\TeacherDownloads;
 use App\Modules\Upload\UploadFiles;
@@ -10,6 +11,10 @@ use Illuminate\Http\Request;
 
 class DownloadController extends Controller
 {
+    public function getAcademicConsolidated(Request $request): JsonResponse
+    {
+        return AcademicConsolidatedDownload::getAcademicConsolidated($request);
+    }
     public function getTemplateNotesByCourse(Request $request): JsonResponse
     {
         return TeacherDownloads::getTemplateNotesByCourse($request);

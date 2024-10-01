@@ -19,7 +19,7 @@
         "lopezsoft/jasperphp": "^2.9",
         "maatwebsite/excel": "^3.1.48",
         "mpdf/mpdf": "^8.1",
-        "phpoffice/phpspreadsheet": "^1.28.0"
+        "phpoffice/phpspreadsheet": "^1.29"
     },
     "require-dev": {
         "fakerphp/faker": "^v1.21.0",

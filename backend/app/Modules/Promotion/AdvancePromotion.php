@@ -2,6 +2,8 @@
 
 namespace App\Modules\Promotion;
 
+use App\Common\HttpResponseMessages;
+use App\Common\MessageExceptionResponse;
 use App\Modules\Academic\ControlClosingDates;
 use App\Modules\Courses\Courses;
 use App\Modules\School\SchoolQueries;
@@ -171,6 +173,28 @@ class AdvancePromotion{
             return self::getResponse500([
                 "message" => $e->getMessage()
             ]);
+        }
+    }
+
+    public static function getPromotionAreas(Request $request): JsonResponse
+    {
+        try {
+            $school = SchoolQueries::getSchoolRequest($request);
+            $id     = $request->input('pdbId');
+            $db     = $school->db;
+            $year   = $school->year;
+            $query = DB::table($db . 'promotion_areas AS a')
+                ->select('a.*', 'b.year', 'c.area')
+                ->leftJoin($db . 'config001 AS b', 'a.config_id', '=', 'b.id')
+                ->leftJoin($db . 'areas AS c', 'a.area_id', '=', 'c.id')
+                ->where('b.id', $id)
+                ->where('b.year', $year);
+
+            return HttpResponseMessages::getResponse([
+                'records' => $query->paginate($school->limit)
+            ]);
+        }catch (Exception $e){
+            return MessageExceptionResponse::response($e);
         }
     }
 }

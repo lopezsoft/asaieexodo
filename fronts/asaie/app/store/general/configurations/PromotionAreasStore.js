@@ -13,10 +13,10 @@ Ext.define('Admin.store.general.PromotionAreasStore', {
             pdbTable : 'promotion_areas'
         },
         api: {
-			create  : 'master/insertData',
-			read    : 'master/getPromotionAreas',
-			update  : 'master/updateData',
-			destroy : 'master/deleteData'
+			create  : 'crud',
+			read    : 'promotion/promotion-areas',
+			update  : 'crud',
+			destroy : 'crud'
 		}
     }
 });

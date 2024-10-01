@@ -4,6 +4,7 @@ Route::prefix('download')->group(function () {
         Route::prefix('excel')->group(function () {
             Route::post('template-enrollment', 'getTemplateEnrollment');
             Route::post('template-notes-by-course', 'getTemplateNotesByCourse');
+            Route::post('academic-consolidated', 'getAcademicConsolidated');
         });
         Route::prefix('settings')->group(function () {
             Route::get('read-school-logo', 'readSchoolLogo');

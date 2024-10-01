@@ -4,6 +4,7 @@ namespace App\Excel;
 
 use App\Modules\School\SchoolQueries;
 use App\Queries\CallExecute;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -36,8 +37,8 @@ class ExcelExport
                 'collection'    => $query,
             ];
             return ExcelManager::storeToS3($data , $fileDescription, $school, $user);
-        } catch (\Exception $e) {
-            throw new \Exception($e->getMessage());
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
         }
     }
 
@@ -84,8 +85,9 @@ class ExcelExport
                 'collection'    => $query,
             ];
             return ExcelManager::storeToS3($data , $fileDescription, $school, $user);
-        } catch (\Exception $e) {
-            throw new \Exception($e->getMessage());
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
         }
     }
+
 }

@@ -22,7 +22,7 @@ Ext.define('Admin.view.general.controller.ReportesController',{
 				param.ckAll		= ts.down('#ckAll').getValue() ? 1 : 0;
 				param.ckRes		= ts.down('#ckRes').getValue() ? 1 : 0;
 				param.pdbId		= tab.down('grid').getSelection()[0].id;
-				if(tab.title == 'Docentes'){
+				if(tab.title === 'Docentes'){
 					param.pdbType	= 2;
 				}else{
 					param.pdbType	= 1;
@@ -43,9 +43,10 @@ Ext.define('Admin.view.general.controller.ReportesController',{
 						pdbPeriodo  : values.periodo,
 						pdbAllPer   : values.allper
 					};
-				this.onGenReport(btn,url,param);
-				if (btn.itemId == 'btnXls'){
-					// this.onDownLoadReportXls(btn,url,param);
+				if (btn.itemId === 'btnXls'){
+					this.onDownLoadReportXls(btn,url,param);
+				} else {
+					this.onGenReport(btn,url,param);
 				}
 				break;
 		}
@@ -53,16 +54,16 @@ Ext.define('Admin.view.general.controller.ReportesController',{
 
     onDownLoadReportXls: function (btn, url, param) {
 
-        var me  	= this,
-            cUrl	= Global.getUrlBase()+'excel_manager/download_report_consolidado',
-            vMask;
+		let me = this,
+			cUrl = Global.getApiUrl() + '/download/excel/academic-consolidated',
+			vMask;
 
-        vMask = btn.up('window');
+		vMask = btn.up('window');
 
         if (Ext.isEmpty(vMask)){
             vMask   = btn.up('grid');
         }
-
+		let xFormat = 'xls';
         switch(btn.itemId){
             case 'btnHtml':
                 xFormat = 'html';
@@ -91,25 +92,23 @@ Ext.define('Admin.view.general.controller.ReportesController',{
         }
 
 
-        if(!Ext.isEmpty(url) && btn.itemId == 'btnXls') {
+        if(!Ext.isEmpty(url) && btn.itemId === 'btnXls') {
 
-            xParam  = param;
-
-            Object.defineProperty(xParam,'pFormat',{
-                value : xFormat,
-                writable: true,
-                enumerable: true,
-                configurable: true
-            });
+            const xParam  = {
+				...param,
+				pFormat : xFormat,
+				...Global.getSchoolParams()
+			};
 
             Ext.Ajax.request({
                 timeout : 60000,
                 url: cUrl,
-
                 params: xParam,
-
+				headers: {
+					'Authorization' : (AuthToken) ? AuthToken.authorization() : ''
+				},
                 success: function (response) {
-                    result = Ext.decode(response.responseText);
+					let result = Ext.decode(response.responseText);
                     me.onOpenUrl(result.pathFile);
                 },
 

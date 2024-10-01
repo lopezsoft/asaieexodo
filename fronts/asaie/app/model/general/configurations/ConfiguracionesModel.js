@@ -28,6 +28,7 @@ Ext.define('Admin.model.general.ConfiguracionesModel',{
         { name: 'prom_area_puesto',type : 'int'},
         { name: 'nota_final_redondeo',type : 'float'},
         { name: 'nota_redondeo',type : 'float'},
-        { name: 'aplicar_redondeo_fin_año', type : 'int'}
+        { name: 'aplicar_redondeo_fin_año', type : 'int'},
+        { name: 'fail_subject_of_the_area', type : 'int'}
     ]
 });

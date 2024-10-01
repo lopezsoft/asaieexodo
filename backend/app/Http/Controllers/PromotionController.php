@@ -39,4 +39,9 @@ class PromotionController extends Controller
     {
         return (new GenerateFinalReport())->generateReport($request);
     }
+
+    public function getPromotionAreas(Request $request): JsonResponse
+    {
+        return AdvancePromotion::getPromotionAreas($request);
+    }
 }

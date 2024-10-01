@@ -187,6 +187,7 @@ Ext.define('Admin.view.configuraciones.ConfiguraGeneralView',{
 				{
 					xtype   : 'fieldSet',
 					title   : 'Trabajar Grupos por:',
+					labelWidth  : 100,
 					items   : [
 						{
 							xtype   : 'customradiogroup',
@@ -208,6 +209,7 @@ Ext.define('Admin.view.configuraciones.ConfiguraGeneralView',{
 				{
 					xtype   : 'fieldSet',
 					title   : 'Promocionar estudiantes por:',
+					labelWidth  : 100,
 					items   : [
 						{
 							xtype   : 'customradiogroup',
@@ -298,6 +300,11 @@ Ext.define('Admin.view.configuraciones.ConfiguraGeneralView',{
 							}
 						}
 					]
+				},
+				{
+					xtype   	: 'customcheckboxfield',
+					name    	: 'fail_subject_of_the_area',
+					boxLabel	: 'Sí el estudiante pierde una asignatura de áreas compuestas, pierde el area.'
 				},
 				{
 					xtype   	: 'customcheckboxfield',

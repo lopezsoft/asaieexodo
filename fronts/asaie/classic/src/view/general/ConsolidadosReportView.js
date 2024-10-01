@@ -9,7 +9,7 @@ var store   = Ext.create('Ext.data.Store', {
     data : [
         {id: '1',    nombre: 'CONSOLIDADO POR ASIGNATURAS'},
         {id: '2',    nombre: 'CONSOLIDADO POR ÁREAS'},
-        {id: '3',    nombre: 'CONSOLIDADO POR DOCENTES'}
+       /* {id: '3',    nombre: 'CONSOLIDADO POR DOCENTES'}*/
     ]
 });
 

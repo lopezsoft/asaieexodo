@@ -66,8 +66,8 @@ Ext.define('Admin.view.promocion.PromotionContainer',{
 			},
 			{
 				xtype   : 'containerButton',
-				disabled: isSecretary,
-				hidden	: isSecretary,
+				/*disabled: isSecretary,
+				hidden	: isSecretary,*/
 				items   : [
 					{
 						xtype   : 'buttonPanel',
@@ -99,10 +99,9 @@ Ext.define('Admin.view.promocion.PromotionContainer',{
 						xtype   : 'buttonPanel',
 						text    : 'Cerrar año lectivo',
 						handler : function (btn) {
-							var
-								me  = Admin.getApplication(),
-								gb  = Global,
-								cUrl= gb.getUrlBase() + 'c_cierre/get_close';
+							const me = Admin.getApplication(),
+								gb = Global,
+								cUrl = gb.getUrlBase() + 'c_cierre/get_close';
 							me.onMsgWait();
 							Ext.Ajax.request({
 								url     : cUrl ,

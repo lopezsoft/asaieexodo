@@ -46,7 +46,7 @@ class AcademicConsolidatedDownload
             $xtype          = 1;
             $year           = $school->year;
             $courses = CallExecute("{$db}sp_select_consolidado_asig(?,?,?,?,?,?,?)", [
-                $sede, $jorn, $c_gdo, $gpo, $year, $per, $xtype
+                $sede, $jorn, $c_gdo, "{$gpo}", $year, $per, $xtype
             ]);
             if (count($courses) == 0) {
                 throw new Exception('No se encontraron datos para el consolidado de asignaturas.', 404);
@@ -199,7 +199,7 @@ class AcademicConsolidatedDownload
             $xtype          = 2;
             $year           = $school->year;
             $courses = CallExecute("{$db}sp_select_consolidado_asig(?,?,?,?,?,?,?)", [
-                $sede, $jorn, $c_gdo, $gpo, $year, $per, $xtype
+                $sede, $jorn, $c_gdo, "{$gpo}", $year, $per, $xtype
             ]);
             if (count($courses) == 0) {
                 throw new Exception('No se encontraron datos para el consolidado de asignaturas.', 404);

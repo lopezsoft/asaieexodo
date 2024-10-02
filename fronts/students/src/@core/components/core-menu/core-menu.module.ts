@@ -13,9 +13,6 @@ import { CoreMenuVerticalCollapsibleComponent } from '@core/components/core-menu
 import { CoreMenuHorizontalItemComponent } from '@core/components/core-menu/horizontal/item/item.component';
 import { CoreMenuHorizontalCollapsibleComponent } from '@core/components/core-menu/horizontal/collapsible/collapsible.component';
 
-CoreMenuVerticalSectionComponent;
-CoreMenuVerticalItemComponent;
-CoreMenuVerticalCollapsibleComponent;
 
 @NgModule({
   imports: [CommonModule, RouterModule, TranslateModule.forChild(), CoreCommonModule],

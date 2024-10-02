@@ -5,9 +5,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import {
   PerfectScrollbarConfigInterface,
-  PerfectScrollbarModule,
   PERFECT_SCROLLBAR_CONFIG
-} from 'ngx-perfect-scrollbar';
+} from 'ngx-perfect-scrollbar'
 
 import { CoreDirectivesModule } from '@core/directives/directives';
 import { CoreSidebarModule } from '@core/components/core-sidebar/core-sidebar.module';
@@ -26,9 +25,8 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
     FormsModule,
     ReactiveFormsModule,
     FlexLayoutModule,
-    PerfectScrollbarModule,
     CoreDirectivesModule,
-    CoreSidebarModule
+    CoreSidebarModule,
   ],
   providers: [
     {

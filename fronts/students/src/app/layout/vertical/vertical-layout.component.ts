@@ -16,13 +16,8 @@ export class VerticalLayoutComponent implements OnInit, OnDestroy {
 
   // Private
   private _unsubscribeAll: Subject<any>;
-
-  /**
-   * Constructor
-   *
-   * @param {CoreConfigService} _coreConfigService
-   */
-  constructor(private _coreConfigService: CoreConfigService, private _elementRef: ElementRef) {
+  
+  constructor(private _coreConfigService: CoreConfigService) {
     // Set the private defaults
     this._unsubscribeAll = new Subject();
   }
@@ -35,7 +30,7 @@ export class VerticalLayoutComponent implements OnInit, OnDestroy {
    */
   ngOnInit(): void {
     // Subscribe to config changes
-    this._coreConfigService.config.pipe(takeUntil(this._unsubscribeAll)).subscribe(config => {
+    this._coreConfigService.config.pipe(takeUntil(this._unsubscribeAll)).subscribe((config: any) => {
       this.coreConfig = config;
     });
   }
@@ -45,7 +40,7 @@ export class VerticalLayoutComponent implements OnInit, OnDestroy {
    */
   ngOnDestroy(): void {
     // Unsubscribe from all subscriptions
-    this._unsubscribeAll.next();
+    this._unsubscribeAll.next(null);
     this._unsubscribeAll.complete();
   }
 }

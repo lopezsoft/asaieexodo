@@ -4,7 +4,6 @@ import { RouterModule } from '@angular/router';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import {
   PerfectScrollbarConfigInterface,
-  PerfectScrollbarModule,
   PERFECT_SCROLLBAR_CONFIG
 } from 'ngx-perfect-scrollbar';
 
@@ -26,7 +25,7 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
 
 @NgModule({
   declarations: [NavbarComponent, NavbarSearchComponent, NavbarBookmarkComponent, NavbarNotificationComponent],
-  imports: [RouterModule, NgbModule, CoreCommonModule, PerfectScrollbarModule, CoreTouchspinModule, CoreModule],
+  imports: [RouterModule, NgbModule, CoreCommonModule, CoreTouchspinModule, CoreModule],
   providers: [
     {
       provide: PERFECT_SCROLLBAR_CONFIG,

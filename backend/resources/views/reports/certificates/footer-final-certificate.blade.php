@@ -1,7 +1,7 @@
 @if($isPreSchool)
     <section>
         <div class="section-body student-data text-center">
-            <p><b>EL ESTUDIANTE FUE PROMOVIDO AL SIGUIENTE GRADO:</b></p>
+            <p><b>EL ESTUDIANTE FUE PROMOVIDO AL SIGUIENTE GRADO</b></p>
         </div>
     </section>
 @else

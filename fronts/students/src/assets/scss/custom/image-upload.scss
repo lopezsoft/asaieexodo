@@ -1,0 +1,46 @@
+// Variables
+$image-upload-border-radius: 0.5rem;
+$image-upload-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+$image-upload-hover-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+$image-upload-transition: all 0.3s ease;
+$image-upload-icon-size: 72px;
+$image-upload-icon-color: #2556a3;
+$image-upload-icon-hover-color: #1a3d7c;
+
+// Estilos del contenedor principal
+.image-upload-container {
+  width: 156px !important;
+  height: 156px !important;
+  cursor: pointer;
+  border-radius: $image-upload-border-radius;
+  box-shadow: $image-upload-shadow;
+  transition: $image-upload-transition;
+  padding: 3px;
+  display: flex;
+  justify-content: center;
+  &:hover {
+    box-shadow: $image-upload-hover-shadow;
+  }
+
+  input[type="file"] {
+    display: none;
+  }
+
+  .uploaded-image {
+    border-top-left-radius: $image-upload-border-radius;
+    border-top-right-radius: $image-upload-border-radius;
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: contain;
+  }
+
+  .upload-icon {
+    font-size: $image-upload-icon-size;
+    color: $image-upload-icon-color;
+    transition: color 0.3s ease;
+
+    &:hover {
+      color: $image-upload-icon-hover-color;
+    }
+  }
+}

@@ -54,14 +54,20 @@ class MoveStudents
                 if($sqlMove->count() == 0) {
                     continue;
                 }
-                //Guarda los datos de las notas a mover antes de borrarlos de la tabla original
+                /**
+                 * Guarda los datos de las notas a mover antes de borrarlos de la tabla original
+                 * Verifica que no existan registros duplicados, usando id de la nota
+                 */
                 $sqlSend = sprintf("INSERT INTO %sbackup_notes (id,id_curso,id_matric,periodo,year,
                         n1,n2,n3,n4,n5,n6,n7,n8,n9,n10,n11,n12,n13,n14,n15,n16,n17,n18,
                         n19,n20,n21,n22,n23,n24,n25,n26,n27,n28,n29,n30,final,id_escala,faltas,
                         nota_perdida,nota_habilitacion,injustificadas,retraso,nivelacion,fecha,table_name)
                         SELECT id,id_curso,id_matric,periodo,year,n1,n2,n3,n4,n5,n6,n7,n8,n9,n10,n11,
                         n12,n13,n14,n15,n16,n17,n18,n19,n20,n21,n22,n23,n24,n25,n26,n27,n28,n29,n30,final,id_escala,faltas,
-                        nota_perdida,nota_habilitacion,injustificadas,retraso,nivelacion,if(fecha='0000-00-00', null, fecha),'%s' FROM {$db}{$tableMove} WHERE id_matric =%s", $db, $tableMove, $id_matric);
+                        nota_perdida,nota_habilitacion,injustificadas,retraso,nivelacion,if(fecha='0000-00-00', null, fecha),'%s'
+                        FROM {$db}{$tableMove} WHERE id_matric =%s AND NOT EXISTS (
+                        SELECT id FROM %sbackup_notes WHERE id = {$db}{$tableMove}.id AND id_matric =%s
+                        )", $db, $tableMove, $id_matric, $db, $id_matric);
                 DB::select($sqlSend);
                 foreach ($sqlMove as $row) {
                     /**

@@ -221,4 +221,117 @@ JOIN cursos AS c ON c.id = a.id_curso
 WHERE a.id_matric = 45137 AND a.periodo = 1;
 
 
-INSERT INTO `myschoolsadmin_exodo`.`user_roles` (`school_id`, user_id, profile_id) VALUES (8, 1729, 4);
+SELECT * FROM users AS a WHERE a.id = 1738;
+SELECT * FROM school_users AS a WHERE a.user_id = 1738;
+SELECT * FROM user_roles AS a WHERE a.user_id = 1738;
+
+INSERT INTO `myschoolsadmin_exodo`.`school_users` (`school_id`, user_id, state) VALUES (10, 1738, 1);
+INSERT INTO `myschoolsadmin_exodo`.`user_roles` (`school_id`, user_id, profile_id) VALUES (10, 1738, 4);
+
+/**
+  INSERT INTO
+ */
+
+INSERT INTO nscp001 (
+    id_curso,
+    id_matric,
+    id_escala,
+    periodo,
+    year,
+    n1,
+    n2,
+    n3,
+    n4,
+    n5,
+    n6,
+    n7,
+    n8,
+    n9,
+    n10,
+    n11,
+    n12,
+    n13,
+    n14,
+    n15,
+    n16,
+    n17,
+    n18,
+    n19,
+    n20,
+    n21,
+    n22,
+    n23,
+    n24,
+    n25,
+    n26,
+    n27,
+    n28,
+    n29,
+    n30,
+    final,
+    faltas,
+    injustificadas,
+    retraso,
+    nota_perdida,
+    nota_habilitacion,
+    nivelacion,
+    fecha
+)
+SELECT
+    id_curso,
+    id_matric,
+    id_escala,
+    1,
+    a.year,
+    n1,
+    n2,
+    n3,
+    n4,
+    n5,
+    n6,
+    n7,
+    n8,
+    n9,
+    n10,
+    n11,
+    n12,
+    n13,
+    n14,
+    n15,
+    n16,
+    n17,
+    n18,
+    n19,
+    n20,
+    n21,
+    n22,
+    n23,
+    n24,
+    n25,
+    n26,
+    n27,
+    n28,
+    n29,
+    n30,
+    final,
+    faltas,
+    injustificadas,
+    retraso,
+    nota_perdida,
+    nota_habilitacion,
+    nivelacion,
+    fecha
+FROM nscp001 AS a
+         JOIN cursos AS c ON c.id = a.id_curso
+WHERE a.id_matric = 5322 AND c.id_grado = 8
+  AND a.periodo = 2;
+
+// Votaciones
+
+UPDATE tp_polling_stations a
+SET a.start_time = NULL, a.closing_time = NULL, a.extra_data = NULL, a.state = 1
+WHERE a.`year` = 2025;
+
+DELETE FROM tp_aux_white_vote WHERE YEAR = 2025;
+DELETE FROM tp_white_vote WHERE YEAR= 2025;
+DELETE FROM tp_votes WHERE YEAR= 2025;

@@ -1,0 +1,61 @@
+@import "scss/documents/variables";
+
+.card-popup-layout {
+  max-width: 44rem;
+  min-height: 15rem;
+  width: 100%;
+  max-height: calc(100vh - 5rem);
+  &.overflow {
+    overflow: hidden;
+    overflow-y: auto;
+  }
+  .card-row {
+    max-width: 100%;
+    width: 100%;
+    min-height: 10rem;
+    overflow: hidden;
+    overflow-y: auto;
+    background-color: $background-color-cols;
+    margin-bottom: .25rem;
+    border-radius: $border-radius-card;
+    padding: .5rem;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-gap: 5px;
+    align-content: flex-start;
+    max-height: calc(100vh - 18.5rem);
+    .card-content {
+      border-radius: $border-radius-card;
+      background-color: #ffffff !important;
+      min-height: 2.5rem;
+      cursor: pointer;
+      .card-body {
+        padding: .5rem;
+      }
+      &.is-selected {
+        border: 1.5px darkgreen dashed;
+        color: darkgreen !important;
+        span {
+          color: darkgreen !important;
+        }
+      }
+    }
+  }
+}
+
+.page-search-input-layout {
+  input {
+    &:disabled, &:read-only {
+      cursor: text !important;
+      background-color: #ffffff !important;
+      pointer-events: auto !important;
+      color: $strong-color;
+      border-color: lighten($original-color, 10%);
+      box-shadow: none !important;
+      &:focus {
+        box-shadow: none !important;
+        pointer-events: all !important;
+      }
+    }
+  }
+}

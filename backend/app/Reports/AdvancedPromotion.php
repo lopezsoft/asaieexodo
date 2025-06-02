@@ -4,11 +4,8 @@ namespace App\Reports;
 
 use App\Common\BuildReportsPDF;
 use App\Contracts\ReportProcessorContract;
-use App\Core\JReportModel;
-use App\Modules\Academic\AcademicLevelingPeriod;
 use App\Modules\Courses\RatingScale;
 use App\Modules\School\SchoolQueries;
-use App\Modules\Teacher\CoursesOfTeacher;
 use App\Traits\MessagesTrait;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

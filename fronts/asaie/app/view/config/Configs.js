@@ -14,7 +14,7 @@ Ext.define('Admin.view.config.Configs', {
         urlRepresentative: "https://representative.asaie.co",
 		apiUrl		: "https://api.asaie.co/api/v1",
 		year		: 0,
-		/*hostSocket	: 'http://localhost:8081',
+	/*	hostSocket	: 'http://localhost:8081',
 		urlBase		: "http://asaieexodo.test",
 		urlLocation	: "http://asaieexodo.test",
 		apiUrl		: "http://asaieexodo.test/api/v1",

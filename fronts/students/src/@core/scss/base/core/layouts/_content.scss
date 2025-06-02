@@ -20,6 +20,8 @@ html {
   body {
     height: 100%;
     background-color: $body-bg;
+    overflow: hidden;
+    overflow-y: auto;
     direction: $body-direction;
     // paragraph line-height
     p {

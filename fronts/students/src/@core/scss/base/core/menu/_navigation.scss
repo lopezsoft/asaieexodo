@@ -125,7 +125,7 @@
 
   a {
     outline: none;
-
+    text-decoration: none;
     &:hover,
     &:focus {
       text-decoration: none;
@@ -162,6 +162,7 @@
       display: block;
       text-overflow: ellipsis;
       overflow: hidden;
+      text-decoration: none;
       i,
       svg {
         height: 11px;

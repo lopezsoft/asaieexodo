@@ -21,6 +21,7 @@ Ext.define('Admin.store.base.StoreUrl',{
 	        exception: function(proxy, response){
 				const resp = JSON.parse(response.responseText);
 				let msg	= resp.message ? resp.message : resp.error || 'Error desconocido';
+				console.log(resp);
 
 				Ext.create('Ext.window.MessageBox', {
 					alwaysOnTop	: true,

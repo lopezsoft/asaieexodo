@@ -20,6 +20,12 @@
 .vertical-overlay-menu {
   //Content expanded
   .content {
+    &.expand-boxed {
+      padding: 0 !important;
+    }
+    &.expand-boxed-navbar {
+      padding-top: 68px !important;
+    }
     @include main-menu-width(0);
   }
   //Navbar expanded

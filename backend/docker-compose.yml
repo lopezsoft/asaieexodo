@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+    app:
+        build:
+            context: . # Busca el Dockerfile en el directorio actual
+            dockerfile: Dockerfile # Nombre del Dockerfile (lo crearemos en un momento)
+        container_name: asaieexodo_app_update # Nombre único para el contenedor de la app
+        volumes:
+            - .:/var/www/html # Monta la carpeta actual de tu proyecto dentro del contenedor
+        ports:
+            - "9000:9000" # Puerto interno de PHP-FPM, no necesitas interactuar con este directamente
+        environment:
+            # Opcional, pero útil para Laravel si usas Apache/Nginx para dirigir a la carpeta public
+            - APACHE_DOCUMENT_ROOT=/var/www/html/public
+        depends_on:
+            - db # Indica que este servicio depende de la base de datos
+
+    web:
+        image: nginx:stable-alpine # Usaremos Nginx como servidor web
+        container_name: asaieexodo_web_update # Nombre único para el contenedor Nginx
+        ports:
+            - "8080:80" # <-- Aquí está la magia: accede a tu proyecto en http://localhost:8080
+            # Evita conflictos con el puerto 80 de WampServer
+        volumes:
+            - .:/var/www/html # Monta tu código también para Nginx
+            - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf # Archivo de configuración de Nginx (lo crearemos)
+        depends_on:
+            - app # Indica que este servicio depende del contenedor de la app
+
+    db:
+        image: mariadb:10.3.23 # <-- ¡Aquí especificamos la versión exacta de MariaDB!
+        container_name: asaieexodo_db_update # Nombre único para el contenedor de la base de datos
+        ports:
+            - "3308:3306" # <-- **MUY IMPORTANTE:** WampServer usa 3306. Usamos 3307 aquí para Docker.
+              # Desde tu máquina Windows, accederás a esta instancia de MariaDB en localhost:3307.
+            # Internamente, el contenedor de MariaDB seguirá usando el puerto 3306.
+        environment:
+            MARIADB_ROOT_PASSWORD: 9b6067ff1622f843
+            MARIADB_DATABASE: asaieexodo_db_update
+            MARIADB_USER: asaieexodo_user_update
+            MARIADB_PASSWORD: 9b6067ff1622f843
+        volumes:
+            - db_data_asaieexodo_update:/var/lib/mysql # Persistencia de datos para la DB. Los datos se guardarán aquí.
+
+volumes:
+    db_data_asaieexodo_update: # Define el volumen persistente para la base de datos

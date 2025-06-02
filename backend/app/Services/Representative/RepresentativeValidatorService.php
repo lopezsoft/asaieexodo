@@ -21,6 +21,30 @@ class RepresentativeValidatorService
         if (!$control) {
             throw new Exception("La configuración de la jornada no está activa o creada.", 404);
         }
+
+      /*  $startDateCarbon = Carbon::parse("{$control->start_date} {$control->start_time}");
+        $endDateCarbon   = Carbon::parse("{$control->start_date} {$control->closing_time}");
+        $now             = Carbon::now();
+
+        // Antes de iniciar
+        if ($now->lt($startDateCarbon)) {
+            throw new Exception(
+                "La jornada no inicia hasta "
+                . $startDateCarbon->diffForHumans($now)
+                . ". Inicio: " . $startDateCarbon->format('d-m-Y h:i A'),
+                400
+            );
+        }
+
+        // Después de finalizar
+        if ($now->gt($endDateCarbon)) {
+            throw new Exception(
+                "La jornada finalizó el "
+                . $endDateCarbon->format('d-m-Y h:i A')
+                . ". No se puede iniciar.",
+                400
+            );
+        }*/
         // Concatena la fecha y hora de inicio
         $startDate          = $control->start_date . ' ' . $control->start_time;
         // Convierte la cadena de fecha y hora a una instancia de Carbon

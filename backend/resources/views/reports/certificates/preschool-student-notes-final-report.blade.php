@@ -5,9 +5,9 @@
     <td class="text-right ih-width">
         {{$student->ih}}
     </td>
-    <td class="text-right final-note">
+{{--    <td class="text-right final-note">
         {{number_format($student->final, 2)}}
-    </td>
+    </td>--}}
     <td class="scale-width">
         {{$student->nombre_escala ?? $student->conceptual}}
     </td>

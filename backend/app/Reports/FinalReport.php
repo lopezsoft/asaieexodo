@@ -119,12 +119,15 @@ class FinalReport
         $paperSize  = 'letter';
         $formatSize = "Letter";
         $reportView = "reports.certificates.final-report";
+        $reportBuild= 'libro_final';
+        $reportSize = '_carta';
         $isPreSchool= ($levelId == 1);
         $isAreaDistributed = ($dist == 1); // Distribución de áreas
         $ratingScale= collect();
         if ($h == '1'){
             $formatSize = "Legal";
             $paperSize  = 'legal';
+            $reportSize = '';
         }
 
         if (!$isPreSchool){
@@ -134,6 +137,10 @@ class FinalReport
                 $query	= "CALL {$db}sp_select_areasf_agrupada(".$year.",".$school->headquarter.",'".$school->grade."','".$school->group."',".$school->workingDay.",".$one.")";
             }else{
                 $query	= "CALL {$db}sp_select_areasf(".$year.",".$school->headquarter.",'".$school->grade."','".$school->group."',".$school->workingDay.",".$one.",0)";
+            }
+            $finalName  = ($allPer == 1) ? '_quinta' : '';
+            if($h == '2'){
+                $reportBuild= "{$reportBuild}{$reportSize}{$finalName}";
             }
         }else{
             $periodo = 5;

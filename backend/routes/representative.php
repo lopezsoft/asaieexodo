@@ -14,8 +14,13 @@ Route::prefix('representative')->group(function () {
     });
     Route::prefix('polling-station')->group(function () {
         Route::controller('Representative\TableVoteController')->group(function () {
-            Route::get('headquarters','getTableHeadquarters');
             Route::get('assigned-courses','getDegreesPerTable');
         });
+    });
+});
+Route::prefix('polling-station')->group(function () {
+    Route::controller('Representative\TableVoteController')->group(function () {
+        Route::get('headquarters','getTableHeadquarters');
+        Route::get('assigned-courses','getDegreesPerTable');
     });
 });

@@ -28,6 +28,10 @@ class PromotionController extends Controller
     {
         return (new FinalSupportActivities())->generateFinalActivities($request);
     }
+    public function closeYear(Request $request): JsonResponse
+    {
+        return GenerateFinalReport::closeYear($request);
+    }
     public function generateFinalSavannas(Request $request): JsonResponse
     {
         return (new GenerateFinalReport())->generateFinalSavannas($request);

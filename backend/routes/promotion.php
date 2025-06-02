@@ -8,5 +8,6 @@ Route::prefix('promotion')->group(function () {
         Route::get('advance-promotion', 'getAdvancePromotion');
         Route::get('promotion-areas', 'getPromotionAreas');
         Route::post('advance-promotion', 'createAdvancePromotion');
+        Route::post('close-year', 'closeYear');
     });
 });

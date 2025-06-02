@@ -552,13 +552,14 @@ Ext.define('Admin.view.academico.controller.AcademicoController',{
 							headers: {
 								'Authorization' : (AuthToken) ? AuthToken.authorization() : ''
 							},
-                            success: function (response, opts) {
+                            success: function () {
                                 store.reload();
                                 win.unmask();
                                 me.showResult(AppLang.getSChangesOk());
                             },
-                            failure: function (response, opts) {
-                                me.onError('Error en el servidor, código del estado ' + response.status);
+                            failure: function (response) {
+								const resp = JSON.parse(response.responseText);
+                                me.onError('Error en el servidor: ' + resp.message || resp.error || response.status);
                             },
                             callback    : function (r, e) {
                                 win.unmask();

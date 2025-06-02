@@ -99,20 +99,23 @@ Ext.define('Admin.view.promocion.PromotionContainer',{
 						xtype   : 'buttonPanel',
 						text    : 'Cerrar año lectivo',
 						handler : function (btn) {
-							const me = Admin.getApplication(),
-								gb = Global,
-								cUrl = gb.getUrlBase() + 'c_cierre/get_close';
+							const me = Admin.getApplication();
 							me.onMsgWait();
 							Ext.Ajax.request({
-								url     : cUrl ,
-								timeout : 300000,
-								success: function(response, opts) {
+								url     : Global.getApiUrl() + '/promotion/close-year' ,
+								headers	: Global.getHeaders(),
+								method  : 'POST',
+								params  : {
+									...Global.getSchoolParams()
+								},
+								success: function() {
 									me.showResult('Cierre completo');
 								},
-								failure: function(response, opts) {
-									me.onError('Error');
+								failure: function(response) {
+									const error = JSON.parse(response.responseText);
+									me.onError(error.message);
 								},
-								callback    : function (res) {
+								callback    : function () {
 									me.onMsgClose();
 								}
 							});

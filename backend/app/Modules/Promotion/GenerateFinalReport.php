@@ -2,6 +2,8 @@
 
 namespace App\Modules\Promotion;
 
+use App\Common\HttpResponseMessages;
+use App\Common\MessageExceptionResponse;
 use App\Modules\Academic\ControlClosingDates;
 use App\Modules\Courses\Courses;
 use App\Modules\School\SchoolQueries;
@@ -23,6 +25,24 @@ class GenerateFinalReport
     private int $_n_final_red   = 0;
     private int $_n_aplica      = 0;
     private int $_t_año_lectivo = 0;
+
+    public static function closeYear(Request $request): JsonResponse
+    {
+        try {
+            $school = SchoolQueries::getSchoolRequest($request);
+            $db	    = $school->db;
+            $year   = $school->year;
+            $Grado  = 5;
+            ControlClosingDates::validateFinalPeriod($school, $Grado);
+            CallExecute::execute("{$db}sp_close_year(?)", [$year]);
+            return HttpResponseMessages::getResponse([
+                'message'   => 'El año escolar ha sido cerrado correctamente.'
+            ]);
+        } catch (Exception $e) {
+            return MessageExceptionResponse::response($e);
+        }
+
+    }
 
     use MessagesTrait, SystemTablesTrait;
 

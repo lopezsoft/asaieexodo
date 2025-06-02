@@ -53,9 +53,11 @@
             <b>P4</b>
         </td>
         @endif
+        @if(!$isPreSchool)
         <td class="text-center final-note">
             <b>NOTA FINAL</b>
         </td>
+        @endif
         <td class="text-center scale-width">
             <b>DESEMPEÑO</b>
         </td>

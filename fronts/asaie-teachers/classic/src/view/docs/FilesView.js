@@ -15,8 +15,8 @@ Ext.define('Admin.view.docs.FilesView',{
     modal			: true,
     border			: false,
     config  : {
-        pathReadFile    : '',
-        pathUploadFile  : '',
+        pathReadFile    : 'files/read',
+        pathUploadFile  : 'files/upload',
         pathDeleteFile  : 'files/delete',
         titlePanelLoad  : AppLang.getSButtonLoadFile(),
         titlePanelView  : AppLang.getSButtonMyFiles(),

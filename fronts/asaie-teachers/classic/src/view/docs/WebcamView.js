@@ -207,7 +207,7 @@ Ext.define('Admin.view.docs.WebcamView',{
                                                         me	 = Admin.getApplication();
 
                                                     Ext.Msg.show({
-                                                        title	: 'Elimiar datos',
+                                                        title	: 'Eliminar datos',
                                                         message	: 'Desea eliminar el archivo?',
                                                         buttons	: Ext.Msg.YESNO,
                                                         icon	: Ext.Msg.QUESTION,

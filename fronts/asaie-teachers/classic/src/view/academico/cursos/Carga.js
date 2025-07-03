@@ -263,7 +263,7 @@ Ext.define('Admin.view.academico.Carga',{
                                                     me	 = Admin.getApplication();
 
                                                 Ext.Msg.show({
-                                                    title	: 'Elimiar datos',
+                                                    title	: 'Eliminar datos',
                                                     message	: 'Desea eliminar el registro?',
                                                     buttons	: Ext.Msg.YESNO,
                                                     icon	: Ext.Msg.QUESTION,
@@ -512,7 +512,7 @@ Ext.define('Admin.view.academico.Carga',{
                                                 var cbtn = btn,
                                                     me	 = Admin.getApplication();
                                                 Ext.Msg.show({
-                                                    title	: 'Elimiar datos',
+                                                    title	: 'Eliminar datos',
                                                     message	: 'Desea eliminar el registro?',
                                                     buttons	: Ext.Msg.YESNO,
                                                     icon	: Ext.Msg.QUESTION,

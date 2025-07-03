@@ -51,7 +51,24 @@ Ext.define('Admin.view.docentes.AsignarCursoE', {
             course = me.down('customcombobox').getSelection(),
             socket = Global.getSocket();
 
-        socket.emit('insertData', {
+		Ext.Ajax.request({
+			url: Global.getApiUrl() + '/online-activities/assign-course',
+			method: 'POST',
+			params: {
+				evaluation_id: record.get('id'),
+				course_id: course.get('id'),
+				...Global.getSchoolParams(),
+			},
+			headers: Global.getHeaders(),
+			success: function(response) {
+				app.showResult('El curso ha sido asignado.');
+			},
+			failure: function() {
+				app.showResult('Error al asignar el curso', 'error');
+			}
+		});
+
+        /*socket.emit('insertData', {
             dataName: Global.getDbName(),
             table: 'te_evaluation_courses',
             values: {
@@ -72,6 +89,6 @@ Ext.define('Admin.view.docentes.AsignarCursoE', {
                 });
                 me.close();
             }
-        });
+        });*/
     }
 });

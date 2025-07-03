@@ -25,10 +25,10 @@ Ext.define('Admin.view.docentes.ActivitiesCourses',{
                 proxy: {
                     type	: 'ajax',
                     api: {
-                        create  : 'activities/insertData',
-                        read    : 'activities/getAsignacionAct',
-                        update  : 'master/updateData',
-                        destroy : 'master/deleteData'
+                        create  : 'crud',
+                        read    : 'online-activities/courses',
+                        update  : 'crud',
+                        destroy : 'online-activities/delete-course'
                     },
                     extraParams : {
                         pdbTable: 'ta_courses_online_activities',

@@ -2,7 +2,6 @@ Ext.define('Admin.view.docentes.OnlineActities',{
     extend	    : 'Admin.forms.CustomForm',
     alias 	    : 'widget.onlineactities',
     xtype 	    : 'onlineactities',
-    controller  : 'actividades',
     initComponent : function(){
         var me  = Admin.getApplication();
         me.onStore('docentes.OnlineActivitiesStore');

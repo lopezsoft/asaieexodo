@@ -7,10 +7,10 @@ Ext.define('Admin.store.docentes.OnlineActivitiesStore',{
     model   : 'Admin.model.docentes.MaterialEducativoModel',
     proxy : {
         api: {
-			create  : 'activities/insertActivities',
-			read    : 'activities/getActivities',
-			update  : 'master/updateData',
-			destroy : 'master/deleteData'
+			create  : 'online-activities/create',
+			read    : 'online-activities',
+			update  : 'crud',
+			destroy : 'crud'
 		},
         extraParams : {
             pdbTable    : 'ta_online_activities'

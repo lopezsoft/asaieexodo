@@ -21,15 +21,21 @@ Ext.define('Admin.view.docentes.StudentsOnlineActivities',{
         if(!me.getActivityId() > 0){
             me.getController().redirectTo('onlineactities', true);
         }else{
-            let studentsonlineactivitiesstore  = Ext.create('Admin.store.base.StoreUrl',{
+            let studentsonlineactivitiesstore  = Ext.create('Admin.store.base.StoreApi',{
                 model		: 'Admin.model.docentes.CargaModel',
                 proxy: {
                     type	: 'ajax',
-                    url     : 'activities/getStudentsByCourses',
                     extraParams : {
                         activityId    : me.getActivityId(),
-                        courseId        : me.getCourseId()
-                    }
+                        courseId      : me.getCourseId(),
+						pdbTable    : 'ta_courses_online_activities'
+                    },
+					api: {
+						create  : 'online-activities/create',
+						read    : 'online-activities/students-by-course',
+						update  : 'crud',
+						destroy : 'crud'
+					},
                 },
                 autoLoad: true
             });

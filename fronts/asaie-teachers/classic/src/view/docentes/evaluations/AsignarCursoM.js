@@ -11,7 +11,7 @@ Ext.define('Admin.view.docentes.AsignarCursoM', {
                 model: 'Admin.model.docentes.CargaModel',
                 proxy: {
                     type: 'ajax',
-                    url: 'activities/getAsignacionAct',
+                    url: 'online-activities/courses',
                     extraParams: {
                         id: me.getRecord().get('id'),
                         type: 1
@@ -45,13 +45,32 @@ Ext.define('Admin.view.docentes.AsignarCursoM', {
         me.callParent(arguments);
     },
     saveData: function(storeName, reload) {
-        var app = this.getApp(),
-            me = this,
-            record = me.getRecord(),
-            course = me.down('customcombobox').getSelection(),
-            socket = Global.getSocket();
+		const app = this.getApp(),
+			me = this,
+			record = me.getRecord(),
+			course = me.down('customcombobox').getSelection(),
+			socket = Global.getSocket();
+		// Send data to the server to assign the course via ajax
 
-        socket.emit('insertData', {
+		Ext.Ajax.request({
+			url: Global.getApiUrl() + '/online-activities/assign-course',
+			method: 'POST',
+			params: {
+				activity_id: record.get('id'),
+				course_id: course.get('id'),
+				...Global.getSchoolParams(),
+			},
+			headers: Global.getHeaders(),
+			success: function(response) {
+				app.showResult('El curso ha sido asignado.');
+				me.close();
+			},
+			failure: function() {
+				app.showResult('Error al asignar el curso', 'error');
+			}
+		});
+
+        /*socket.emit('insertData', {
             dataName: Global.getDbName(),
             table: 'ta_courses_online_activities',
             values: {
@@ -72,6 +91,6 @@ Ext.define('Admin.view.docentes.AsignarCursoM', {
                 });
                 me.close();
             }
-        });
+        });*/
     }
 });

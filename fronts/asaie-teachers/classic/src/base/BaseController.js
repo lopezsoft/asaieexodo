@@ -273,7 +273,7 @@ Ext.define('Admin.base.BaseController', {
 
     onDeleteView : function(cbtn){
         Ext.Msg.show({
-            title: 'Elimiar datos',
+            title: 'Eliminar datos',
             message: 'Desea eliminar el registro?',
             buttons: Ext.Msg.YESNO,
             icon: Ext.Msg.QUESTION,
@@ -336,18 +336,18 @@ Ext.define('Admin.base.BaseController', {
     },
 
     /**
-     * Funcion que muestra un Iframe con el informe devuelto del servidor
-     * @param xUrl - La ruta del informe
-     */
+	 * Funcion que muestra un Iframe con el informe devuelto del servidor
+	 * @param xUrl - La ruta del informe
+	 * @param xFormat
+	 */
     getIframe : function (xUrl, xFormat) {
         var
             me  = this;
         Ext.require('Admin.view.docs.IframeView');
         Ext.onReady(function () {
-            if (xFormat == 'pdf') {
-                var
-                    cHtml = '<object><embed  width="100%" height="100%" src="'+xUrl+'"></object>';
-                Ext.create('Admin.view.docs.IframeView',{
+            if (xFormat === 'pdf') {
+				const cHtml = '<object><embed  width="100%" height="100%" src="' + xUrl + '"></object>';
+				Ext.create('Admin.view.docs.IframeView',{
                     title 	: 'Vista previa del enlace',
                     html  	: cHtml,
                     width   : 700,

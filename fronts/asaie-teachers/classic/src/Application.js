@@ -349,7 +349,7 @@ Ext.define('Admin.Application', {
             me = this;
 
         Ext.Msg.show({
-            title: 'Elimiar datos',
+            title: 'Eliminar datos',
             message: 'Desea eliminar el registro?',
             buttons: Ext.Msg.YESNO,
             icon: Ext.Msg.QUESTION,
@@ -402,7 +402,7 @@ Ext.define('Admin.Application', {
             return false;
         }
         Ext.Msg.show({
-            title: 'Elimiar datos',
+            title: 'Eliminar datos',
             message: 'Desea eliminar el registro?',
             buttons: Ext.Msg.YESNO,
             icon: Ext.Msg.QUESTION,

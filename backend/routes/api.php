@@ -35,6 +35,8 @@ Route::prefix('v1')->group(function () {
         require_once __DIR__.'/education-processes.php';
         require_once __DIR__.'/students.php';
         require_once __DIR__.'/representative.php';
+        require_once __DIR__ .'/online-activities.php';
+        require_once __DIR__.'/online-evaluations.php';
         require_once __DIR__.'/files.php';
         require_once __DIR__.'/exports.php';
         require_once __DIR__.'/reports.php';

@@ -56,17 +56,20 @@ Ext.define('Admin.view.docentes.OnlineActitiesSave',{
                                     me.onStore('docs.ImageBrowserStore');
                                     var win = Ext.create({
                                         xtype           : 'FilesView',
-                                        pathReadFile    : 'c_docentes/read_files_mat_educ',
-                                        pathUploadFile  : 'c_docentes/upload_files_mat_educ',
+                                        pathReadFile    : 'files/read',
+                                        pathUploadFile  : 'files/upload',
+										extraParams     : {
+											'fileProfile' : 'Teacher',
+										},
                                         listeners : {
                                             afterselect : function (me, r) {
-                                                btn.up('form').down('#url_archivo').setValue(r.get('path_set'));
+                                                btn.up('form').down('#url_archivo').setValue(r.get('url'));
                                             },
                                             afterupload : function (me, r) {
                                                 btn.up('form').down('#url_archivo').setValue(r.foto);
                                             }
                                         }
-                                    }).on('apply', function(me){
+                                    }).on('apply', function(){
                                         win.close();
                                     });
                                     win.show();

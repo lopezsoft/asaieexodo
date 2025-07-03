@@ -106,7 +106,7 @@ Ext.define('Admin.view.docentes.EvaluacionesPreguntasEditView',{
                             var
                                 win     = btn.up('window');
                             Ext.Msg.show({
-                                title	: 'Elimiar respuestas',
+                                title	: 'Eliminar respuestas',
                                 message	: 'Desea eliminar todas las respuestas?',
                                 buttons	: Ext.Msg.YESNO,
                                 icon	: Ext.Msg.QUESTION,
@@ -231,7 +231,7 @@ Ext.define('Admin.view.docentes.EvaluacionesPreguntasEditView',{
             comp= null,
             fs  = me.down('#resp');
         Ext.Msg.show({
-            title	: 'Elimiar respuesta',
+            title	: 'Eliminar respuesta',
             message	: 'Desea eliminar la respuesta?',
             buttons	: Ext.Msg.YESNO,
             icon	: Ext.Msg.QUESTION,

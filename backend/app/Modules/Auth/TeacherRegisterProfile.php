@@ -22,60 +22,98 @@ class TeacherRegisterProfile implements AuthenticationRegisterContract
     {
         try {
             DB::beginTransaction();
-            $school         = SchoolQueries::getSchoolRequest($request);
-            $db             = $school->db;
-            $teacherList    = DB::table("{$db}docentes", "a")
-                                ->selectRaw("a.*, COUNT(a.documento) AS total")
-                                ->where('a.estado', 1)
-                                ->groupBy('a.documento')
-                                ->get();
-            foreach ($teacherList as $teacher) {
-                if ($teacher->total > 1) {
-                    continue;
-                }
-                $user       = User::where('email', $teacher->documento)->first();
-                if(!$user) {
-                    $teacherAndUser = DB::table("{$db}teachers_and_users_ids")
-                                        ->where('teacher_id', $teacher->id_docente)
-                                        ->first();
-                    if ($teacherAndUser){
-                        $user   = User::where('id', $teacherAndUser->user_id)->first();
-                    }
-                }
-                $teacherId  = $teacher->id_docente ?? $teacher->id;
-                if ($user) {
-                    $teacherAndUser = DB::table("{$db}teachers_and_users_ids")
-                                        ->where('teacher_id', $teacherId)
-                                        ->where('user_id', $user->id)
-                                        ->first();
-                    if (!$teacherAndUser){
-                        DB::table("{$db}teachers_and_users_ids")->insert([
-                            'teacher_id'    => $teacherId,
-                            'user_id'       => $user->id,
-                        ]);
-                        RegisterJob::dispatch($user->id, $request->schoolId, [4] );
-                    }
-                    continue;
-                }
-                $user = User::create([
-                    'email'             => $teacher->documento,
-                    'password'          => Hash::make($teacher->documento),
-                    'first_name'        => $teacher->nombre1,
-                    'last_name'         => $teacher->apellido1,
-                    'active'            => 1,
-                ]);
-                $user->email_verified_at = now();
-                $user->save();
-                DB::table("{$db}teachers_and_users_ids")->insert([
-                    'teacher_id'    => $teacherId,
-                    'user_id'       => $user->id,
-                ]);
-                RegisterJob::dispatch($user->id, $request->schoolId, [4] );
+
+            $schoolDb = SchoolQueries::getSchoolRequest($request)->db;
+
+            // Obtener solo docentes únicos que no estén duplicados.
+            $teachers = DB::table("{$schoolDb}docentes as a")
+                ->select('a.id_docente', 'a.documento', 'a.nombre1', 'a.apellido1')
+                ->where('a.estado', 1)
+                ->groupBy('a.documento')
+                ->havingRaw('COUNT(a.documento) = 1')
+                ->get();
+
+            if ($teachers->isEmpty()) {
+                DB::commit();
+                return HttpResponseMessages::getResponse(['message' => 'No hay docentes para procesar.']);
             }
+
+            // 1. Pre-buscar todos los vínculos existentes para los docentes encontrados.
+            $teacherIds = $teachers->pluck('id_docente');
+            $existingLinks = DB::table("{$schoolDb}teachers_and_users_ids")
+                ->whereIn('teacher_id', $teacherIds)
+                ->get()
+                ->keyBy('teacher_id'); // Clave por teacher_id para búsqueda rápida.
+
+            $usersToUpdate = [];
+            $newLinksToInsert = [];
+            $jobsToDispatch = [];
+
+            // 2. Iterar sobre los docentes para decidir si actualizar o crear.
+            foreach ($teachers as $teacher) {
+                // Si el teacher_id ya existe en la tabla de vínculos...
+                if ($existingLinks->has($teacher->id_docente)) {
+                    // 3. Preparar los datos para la ACTUALIZACIÓN del usuario existente.
+                    $link = $existingLinks->get($teacher->id_docente);
+                    $usersToUpdate[$link->user_id] = [ // Usar user_id como clave para evitar duplicados.
+                        'first_name' => $teacher->nombre1,
+                        'last_name'  => $teacher->apellido1,
+                        // Considera si también debes actualizar el email/documento.
+                        // 'email' => $teacher->documento,
+                    ];
+                } else {
+                    // 4. Si NO existe el vínculo, proceder con la lógica de CREACIÓN.
+                    $user = User::firstOrCreate(
+                        ['email' => $teacher->documento],
+                        [
+                            'password'          => Hash::make($teacher->documento),
+                            'first_name'        => $teacher->nombre1,
+                            'last_name'         => $teacher->apellido1,
+                            'email_verified_at' => now(),
+                        ]
+                    );
+
+                    $newLinksToInsert[] = [
+                        'teacher_id' => $teacher->id_docente,
+                        'user_id'    => $user->id,
+                    ];
+
+                    // Despachar job solo si el usuario es completamente nuevo.
+                    if ($user->wasRecentlyCreated) {
+                        $jobsToDispatch[] = [
+                            'userId'   => $user->id,
+                            'schoolId' => $request->schoolId,
+                            'roles'    => [4],
+                        ];
+                    }
+                }
+            }
+
+            // 5. Ejecutar todas las operaciones de base de datos después del bucle.
+
+            // Actualizar usuarios existentes
+            if (!empty($usersToUpdate)) {
+                foreach($usersToUpdate as $userId => $data) {
+                    User::where('id', $userId)->update($data);
+                }
+            }
+
+            // Insertar nuevos vínculos
+            if (!empty($newLinksToInsert)) {
+                DB::table("{$schoolDb}teachers_and_users_ids")->insertOrIgnore($newLinksToInsert);
+            }
+
+            // Despachar todos los jobs
+            foreach($jobsToDispatch as $jobData) {
+                RegisterJob::dispatch($jobData['userId'], $jobData['schoolId'], $jobData['roles']);
+            }
+
             DB::commit();
+
             return HttpResponseMessages::getResponse([
-                'message' => 'Se han registrado correctamente los usuarios'
+                'message' => 'Los docentes han sido procesados y actualizados correctamente.'
             ]);
+
         } catch (Exception $e) {
             DB::rollBack();
             return MessageExceptionResponse::response($e);

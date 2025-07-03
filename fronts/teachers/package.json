@@ -2,15 +2,9 @@
   "name": "teachers",
   "version": "2.1.7",
   "scripts": {
-    "ng": "ng",
-    "start": "set NODE_OPTIONS=--max_old_space_size=8192 & ng serve --open",
-    "start-hmr": "ng serve --configuration hmr --source-map=false --hmr-warning=false",
-    "start-hmr-sourcemaps": "ng serve --configuration hmr --source-map=true --hmr-warning=false",
-    "build": "node --max_old_space_size=8192 ./node_modules/@angular/cli/bin/ng build",
-    "build-stats": "node --max_old_space_size=8192 ./node_modules/@angular/cli/bin/ng build --stats-json",
-    "build:prod": "node --max_old_space_size=8192 ./node_modules/@angular/cli/bin/ng build --configuration production",
-    "build:prod-stats": "node --max_old_space_size=8192 ./node_modules/@angular/cli/bin/ng build --configuration production --stats-json",
-    "bundle-analyzer": "webpack-bundle-analyzer dist/vuexy/stats.json",
+   "ng": "ng",
+    "start": "ng serve -o --port 1842",
+    "build": "ng build --configuration production",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e"

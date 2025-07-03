@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * @method static create(array $array)
  * @method static where(string $string, $user_id)
+ * @method static firstOrCreate(array $array, int[] $array1)
  * @property mixed $user_id
  * @property mixed $school_id
  */

@@ -36,26 +36,37 @@ class RegisterJob implements ShouldQueue
      */
     public function handle()
     {
-        $user   = SchoolUser::where('user_id', $this->user_id)
-                    ->where('school_id', $this->school_id)
-                    ->first();
-        if (!$user) {
-            SchoolUser::create([
+        // 1. Usa firstOrCreate para simplificar la creación.
+        SchoolUser::firstOrCreate(
+            [
                 'user_id'   => $this->user_id,
                 'school_id' => $this->school_id,
+            ],
+            [
                 'state'     => 1,
-            ]);
-        }
-        DB::table('user_roles')->where('user_id', $this->user_id)
-            ->where('school_id', $this->school_id)
-            ->delete();
-        foreach ($this->roles as $role) {
-            DB::table('user_roles')->insert([
-                'user_id'   => $this->user_id,
-                'school_id' => $this->school_id,
-                'profile_id'=> $role,
-                'state'     => 1,
-            ]);
-        }
+            ]
+        );
+
+        // 2. Prepara los nuevos roles para una inserción masiva.
+        $rolesToInsert = collect($this->roles)->map(function ($role) {
+            return [
+                'user_id'    => $this->user_id,
+                'school_id'  => $this->school_id,
+                'profile_id' => $role,
+                'state'      => 1
+            ];
+        })->all();
+
+        // 3. Ejecuta solo 2 consultas: una para borrar y otra para insertar todo.
+        DB::transaction(function () use ($rolesToInsert) {
+            DB::table('user_roles')
+                ->where('user_id', $this->user_id)
+                ->where('school_id', $this->school_id)
+                ->delete();
+
+            if (!empty($rolesToInsert)) {
+                DB::table('user_roles')->insert($rolesToInsert);
+            }
+        });
     }
 }

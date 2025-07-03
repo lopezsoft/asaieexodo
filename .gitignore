@@ -20,8 +20,11 @@ yarn-error.log
 /.vscode
 /backend/nbproject/private/
 #public ignore
+/backend/public/admin
+/backend/public/admin/*
 /backend/public/hot
 /backend/public/storage
+/backend/composer.lock.json
 /backend/public/reports/**/*.jasper
 backend/public/reports/**/*.jasper
 **.jasper

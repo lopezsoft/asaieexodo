@@ -323,19 +323,18 @@ Ext.define('Admin.view.docentes.EvaluationPanel',{
 		this.down('#ptos_preg').setValue(100);
     },
     onValorRespuestaRd : function (btn) {
-        var
-            me          = this,
-            fs          = me.down('#resp'),
-            list        = fs.items.items,
-            valQ        = 0,
-            valR        = 0;
-        this.onValorPregunta();
+		let me = this,
+			fs = me.down('#resp'),
+			list = fs.items.items,
+			valQ = 0,
+			valR = 0;
+		this.onValorPregunta();
         if (btn.getValue()){
             valQ    = me.down('#ptos_preg').getValue();
             valR    = valQ;
             list.forEach(ele => {
                 ele.down('customnumberfield').setValue(0);
-                if (ele.getItemId() != btn.up('multiplechoicequestion').getItemId()){
+                if (ele.getItemId() !== btn.up('multiplechoicequestion').getItemId()){
                     ele.down('customcheckboxfield').setValue(false);
                 }
             });
@@ -381,118 +380,122 @@ Ext.define('Admin.view.docentes.EvaluationPanel',{
             quest_id= me.getDataId(id),
             pCorrec = false;
 
-        if(quest_id > 0){ // Actualiza la pregunta existente
-            dataP   = { 
-                dataName: gb.getDbName(),
-                table   : 'te_evaluation_questions',
-                values  : [{
-                    pregunta        : values.question_name,
-                    num_respuestas  : items.length
-                },{
-                    id  : quest_id
-                }]
-            };
-        }else{ // Nueva pregunta
-            dataP   = { 
-                dataName: gb.getDbName(),
-                table   : 'te_evaluation_questions',
-                values  : {
-                    evaluation_id   : record.get('id'),
-                    pregunta        : values.question_name,
-                    valor           : values.question_points,
-                    type_id         : values.type_question,
-                    num_respuestas  : items.length,
-                    estado          : 1
-                }
-            };
-        }
+		let dataP;
+		if (quest_id > 0) { // Actualiza la pregunta existente
+			dataP = {
+				dataName: gb.getDbName(),
+				table: 'te_evaluation_questions',
+				values: {
+					pregunta: values.question_name,
+					num_respuestas: items.length
+				},
+				where: {
+					id: quest_id
+				}
+			};
+		} else { // Nueva pregunta
+			dataP = {
+				dataName: gb.getDbName(),
+				table: 'te_evaluation_questions',
+				values: {
+					evaluation_id: record.get('id'),
+					pregunta: values.question_name,
+					valor: values.question_points,
+					type_id: values.type_question,
+					num_respuestas: items.length,
+					estado: 1
+				}
+			};
+		}
         let 
             type_question = values.type_question ? values.type_question : me.getTypeQuestion();
-        if (items.length == 0){
+        if (items.length === 0){
             app.showResult('No hay respuestas asignadas a la pregunta.','error');
         }else {
             me.mask('Guardando...');
-            if (type_question == '1') { // Pregunta abierta o general
+            if (type_question === '1') { // Pregunta abierta o general
                 if (quest_id > 0) {
                     let
                         answer  = me.down('questiontypetext');
                     // Actualiza la pregunta existente
                     socket.emit('updateData',dataP,(err, res)=>{
-                        if(err){
-                            app.showResult('Error al guardar la pregunta.','error');
-                            me.unmask();
-                            socket.close();
-                        }else{
-                            // Guarda la nueva respuesta
-                            if(!answer.getAnswerId() > 0){
-                                dataR = {
-                                    dataName: gb.getDbName(),
-                                    table   : 'te_evaluation_answers',
-                                    values : {
-                                        question_id	: quest_id,
-                                        respuesta	: values.answer,
-                                        valor		: values.points,
-                                        verdadera	: 1,
-                                        estado		: 1
-                                    }
-                                };
-                                socket.emit('insertData',dataR,(err, res, id)=>{
-                                    if(err){
-                                        app.showResult('Error al guardar la respuesta.','error');
-                                    }else{
-                                        me.changeCls(2); // Cambia el estado de la pregunata a  guardada
-                                        answer.setAnswerId(id); // Se guarda el id de la respuesta
-                                        app.showResult('Petición realizada correctamente.');
-                                    }
-                                    socket.close();
-                                    me.unmask();
-                                });
-                            }else{
-                                me.unmask();
-                                app.showResult('Petición realizada correctamente.');
-                            }
-                        }
+						let dataR;
+						if (err) {
+							app.showResult('Error al guardar la pregunta.', 'error');
+							me.unmask();
+							socket.close();
+						} else {
+							// Guarda la nueva respuesta
+							if (!answer.getAnswerId() > 0) {
+								dataR = {
+									dataName: gb.getDbName(),
+									table: 'te_evaluation_answers',
+									values: {
+										question_id: quest_id,
+										respuesta: values.answer,
+										valor: values.points,
+										verdadera: 1,
+										estado: 1
+									}
+								};
+								socket.emit('insertData', dataR, (err, res, id) => {
+									if (err) {
+										app.showResult('Error al guardar la respuesta. ', 'error');
+									} else {
+										me.changeCls(2); // Cambia el estado de la pregunata a  guardada
+										answer.setAnswerId(id); // Se guarda el id de la respuesta
+										app.showResult('Petición realizada correctamente.');
+									}
+									socket.close();
+									me.unmask();
+								});
+							} else {
+								me.unmask();
+								app.showResult('Petición realizada correctamente.');
+							}
+						}
                     });
                 }else{
                     // Crear o guarda una nueva pregunta
                     socket.emit('insertData',dataP,(err, res, id)=>{
-                        if(err){
-                            app.showResult('Error al guardar la pregunta.','error');
-                            me.unmask();
-                            socket.close();
-                        }else{
-                            dataR = {
-                                dataName: gb.getDbName(),
-                                table   : 'te_evaluation_answers',
-                                values : {
-                                    question_id	: id,
-                                    respuesta	: values.answer,
-                                    valor		: values.points,
-                                    verdadera	: 1,
-                                    estado		: 1
-                                }
-                            };
-                            me.setDataId(id); // Se guarda el id de la pregunta
-                            socket.emit('insertData',dataR,(err, res, id)=>{
-                                if(err){
-                                    app.showResult('Error al guardar la respuesta.','error');
-                                }else{
-                                    me.changeCls(2); // Cambia el estado de la pregunata a  guardada
-                                    me.down('questiontypetext').setAnswerId(id); // Se guarda el id de la respuesta
-                                    me.down('cbtypequestions').setDisabled(true);
-                                    me.setTypeQuestion(type_question);
-                                    app.showResult('Petición realizada correctamente.');
-                                }
-                                socket.close();
-                                me.unmask();
-                            });
-                        }
+						let dataR;
+						if (err) {
+							app.showResult('Error al guardar la pregunta.', 'error');
+							me.unmask();
+							socket.close();
+						} else {
+							dataR = {
+								dataName: gb.getDbName(),
+								table: 'te_evaluation_answers',
+								values: {
+									question_id: id,
+									respuesta: values.answer,
+									valor: values.points,
+									verdadera: 1,
+									estado: 1
+								}
+							};
+							me.setDataId(id); // Se guarda el id de la pregunta
+							socket.emit('insertData', dataR, (err, res, id) => {
+								if (err) {
+									app.showResult('Error al guardar la respuesta.', 'error');
+								} else {
+									me.changeCls(2); // Cambia el estado de la pregunata a  guardada
+									me.down('questiontypetext').setAnswerId(id); // Se guarda el id de la respuesta
+									me.down('cbtypequestions').setDisabled(true);
+									me.setTypeQuestion(type_question);
+									app.showResult('Petición realizada correctamente.');
+								}
+								socket.close();
+								me.unmask();
+							});
+						}
                     });
                 }
             } else {
                 // Verifica si hay una pregunta marcada como correcta
                 values.correct.forEach(ele => {
-                    if (ele == 1) {
+                    if (ele === 1) {
                         pCorrec = true;
                         return false;
                     } 
@@ -512,43 +515,45 @@ Ext.define('Admin.view.docentes.EvaluationPanel',{
                             socket.close();
                         }else{
                             items.forEach(ele => {
-                                if(ele.getAnswerId() > 0){
-                                    dataR = {
-                                        dataName: gb.getDbName(),
-                                        table   : 'te_evaluation_answers',
-                                        values : [{
-                                            respuesta	: ele.down('customtext').getValue(),
-                                            valor		: ele.down('customnumberfield').getValue(),
-                                            verdadera	: ele.down('customcheckboxfield').getValue()
-                                        },{
-                                            id : ele.getAnswerId()
-                                        }]
-                                    };
-                                    socket.emit('updateData',dataR,(err, res)=>{
-                                        if(err){
-                                            app.showResult('Error al guardar la respuesta.','error');
-                                        }
-                                    });
-                                }else{
-                                    dataR = {
-                                        dataName: gb.getDbName(),
-                                        table   : 'te_evaluation_answers',
-                                        values : {
-                                            question_id	: quest_id,
-                                            respuesta	: ele.down('customtext').getValue(),
-                                            valor		: ele.down('customnumberfield').getValue(),
-                                            verdadera	: ele.down('customcheckboxfield').getValue(),
-                                            estado		: 1
-                                        }
-                                    };
-                                    socket.emit('insertData',dataR,(err, res, id)=>{
-                                        if(err){
-                                            app.showResult('Error al guardar la respuesta: ' + ele.down('customtext').getValue(),'error');
-                                        }else{
-                                            ele.setAnswerId(id); // Se guarda el id de la respuesta
-                                        }
-                                    });
-                                }
+								let dataR;
+								if (ele.getAnswerId() > 0) {
+									dataR = {
+										dataName: gb.getDbName(),
+										table: 'te_evaluation_answers',
+										values: {
+											respuesta: ele.down('customtext').getValue(),
+											valor: ele.down('customnumberfield').getValue(),
+											verdadera: ele.down('customcheckboxfield').getValue()
+										},
+										where: {
+											id: ele.getAnswerId()
+										}
+									};
+									socket.emit('updateData', dataR, (err, res) => {
+										if (err) {
+											app.showResult('Error al guardar la respuesta.', 'error');
+										}
+									});
+								} else {
+									dataR = {
+										dataName: gb.getDbName(),
+										table: 'te_evaluation_answers',
+										values: {
+											question_id: quest_id,
+											respuesta: ele.down('customtext').getValue(),
+											valor: ele.down('customnumberfield').getValue(),
+											verdadera: ele.down('customcheckboxfield').getValue(),
+											estado: 1
+										}
+									};
+									socket.emit('insertData', dataR, (err, res, id) => {
+										if (err) {
+											app.showResult('Error al guardar la respuesta: ' + ele.down('customtext').getValue(), 'error');
+										} else {
+											ele.setAnswerId(id); // Se guarda el id de la respuesta
+										}
+									});
+								}
                             });
                             me.unmask();
                             me.changeCls(2); // Cambia el estado de la pregunata a  guardada
@@ -565,17 +570,17 @@ Ext.define('Admin.view.docentes.EvaluationPanel',{
                         }else{
                             me.setDataId(id); // Se guarda el id de la pregunta
                             items.forEach(ele => {
-                                dataR = {
-                                    dataName: gb.getDbName(),
-                                    table   : 'te_evaluation_answers',
-                                    values : {
-                                        question_id	: id,
-                                        respuesta	: ele.down('customtext').getValue(),
-                                        valor		: ele.down('customnumberfield').getValue(),
-                                        verdadera	: ele.down('customcheckboxfield').getValue(),
-                                        estado		: 1
-                                    }
-                                };
+								let dataR = {
+									dataName: gb.getDbName(),
+									table: 'te_evaluation_answers',
+									values: {
+										question_id: id,
+										respuesta: ele.down('customtext').getValue(),
+										valor: ele.down('customnumberfield').getValue(),
+										verdadera: ele.down('customcheckboxfield').getValue(),
+										estado: 1
+									}
+								};
                                 socket.emit('insertData',dataR,(err, res, idp)=>{
                                     if(err){
                                         app.showResult('Error al guardar la respuesta: ' + ele.down('customtext').getValue(),'error');

@@ -191,90 +191,94 @@ Ext.define('Admin.view.docentes.controller.ActiviadesController', {
             record = form.down('grid').getSelection()[0],
             items = [],
             numQuest = parseInt(record.get('num_preguntas'));
-        view = Admin.getApplication().getMainView();
-        if (view) {
-            data = {
-                fields: 'count(*) total',
-                dataName: Global.getDbName(),
-                table: 'te_evaluation_questions',
-                where: 'evaluation_id = ? ',
-                values: [record.get('id')]
-            };
-            socket = Global.getSocket();
-            socket.emit('querySelect', data, function(err, res) {
-                if (err) {
-                    Admin.getApplication().onError(err.sqlMessage);
-                    return
-                };
-                if (res.length > 0) {
-                    val = numQuest - res[0].total;
-                    if (val > 0) {
-                        numQuest = val;
-                        form.mask();
-                        cont = view.getController();
-                        cont.onRemove('evaluationcreate');
-                        items.push({
-                            height: 230,
-                            cls: 'kpi-meta-charts',
-                            userCls: 'small-100 big-100',
-                            layout: {
-                                type: 'hbox',
-                                align: 'stretch'
-                            },
-                            items: [{
-                                xtype: 'panel',
-                                bodyCls: 'statistics-body shadow',
-                                flex: 1,
-                                title: 'REGISTRO DE PREGUNTAS A LA EVALUACIÓN:',
-                                tpl: [
-                                    '<div class="statistic-header">' + record.get('nombre') + 's</div>',
-                                    '<tpl for=".">',
-                                    '<div class="statistic-description">{description}</div>',
-                                    '<div class="sparkline">',
-                                    '<div class="sparkline-inner sparkline-inner-{status}" style="width: {[values.ratio * 100]}%;"></div>',
-                                    '</div>',
-                                    '</tpl>'
-                                ],
-                                data: [{
-                                    status: 'active',
-                                    description: record.get('descripcion'),
-                                    ratio: 1
-                                }, {
-                                    status: 'ended',
-                                    description: record.get('tiempo') + ' minutos',
-                                    ratio: 1
-                                }, {
-                                    status: 'paused',
-                                    description: record.get('num_preguntas') + ' preguntas',
-                                    ratio: 1
-                                }]
-                            }]
-                        });
-                        for (let index = 1; index <= numQuest; index++) {
-                            items.push({
-                                cls: 'kpi-meta-charts',
-                                xtype: 'evaluationpanel',
-                                info: 'Pregunta ' + (index).toString() + ' de ' + numQuest,
-                                questionId: index
-                            });
-                        }
-                        newView = Ext.create({
-                            xtype: 'evaluationcreate',
-                            routeId: 'evaluationcreate',
-                            totalQuestions: numQuest,
-                            record: record,
-                            newItems: items,
-                            hideMode: 'offsets'
-                        });
-                        form.unmask();
-                        cont.setChangeCurrentView('evaluationcreate', newView);
-                    } else {
-                        me.showResult('No hay preguntas faltantes.');
-                    }
-                }
-                socket.close();
-            });
-        }
+
+		let view = Admin.getApplication().getMainView();
+		let socket;
+		let data;
+		if (view) {
+			data = {
+				sql: `SELECT count(*) total FROM ${Global.getDbName()}.te_evaluation_questions`,
+				where: 'evaluation_id = ? ',
+				values: [record.get('id')]
+			};
+			socket = Global.getSocket();
+			socket.emit('querySelect', data, function (err, res) {
+				if (err) {
+					Admin.getApplication().onError(err.sqlMessage);
+					return
+				}
+				let val;
+				let cont;
+				let newView;
+				if (res.records.length > 0) {
+					val = numQuest - res.records[0].total;
+					if (val > 0) {
+						numQuest = val;
+						form.mask();
+						cont = view.getController();
+						cont.onRemove('evaluationcreate');
+						items.push({
+							height: 230,
+							cls: 'kpi-meta-charts',
+							userCls: 'small-100 big-100',
+							layout: {
+								type: 'hbox',
+								align: 'stretch'
+							},
+							items: [{
+								xtype: 'panel',
+								bodyCls: 'statistics-body shadow',
+								flex: 1,
+								title: 'REGISTRO DE PREGUNTAS A LA EVALUACIÓN:',
+								tpl: [
+									'<div class="statistic-header">' + record.get('nombre') + 's</div>',
+									'<tpl for=".">',
+									'<div class="statistic-description">{description}</div>',
+									'<div class="sparkline">',
+									'<div class="sparkline-inner sparkline-inner-{status}" style="width: {[values.ratio * 100]}%;"></div>',
+									'</div>',
+									'</tpl>'
+								],
+								data: [{
+									status: 'active',
+									description: record.get('descripcion'),
+									ratio: 1
+								}, {
+									status: 'ended',
+									description: record.get('tiempo') + ' minutos',
+									ratio: 1
+								}, {
+									status: 'paused',
+									description: record.get('num_preguntas') + ' preguntas',
+									ratio: 1
+								}]
+							}]
+						});
+						for (let index = 1; index <= numQuest; index++) {
+							items.push({
+								cls: 'kpi-meta-charts',
+								xtype: 'evaluationpanel',
+								info: 'Pregunta ' + (index).toString() + ' de ' + numQuest,
+								questionId: index
+							});
+						}
+						newView = Ext.create({
+							xtype: 'evaluationcreate',
+							routeId: 'evaluationcreate',
+							totalQuestions: numQuest,
+							record: record,
+							newItems: items,
+							hideMode: 'offsets'
+						});
+						form.unmask();
+						cont.setChangeCurrentView('evaluationcreate', newView);
+					} else {
+						me.showResult('No hay preguntas faltantes.');
+					}
+				}
+				socket.close();
+			});
+		}
     },
 
     onEvaluaciones: function(btn) {

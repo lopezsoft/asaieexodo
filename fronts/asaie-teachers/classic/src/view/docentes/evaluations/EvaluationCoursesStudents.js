@@ -25,7 +25,7 @@ Ext.define('Admin.view.docentes.EvaluationCoursesStudents',{
                 model		: 'Admin.model.docentes.CargaModel',
                 proxy: {
                     type	: 'ajax',
-                    url     : 'evaluations/getStudentsByCourses',
+                    url     : 'online-evaluations/students-by-course',
                     extraParams : {
                         evaluationId    : me.getEvaluationId(),
                         courseId        : me.getCourseId()

@@ -11,7 +11,7 @@ Ext.define('Admin.view.docentes.AsignarCursoE', {
                 model: 'Admin.model.docentes.CargaModel',
                 proxy: {
                     type: 'ajax',
-                    url: 'evaluations/getAsignacionEval',
+                    url: 'online-evaluations/courses',
                     extraParams: {
                         id: me.getRecord().get('id'),
                         type: 1
@@ -45,14 +45,13 @@ Ext.define('Admin.view.docentes.AsignarCursoE', {
         me.callParent(arguments);
     },
     saveData: function(storeName, reload) {
-        var app = this.getApp(),
-            me = this,
-            record = me.getRecord(),
-            course = me.down('customcombobox').getSelection(),
-            socket = Global.getSocket();
+		const app = this.getApp(),
+			me = this,
+			record = me.getRecord(),
+			course = me.down('customcombobox').getSelection();
 
 		Ext.Ajax.request({
-			url: Global.getApiUrl() + '/online-activities/assign-course',
+			url: Global.getApiUrl() + '/online-evaluations/assign-course',
 			method: 'POST',
 			params: {
 				evaluation_id: record.get('id'),
@@ -62,33 +61,11 @@ Ext.define('Admin.view.docentes.AsignarCursoE', {
 			headers: Global.getHeaders(),
 			success: function(response) {
 				app.showResult('El curso ha sido asignado.');
+				me.close();
 			},
 			failure: function() {
 				app.showResult('Error al asignar el curso', 'error');
 			}
 		});
-
-        /*socket.emit('insertData', {
-            dataName: Global.getDbName(),
-            table: 'te_evaluation_courses',
-            values: {
-                evaluation_id: record.get('id'),
-                course_id: course.get('id')
-            }
-        }, function(err, res, id) {
-            if (err) {
-                app.showResult('Error al asignar el curso', 'error');
-                socket.close();
-            } else {
-                app.showResult('El curso ha sido asignado.');
-                socket.emit('sendEvaluation', {
-                    id: id,
-                    cfg: Global.getCfg()
-                }, function() {
-                    socket.close();
-                });
-                me.close();
-            }
-        });*/
     }
 });

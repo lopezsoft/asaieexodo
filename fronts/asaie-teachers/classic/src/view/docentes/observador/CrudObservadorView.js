@@ -143,7 +143,7 @@ Ext.define('Admin.view.docentes.observador.CrudObservadorView' ,{
 		}
 		form 	= me.getWinObject().down('form'),
 		form.reset(true);
-		if(btn.itemId == 'editButton'){
+		if(btn.itemId === 'editButton'){
 			form.loadRecord(data);
 		}
 		me.getWinObject().setRecord(me.getRecord());

@@ -273,34 +273,34 @@ Ext.define('Admin.view.docentes.Evaluaciones', {
             r = d,
             cls = '',
             data = {};
-        if (r) {
-            data = {
-                fields: 'count(*) total',
-                dataName: Global.getDbName(),
-                table: 'te_evaluation_questions',
-                where: 'evaluation_id = ? ',
-                values: [r.get('id')]
-            };
-            socket = Global.getSocket();
-            socket.emit('querySelect', data, function(err, data) {
-                if (err) {
-                    Admin.getApplication().onError(err.sqlMessage);
-                    return
-                };
-                if (data.length > 0) {
-                    val = r.get('num_preguntas') - data[0].total;
-                    if (data[0].total < r.get('num_preguntas')) {
-                        cls = 'x-btn-badgeCls';
-                    } else {
-                        cls = 'x-btn-badgeCls-green';
-                    }
-                    parent.down('#btnAddQuestion').setDisabled(val > 0 ? false : true);
-                    bg = parent.down('badgebutton');
-                    bg.setBadgeText(val.toString());
-                    bg.setBadgeCls(cls);
-                }
-                socket.close();
-            });
-        }
+		let socket;
+		if (r) {
+			data = {
+				sql: `SELECT count(*) as total FROM ${Global.getDbName()}.te_evaluation_questions`,
+				where: 'evaluation_id = ? ',
+				values: [r.get('id')]
+			};
+			socket = Global.getSocket();
+			socket.emit('querySelect', data, function (err, data) {
+				if (err) {
+					Admin.getApplication().onError(err.message);
+					return
+				}
+				let val;
+				if (data.records.length > 0) {
+					val = r.get('num_preguntas') - data.records[0].total;
+					if (data.records[0].total < r.get('num_preguntas')) {
+						cls = 'x-btn-badgeCls';
+					} else {
+						cls = 'x-btn-badgeCls-green';
+					}
+					parent.down('#btnAddQuestion').setDisabled(val <= 0);
+					bg = parent.down('badgebutton');
+					bg.setBadgeText(val.toString());
+					bg.setBadgeCls(cls);
+				}
+				socket.close();
+			});
+		}
     }
 });

@@ -7,15 +7,15 @@ Ext.define('Admin.view.config.Configs', {
         avatarWomen: "/assets/img/avatars/woman.png",
         avatarUnknoun: "/assets/img/avatars/unknown.png",
         socket: null,
-       /* hostSocket	: 'https://ns547829.ip-66-70-178.net:3001',
+        hostSocket	: 'https://wss.asaie.co',
         urlBase		: "https://api.asaie.co",
         urlLocation	: "https://teachers.asaie.co",
-		apiUrl		: "https://api.asaie.co/api/v1",*/
+		apiUrl		: "https://api.asaie.co/api/v1",
 		year		: 0,
-		hostSocket	: 'http://localhost:8081',
+	/*	hostSocket	: 'http://localhost:8081',
 		urlBase		: "http://asaieexodo.test",
 		urlLocation	: "http://asaieexodo.test",
-		apiUrl		: "http://asaieexodo.test/api/v1",
+		apiUrl		: "http://asaieexodo.test/api/v1",*/
 		reportUrl	: "http://asaie.rep",
 		competences: [],
 		scale: [],
@@ -76,6 +76,14 @@ Ext.define('Admin.view.config.Configs', {
 		return param;
 	},
 
+	getDbName: function() {
+		if(!AuthToken.recoverParams()) {
+			return "";
+		}
+		const {school}	= AuthToken.recoverParams();
+		return school.database_name || "";
+	},
+
 	isEnabledYear: function() {
 		const params	= this.getSchoolParams();
 		const dt		= new Date();
@@ -93,25 +101,30 @@ Ext.define('Admin.view.config.Configs', {
     compareObjects: function(obj1, obj2) {
         return JSON.stringify(obj1) === JSON.stringify(obj2);
     },
-    /**
-     * Función que devuelve el socked
-     * @function getSocket
-     */
-    getSocket: function() {
-        return me.socket;
-    },
+	/**
+	 * Función que devuelve el socked
+	 * @function getSocket
+	 */
+	getSocket: function() {
+		const me = this;
+		me.socket = io.connect(me.getHostSocket(), { 'forceNew': true });
+		me.socket.on('connect_error', function(error) {
+			console.log(error);
+			Admin.getApplication().showResult('No hay conexión con el servidor de sockets, contante al administrador del sistema.', 'error');
+		});
+		return me.socket;
+	},
 
-    /** Función que devuelve el estado de la conexión del socket
-     * @function getConnectionSocket
-     * @returns {boolean} Estado de la conexión
-     */
+	/** Función que devuelve el estado de la conexión del socket
+	 * @function getConnectionSocket
+	 * @returns {boolean} Estado de la conexión
+	 */
 
-    getConnectionSocket: function() {
-        var
-            conn = this.getSocket();
-        //return conn.connected;
-        return true;
-    },
+	getConnectionSocket: function() {
+		var
+			conn = this.getSocket();
+		return conn.connected;
+	},
 
     // Funcion que convierte en minuscula el primer carater de un String.
     getFirstLowerCase: function(s) {

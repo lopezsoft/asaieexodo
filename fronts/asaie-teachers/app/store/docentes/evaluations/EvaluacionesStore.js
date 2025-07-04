@@ -10,10 +10,10 @@ Ext.define('Admin.store.docentes.EvaluacionesStore',{
             pdbTable    : 'te_evaluations'
         },
         api: {
-            create  : 'evaluations/insertEvaluations',
-            read    : 'evaluations/getEvaluations',
-            update  : 'master/updateData',
-            destroy : 'master/deleteData'
+            create  : 'online-evaluations/create',
+            read    : 'online-evaluations',
+            update  : 'crud',
+            destroy : 'crud'
         }
     }
 });

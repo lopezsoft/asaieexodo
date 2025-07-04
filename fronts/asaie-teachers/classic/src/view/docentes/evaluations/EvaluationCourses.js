@@ -25,10 +25,10 @@ Ext.define('Admin.view.docentes.EvaluationCourses',{
                 proxy: {
                     type	: 'ajax',
                     api: {
-                        create  : 'evaluations/insertData',
-                        read    : 'evaluations/getAsignacionEval',
-                        update  : 'master/updateData',
-                        destroy : 'master/deleteData'
+                        create  : 'crud',
+                        read    : 'online-evaluations/courses',
+                        update  : 'crud',
+                        destroy : 'online-evaluations/delete-course'
                     },
                     extraParams : {
                         pdbTable: 'te_evaluation_courses',

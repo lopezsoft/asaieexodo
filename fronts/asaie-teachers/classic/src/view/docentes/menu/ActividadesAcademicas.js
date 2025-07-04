@@ -35,6 +35,7 @@ Ext.define('Admin.view.docentes.menu.ActividadesAcademicas',{
                     xtype   : 'buttonPanel',
 					text    : 'Clases en vivo',
 					handler : 'onLiveClasses',
+					disabled: true,
                     iconCls : 'fas fa-video'
                 }
             ]

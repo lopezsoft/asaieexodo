@@ -19,16 +19,16 @@ Ext.define('Admin.view.docentes.EvaluationResult',{
                 proxy: {
                     type	: 'ajax',
                     api: {
-                        create  : '#master/insertData',
-                        read    : 'evaluations/getEvaluationResult',
-                        update  : 'master/updateData',
-                        destroy : 'master/deleteData'
+                        create  : 'crud',
+                        read    : 'online-evaluations/result',
+                        update  : 'crud',
+                        destroy : 'crud'
                     },
                     extraParams : {
-                        id      : me.getEvaluationId(),
-                        courseId: me.getCourseId(),
-                        pdbTable: 'te_evaluation_result',
-                        type    : 2
+						evaluationId	: me.getEvaluationId(),
+                        courseId		: me.getCourseId(),
+                        pdbTable		: 'te_evaluation_result',
+                        type    		: 2
                     }
                 },
                 autoLoad: true

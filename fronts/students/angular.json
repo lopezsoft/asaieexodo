@@ -45,8 +45,7 @@
                             "node_modules/highlight.js/scss/atom-one-dark.scss",
                             "src/assets/fonts/feather/iconfont.css",
                             "src/assets/fonts/font-awesome/css/font-awesome.min.css",
-                            "src/assets/fonts/flag-icon-css/css/flag-icon.min.css",
-                            "node_modules/ngx-toastr/toastr.css"
+                            "src/assets/fonts/flag-icon-css/css/flag-icon.min.css"
                         ],
                         "stylePreprocessorOptions": {
                             "includePaths": ["node_modules", "src/assets/"]
@@ -101,22 +100,22 @@
                 "serve": {
                     "builder": "@angular-devkit/build-angular:dev-server",
                     "options": {
-                      "buildTarget": "vuexy:build"
+                        "browserTarget": "vuexy:build"
                     },
                     "configurations": {
                         "production": {
-                          "buildTarget": "vuexy:build:production"
+                            "browserTarget": "vuexy:build:production"
                         },
                         "hmr": {
                             "hmr": true,
-                            "buildTarget": "vuexy:build:hmr"
+                            "browserTarget": "vuexy:build:hmr"
                         }
                     }
                 },
                 "extract-i18n": {
                     "builder": "@angular-devkit/build-angular:extract-i18n",
                     "options": {
-                      "buildTarget": "vuexy:build"
+                        "browserTarget": "vuexy:build"
                     }
                 },
                 "test": {
@@ -153,6 +152,7 @@
             }
         }
     },
+    "defaultProject": "vuexy",
     "cli": {
         "analytics": false
     }

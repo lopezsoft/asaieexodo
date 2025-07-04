@@ -6,6 +6,7 @@ import {
     UsersListComponent,
 } from "./index";
 import { UsersContainerComponent } from "./users-container.component";
+import {FamilyProfileComponent} from "./family-profile/family-profile.component";
 const routes: Routes = [
     {
         path: "",
@@ -30,6 +31,10 @@ const routes: Routes = [
     {
         path: 'teachers/profile',
         component: TeachersProfileComponent
+    },
+    {
+        path: 'family/profile',
+        component: FamilyProfileComponent
     }
 ];
 

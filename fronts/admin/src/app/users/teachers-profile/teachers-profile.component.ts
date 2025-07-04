@@ -27,8 +27,9 @@ export class TeachersProfileComponent extends BaseComponent implements OnInit {
 		this.user.getUserSchools();
 	}
 	createData(): void {
-		this.user.createTeacherProfile({
-			schoolId: this.school_id
+		this.user.createCampusProfile({
+			schoolId: this.school_id,
+			profile: 'teacher',
 		});
 	}
 	onChangeSchool(e) {

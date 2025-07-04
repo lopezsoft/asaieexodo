@@ -29,7 +29,14 @@ export class CoreMenuHorizontalCollapsibleComponent implements OnInit, OnDestroy
 
   // Private
   private _unsubscribeAll: Subject<any>;
-  
+
+  /**
+   * Constructor
+   *
+   * @param {Router} _router
+   * @param {CoreConfigService} _coreConfigService
+   * @param {CoreMenuService} _coreMenuService
+   */
   constructor(
     private el: ElementRef,
     private _router: Router,
@@ -65,12 +72,20 @@ export class CoreMenuHorizontalCollapsibleComponent implements OnInit, OnDestroy
       )
       .subscribe((event: NavigationEnd) => {
         // Confirm if the urlAfterRedirects can be found in one of the children of this item
-        this.isActive = this.confirmUrlInChildren(this.item, event.urlAfterRedirects);
+        if (this.confirmUrlInChildren(this.item, event.urlAfterRedirects)) {
+          this.isActive = true;
+        } else {
+          this.isActive = false;
+        }
       });
 
     // Check if the url can be found in one of the children of this item
     // Required for onInit case (i.e switching theme customizer menu layout)
-    this.isActive = this.confirmUrlInChildren(this.item, this._router.url);
+    if (this.confirmUrlInChildren(this.item, this._router.url)) {
+      this.isActive = true;
+    } else {
+      this.isActive = false;
+    }
   }
 
   /**
@@ -78,7 +93,7 @@ export class CoreMenuHorizontalCollapsibleComponent implements OnInit, OnDestroy
    */
   ngOnDestroy(): void {
     // Unsubscribe from all subscriptions
-    this._unsubscribeAll.next(null);
+    this._unsubscribeAll.next();
     this._unsubscribeAll.complete();
   }
 
@@ -142,7 +157,7 @@ export class CoreMenuHorizontalCollapsibleComponent implements OnInit, OnDestroy
    * @param url
    * @returns {boolean}
    */
-  confirmUrlInChildren(parent: any, url: string): boolean {
+  confirmUrlInChildren(parent, url): boolean {
     const children = parent.children;
 
     // Return false if parent don't have any children

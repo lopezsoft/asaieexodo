@@ -2,9 +2,10 @@ import { NgModule } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { HttpClient, HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { HttpClient, HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 
 import 'hammerjs';
+import { NgFallimgModule } from 'ng-fallimg';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrModule } from 'ngx-toastr'; // For auth after login toast
 
@@ -33,42 +34,58 @@ import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { BlockUIModule } from 'ng-block-ui';
 import {UsersModule} from "./users/users.module";
 
-@NgModule({ declarations: [AppComponent],
-    bootstrap: [AppComponent], imports: [BrowserModule,
-        BrowserAnimationsModule,
-        TranslateModule.forRoot(),
-        BlockUIModule.forRoot(),
-        //NgBootstrap
-        NgbModule,
-        ToastrModule.forRoot(),
-        AppRoutingModule,
-        // Core modules
-        CoreModule.forRoot(coreConfig),
-        CoreCommonModule,
-        CoreSidebarModule,
-        CoreThemeCustomizerModule,
-        TranslateModule.forRoot({
-            loader: {
-                provide: TranslateLoader,
-                useFactory: (http: HttpClient) => {
-                    return new TranslateHttpLoader(http);
-                },
-                deps: [HttpClient]
-            }
-        }),
-        // App modules
-        LayoutModule,
-        SampleModule,
-        UsersModule], providers: [
-        AuthGuard,
-        FormBuilder,
-        {
-            provide: HTTP_INTERCEPTORS,
-            useClass: AuthInterceptor,
-            multi: true
-        },
-        { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
-        HttpServerService,
-        provideHttpClient(withInterceptorsFromDi())
-    ] })
+@NgModule({
+  declarations: [AppComponent],
+  imports: [
+    BrowserModule,
+    BrowserAnimationsModule,
+    HttpClientModule,
+  
+    TranslateModule.forRoot(),
+    BlockUIModule.forRoot(),
+    //NgBootstrap
+    NgbModule,
+    ToastrModule.forRoot(),
+    AppRoutingModule,
+    // Core modules
+    CoreModule.forRoot(coreConfig),
+    CoreCommonModule,
+    CoreSidebarModule,
+    CoreThemeCustomizerModule,
+    NgFallimgModule.forRoot({
+      default : 'assets/avatars/no-image.png',
+      user    : 'assets/avatars/unknown_img.png',
+      customer: 'assets/avatars/unknown_img.png',
+      product : 'assets/img/Product_32px.png',
+    }),
+    TranslateModule.forRoot({
+        loader: {
+          provide: TranslateLoader,
+          useFactory: (http: HttpClient) => {
+            return new TranslateHttpLoader(http);
+          },
+          deps: [ HttpClient ]
+        }
+    }),
+
+    // App modules
+    LayoutModule,
+    SampleModule,
+    UsersModule
+  ],
+
+  providers: [
+    AuthGuard,
+    FormBuilder,
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true
+    },
+    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
+    HttpServerService
+  ],
+
+  bootstrap: [AppComponent]
+})
 export class AppModule {}

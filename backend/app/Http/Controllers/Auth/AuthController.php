@@ -3,15 +3,21 @@ namespace App\Http\Controllers\Auth;
 use App\Contracts\Auth\Authentication;
 use App\Contracts\Auth\ProcessAuthorization;
 use App\Http\Controllers\Controller;
+use App\Modules\Auth\CampusRegisterProfile;
 use App\Modules\Auth\TeacherRegisterProfile;
 use App\Modules\Auth\UsersAccess;
 use Illuminate\Http\Request;
 
 class AuthController extends Controller implements Authentication
 {
-    public function teachersRegister(Request $request)
+    public function campusRegister(Request $request)
     {
-        return ProcessAuthorization::register($request, new TeacherRegisterProfile());
+        $profile = $request->input('profile', 'teacher');
+        if ($profile !== 'teacher') {
+            return ProcessAuthorization::register($request, new CampusRegisterProfile());
+        } else {
+            return ProcessAuthorization::register($request, new TeacherRegisterProfile());
+        }
     }
     public function register(Request $request)
     {

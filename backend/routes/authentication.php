@@ -10,7 +10,7 @@ Route::prefix('user')->group(function () {
 });
 Route::prefix('auth')->group(function () {
     Route::controller('Auth\AuthController')->group(function () {
-        Route::post('teachers/register',        'teachersRegister');
+        Route::post('campus/register',        'campusRegister');
         Route::post('register',                 'register');
         Route::post('login',                    'login');
         Route::group(['middleware' => 'auth:api'], function () {

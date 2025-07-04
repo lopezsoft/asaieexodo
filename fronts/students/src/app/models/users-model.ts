@@ -1,4 +1,5 @@
 import {Schools} from "./school-contract";
+import { Role } from '../auth/models'
 
 export interface Users {
   id: number;
@@ -11,6 +12,7 @@ export interface Users {
   avatar: string;
   active: boolean;
   schools: Schools[];
+  role: Role
 }
 
 export interface UserTypes {

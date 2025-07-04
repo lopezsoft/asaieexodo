@@ -8,9 +8,6 @@ label {
 
 // placeholder specific scss
 .form-control {
-  input, textarea {
-    background-color: white;
-  }
   &::placeholder {
     transition: all 0.2s ease;
   }
@@ -35,7 +32,7 @@ label {
 
 .custom-file-label {
   line-height: 1.75;
-  height: $custom-file-height-inner !important;
+  height: $custom-file-height !important;
   &:after {
     height: 2.56rem;
     line-height: 1.75;
@@ -362,7 +359,7 @@ select.form-control {
   }
 
   // Form-label
-  label {
+  > label {
     position: absolute;
     top: 0;
     left: 0;
@@ -376,7 +373,7 @@ select.form-control {
     opacity: 0;
   }
   // form-input
-  input,
+  > input,
   textarea {
     // from-input on focus change label color
     &:focus,

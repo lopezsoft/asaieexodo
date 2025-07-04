@@ -29,13 +29,18 @@ class TeacherRegisterProfile implements AuthenticationRegisterContract
             $teachers = DB::table("{$schoolDb}docentes as a")
                 ->select('a.id_docente', 'a.documento', 'a.nombre1', 'a.apellido1')
                 ->where('a.estado', 1)
+                ->whereNotExists(function ($query) use ($schoolDb) {
+                    $query->select(DB::raw(1))
+                        ->from("{$schoolDb}teachers_and_users_ids as b")
+                        ->whereRaw('b.teacher_id = a.id_docente');
+                })
                 ->groupBy('a.documento')
                 ->havingRaw('COUNT(a.documento) = 1')
                 ->get();
 
             if ($teachers->isEmpty()) {
                 DB::commit();
-                return HttpResponseMessages::getResponse(['message' => 'No hay docentes para procesar.']);
+                return HttpResponseMessages::getResponse(['message' => 'No hay docentes sin acceso para procesar.']);
             }
 
             // 1. Pre-buscar todos los vínculos existentes para los docentes encontrados.
@@ -70,6 +75,7 @@ class TeacherRegisterProfile implements AuthenticationRegisterContract
                             'first_name'        => $teacher->nombre1,
                             'last_name'         => $teacher->apellido1,
                             'email_verified_at' => now(),
+                            'user_type'         => 4, // Asignar tipo de usuario como docente
                         ]
                     );
 

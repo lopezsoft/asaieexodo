@@ -11,10 +11,18 @@
             Lista de usuarios
         </button>
     </div>
-    <div class="col-6 col-sm-4 col-md-2" *ngIf="user.isRolAccess()" title="Permite crear el perfil de acceso a los docentes que aun no lo tienen.">
+    <div class="col-6 col-sm-4 col-md-2" *ngIf="user.isRolAccess()"
+         appCustomTooltip="Permite crear el perfil de acceso a los docentes que aun no lo tienen.">
         <button type="button" class="btn btn-custom" (click)="goRoute('user/teachers/profile')">
             <i class="fas fa-chalkboard-teacher"></i>
             Crear perfil docente
+        </button>
+    </div>
+    <div class="col-6 col-sm-4 col-md-2" *ngIf="user.isRolAccess()"
+         appCustomTooltip="Permite crear el perfil de acceso a los estudiantes y familiares.">
+        <button type="button" class="btn btn-custom" (click)="goRoute('user/family/profile')">
+            <i class="fas fa-user-group"></i>
+            Crear perfil familiar
         </button>
     </div>
 </div>

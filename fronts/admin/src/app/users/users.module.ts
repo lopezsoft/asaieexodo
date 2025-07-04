@@ -14,6 +14,7 @@ import {
   UsersListComponent,
     TeachersProfileComponent
 } from "./index";
+import { FamilyProfileComponent } from './family-profile/family-profile.component';
 
 
 @NgModule({
@@ -23,7 +24,8 @@ import {
     UsersContainerComponent,
     UsersListComponent,
     UsersEditComponent,
-    TeachersProfileComponent
+    TeachersProfileComponent,
+    FamilyProfileComponent
   ],
   imports: [
     CommonModule,

@@ -102,7 +102,7 @@ export class CoreMenuVerticalCollapsibleComponent implements OnInit, OnDestroy {
    */
   ngOnDestroy(): void {
     // Unsubscribe from all subscriptions
-    this._unsubscribeAll.next(null);
+    this._unsubscribeAll.next();
     this._unsubscribeAll.complete();
   }
 
@@ -121,7 +121,7 @@ export class CoreMenuVerticalCollapsibleComponent implements OnInit, OnDestroy {
 
     // Menu collapse toggled...
     this._coreMenuService.onItemCollapsed.next(this.item);
-    this._coreMenuService.onItemCollapseToggled.next(null);
+    this._coreMenuService.onItemCollapseToggled.next();
   }
 
   /**
@@ -137,7 +137,7 @@ export class CoreMenuVerticalCollapsibleComponent implements OnInit, OnDestroy {
     // Mark for check
     this._changeDetectorRef.markForCheck();
 
-    this._coreMenuService.onItemCollapseToggled.next(null);
+    this._coreMenuService.onItemCollapseToggled.next();
   }
 
   /**
@@ -153,7 +153,7 @@ export class CoreMenuVerticalCollapsibleComponent implements OnInit, OnDestroy {
     // Mark for check
     this._changeDetectorRef.markForCheck();
 
-    this._coreMenuService.onItemCollapseToggled.next(null);
+    this._coreMenuService.onItemCollapseToggled.next();
   }
 
   /**
@@ -163,7 +163,7 @@ export class CoreMenuVerticalCollapsibleComponent implements OnInit, OnDestroy {
    * @param url
    * @returns {boolean}
    */
-  confirmUrlInChildren(parent: any, url: string): boolean {
+  confirmUrlInChildren(parent, url): boolean {
     const children = parent.children;
 
     // Return false if parent don't have any children
@@ -197,7 +197,7 @@ export class CoreMenuVerticalCollapsibleComponent implements OnInit, OnDestroy {
    * @param item
    * @returns {boolean}
    */
-  confirmItemInChildren(parent: any, item: any): boolean {
+  confirmItemInChildren(parent, item): boolean {
     const children = parent.children;
 
     // Return false if parent don't have any children

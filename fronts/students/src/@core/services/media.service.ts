@@ -33,15 +33,12 @@ export class CoreMediaService {
    * @private
    */
   private _init(): void {
-    this._mediaObserver.asObservable().pipe(debounceTime(500), distinctUntilChanged()).subscribe((change) => {
+    this._mediaObserver.media$.pipe(debounceTime(500), distinctUntilChanged()).subscribe((change: MediaChange) => {
       // console.log('subscription: ', change);
-      
-      change.forEach((mediaChange: MediaChange) => {
-        if (mediaChange.mqAlias !== this.currentMediaQuery) {
-          this.currentMediaQuery = mediaChange.mqAlias;
-          this.onMediaUpdate.next(mediaChange.mqAlias);
-        }
-      });
+      if (this.currentMediaQuery !== change.mqAlias) {
+        this.currentMediaQuery = change.mqAlias;
+        this.onMediaUpdate.next(change.mqAlias);
+      }
     });
   }
 }

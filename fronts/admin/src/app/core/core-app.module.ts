@@ -48,6 +48,11 @@ import { BlockUIModule } from 'ng-block-ui';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { HttpClient } from '@angular/common/http';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import {CustomTooltipDirective} from "./directives/custom-tooltip.directive";
+import { MoveElementDirective } from './directives/move-element.directive';
+import {ClickOutsideDirective} from "./directives/click-outside.directive";
+import {ImageFallbackDirective} from "./directives/image-fallback.directive";
+import { RestrictedAccessComponent } from './components/restricted-access/restricted-access.component';
 @NgModule({
   exports: [
     FooterFormComponent,
@@ -73,12 +78,22 @@ import { TranslateHttpLoader } from '@ngx-translate/http-loader';
     FormsModule,
     NgxMaskModule,
     ExodolibsModule,
+    CustomTooltipDirective,
+    MoveElementDirective,
+    ClickOutsideDirective,
+    ImageFallbackDirective,
+    RestrictedAccessComponent
   ],
   declarations: [
     FooterFormComponent,
     CustomCardsFooterComponent,
     CustomCardsHeaderComponent,
     CustomCardsBodyComponent,
+    CustomTooltipDirective,
+    MoveElementDirective,
+    ClickOutsideDirective,
+    ImageFallbackDirective,
+    RestrictedAccessComponent,
   ],
   imports: [
     CommonModule,

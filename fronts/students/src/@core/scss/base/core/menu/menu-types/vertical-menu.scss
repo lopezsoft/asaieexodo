@@ -183,12 +183,6 @@
       //Brand center content collapsed
       .app-content,
       .footer {
-        &.expand-boxed {
-          padding: 0 !important;
-        }
-        &.expand-boxed-navbar {
-          padding-top: 68px !important;
-        }
         @include main-menu-width($menu-collapsed-width);
       }
       .header-navbar {
@@ -240,12 +234,6 @@
       }
       .content,
       .footer {
-        &.expand-boxed {
-          padding: 0 !important;
-        }
-        &.expand-boxed-navbar {
-          padding-top: 68px !important;
-        }
         @include main-menu-width(0);
       }
       &.menu-collapsed {

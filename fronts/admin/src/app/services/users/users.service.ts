@@ -20,13 +20,13 @@ export class UsersService {
     public msg: MessagesService,
   ){}
 
-  createTeacherProfile(data: any = {}) {
-    this.mask.showBlockUI('Creando perfiles de usuario docente...');
-    this._http.post('/auth/teachers/register', data)
+  createCampusProfile(data: any = {}) {
+    this.mask.showBlockUI('Creando perfiles de usuario...');
+    this._http.post('/auth/campus/register', data)
       .subscribe({
-        next: () => {
+        next: (resp) => {
           this.mask.hideBlockUI();
-          this.msg.toastMessage('', 'Perfiles de usuario docente creado exitosamente.');
+          this.msg.toastMessage('', resp.message);
         },
         error: (err) => {
           this.mask.hideBlockUI();

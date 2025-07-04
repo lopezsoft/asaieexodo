@@ -20,7 +20,7 @@
     /><button class="btn search-input-close p-0" (click)="toggleSearch()"><span [data-feather]="'x'"></span></button>
 
     <!-- Search List -->
-    <ul class="search-list search-list-main" [class.show]="searchText !== ''" #pageList>
+    <ul class="search-list search-list-main" [perfectScrollbar] [class.show]="searchText !== ''" #pageList>
       <!-- Pages -->
       <li class="d-flex align-items-center">
         <a href="javascript:void(0)"><h6 class="section-label mt-75 mb-0">Pages</h6></a>

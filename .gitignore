@@ -19,6 +19,9 @@ yarn-error.log
 /.idea
 /.vscode
 /backend/nbproject/private/
+/fronts/exclude
+/fronts/exclude/
+/fronts/exclude/.*
 #public ignore
 /backend/public/admin
 /backend/public/admin/*
@@ -39,6 +42,8 @@ fronts/teachers/.idea
 fronts/teachers/.vscode
 fronts/teachers/node_modules
 fronts/teachers_old
+fronts/campus/public
+/fronts/campus/public/*
 #local
 /db/*.sql
 /documentacion

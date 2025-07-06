@@ -6,12 +6,10 @@ Ext.define('Admin.view.academico.container.AcademicContainerView',{
     reference   : 'academicContainerView',
     layout      : 'responsivecolumn' ,
 	initComponent: function () {
-		const { isSecretary, isCoordinador } = AuthToken.profileSettings();
+		const { isSecretary } = AuthToken.profileSettings();
 		this.items	= [
 			{
 				xtype   : 'containerButton',
-				disabled: !isSecretary,
-				hidden	: !isSecretary,
 				items   : [
 					{
 						xtype   : 'buttonPanel',
@@ -131,8 +129,6 @@ Ext.define('Admin.view.academico.container.AcademicContainerView',{
 			},
 			{
 				xtype   : 'containerButton',
-				disabled: !isSecretary,
-				hidden	: !isSecretary,
 				items   : [
 					{
 						xtype: 'buttonPanel',
@@ -181,8 +177,8 @@ Ext.define('Admin.view.academico.container.AcademicContainerView',{
 			},
 			{
 				xtype   : 'containerButton',
-				disabled: isSecretary || isCoordinador,
-				hidden	: isSecretary || isCoordinador,
+				disabled: isSecretary,
+				hidden	: isSecretary,
 				items   : [
 					{
 						xtype   : 'buttonPanel',

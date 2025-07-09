@@ -1,15 +1,5 @@
 {
   "lang": "es",
-  "data": {
-    "MENU": {
-      "HOME"      : "Dashboard",
-      "ADMIN"     : "Administrativo",
-      "ACADEMIC"  : "Académico",
-      "PROMOTION" : "Promoción",
-      "VOTE"      : "Elecciones escolares",
-      "SETTING"   : "Configuración"
-    }
-  },
   "export": {
     "excel" : " - Exportar a Excel",
     "csv"   : " - Exportar a CSV",
@@ -20,6 +10,17 @@
     "tsv"   : " - Exportar a TSV",
     "print" : " - Imprimir"
   },
+  "languages": {
+    "title" : "Cambiar idioma",
+    "label" : "Seleccione el idioma",
+    "button": "Cambiar",
+    "en" : "Inglés",
+    "es" : "Español",
+    "fr" : "Francés",
+    "pt" : "Portugués",
+    "it" : "Italiano",
+    "de" : "Alemán"
+  },
   "placeholder" : {
     "password"        : "Contraseña",
     "confirmPassword" : "Confirmar contraseña",
@@ -27,26 +28,62 @@
     "email"           : "Correo electrónico",
     "userName"        : "Nombre de usuario"
   },
-  "recoverPassword": {
-    "header"      : "Recuperar contraseña",
-    "description" : "Ingrese su dirección de correo electrónico y le enviaremos su nueva contraseña.",
-    "button"      : {
-      "recover"     : "Recuperar",
-      "recovering"  : "Recuperando..."
-    }
+  "forgotPassword": {
+    "title"      : "¿Olvidaste tu contraseña?",
+    "instructions" : "Ingrese la dirección de correo electrónico que utilizó cuando se unió y le enviaremos instrucciones para restablecer su contraseña.",
+    "emailLabel"  : "Correo electrónico",
+    "emailPlaceholder": "Escribe tu correo electrónico",
+    "submitButton": "Enviar instrucciones",
+    "backToSignIn": "Volver al inicio de sesión"
   },
-  "login" : {
+  "profile": {
+    "title": "Perfil de Usuario",
+    "firstName": "Nombre",
+    "lastName": "Apellidos",
+    "email": "Correo Electrónico"
+  },
+  "profileChange": {
+    "title": "Cambiar Nombre de Usuario",
+    "currentUsername": "Nombre de Usuario Actual",
+    "newEmail": "Nuevo nombre de usuario",
+    "newEmailPlaceholder": "Escribe el nuevo correo"
+  },
+  "validation": {
+    "required": "Este campo es obligatorio.",
+    "invalidEmail": "El formato del correo no es válido."
+  },
+  "resetPassword": {
+    "title"      : "¿Restablecer contraseña?",
+    "instructions" : "Ingrese su nueva contraseña y confírmela otra vez en el campo de abajo.",
+    "currentPassword": "Contraseña actual",
+    "currentPasswordPlaceholder": "Escribe tu contraseña actual",
+    "newPassword" : "Nueva contraseña",
+    "newPasswordLabel" : "Nueva contraseña",
+    "confirmPassword" : "Confirmar contraseña",
+    "confirmPasswordLabel" : "Confirmar contraseña",
+    "newPasswordPlaceholder" : "Escribe tu nueva contraseña",
+    "confirmPasswordPlaceholder" : "Confirma tu nueva contraseña",
+    "submitButton": "Restablecer contraseña",
+    "backToSignIn": "Volver al inicio de sesión"
+  },
+  "signIn" : {
+    "welcome": "¡Bienvenido a ASAIE ÉXODO!",
+    "instructions": "Inicia sesión con tu cuenta social o ingresa tus datos",
+    "emailLabel": "Correo o Nombre de Usuario",
+    "emailPlaceholder": "Escribe tu correo o nombre de usuario",
+    "passwordLabel": "Contraseña",
+    "passwordPlaceholder": "Escribe la contraseña",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "button": "Iniciar sesión",
+    "noAccount": "No tienes una cuenta.",
+    "signUp": "Regístrate",
     "rememberMe"  : "Recuérdame",
     "headerForm"  : "Inicio de sesión",
-    "button"      : {
-      "startNow"  : "Iniciar ahora",
-      "loggingIn" : "Iniciando sesión"
-    },
     "label"      : {
       "youHaveNotRegistered"  : "¿No te has registrado?",
       "createAccount"         : "Crear cuenta",
       "forgotYourPassword"    : "¿Has olvidado tu contraseña?",
-      "recoverPassword"       : "Recordar contraseña"
+      "forgotPassword"    : "Recordar contraseña"
     }
   },
   "resend": {
@@ -94,16 +131,19 @@
     "delete"        : "¿Seguro que desea eliminar el registro?"
   },
   "menu" : {
+    "dashboard" : "Dashboard",
     "user"      : {
-      "closeApp"    : "Salir",
-      "profile"     : "Perfil"
+      "profile"   : "Perfil",
+      "user"      : "Usuario",
+      "logout"    : "Cerrar sesión",
+      "profileChange" : "Cambiar nombre de usuario"
     }
   },
   "buttons" : {
     "goToStart" : "Ir al inicio",
     "recover"   : "Recuperar",
     "yes"     : "Si",
-    "not"     : "No",
+    "no"      : "No",
     "cancel"  : "Cancelar",
     "edit"  	: "Editar",
     "delete"  : "Borrar",
@@ -134,6 +174,12 @@
 	"messages": {
 		"loading"							: "Procesando petición, espere por favor...",
 		"confirmProcess"			: "Seguro que desea procesar esta petición?",
-		"processSuccessfully"	: "Petición procesada correctamente."
+		"processSuccessfully"	: "Petición procesada correctamente.",
+    "authenticating"      : "Autenticando...",
+    "sending"             : "Enviando...",
+    "updatingPassword"    : "Actualizando contraseña...",
+    "saving"              : "Guardando...",
+    "processing"          : "Procesando su solicitud...",
+    "loadingModule"       : "Cargando módulo..."
 	}
 }

@@ -130,5 +130,17 @@
   "Second Level": "Second Level",
   "Second Level Child": "Second Level Child",
   "Third Level 1.1": "Third Level 1.1",
-  "Third Level 1.2": "Third Level 1.2"
+  "Third Level 1.2": "Third Level 1.2",
+  "signIn": {
+    "welcome": "Welcome back to Trezo!",
+    "instructions": "Sign In with social account or enter your details",
+    "emailLabel": "Email Address",
+    "emailPlaceholder": "example@trezo.com",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "Type password",
+    "forgotPassword": "Forgot Password?",
+    "button": "Sign In",
+    "noAccount": "Don’t have an account.",
+    "signUp": "Sign Up"
+  }
 }

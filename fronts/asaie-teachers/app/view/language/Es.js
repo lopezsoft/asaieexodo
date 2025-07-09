@@ -4,7 +4,7 @@ Ext.define('Admin.view.language.Es',{
 	config	: {
 		/**
 		 * Menú principal*/
-		sMainMenu					: 'ASAIE Administrativo',
+		sMainMenu					: 'ASAIE Docente',
 		sTeacherMenu				: 'ASAIE Docente',
 		sStudentMenu				: 'ASAIE Estudiante',
 		/**

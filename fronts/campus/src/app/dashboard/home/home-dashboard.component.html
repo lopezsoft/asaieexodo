@@ -1,0 +1,41 @@
+@if (userService.isRolAccess$ | async) {
+
+  @if (userService.schools$ | async; as schools) {
+
+    @if (schools.length > 0) {
+      <div class="card">
+        <div class="card-header">ESTIMADO USUARIO USTED TIENE ACCESO A:</div>
+      </div>
+        @for (school of schools; track school.school.id) {
+          <div class="row mt-3">
+            <div class="col-12 col-md-4">
+              @for (role of school.roles; track role.profile.id) {
+                <div class="card">
+                  <div class="card-body card-module" (click)="clickOnModule(school.school, role)">
+                    <div class="card-icon"><i [class]="role.profile.font"></i></div>
+                    <div class="card-content">
+                      <h5 class="small"><b>{{ school.school.nameschool }}</b></h5>
+                      <span class="small">MÓDULO: <strong>{{ role.profile.profile_name }}</strong></span>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+    } @else {
+      <section>
+        <div class="card">
+          <div class="card-body text-center">NO TIENE ACCESOS ASIGNADOS</div>
+        </div>
+      </section>
+    }
+  }
+
+} @else {
+  <section>
+    <div class="card">
+      <div class="card-body text-center">NO TIENE ACCESOS ASIGNADOS</div>
+    </div>
+  </section>
+}

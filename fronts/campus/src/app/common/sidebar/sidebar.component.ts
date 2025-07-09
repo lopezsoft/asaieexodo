@@ -1,9 +1,11 @@
-import { Component } from '@angular/core';
+import {Component, inject} from '@angular/core';
 import { NgScrollbarModule } from 'ngx-scrollbar';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { NgClass } from '@angular/common';
 import { ToggleService } from '../header/toggle.service';
 import { CustomizerSettingsService } from '../../customizer-settings/customizer-settings.service';
+import {TranslocoPipe} from "@jsverse/transloco";
+import {AuthService} from "../../services/auth.service";
 
 interface MenuItem {
     title: string;
@@ -12,12 +14,12 @@ interface MenuItem {
 
 @Component({
     selector: 'app-sidebar',
-    imports: [NgScrollbarModule, RouterLinkActive, RouterLink, NgClass],
+  imports: [NgScrollbarModule, RouterLinkActive, RouterLink, NgClass, TranslocoPipe],
     templateUrl: './sidebar.component.html',
     styleUrl: './sidebar.component.scss'
 })
 export class SidebarComponent {
-
+    protected authService = inject(AuthService);
     // isSidebarToggled
     isSidebarToggled = false;
 

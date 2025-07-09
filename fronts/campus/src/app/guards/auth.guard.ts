@@ -19,5 +19,5 @@ export const authGuard: CanActivateFn = (route, state) => {
 
     // 🛑 Si no está autenticado, retorna un UrlTree para redirigir.
     // Esto es más limpio que llamar a router.navigate() directamente.
-    return router.createUrlTree(['/authentication']);
+    return router.createUrlTree(['/auth']);
 };

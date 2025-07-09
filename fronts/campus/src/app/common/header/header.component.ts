@@ -1,24 +1,33 @@
-import { Component, HostListener, Inject, PLATFORM_ID } from '@angular/core';
+import {Component, HostListener, inject, Inject, PLATFORM_ID} from '@angular/core';
 import { RouterLink, NavigationEnd, Router } from '@angular/router';
-import { ToggleService } from './toggle.service';
-import { NgClass, NgIf, isPlatformBrowser } from '@angular/common';
-import { CustomizerSettingsService } from '../../customizer-settings/customizer-settings.service';
+import {NgClass, NgIf, isPlatformBrowser, NgOptimizedImage} from '@angular/common';
 import { filter } from 'rxjs/operators';
 import { NavbarComponent } from './navbar/navbar.component';
+import {TranslocoPipe} from "@jsverse/transloco";
+import { ToggleService } from './toggle.service';
+import { CustomizerSettingsService } from '../../customizer-settings/customizer-settings.service';
+import {LanguageService} from "../../services/common/language.service";
+import {UserActionsService} from "../../services/common/user-actions.service";
+import {AuthService} from "../../services/auth.service";
+import {fallbackAvatarUrl} from "../../utils/utils";
 
 @Component({
     selector: 'app-header',
-    imports: [RouterLink, NgClass, NgIf, NavbarComponent],
+  imports: [RouterLink, NgClass, NgIf, NavbarComponent, TranslocoPipe, NgOptimizedImage],
     templateUrl: './header.component.html',
     styleUrl: './header.component.scss'
 })
 export class HeaderComponent {
-
+    public langService = inject(LanguageService);
+    public uActionsService = inject(UserActionsService);
+    public authService = inject(AuthService);
     // isSidebarToggled
     isSidebarToggled = false;
 
     // isToggled
     isToggled = false;
+
+    protected fallbackAvatarUrl = fallbackAvatarUrl();
 
     constructor(
         private toggleService: ToggleService,
@@ -48,11 +57,6 @@ export class HeaderComponent {
         this.toggleService.toggle();
     }
 
-    // Settings Button Toggle
-    settingsButtonToggle() {
-        this.themeService.toggle();
-    }
-
     // Dark Mode
     toggleTheme() {
         this.themeService.toggleTheme();
@@ -63,11 +67,7 @@ export class HeaderComponent {
     @HostListener('window:scroll', ['$event'])
     checkScroll() {
         const scrollPosition = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0;
-        if (scrollPosition >= 50) {
-            this.isSticky = true;
-        } else {
-            this.isSticky = false;
-        }
+        this.isSticky = scrollPosition >= 50;
     }
 
     // Dropdown Menu
@@ -75,14 +75,8 @@ export class HeaderComponent {
     isLanguageDropdownOpen = false;
     isNotificationsDropdownOpen = false;
     isProfileDropdownOpen = false;
-    toggleConnectedAppsDropdown() {
-        this.isConnectedAppsDropdownOpen = !this.isConnectedAppsDropdownOpen;
-    }
     toggleLanguageDropdown() {
         this.isLanguageDropdownOpen = !this.isLanguageDropdownOpen;
-    }
-    toggleNotificationsDropdown() {
-        this.isNotificationsDropdownOpen = !this.isNotificationsDropdownOpen;
     }
     toggleProfileDropdown() {
         this.isProfileDropdownOpen = !this.isProfileDropdownOpen;
@@ -106,15 +100,6 @@ export class HeaderComponent {
 
     // Fullscreen
     isFullscreen: boolean = false;
-    ngAfterViewInit() {
-        if (isPlatformBrowser(this.platformId)) {
-            // Only add event listeners if the platform is the browser
-            document.addEventListener('fullscreenchange', this.onFullscreenChange.bind(this));
-            document.addEventListener('webkitfullscreenchange', this.onFullscreenChange.bind(this));
-            document.addEventListener('mozfullscreenchange', this.onFullscreenChange.bind(this));
-            document.addEventListener('MSFullscreenChange', this.onFullscreenChange.bind(this));
-        }
-    }
     toggleFullscreen() {
         if (this.isFullscreen) {
             this.closeFullscreen();
@@ -169,4 +154,16 @@ export class HeaderComponent {
         }
     }
 
+  changeLanguage(en: string) {
+    this.langService.changeLanguage(en);
+  }
+
+  getCurrentUserAvatar() {
+    const user = this.uActionsService.getCurrentUser();
+    return user.avatar ? user.avatar : 'assets/images/avatars/unknown.png'; // Default avatar if none is set
+  }
+
+  logout() {
+
+  }
 }

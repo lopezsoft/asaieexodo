@@ -25,11 +25,11 @@ class ProfileRegistrationService
         $this->schoolId = $schoolId;
         $this->db       = SchoolQueries::getSchool($schoolId)->database_name. '.';
 
-        DB::beginTransaction();
+        // DB::beginTransaction();
         try {
             $this->processProfileType('student', [5]);
             $this->processProfileType('family', [7]);
-            DB::commit();
+            // DB::commit();
         } catch (\Throwable $e) {
             DB::rollBack();
             throw $e; // Relanzar la excepción para que el job la capture

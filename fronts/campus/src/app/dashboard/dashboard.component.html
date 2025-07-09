@@ -7,7 +7,7 @@
 
     <!-- Sidebar -->
     <app-sidebar />
-    
+
     <!-- Main Content -->
     <div
         [class.right-sidebar]="themeService.isRightSidebar()"
@@ -15,20 +15,18 @@
         class="main-content transition d-flex flex-column"
         [ngClass]="{'active': isSidebarToggled}"
     >
-    
+
         <!-- Header -->
         <app-header />
-    
+
         <!-- Router Outlet -->
         <router-outlet />
-    
+
         <div class="flex-grow-1"></div>
-    
+
         <!-- Footer -->
         <app-footer />
-    
+
     </div>
-    
-    <app-customizer-settings />
 
 </div>

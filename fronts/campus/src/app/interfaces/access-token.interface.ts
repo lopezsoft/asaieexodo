@@ -30,10 +30,18 @@ export interface User {
   schools : School[];
 }
 
+export interface Profile {
+  id: number;
+  name: string;
+  description: string;
+  active: boolean;
+  profile_name: string;
+}
 export interface AccessToken {
   access_token  : string;
   token_type    : string;
   message       : string;
   user          : User;
   success       : boolean;
+  profile       : Profile;
 }

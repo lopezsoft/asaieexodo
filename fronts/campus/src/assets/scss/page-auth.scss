@@ -8,6 +8,9 @@
   .auth-inner {
     width: 100%;
     position: relative;
+    &.dark-theme {
+      background-color: $theme-dark-bg;
+    }
   }
 
   &.auth-v1 {
@@ -62,14 +65,6 @@
     max-width: $auth-1-inner-max-width;
   }
 
-  .brand-logo {
-    display: flex;
-    justify-content: center;
-    margin: 1rem 0 2rem 0;
-    .brand-text {
-      font-weight: 600;
-    }
-  }
 
   .auth-footer-btn {
     .btn {
@@ -113,7 +108,7 @@
       background-color: $white;
       padding-bottom: 1rem;
     }
-    &.auth-v2 .brand-logo {
+    &.auth-v2{
       width: 100%;
       display: flex;
       justify-content: unset;
@@ -123,3 +118,293 @@
     }
   }
 }
+
+
+.auth-form {
+  padding: {
+    left: 12.5px;
+    right: 12.5px;
+  };
+  .form-content {
+    .title {
+      margin: {
+        top: 25px;
+        bottom: 23px;
+      };
+      h1 {
+        font-size: 28px;
+        margin-bottom: 7px;
+      }
+      p {
+        font-size: 16px;
+        color: #445164;
+      }
+    }
+    .logo {
+      margin-bottom: 30px;
+
+      img {
+        width: 100%;
+        height: auto;
+        max-width: 256px;
+        display: inline-block;
+        &.d-none {
+          display: none !important;
+        }
+      }
+    }
+    .with-socials {
+      margin-bottom: 23px;
+
+      div {
+        flex-grow: 1;
+        margin: {
+          left: 6px;
+          right: 6px;
+        };
+        &:first-child {
+          margin-left: 0;
+        }
+        &:last-child {
+          margin-right: 0;
+        }
+      }
+      button {
+        padding: 10.5px 25px;
+        color: var(--blackColor);
+        border: 1px solid #D6DAE1;
+        background: var(--whiteColor);
+        box-shadow: 0px 4px 16px -2px rgba(27, 37, 51, 0.06);
+      }
+    }
+    form {
+      .form-group {
+        margin-bottom: 15px;
+
+        .main-label {
+          margin-bottom: 12px;
+        }
+        .icon-button {
+          right: 20px;
+          bottom: 12px;
+          font-size: 18px;
+          position: absolute;
+          color: var(--bodyColor);
+
+          &:hover {
+            color: var(--primaryColor);
+          }
+        }
+      }
+      .forgot-password {
+        a {
+          &:hover {
+            text-decoration: underline;
+          }
+        }
+      }
+      .btn-box {
+        font-size: 16px;
+        margin-top: 24px;
+        padding: 12px 25px;
+        color: var(--whiteColor);
+        background-color: var(--primaryColor);
+
+        i {
+          margin-right: 5px;
+        }
+        &:hover {
+          background-color: var(--secondaryColor);
+        }
+      }
+      .info {
+        margin-top: 20px;
+
+        a {
+          &:hover {
+            text-decoration: underline;
+          }
+        }
+      }
+    }
+  }
+  &.component-dark-theme {
+    .form-content {
+      .logo {
+        img {
+          display: none;
+
+          &.d-none {
+            display: inline !important;
+          }
+        }
+      }
+      .title {
+        p {
+          color: var(--bodyColor);
+        }
+      }
+      .with-socials {
+        button {
+          background: #0A0E19;
+          color: var(--whiteColor);
+          border-color: var(--borderColor);
+        }
+      }
+    }
+  }
+}
+
+/* Max width 767px */
+@media only screen and (max-width : 767px) {
+  .auth-form {
+    max-width: 100%;
+    .form-content {
+      .title {
+        margin: {
+          top: 17px;
+          bottom: 15px;
+        };
+        h1 {
+          font-size: 22px;
+        }
+        p {
+          font-size: 13px;
+        }
+      }
+      .with-socials {
+        margin-bottom: 20px;
+
+        div {
+          margin: {
+            left: 5px;
+            right: 5px;
+          };
+        }
+        button {
+          padding: 8px 15px;
+        }
+      }
+      form {
+        .form-group {
+          .main-label {
+            margin-bottom: 10px;
+          }
+          .icon-button {
+            right: 15px;
+            bottom: 12px;
+            font-size: 16px;
+          }
+        }
+        .btn-box {
+          padding: 12px 25px;
+          margin-top: 17px;
+          font-size: 13px;
+
+          i {
+            font-size: 20px;
+          }
+        }
+        .info {
+          margin-top: 15px;
+        }
+      }
+    }
+  }
+
+}
+
+/* Min width 576px to Max width 767px */
+@media only screen and (min-width : 576px) and (max-width : 767px) {
+
+  .auth-form {
+    .form-content {
+      .title {
+        margin: {
+          top: 20px;
+          bottom: 17px;
+        };
+      }
+      form {
+        .btn-box {
+          margin-top: 20px;
+        }
+      }
+    }
+  }
+
+}
+
+/* Min width 768px to Max width 991px */
+@media only screen and (min-width : 768px) and (max-width : 991px) {
+  .auth-form {
+    .form-content {
+      .title {
+        margin: {
+          top: 20px;
+          bottom: 20px;
+        };
+        h1 {
+          font-size: 24px;
+        }
+        p {
+          font-size: 14px;
+        }
+      }
+      .with-socials {
+        margin-bottom: 20px;
+
+        div {
+          margin: {
+            left: 5px;
+            right: 5px;
+          };
+        }
+      }
+      form {
+        .btn-box {
+          font-size: 14px;
+          margin-top: 20px;
+          padding: 12px 25px;
+
+          i {
+            font-size: 22px;
+          }
+        }
+        .info {
+          margin-top: 15px;
+        }
+      }
+    }
+  }
+
+}
+
+/* Min width 992px to Max width 1199px */
+@media only screen and (min-width : 992px) and (max-width : 1199px) {
+  .auth-form {
+    padding: 0 0 0 0;
+    .form-content {
+      .title {
+        h1 {
+          font-size: 26px;
+        }
+        p {
+          font-size: 15px;
+        }
+      }
+      form {
+        .btn-box {
+          margin-top: 20px;
+          font-size: 15px;
+        }
+        .info {
+          margin-top: 15px;
+        }
+      }
+    }
+  }
+
+}
+
+

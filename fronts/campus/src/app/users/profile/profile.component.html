@@ -1,0 +1,85 @@
+<!-- Breadcrumb -->
+<div class="breadcrumb-card mb-25 d-md-flex align-items-center justify-content-between">
+  <h5 class="mb-0">
+    {{ 'profile.title' | transloco }}
+  </h5>
+  <ol class="breadcrumb list-unstyled mt-0 mb-0 p-0">
+    <li class="breadcrumb-item d-inline-block position-relative">
+      <a routerLink="/dashboard/profile" class="d-inline-block position-relative">
+        <i class="material-symbols-outlined">
+          account_circle
+        </i>
+        {{ 'menu.user.profile' | transloco }}
+      </a>
+    </li>
+    <li class="breadcrumb-item d-inline-block position-relative">
+      {{ 'profile.title' | transloco }}
+    </li>
+  </ol>
+</div>
+<section class="users-edit">
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-content">
+          <div class="card-header">
+            <h4><strong>{{ 'profile.title' | transloco | uppercase }}</strong></h4>
+          </div>
+          <div class="card-body">
+            <form [formGroup]="profileForm" (ngSubmit)="saveProfile()">
+              <div class="mt-2" id="account">
+                <div class="media">
+                  <img [ngSrc]="imgData"
+                       (error)="image.src = fallbackAvatarUrl()"
+                       #image
+                       alt="User avatar"
+                       class="users-avatar-shadow avatar mr-3 rounded-circle" height="64" width="64">
+                  <div class="media-body">
+                    <h4>Avatar</h4>
+                    <app-image-uploader (imageUploaded)="onImageSelected($event)"></app-image-uploader>
+                  </div>
+                </div>
+                <div class="row mt-4">
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label>{{ 'profile.firstName' | transloco }}</label>
+                      <input class="form-control" type="text" formControlName="first_name" autofocus>
+                      @if (isControlInvalid(profileForm, 'first_name')) {
+                        <small class="text-danger">{{ 'validation.required' | transloco }}</small>
+                      }
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label>{{ 'profile.lastName' | transloco }}</label>
+                      <input class="form-control" type="text" formControlName="last_name">
+                      @if (isControlInvalid(profileForm, 'last_name')) {
+                        <small class="text-danger">{{ 'validation.required' | transloco }}</small>
+                      }
+                    </div>
+                  </div>
+                  <div class="col-md-12">
+                    <div class="form-group">
+                      <label>{{ 'profile.email' | transloco }}</label>
+                      <input class="form-control" type="email" formControlName="email" [disabled]="true">
+                      @if (isControlInvalid(profileForm, 'email')) {
+                        <small class="text-danger">{{ 'validation.invalidEmail' | transloco }}</small>
+                      }
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <app-footer-form
+                [disabled]="profileForm.invalid"
+                [showSaveAndCreate]="false"
+                (saveAndCloseEvent)="saveProfile()"
+                (cancelEvent)="onCancel()">
+              </app-footer-form>
+
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

@@ -3,7 +3,6 @@
 namespace App\Modules\Auth;
 use App\Common\HttpResponseMessages;
 use App\Common\MessageExceptionResponse;
-use App\Jobs\User\RegisterJob;
 use App\Models\User;
 use App\Queries\AuditTable;
 use Exception;
@@ -33,7 +32,6 @@ class UserData
             $user->last_name    = $records->last_name ?? $user->last_name;
             $user->save();
             AuditTable::audit($request->ip(), 'users', "UPDATE", $records);
-            RegisterJob::dispatch($user->id, $records->school_id, $records->profile_id );
             return HttpResponseMessages::getResponse(['user' => $user]);
         }catch (Exception $e) {
             return MessageExceptionResponse::response($e);

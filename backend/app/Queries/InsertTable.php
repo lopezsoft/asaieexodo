@@ -71,7 +71,7 @@ class InsertTable
         }
     }
 
-    public static function getTableData(mixed $fields, string $tb, bool $isBulk): array
+    public static function getTableData(mixed $fields, string $tb, bool $isBulk = false): array
     {
         // 3. Obtener columnas de la tabla (con caché para eficiencia).
         $tableInfo = Cache::rememberForever("schema_{$tb}", function () use ($tb) {

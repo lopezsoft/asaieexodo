@@ -3,13 +3,13 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  baseUrl     : 'http://localhost:7000',
+  baseUrl     : 'http://localhost:7200',
   production  : false,
   hmr         : false,
   APIURL      : 'http://asaieexodo.test/api/v1',
   APPURL      : 'http://asaieexodo.test',
   SOCKET_URL  : 'http://localhost:3001',
-  APIJWT      : 'teacher-asaie-exodo-jwt',
+  APIJWT      : 'campus-asaie-exodo-jwt',
   VERSION     : '2.1.6'
 };
 

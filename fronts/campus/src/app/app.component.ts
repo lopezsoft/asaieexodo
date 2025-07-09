@@ -1,12 +1,18 @@
 import { Component } from '@angular/core';
 import { CommonModule, ViewportScroller } from '@angular/common';
 import { RouterOutlet, Router, Event, NavigationEnd } from '@angular/router';
+import {BlockUIModule} from "ng-block-ui";
 
 @Component({
-    selector: 'app-root',
-    imports: [RouterOutlet, CommonModule],
-    templateUrl: './app.component.html',
-    styleUrl: './app.component.scss'
+  selector: 'app-root',
+  standalone: true,
+  imports: [
+    RouterOutlet,
+    CommonModule,
+    BlockUIModule
+  ],
+  templateUrl: './app.component.html',
+  styleUrl: './app.component.scss'
 })
 export class AppComponent {
 

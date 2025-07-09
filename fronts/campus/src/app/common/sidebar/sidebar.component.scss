@@ -6,21 +6,22 @@
     z-index: 6;
     left: 0;
     top: 0;
-    
+
     .logo {
         border-bottom: 1px solid var(--borderColor);
-        padding: 19px 25px 15px;
+        padding: 19px 25px 5px;
         position: absolute;
         z-index: 2;
         right: 0;
         left: 0;
         top: 0;
-        
+
         a {
             transition: unset;
-            
+
             img {
-                left: 0;
+              left: 0;
+              max-height: 36px;
             }
             span {
                 margin-left: 8px;
@@ -46,7 +47,7 @@
         &.active {
             opacity: 1;
             visibility: visible;
-            
+
             span {
                 &.top-bar {
                     transform: rotate(45deg);
@@ -161,7 +162,7 @@
                             }
                         }
                     }
-                    &:has(.active) .accordion-button { 
+                    &:has(.active) .accordion-button {
                         color: var(--blackColor);
                         background-color: #F6F7F9;
 
@@ -204,7 +205,7 @@
                                 &:hover, &.active {
                                     background-color: #ECF0FF;
                                     color: var(--primaryColor);
-    
+
                                     &::after {
                                         border-color: var(--primaryColor);
                                     }
@@ -221,7 +222,7 @@
                                     color: var(--orangeColor);
                                     transform: translateY(-50%);
                                     background-color: #FFF5ED;
-                                    
+
                                     &.style-two {
                                         color: #00b69b;
                                         background: rgba(0, 182, 155, 0.07);
@@ -243,7 +244,7 @@
                             .sidebar-sub-menu {
                                 .sidemenu-item {
                                     margin-bottom: 4px;
-    
+
                                     .sidemenu-link {
                                         color: var(--bodyColor);
                                         font-size: var(--fontSize);
@@ -268,7 +269,7 @@
                                         &:hover, &.active {
                                             background-color: #ECF0FF;
                                             color: var(--primaryColor);
-            
+
                                             &::after {
                                                 border-color: var(--primaryColor);
                                             }
@@ -364,13 +365,13 @@
                 .accordion {
                     .accordion-item {
                         color: var(--whiteColor);
-    
+
                         .accordion-button {
                             color: var(--whiteColor);
-                            
+
                             .trezo-badge {
                                 background-color: rgba(255, 255, 255, 0.08);
-                                
+
                                 &.style-two {
                                     background: rgba(255, 255, 255, 0.08);
                                 }
@@ -381,7 +382,7 @@
                             &.open, &:hover {
                                 color: var(--whiteColor);
                                 background-color: #15203c;
-    
+
                                 i {
                                     color: var(--whiteColor);
                                 }
@@ -390,10 +391,10 @@
                                 }
                             }
                         }
-                        &:has(.active) .accordion-button { 
+                        &:has(.active) .accordion-button {
                             color: var(--whiteColor);
                             background-color: #15203c;
-    
+
                             i {
                                 color: var(--whiteColor);
                             }
@@ -406,13 +407,13 @@
                                 .accordion-button {
                                     .trezo-badge {
                                         background-color: rgba(255, 255, 255, 0.08);
-                                        
+
                                         &::before {
                                             background-color: rgba(255, 255, 255, 0.08);
                                         }
                                         &.style-two {
                                             background: rgba(255, 255, 255, 0.08);
-                                        
+
                                             &::before {
                                                 background-color: rgba(255, 255, 255, 0.08);
                                             }
@@ -427,13 +428,13 @@
                                         .sidemenu-link {
                                             .trezo-badge {
                                                 background-color: rgba(255, 255, 255, 0.08);
-                                                
+
                                                 &::before {
                                                     background-color: rgba(255, 255, 255, 0.08);
                                                 }
                                                 &.style-two {
                                                     background: rgba(255, 255, 255, 0.08);
-                                                
+
                                                     &::before {
                                                         background-color: rgba(255, 255, 255, 0.08);
                                                     }
@@ -450,7 +451,7 @@
                     }
                     .sidebar-menu-link {
                         color: var(--whiteColor);
-                        
+
                         &:hover, &.active {
                             color: var(--primaryColor);
                             background-color: #15203c;
@@ -467,7 +468,7 @@
 
         a {
             color: var(--whiteColor);
-    
+
             &:hover {
                 color: var(--primaryColor);
             }
@@ -486,13 +487,13 @@
                 .accordion {
                     .accordion-item {
                         color: var(--whiteColor);
-    
+
                         .accordion-button {
                             color: var(--whiteColor);
-                            
+
                             .trezo-badge {
                                 background-color: rgba(255, 255, 255, 0.08);
-                                
+
                                 &.style-two {
                                     background: rgba(255, 255, 255, 0.08);
                                 }
@@ -503,7 +504,7 @@
                             &.open, &:hover {
                                 color: var(--whiteColor);
                                 background-color: #15203c;
-    
+
                                 i {
                                     color: var(--whiteColor);
                                 }
@@ -512,10 +513,10 @@
                                 }
                             }
                         }
-                        &:has(.active) .accordion-button { 
+                        &:has(.active) .accordion-button {
                             color: var(--whiteColor);
                             background-color: #15203c;
-    
+
                             i {
                                 color: var(--whiteColor);
                             }
@@ -528,13 +529,13 @@
                                 .accordion-button {
                                     .trezo-badge {
                                         background-color: rgba(255, 255, 255, 0.08);
-                                        
+
                                         &::before {
                                             background-color: rgba(255, 255, 255, 0.08);
                                         }
                                         &.style-two {
                                             background: rgba(255, 255, 255, 0.08);
-                                        
+
                                             &::before {
                                                 background-color: rgba(255, 255, 255, 0.08);
                                             }
@@ -549,13 +550,13 @@
                                         .sidemenu-link {
                                             .trezo-badge {
                                                 background-color: rgba(255, 255, 255, 0.08);
-                                                
+
                                                 &::before {
                                                     background-color: rgba(255, 255, 255, 0.08);
                                                 }
                                                 &.style-two {
                                                     background: rgba(255, 255, 255, 0.08);
-                                                
+
                                                     &::before {
                                                         background-color: rgba(255, 255, 255, 0.08);
                                                     }
@@ -572,7 +573,7 @@
                     }
                     .sidebar-menu-link {
                         color: var(--whiteColor);
-                        
+
                         &:hover, &.active {
                             color: var(--primaryColor);
                             background-color: #15203c;
@@ -722,7 +723,7 @@
     }
     &.component-body-bg-color {
         background-color: #F6F7F9 !important;
-        
+
         .logo {
             background-color: #F6F7F9 !important;
         }
@@ -767,7 +768,7 @@
         }
         &.component-dark-theme, &.dark-sidebar {
             background-color: #0A0E19 !important;
-            
+
             .logo {
                 background-color: #0A0E19 !important;
             }
@@ -780,7 +781,7 @@
                                     background-color: #15203c;
                                 }
                             }
-                            &:has(.active) .accordion-button { 
+                            &:has(.active) .accordion-button {
                                 background-color: #15203c;
                             }
                             .accordion-collapse {
@@ -817,7 +818,7 @@
     .sidebar-area {
         .ng-scrollbar {
             height: 100vh;
-    
+
             .ng-scroll-content {
                 padding-right: 0 !important;
             }
@@ -849,7 +850,7 @@
     .sidebar-area {
         width: 250px;
         left: -100%;
-        
+
         .logo {
             padding: 18px;
         }
@@ -1132,7 +1133,7 @@
 
 /* Min width 1200px */
 @media (min-width: 1200px) {
-    
+
     .sidebar-area {
         &.active, &.hide-sidebar {
             width: 100px;
@@ -1192,7 +1193,7 @@
                         }
                         .sidebar-menu-link {
                             padding: 9px 6px 9px 14px;
-    
+
                             .title {
                                 transition: var(--transition);
                                 opacity: 0;

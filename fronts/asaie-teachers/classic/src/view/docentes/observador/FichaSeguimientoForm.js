@@ -17,7 +17,7 @@ Ext.define('Admin.view.docentes.observador.FichaSeguimientoForm' ,{
 		me.onStore('docentes.observador.DislexiaStore');
 		me.onStore('docentes.observador.ItemsModelo3Store');
 		me.onStore('docentes.observador.DisortografiaStore');
-		this.setTitle('Ficha de seguimiento - ' + Global.getYear());
+		this.setTitle('Listado de estudiantes - ' + Global.getYear());
 		this.callParent(arguments);
 	},
     items : [
@@ -100,6 +100,8 @@ Ext.define('Admin.view.docentes.observador.FichaSeguimientoForm' ,{
 					items : [
 						{
 							xtype		: 'cbCargaDocente',
+							labelAlign	: 'left',
+							hideLabel	: true,
 							listeners: {
 								focusenter: function(t) {
 									if (t.value) {
@@ -126,15 +128,14 @@ Ext.define('Admin.view.docentes.observador.FichaSeguimientoForm' ,{
 								disabled: '{!cbcarga.value}'
 							},
 							handler: function(btn) {
-								var 
-									store	= Ext.getStore('EstudiantesStore');
+								const store = Ext.getStore('EstudiantesStore');
 								store.reload();
 							}
 						},'-',
 						{
 							xtype 	: 'customButton',
 							itemId	: 'btnObservador',
-							text 	: 'Ver fichas',
+							text 	: 'Ver ficha de seguimiento',
 							disabled: true,
 							iconCls : 'x-fa fa-spinner',
 							handler	: 'onClickCrudObservador'

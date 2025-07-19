@@ -35,38 +35,9 @@ Ext.define('Admin.view.docentes.controller.ObservadorController', {
 		let me = this.app,
 			form = btn.up('form'),
 			grid = form.down('grid'),
-			tipo = '3',
+			tipo = 3,
 			data = grid.getSelection()[0],
-			msg = 'Usted no es director de grupo y tampoco posee permisos para diligenciar la ficha.',
-			access = false;
-		let table = '';
-		switch(tipo){
-            case '1' :
-                table = 'obs_observador_mod_1';
-                break;
-            case '2' :
-                table = 'obs_observador_mod2';
-                break;
-            case '3' :
-                table = 'obs_observador_mod_3';
-                break;
-            case '4' :
-                table = 'obs_observador_mod_1';
-                break;
-            default :
-                table = 'obs_observador_mod_1';
-                break;
-		}
-		
-		const extParam = {
-			pdbGrado 	: data.get('id_grade'),
-			pdbGrupo	: data.get('id_group'),
-			pdbSede 	: data.get('id_headquarters'),
-			pdbJorn  	: data.get('id_study_day'),
-			pdbId		: data.get('id'),
-			pdbTable	: table
-		};
-		me.setParamStore('ObservadorStore',extParam);
+			msg = 'Usted no es director de grupo y tampoco posee permisos para diligenciar la ficha.';
 		form.mask('Verificando permisos...');
 		Ext.Ajax.request({
 			url		: Global.getApiUrl() +  '/competence/competences',
@@ -75,40 +46,62 @@ Ext.define('Admin.view.docentes.controller.ObservadorController', {
 				...Global.getSchoolParams()
 			},
 			headers: Global.getHeaders(),
-			success: function(response, opts) {
-				const obj = Ext.decode(response.responseText);
-				Global.setDbConfig(obj.generalSetting);
-				Global.setGroupDirectors(obj.groupDirectors);
-				const generalSetting = Global.getDbConfig();
-				const groupDirectors = Global.getGroupDirectors();
-				if (parseInt(generalSetting.docente_ficha_obs) === 1) {
-					Ext.create('Admin.view.docentes.observador.CrudObservadorView',{
-						title	: 'Fichas de seguimiento - '+data.get('nombres'),
-						record	: data
+			success: function(response) {
+				const responseData = Ext.decode(response.responseText);
+				tipo = responseData.observerModule ? responseData.observerModule.id : 3;
+
+				const extParam = {
+					pdbGrado 	: data.get('id_grade'),
+					pdbGrupo	: data.get('id_group'),
+					pdbSede 	: data.get('id_headquarters'),
+					pdbJorn  	: data.get('id_study_day'),
+					pdbId		: data.get('id'),
+					typeObserver: tipo,
+				};
+				data.set('typeObserver', tipo);
+				me.setParamStore('ObservadorStore',extParam);
+
+				// 1. Desestructuración de objetos y eliminación de llamadas redundantes
+				const { generalSetting, groupDirectors } = responseData;
+
+				// 2. Configuración de variables globales (si Global es un singleton necesario)
+				Global.setDbConfig(generalSetting);
+				Global.setGroupDirectors(groupDirectors);
+
+				// Función auxiliar para crear y mostrar la vista, evitando repetición
+				const showCrudObservadorView = () => {
+					Ext.create('Admin.view.docentes.observador.CrudObserverView', {
+						title: 'Fichas de seguimiento: ' + data.get('nombres'),
+						record: data
 					}).show();
-				}else if(groupDirectors.length === 0){
-					me.showResult(msg)
-				}else{
-					Ext.each(groupDirectors,function (rec) {
-						if ((rec.id_grado == data.get('id_grade')) && (rec.grupo == data.get('id_group')) &&
-							(rec.id_jorn == data.get('id_study_day'))) {
-							access = true;
-							return false;
-						}
+				};
+
+				// 3. Conversión explícita a booleano para mayor claridad
+				const showTeacherObsForm = parseInt(generalSetting.docente_ficha_obs, 10) === 1;
+
+				if (showTeacherObsForm) {
+					showCrudObservadorView();
+				} else if (groupDirectors.length === 0) {
+					me.showResult(msg);
+				} else {
+					// 4. Usar Array.prototype.some para una búsqueda más idiomática y sin variables globales
+					const hasAccess = groupDirectors.some(rec => {
+						// 5. Usar comparaciones estrictas (===)
+						return (rec.id_grado === data.get('id_grade')) &&
+							(rec.grupo === data.get('id_group')) &&
+							(rec.id_jorn === data.get('id_study_day'));
 					});
-					if (access) {
-						Ext.create('Admin.view.docentes.observador.CrudObservadorView',{
-							title	: 'Fichas de seguimiento - '+data.get('nombres'),
-							record	: data
-						}).show();
+
+					if (hasAccess) {
+						showCrudObservadorView();
 					} else {
 						me.showResult(msg);
 					}
 				}
 			},
-			failure: function(response, opts) {
+			failure: function(response) {
 				me.onError('server-side failure with status code ' + response.status);
-			},callback	: function (res) {
+			},callback	: function () {
 				form.unmask();
 			}
 		});

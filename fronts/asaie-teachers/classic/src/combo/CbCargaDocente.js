@@ -13,7 +13,7 @@ Ext.define('Admin.combo.CbCargaDocente',{
 	publishes	: 'value',
 	minChars	: 2,
 	flex		: 1,
-	emptyText: 'Seleccione por favor...',
+	emptyText: 'Carga docente seleccione por favor...',
 	tpl: Ext.create('Ext.XTemplate',
 		'<ul class="x-list-plain"><tpl for=".">',
 		'<li role="option" class="x-boundlist-item">{grado} - {grupo} - {jornada} - {sede}</li>',

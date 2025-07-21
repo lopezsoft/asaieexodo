@@ -33,15 +33,10 @@ class InsertTable
             // Iniciar transacción.
             DB::beginTransaction();
 
-            // 1. Determinar si es una inserción masiva de forma más segura.
-            $isBulkInsert = is_array($fields) && isset($fields[0]) && is_array($fields[0]);
-
             // 2. Obtener los datos y la clave primaria sin usar propiedades estáticas.
-            $processedData = self::getTableData($fields, $tb, $isBulkInsert);
-            $dataToInsert = $processedData['data'];
-            $primaryKey = $processedData['primaryKey'];
+            $dataToInsert = self::getTableData($fields, $tb, $primaryKey);
 
-            if ($isBulkInsert) {
+            if (is_array($fields)) {
                 DB::table($tb)->insert($dataToInsert);
                 // En una inserción masiva, no se devuelve un único ID, por lo que no podemos buscar el registro.
                 $resultId = null;
@@ -71,20 +66,22 @@ class InsertTable
         }
     }
 
-    public static function getTableData(mixed $fields, string $tb): array
+    public static function getTableData(mixed $fields, string $tb, &$primaryKey = 'id'): array
     {
         // 3. Obtener columnas de la tabla (con caché para eficiencia).
         $tableInfo = Cache::rememberForever("schema_{$tb}", function () use ($tb) {
             $columns = ShowColumns::getColumns($tb); // Asegúrate de que esta clase exista.
-            $primaryKey = 'id';
+            $detectedPrimaryKey  = 'id';
             foreach ($columns as $column) {
                 if ($column->Key === "PRI") {
-                    $primaryKey = $column->Field;
+                    $detectedPrimaryKey = $column->Field;
                     break;
                 }
             }
-            return ['columns' => $columns, 'primaryKey' => $primaryKey];
+            return ['columns' => $columns, 'primaryKey' => $detectedPrimaryKey];
         });
+
+        $primaryKey = $tableInfo['primaryKey'];
 
         $data = [];
         if (is_array($fields)) {
@@ -94,7 +91,6 @@ class InsertTable
         } else {
             $data = self::filterAndFormatData($fields, $tableInfo['columns'], $tableInfo['primaryKey']);
         }
-
         return $data;
     }
 

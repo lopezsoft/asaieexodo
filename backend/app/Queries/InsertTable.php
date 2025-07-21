@@ -71,7 +71,7 @@ class InsertTable
         }
     }
 
-    public static function getTableData(mixed $fields, string $tb, bool $isBulk = false): array
+    public static function getTableData(mixed $fields, string $tb): array
     {
         // 3. Obtener columnas de la tabla (con caché para eficiencia).
         $tableInfo = Cache::rememberForever("schema_{$tb}", function () use ($tb) {
@@ -87,7 +87,7 @@ class InsertTable
         });
 
         $data = [];
-        if ($isBulk) {
+        if (is_array($fields)) {
             foreach ($fields as $fieldList) {
                 $data[] = self::filterAndFormatData($fieldList, $tableInfo['columns'], $tableInfo['primaryKey']);
             }
@@ -95,7 +95,7 @@ class InsertTable
             $data = self::filterAndFormatData($fields, $tableInfo['columns'], $tableInfo['primaryKey']);
         }
 
-        return ['data' => $data, 'primaryKey' => $tableInfo['primaryKey']];
+        return $data;
     }
 
     private static function filterAndFormatData(object|array $fields, array $tableColumns, string $primaryKey): array

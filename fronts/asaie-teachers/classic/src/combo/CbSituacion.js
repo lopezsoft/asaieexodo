@@ -10,5 +10,6 @@ Ext.define('Admin.combo.CbSituacion',{
     valueField	: 'situacion',
     itemId		: 'cbSituacion',
     store		: 'SituacionStore',
+	value		: 'NO APLICA',
     queryMode	: 'local'
 });

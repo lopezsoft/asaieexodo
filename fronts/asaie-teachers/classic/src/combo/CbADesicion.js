@@ -8,5 +8,6 @@ Ext.define('Admin.combo.CbADesicion',{
 	name		: 'desicion',
     displayField: 'desicion',
     valueField	: 'desicion',
+	value		: 'No',
     store		: 'ADesicionStore'
 });

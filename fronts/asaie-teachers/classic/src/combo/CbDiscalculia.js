@@ -10,5 +10,6 @@ Ext.define('Admin.combo.CbDiscalculia',{
     valueField	: 'discalculia',
     itemId		: 'CbDiscalculia',
     store		: 'DiscalculiaStore',
+	value		: 'NO APLICA',
     queryMode	: 'local'
 });

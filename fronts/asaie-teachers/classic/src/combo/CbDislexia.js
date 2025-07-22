@@ -10,5 +10,6 @@ Ext.define('Admin.combo.CbDislexia',{
     valueField	: 'dislexia',
     itemId		: 'CbDislexia',
     store		: 'DislexiaStore',
+	value		: 'NO APLICA',
     queryMode	: 'local'
 });

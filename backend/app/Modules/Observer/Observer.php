@@ -20,12 +20,14 @@ class Observer
         try {
             $school = SchoolQueries::getSchoolRequest($request);
             $db     = $school->db;
-            $type   = $request->type ?? 3;
+            $type   = $request->typeObserver ?? 3;
             $year   = $school->year;
             $id     = $request->pdbId ?? 0;
+            $type   = intval($type);
             $tableObserver = match ($type) {
                 4, 1 => "obs_observador_mod_1",
                 2 => "obs_observador_mod2",
+                5 => "obs_observer_mod_5",
                 default => "obs_observador_mod_3",
             };
             $result = DB::table("{$db}{$tableObserver}",'tob')
@@ -39,7 +41,7 @@ class Observer
                 ->where('tob.estado', 1);
 
             return HttpResponseMessages::getResponse([
-                'records'   => $result->paginate()
+                'records'   => $result->paginate(),
             ]);
         }catch (Exception $e) {
             return HttpResponseMessages::getResponse500([

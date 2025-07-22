@@ -19,6 +19,12 @@ class InsertTable
     public static function insert(Request $request, object|array $fields, string $tb, bool $canValidator = true): JsonResponse
     {
         try {
+            // Validar que la tabla no sea nula o vacía.
+            if (empty($tb)) {
+                return HttpResponseMessages::getResponse400([
+                    'message' => 'El nombre de la tabla no puede estar vacío.'
+                ]);
+            }
             // La validación puede permanecer como está por ahora.
             if(!is_array($fields) && $canValidator){
                 $validator  = new TableValidationService();

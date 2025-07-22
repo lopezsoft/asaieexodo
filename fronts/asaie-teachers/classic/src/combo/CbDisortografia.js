@@ -10,5 +10,6 @@ Ext.define('Admin.combo.CbDisortografia',{
     valueField	: 'disortografia',
     itemId		: 'CbDisortografia',
     store		: 'DisortografiaStore',
+	value		: 'NO APLICA',
     queryMode	: 'local'
 });

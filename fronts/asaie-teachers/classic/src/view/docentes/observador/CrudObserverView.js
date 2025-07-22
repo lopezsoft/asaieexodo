@@ -120,7 +120,7 @@ Ext.define('Admin.view.docentes.observador.CrudObserverView' ,{
 	],
 	buildWindow : function(){
 		const record = this.getRecord();
-		const tipo    = record.get('typeObserver') || 3; // TODO: Asignar Tipo de observador
+		const tipo    = parseFloat(record.get('typeObserver')) || 3; // TODO: Asignar Tipo de observador
 		let view = 'Admin.view.docentes.observador.DatosView'
 		switch(tipo){
 			case 1 :

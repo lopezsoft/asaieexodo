@@ -48,7 +48,29 @@ Ext.define('Admin.view.docentes.controller.ObservadorController', {
 			headers: Global.getHeaders(),
 			success: function(response) {
 				const responseData = Ext.decode(response.responseText);
-				tipo = responseData.observerModule ? responseData.observerModule.id : 3;
+				tipo = responseData.observerModule ? parseFloat(responseData.observerModule.id) : 3;
+
+				let table = '';
+				switch(tipo){
+					case 1 :
+						table = 'obs_observador_mod_1';
+						break;
+					case 2 :
+						table = 'obs_observador_mod2';
+						break;
+					case 3 :
+						table = 'obs_observador_mod_3';
+						break;
+					case 4 :
+						table = 'obs_observador_mod_1';
+						break;
+					case 5 :
+						table = 'obs_observer_mod_5';
+						break;
+					default :
+						table = 'obs_observador_mod_1';
+						break;
+				}
 
 				const extParam = {
 					pdbGrado 	: data.get('id_grade'),
@@ -57,6 +79,7 @@ Ext.define('Admin.view.docentes.controller.ObservadorController', {
 					pdbJorn  	: data.get('id_study_day'),
 					pdbId		: data.get('id'),
 					typeObserver: tipo,
+					pdbTable	: table
 				};
 				data.set('typeObserver', tipo);
 				me.setParamStore('ObservadorStore',extParam);

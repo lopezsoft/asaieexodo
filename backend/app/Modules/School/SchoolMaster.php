@@ -31,7 +31,6 @@ class SchoolMaster implements CrudInterface
     {
         $params     = self::extractParams($request);
         $records    = $params->records;
-//      $records->id= $id;
 
         return UpdateTable::update($request, $records, $params->table);
     }

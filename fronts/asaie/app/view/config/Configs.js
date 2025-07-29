@@ -7,7 +7,7 @@ Ext.define('Admin.view.config.Configs', {
         avatarWomen: "/assets/img/avatars/woman.png",
         avatarUnknoun: "/assets/img/avatars/unknown.png",
         socket: null,
-        /*hostSocket	: 'https://wss.asaie.co',
+       /* hostSocket	: 'https://wss.asaie.co',
         urlBase		: "https://api.asaie.co",
         urlLocation	: "https://admin.asaie.co",
         pathStorage	: "https://api.asaie.co/storage/",

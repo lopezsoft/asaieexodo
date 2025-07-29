@@ -32,3 +32,23 @@ export interface SchoolContract {
     state: number;
     active: boolean;
 }
+
+export interface  School {
+  id: number;
+  school_id: number;
+  state: number;
+  user_id: number;
+  active: boolean;
+  school: {
+    id: number;
+    country_id: number;
+    database_name: string;
+    folder_name: string;
+    lockdate: string;
+    nameschool: string;
+    state: number;
+    statecode: string;
+    active: boolean;
+  }
+}
+

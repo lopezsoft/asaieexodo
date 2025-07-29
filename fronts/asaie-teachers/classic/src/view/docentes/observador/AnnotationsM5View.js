@@ -11,20 +11,7 @@ Ext.define('Admin.view.docentes.observador.AnnotationsM5View',{
 			defaultType	: 'customhtmleditor',
 			items	: [
 				{
-					xtype		: 'CbAnnotationTypes',
-					listeners	: {
-						change : function (combo, newValue) {
-							// Mostrar u ocultar el campo de descripción según el tipo de anotación
-							const form = combo.up('form');
-							const descriptionField = form.down('#descriptionField');
-							if (newValue === 1) { // Si es tipo 1, ocultar el campo de descripción
-								descriptionField.setHidden(true);
-								descriptionField.setValue(''); // Limpiar el campo si no es tipo 1
-							} else {
-								descriptionField.setHidden(false);
-							}
-						}
-					},
+					xtype		: 'CbAnnotationTypes'
 				},
 				{
 					name		: 'annotation',
@@ -37,7 +24,7 @@ Ext.define('Admin.view.docentes.observador.AnnotationsM5View',{
 					fieldLabel	: 'Tratamiento',
 					emptyText	: 'Digite el tratamiento de la anotación',
 					itemId		: 'descriptionField',
-					hidden		: true, // Oculto por defecto, se mostrará si el tipo de anotación es 1
+					allowBlank	: false
 				},
 				{
 					xtype		: 'CbPeriodos',

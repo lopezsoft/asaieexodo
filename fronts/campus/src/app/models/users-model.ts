@@ -1,4 +1,15 @@
-import {Schools} from "./school-contract";
+import {School, Schools} from "./school-contract";
+import {Role} from "../enums/profiel-enum";
+
+export interface Profile {
+  id: number;
+  name: string;
+  description: string;
+  active: boolean;
+  profile_name: string;
+  font: string;
+  profile_type: Role
+}
 
 export interface Users {
   id: number;
@@ -13,36 +24,15 @@ export interface Users {
   schools: Schools[];
 }
 
-export interface UserTypes {
-  id: number;
-  profile_name: string;
-  description: string;
-  font: string;
-  active: boolean;
-}
-
 export interface RolContract {
   id: number;
   school_id: number;
   user_id: number;
   profile_id: number;
   state: number;
-  profile: ProfileContract;
+  profile: Profile;
 }
 
-export interface ProfileContract {
-  id: number;
-  profile_name: string;
-  description: string;
-  font: string;
-  active: number;
-}
-
-export enum Role {
-  Admin = 'Teacher',
-  Client = 'Student',
-  User = 'Family',
-}
 
 export class User {
   id: number;
@@ -56,3 +46,14 @@ export class User {
   token?: string;
 }
 
+export interface UserSchool {
+  id: number;
+  email: string;
+  password?: string;
+  first_name: string;
+  last_name: string;
+  fullname?: string;
+  avatar: string;
+  active?: boolean;
+  schools : School[];
+}

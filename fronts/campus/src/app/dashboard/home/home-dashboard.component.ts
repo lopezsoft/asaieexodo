@@ -19,7 +19,7 @@ import {finalize} from "rxjs";
 export class HomeDashboardComponent {
 // Inyección de dependencias limpia
   public userService = inject(UsersService);
-  private authService = inject(AuthService);
+  protected authService = inject(AuthService);
   private maskService = inject(LoadMaskService);
 
   ngOnInit(): void {
@@ -32,9 +32,8 @@ export class HomeDashboardComponent {
     this.authService.setActiveSchool(school, role).pipe(
       finalize(() => this.maskService.hide()) // Oculta el bloqueo al finalizar
     ).subscribe({
-      next: (url) => {
-        // Abre la URL devuelta por el servicio
-        window.open(url, '_blank');
+      next: () => {
+        // Redirige a la URL del módulo activo
       }
     });
   }

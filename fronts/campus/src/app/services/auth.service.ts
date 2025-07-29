@@ -2,7 +2,7 @@
 import { Injectable, signal, computed, inject, WritableSignal, Signal } from '@angular/core';
 import {AccessToken} from '../interfaces';
 import { StorageService } from './storage.service';
-import {RolContract, Role, User} from "../models/users-model";
+import {RolContract, User} from "../models/users-model";
 import {Router} from "@angular/router";
 import {ApiService} from "./api.service";
 import {MessagesService} from "./messages.service";
@@ -10,6 +10,7 @@ import {delay, Observable, of, tap} from "rxjs";
 import {SchoolContract} from "../models/school-contract";
 import {map} from "rxjs/operators";
 import {getApiJwt, getAppUrl} from "../utils/environments-data";
+import {Role} from "../enums/profiel-enum";
 
 const API_JWT_KEY = getApiJwt();
 const CURRENT_USER_KEY = 'currentUser';
@@ -31,6 +32,38 @@ export class AuthService {
   // Señal computada que deriva si el usuario está autenticado.
   isAuthenticated: Signal<boolean> = computed(() => !!this.currentUser());
 
+
+  // Señal computada para verificar el rol del usuario actual.
+  isAdmin: Signal<boolean> = computed(() => {
+    const user = this.currentUser();
+    return user ? user.role === Role.Admin : false;
+  });
+
+  isTeacher: Signal<boolean> = computed(() => {
+    const user = this.currentUser();
+    return user ? user.role === Role.Teacher : false;
+  });
+
+  isStudent: Signal<boolean> = computed(() => {
+    const user = this.currentUser();
+    return user ? user.role === Role.Student : false;
+  });
+
+  isFamily: Signal<boolean> = computed(() => {
+    const user = this.currentUser();
+    return user ? user.role === Role.Family : false;
+  });
+
+  isRector: Signal<boolean> = computed(() => {
+    const user = this.currentUser();
+    return user ? user.role === Role.Rector : false;
+  });
+
+  isCoordinator: Signal<boolean> = computed(() => {
+    const user = this.currentUser();
+    return user ? user.role === Role.Coordinator : false;
+  });
+
   constructor() {
     // Si no hay usuario al iniciar, intenta crearlo desde el token
     if (!this.currentUser()) {
@@ -48,11 +81,17 @@ export class AuthService {
         firstName: token.user.first_name,
         lastName: token.user.last_name,
         companyName: token.user.fullname,
-        role: Role.Admin // O el rol que venga en el token
+        role: token.currentRole
       };
       this.setCurrentUser(user);
     }
   }
+
+  hasCurrentProfile(): boolean {
+    const token = this.getToken();
+    return token ? !!token.currentRole : false;
+  }
+
 
   getToken(): AccessToken | null {
     return this.storageService.getItem<AccessToken>(API_JWT_KEY);
@@ -107,7 +146,8 @@ export class AuthService {
             database_name: school.database_name,
             folder_name: school.folder_name,
           },
-          profile: role.profile
+          profile: role.profile,
+          currentRole: role.profile.profile_type,
         };
 
         // Guarda el nuevo estado en localStorage a través del StorageService
@@ -197,5 +237,14 @@ export class AuthService {
         this.logout();
       }
     });
+  }
+
+  clearCurrentProfile() {
+    const token = this.getToken();
+    if (token) {
+      // Elimina el perfil actual del token
+      const updatedToken = { ...token, currentRole: null, profile: null };
+      this.storageService.setItem(API_JWT_KEY, updatedToken);
+    }
   }
 }

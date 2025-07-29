@@ -6,7 +6,7 @@ Ext.define('Admin.view.academico.container.AcademicContainerView',{
     reference   : 'academicContainerView',
     layout      : 'responsivecolumn' ,
 	initComponent: function () {
-		const { isSecretary } = AuthToken.profileSettings();
+		const { isSecretary, isRector } = AuthToken.profileSettings();
 		this.items	= [
 			{
 				xtype   : 'containerButton',
@@ -71,8 +71,8 @@ Ext.define('Admin.view.academico.container.AcademicContainerView',{
 			},
 			{
 				xtype   : 'containerButton',
-				disabled: isSecretary,
-				hidden	: isSecretary,
+				disabled: !isRector,
+				hidden	: !isRector,
 				items   : [
 					{
 						xtype   : 'buttonPanel',

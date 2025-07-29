@@ -1,4 +1,4 @@
-@if (userService.isRolAccess$ | async) {
+@if ((userService.isRolAccess$ | async) && !authService.hasCurrentProfile()) {
 
   @if (userService.schools$ | async; as schools) {
 
@@ -32,7 +32,7 @@
     }
   }
 
-} @else {
+} @else if (!authService.hasCurrentProfile()) {
   <section>
     <div class="card">
       <div class="card-body text-center">NO TIENE ACCESOS ASIGNADOS</div>

@@ -136,7 +136,8 @@
       "profile"   : "Perfil",
       "user"      : "Usuario",
       "logout"    : "Cerrar sesión",
-      "profileChange" : "Cambiar nombre de usuario"
+      "profileChange" : "Cambiar nombre de usuario",
+      "returnToAccessPanel" : "Ir al panel de acceso"
     }
   },
   "buttons" : {

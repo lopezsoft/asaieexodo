@@ -61,7 +61,8 @@
                   <div class="col-md-12">
                     <div class="form-group">
                       <label>{{ 'profile.email' | transloco }}</label>
-                      <input class="form-control" type="email" formControlName="email" [disabled]="true">
+                      <input class="form-control" type="email" formControlName="email"
+                             readonly [disabled] = "true">
                       @if (isControlInvalid(profileForm, 'email')) {
                         <small class="text-danger">{{ 'validation.invalidEmail' | transloco }}</small>
                       }

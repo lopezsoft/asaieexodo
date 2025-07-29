@@ -8,7 +8,7 @@ import {LoadMaskService} from "../common/load-mask.service";
 import {MessagesService} from "../messages.service";
 import {SchoolContract, SchoolModuleContract, Schools} from "../../models/school-contract";
 import {StorageService} from "../storage.service";
-import {Users, UserTypes} from "../../models/users-model";
+import {Profile, Users} from "../../models/users-model";
 import {AuthService} from "../auth.service";
 
 @Injectable({
@@ -140,7 +140,7 @@ export class UsersService {
 
   // --- Métodos de API Directos (devuelven observables sin afectar el estado del servicio) ---
 
-  getUserTypes(): Observable<UserTypes[]> {
+  getUserTypes(): Observable<Profile[]> {
     const params = {
       pdbTable: 'user_profiles',
       where: '{"active": 1}'

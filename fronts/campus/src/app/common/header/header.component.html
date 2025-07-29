@@ -26,14 +26,6 @@
             <a routerLink="/dashboard" class="logo white-logo">
                 <img src="assets/images/logo/logo.svg" alt="logo">
             </a>
-            <form class="search-box position-relative">
-                <input type="text" class="input-search d-block w-100 border-radius" placeholder="Search here.....">
-                <button type="submit" class="bg-transparent p-0 border-0 transition">
-                    <i class="material-symbols-outlined">
-                        search
-                    </i>
-                </button>
-            </form>
         </div>
         <ul class="header-right-side d-flex align-items-center m-0 p-0 list-unstyled">
             <li class="position-relative">
@@ -121,7 +113,7 @@
                                 {{ uActionsService.getCurrentUser()?.firstName || 'User' }} {{ uActionsService.getCurrentUser()?.lastName || '' }}
                             </span>
                             <span class="d-block">
-                                {{ authService.getToken()?.profile?.profile_name || 'Family' }}
+                                {{ authService.getToken()?.profile?.profile_name || '' }}
                             </span>
                         </div>
                     </div>
@@ -135,11 +127,25 @@
                             </a>
                         </li>
                     </ul>
+                    @if (authService.hasCurrentProfile()) {
+                      <div class="border-top"></div>
+                      <ul class="list p-0 mt-0 mb-0 list-unstyled">
+                          <li>
+                              <a (click)="authService.clearCurrentProfile()"
+                                class="d-block position-relative cursor-pointer">
+                                  <i class="material-symbols-outlined">
+                                    exit_to_app
+                                  </i>
+                                  {{ 'menu.user.returnToAccessPanel' | transloco }}
+                              </a>
+                          </li>
+                      </ul>
+                    }
                     <div class="border-top"></div>
                     <ul class="list p-0 mt-0 mb-0 list-unstyled">
                         <li>
                             <a (click)="authService.confirmLogout()"
-                              class="d-block position-relative">
+                              class="d-block position-relative cursor-pointer">
                                 <i class="material-symbols-outlined">
                                     logout
                                 </i>

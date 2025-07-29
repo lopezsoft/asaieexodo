@@ -58,10 +58,24 @@
                   <span class="sub-title d-block fw-medium text-uppercase">
                     <hr class="my-1">
                   </span>
+                  @if (authService.hasCurrentProfile()) {
+                    <div class="accordion-item border-radius border-0">
+                      <a
+                        (click)="authService.clearCurrentProfile()"
+                        class="sidebar-menu-link w-100 position-relative border-radius fw-medium transition cursor-pointer">
+                        <i class="material-symbols-outlined">
+                          exit_to_app
+                        </i>
+                        <span class="title lh-1">
+                              {{ 'menu.user.returnToAccessPanel' | transloco }}
+                          </span>
+                      </a>
+                    </div>
+                  }
                   <div class="accordion-item border-radius border-0">
                       <a
                         (click)="authService.confirmLogout()"
-                        class="sidebar-menu-link w-100 position-relative border-radius fw-medium transition">
+                        class="sidebar-menu-link w-100 position-relative border-radius fw-medium transition cursor-pointer">
                           <i class="material-symbols-outlined">
                               logout
                           </i>

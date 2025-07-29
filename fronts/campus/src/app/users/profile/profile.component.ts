@@ -43,7 +43,7 @@ export class ProfileComponent implements OnInit {
     this.profileForm = this.fb.group({
       first_name: ['', [Validators.required, Validators.minLength(3)]],
       last_name: ['', [Validators.required, Validators.minLength(3)]],
-      email: ['', [Validators.required]],
+      email: [''],
       imgdata: [''], // Campo para la imagen en base64
       imgname: ['']
     });

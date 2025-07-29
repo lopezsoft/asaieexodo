@@ -79,6 +79,7 @@ Ext.define('Admin.view.docentes.observador.CrudObserverView' ,{
 						case 5 :
 							this.down('#btnFort').setHidden(true);
 							this.down('#btnAnotaciones').setHidden(false);
+							this.down('#btnAnotaciones').setText('Seguimiento académico y disciplinario');
 							break;
 						default :
 							this.down('#btnFort').setText('Fortalezas y dificultades');
@@ -102,7 +103,42 @@ Ext.define('Admin.view.docentes.observador.CrudObserverView' ,{
 							xtype		: 'customButton',
 							text		: 'Anotaciones',
 							itemId		: 'btnAnotaciones',
-							handler		: 'onAnotaciones',
+							handler		: function(btn){
+								const app = Admin.getApplication();
+								const me = btn.up('window');
+								const data = me.down('grid').getSelection()[0];
+								const record = me.getRecord();
+								const tipo    = parseFloat(record.get('typeObserver')) || 3; // TODO: Asignar Tipo de observador
+								const periodsParams = {
+									pdbTable: 'periodos_academicos',
+									pdbGrado: data.get('id_grade'),
+									pdbType: 0
+								};
+								app.setParamStore('PeriodosStore',periodsParams,true);
+								if (tipo === 5) {
+									app.onStore('docentes.observador.AnnotationsM5Store');
+									app.setParamStore('AnnotationsM5Store',{
+										where: '{"observer_id" : ' + data.get('id') + '}',
+										pdbTable: 'obs_annotations_mod_5',
+										typeObserver: tipo
+									});
+									Ext.create('Admin.view.docentes.observador.CrudAnnotationsM5View',{
+										title	: 'Seguimiento académico y disciplinario',
+										record	: data
+									}).show();
+								} else {
+									me.onStore('docentes.observador.AnotacionesM3Store');
+									me.setParamStore('AnotacionesM3Store',{
+										where: '{"id_observador" : ' + data.get('id') + '}',
+										pdbTable: 'obs_anotaciones_mod_3',
+										typeObserver: tipo
+									});
+									Ext.create('Admin.view.docentes.observador.CrudAnotacionesM3View',{
+										title	: 'Anotaciones',
+										record	: data
+									}).show();
+								}
+							},
                             disabled    : true
 						},'-',
 						{

@@ -8,7 +8,7 @@ Ext.define('Admin.combo.CbTDHA',{
 		this.callParent(arguments);
 	},
 	alias		: 'widget.CbTDHA',
-	fieldLabel	: 'TRASTORNO DEL ESPECTRO AUTISTA (TEA):',
+	fieldLabel	: 'TRASTORNO POR DÉFICIT DE ATENCIÓN E HIPERACTIVIDAD (TDHA):',
 	name		: 'tdha',
     displayField: 'tdha',
     valueField	: 'tdha',

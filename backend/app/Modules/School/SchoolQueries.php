@@ -38,7 +38,7 @@ class SchoolQueries
                 'page'		        => $request->input('page') ?? 0,
                 'limit'		        => $request->input('limit') ?? 15,
                 'profileId'		    => $request->input('profileId') ?? 0,
-                'path'              => "{$school->folder_name}"
+                'path'              => $school->folder_name
             ];
         }catch( Exception $e) {
             throw new Exception($e->getMessage());

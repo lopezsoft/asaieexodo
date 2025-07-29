@@ -3,6 +3,7 @@
 namespace App\Modules\Observer;
 
 use App\Common\HttpResponseMessages;
+use App\Common\MessageExceptionResponse;
 use App\Modules\School\SchoolQueries;
 use App\Modules\Teacher\CoursesOfTeacher;
 use App\Queries\CallExecute;
@@ -23,7 +24,7 @@ class Observer
             $type   = $request->typeObserver ?? 3;
             $year   = $school->year;
             $id     = $request->pdbId ?? 0;
-            $type   = intval($type);
+            $type   = (int)$type;
             $tableObserver = match ($type) {
                 4, 1 => "obs_observador_mod_1",
                 2 => "obs_observador_mod2",
@@ -114,13 +115,17 @@ class Observer
             $school     = SchoolQueries::getSchoolRequest($request);
             $db         = $school->db;
             $teacherId  = CoursesOfTeacher::getTeacherId($db);
-            $records    = json_decode($request->records);
+            $records    = json_decode($request->records, false, 512, JSON_THROW_ON_ERROR);
             $records->id_docente = $teacherId;
-            return InsertTable::insert($request, $records, $db.'obs_anotaciones_mod_3');
+            $records->teacher_id = $teacherId;
+            $type       = (int) ($request->typeObserver ?? 3);
+            $tableObserver = match ($type) {
+                5 => "obs_annotations_mod_5",
+                default => "obs_anotaciones_mod_3",
+            };
+            return InsertTable::insert($request, $records, $db.$tableObserver);
         }catch (Exception $e) {
-            return HttpResponseMessages::getResponse500([
-                'message'   => $e->getMessage()
-            ]);
+            return MessageExceptionResponse::response($e);
         }
     }
 

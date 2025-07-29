@@ -29,7 +29,6 @@ Ext.define('Admin.view.academico.inscripciones.FamiliesStudent',{
 				ptype			: 'gridSearch',
 				readonlyIndexes	: ['note'],
 				disableIndexes	: ['pctChange'],
-				mode            : 'local',
 				flex			: 1,
 				autoFocus		: false,
 				independent		: true

@@ -72,7 +72,8 @@ Ext.define('Admin.view.academico.inscripciones.forms.InscripcionesForm',{
 						},
                         {
 							xtype	: 'CbDocumentos',
-							name	: 'id_documento'
+							name	: 'id_documento',
+							value	: 5
                         },
                         {
                             xtype       : 'CbCiudades',

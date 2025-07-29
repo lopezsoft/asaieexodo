@@ -53,7 +53,7 @@ Ext.define('Admin.view.academico.inscripciones.forms.MatriculasFormView' ,{
 					win.unmask();
 				}
 			});
-		};
+		}
 	},
 	store			: 'MatriculasStore',
 	defaultFocus    : 'CbSedes',

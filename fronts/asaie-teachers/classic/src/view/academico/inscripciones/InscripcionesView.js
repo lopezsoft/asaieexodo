@@ -4,9 +4,8 @@ Ext.define('Admin.view.academico.inscripciones.InscripcionesView',{
     xtype   : 'inscripcionesView',
     controller: 'academico',
     initComponent: function () {
-        var
-            me  = Admin.getApplication();
-        me.onStore('general.DocumentosStore');
+		const me = Admin.getApplication();
+		me.onStore('general.DocumentosStore');
         me.onStore('general.CountryStore');
         me.onStore('general.CitiesStore');
         me.onStore('general.CitiesStore2');
@@ -205,10 +204,10 @@ Ext.define('Admin.view.academico.inscripciones.InscripcionesView',{
                                             disabled: true,
                                             handler : function(btn){
                                                 let ts      = this.up('window');
-                                                    app     = Admin.getApplication();
-                                                    store   = Ext.getStore('ExtraInscripcionesStore'),
-                                                    record  = ts.down('#studentgrid').getSelection()[0];
-                                                xparam  = {
+												let app = Admin.getApplication();
+												let store = Ext.getStore('ExtraInscripcionesStore'),
+													record = ts.down('#studentgrid').getSelection()[0];
+                                                const xparam  = {
                                                     pdbTable    : 'extra_inscripciones',
                                                     where       : '{"id_inscripcion" : "'+record.get('id')+'"}'
                                                 };

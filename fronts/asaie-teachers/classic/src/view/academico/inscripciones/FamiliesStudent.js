@@ -62,7 +62,20 @@ Ext.define('Admin.view.academico.inscripciones.FamiliesStudent',{
                 text        : 'Tipo',
                 dataIndex   : 'family_type_name',
                 width       : 130
-            }
+            },
+			{
+				text        : 'Parentesco',
+				dataIndex   : 'name_kinship',
+				width       : 130
+			},
+			{
+				text        : 'Vive con este familiar',
+				dataIndex   : 'live_with_this',
+				width       : 150,
+				xtype       : 'booleancolumn',
+				trueText    : 'Si',
+				falseText   : 'No'
+			}
         ],
         dockedItems : [
             {

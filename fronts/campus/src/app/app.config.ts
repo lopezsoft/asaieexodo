@@ -1,5 +1,5 @@
 import { ApplicationConfig, provideZoneChangeDetection, isDevMode, InjectionToken, importProvidersFrom } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import {provideRouter, withHashLocation} from '@angular/router';
 import { routes } from './app.routes';
 import { provideClientHydration } from '@angular/platform-browser';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
@@ -18,7 +18,7 @@ export const DEFAULT_LANGUAGE = new InjectionToken<string>('Default Language');
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
-    provideRouter(routes),
+    provideRouter(routes, withHashLocation()),
     provideClientHydration(),
 
     // 1. Usa solo una vez la configuración de animaciones (la asíncrona es preferible)

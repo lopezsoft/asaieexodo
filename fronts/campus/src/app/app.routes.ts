@@ -12,7 +12,6 @@ import { NotFoundComponent } from './not-found/not-found.component';
 import { ComingSoonComponent } from './coming-soon/coming-soon.component';
 import {HomeDashboardComponent} from "./dashboard/home/home-dashboard.component";
 import {authGuard} from "./guards/auth.guard";
-import {UsersComponent} from "./users/users.component";
 import {ProfileComponent} from "./users/profile/profile.component";
 import {UserContainerComponent} from "./users/user-container.component";
 import {ProfileChangeComponent} from "./users/profile-change/profile-change.component";
@@ -28,26 +27,20 @@ export const routes: Routes = [
         component: DashboardComponent,
         canActivate: [authGuard],
         children: [
-            {path: '', component: HomeDashboardComponent},
-            {
-                path: 'profile',
-                component: UsersComponent,
-                children: [
-                  {
-                    path: '',
-                    component: UserContainerComponent
-                  },
-                  {
-                    path: 'user',
-                    component: ProfileComponent
-                  },
-                  {
-                    path: 'profile-change',
-                    component: ProfileChangeComponent
-                  }
-                ]
-            }
+            {path: '', component: HomeDashboardComponent}
         ]
+    },
+    {
+      path: 'profile',
+      component: DashboardComponent,
+      canActivate: [authGuard],
+      loadChildren: () => import('./users/profile.routes').then(m => m.profileRoutes.children),
+    },
+    {
+      path: 'student',
+      component: DashboardComponent,
+      canActivate: [authGuard],
+      loadChildren: () => import('./students/student.routes').then(m => m.studentRoutes.children),
     },
     {
         path: 'auth',

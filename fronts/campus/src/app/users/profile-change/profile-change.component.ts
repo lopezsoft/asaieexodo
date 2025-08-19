@@ -71,6 +71,6 @@ export class ProfileChangeComponent implements OnInit {
   }
 
   onCancel() {
-    this.userActionsService.goRoute('dashboard/profile');
+    this.userActionsService.goRoute('profile');
   }
 }

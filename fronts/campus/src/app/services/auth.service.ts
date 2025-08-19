@@ -27,10 +27,20 @@ export class AuthService {
   // Señal (Signal) para el usuario actual. Inicia con el valor de localStorage.
   currentUser: WritableSignal<User | null> = signal(this.storageService.getItem<User>(CURRENT_USER_KEY));
 
-  currentToken: Signal<AccessToken | null> = computed(() => this.storageService.getItem<AccessToken>(API_JWT_KEY));
+  // Señal (Signal) para el rol del usuario actual. Inicia con null.
+  currentUserRole: WritableSignal<Role | null> = signal(this.storageService.getItem<AccessToken>(API_JWT_KEY)?.currentRole || null);
+
+  // Señal (Signal) para el token de acceso actual. Inicia con el valor de localStorage.
+  currentToken: WritableSignal<AccessToken | null> = signal(this.storageService.getItem<AccessToken>(API_JWT_KEY));
 
   // Señal computada que deriva si el usuario está autenticado.
   isAuthenticated: Signal<boolean> = computed(() => !!this.currentUser());
+
+  // Señal computada que deriva el rol del usuario actual.
+  hasCurrentProfile: Signal<boolean> = computed(() => {
+    const token = this.currentToken();
+    return !!(token && token.currentRole);
+  });
 
 
   // Señal computada para verificar el rol del usuario actual.
@@ -87,9 +97,10 @@ export class AuthService {
     }
   }
 
-  hasCurrentProfile(): boolean {
-    const token = this.getToken();
-    return token ? !!token.currentRole : false;
+
+  getCurrentUserRole(): Role | null {
+    const token = this.currentToken();
+    return token ? token.currentRole : null;
   }
 
 
@@ -124,7 +135,7 @@ export class AuthService {
     // y devolver la URL o cualquier otro dato necesario.
     // Usamos 'of' y 'delay' de RxJS para simular la asincronía.
     return of(null).pipe(
-      delay(1000), // Simula una espera de 1 segundo
+      delay(250), // Simula una espera de 250 ms
       map(() => {
         const token = this.getToken(); // Obtiene el token actual
         if (!token) {
@@ -152,6 +163,11 @@ export class AuthService {
 
         // Guarda el nuevo estado en localStorage a través del StorageService
         this.storageService.setItem(getApiJwt(), newSessionState);
+
+        // Actualiza la señal del token
+        this.currentToken.set(newSessionState);
+        // Actualiza la señal del usuario actual
+        this.currentUserRole.set(role.profile.profile_type);
 
         // Devuelve la URL a la que se debe redirigir
         return `${getAppUrl()}`;
@@ -245,6 +261,8 @@ export class AuthService {
       // Elimina el perfil actual del token
       const updatedToken = { ...token, currentRole: null, profile: null };
       this.storageService.setItem(API_JWT_KEY, updatedToken);
+      this.currentToken.set(updatedToken);
+      this.currentUserRole.set(null);
     }
   }
 }

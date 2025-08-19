@@ -110,7 +110,7 @@ export class ProfileComponent implements OnInit {
     if (user) {
       this.profileForm.patchValue(user);
       this.imgData = user.avatar;
-      this.userActionsService.goRoute('dashboard/profile');
+      this.userActionsService.goRoute('profile');
     }
   }
 }

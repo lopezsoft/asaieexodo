@@ -137,8 +137,25 @@
       "user"      : "Usuario",
       "logout"    : "Cerrar sesión",
       "profileChange" : "Cambiar nombre de usuario",
-      "returnToAccessPanel" : "Ir al panel de acceso"
+      "returnToAccessPanel" : "Ir al panel de acceso",
+      "changeModule"        : "Cambiar de módulo"
+    },
+    "student"   : {
+      "academicNote"      : "Notas Académicas",
+      "academicReport"    : "Informes Académicos",
+      "attendance"        : "Asistencia",
+      "academicCalendar"  : "Calendario Académico",
+      "academicActivities"  : "Actividades Académicas",
+      "schoolElections"   : "Elecciones Escolares",
+      "teacherEvaluation" : "Evaluación Docente",
+      "teachers"          : "Docentes",
+      "family"            : "Familiares"
     }
+  },
+  "notFound" : {
+    "title"   : "Página no encontrada",
+    "message" : "Lo sentimos, la página que estás buscando no existe.",
+    "button"  : "Volver al inicio"
   },
   "buttons" : {
     "goToStart" : "Ir al inicio",

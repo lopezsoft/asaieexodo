@@ -69,10 +69,8 @@ Ext.define('Admin.view.academico.inscripciones.forms.SaveFamiliesStudent',{
 				},
 				{
 					xtype		: 'customcheckboxfield',
-					boxLabel  	: 'Agregar como acudiente',
-					name      	: 'add_acud',
-					id        	: 'CkAcud',
-					hidden		: true
+					boxLabel  	: '¿Vive con este familiar?',
+					name      	: 'live_with_this',
 				}
 			]
 		}

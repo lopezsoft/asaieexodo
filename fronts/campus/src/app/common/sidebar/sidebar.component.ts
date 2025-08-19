@@ -6,6 +6,7 @@ import { ToggleService } from '../header/toggle.service';
 import { CustomizerSettingsService } from '../../customizer-settings/customizer-settings.service';
 import {TranslocoPipe} from "@jsverse/transloco";
 import {AuthService} from "../../services/auth.service";
+import {MenuService} from "../../services/menu.service";
 
 interface MenuItem {
     title: string;
@@ -19,7 +20,12 @@ interface MenuItem {
     styleUrl: './sidebar.component.scss'
 })
 export class SidebarComponent {
+
     protected authService = inject(AuthService);
+    protected menuService = inject(MenuService);
+
+    // menuItems
+    public menuItems = this.menuService.filteredMenu;
     // isSidebarToggled
     isSidebarToggled = false;
 

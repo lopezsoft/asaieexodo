@@ -127,8 +127,8 @@ Ext.define('Admin.view.docentes.observador.CrudObserverView' ,{
 										record	: data
 									}).show();
 								} else {
-									me.onStore('docentes.observador.AnotacionesM3Store');
-									me.setParamStore('AnotacionesM3Store',{
+									app.onStore('docentes.observador.AnotacionesM3Store');
+									app.setParamStore('AnotacionesM3Store',{
 										where: '{"id_observador" : ' + data.get('id') + '}',
 										pdbTable: 'obs_anotaciones_mod_3',
 										typeObserver: tipo

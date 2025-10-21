@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.18.1.final using JasperReports Library version 6.18.1-9d75d1969e774d4f179fb3be8401e98a0e6d1611  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="observador_estudiante" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="NO_DATA_ADAPTER"/>
+	<style name="FieldLabel" isBold="true"/>
+	<field name="nombres" class="java.lang.String"/>
+	<field name="tipo_documento" class="java.lang.String"/>
+	<field name="nro_doc_id" class="java.lang.String"/>
+	<field name="lugar_nacimiento" class="java.lang.String"/>
+	<field name="fecha_nacimiento" class="java.util.Date"/>
+	<field name="edad" class="java.lang.Integer"/>
+	<field name="direccion" class="java.lang.String"/>
+	<field name="municipio" class="java.lang.String"/>
+	<field name="genero" class="java.lang.String"/>
+	<field name="zona" class="java.lang.String"/>
+	<field name="eps" class="java.lang.String"/>
+	<field name="sisben" class="java.lang.String"/>
+	<field name="rh" class="java.lang.String"/>
+	<field name="ie_procedencia" class="java.lang.String"/>
+	<field name="etnia" class="java.lang.String"/>
+	<field name="religion" class="java.lang.String"/>
+	<field name="trabaja" class="java.lang.String"/>
+	<field name="tipo_trabajo" class="java.lang.String"/>
+	<field name="deporte" class="java.lang.String"/>
+	<field name="condiciones_fisicas" class="java.lang.String"/>
+	<field name="avatar" class="java.lang.String"/>
+	<field name="barrera_visual_detalle" class="java.lang.String"/>
+	<field name="barrera_visual_eps" class="java.lang.String"/>
+	<field name="barrera_auditiva_detalle" class="java.lang.String"/>
+	<field name="barrera_auditiva_eps" class="java.lang.String"/>
+	<field name="dislexia" class="java.lang.String"/>
+	<field name="tea" class="java.lang.String"/>
+	<field name="discapacidad_intelectual" class="java.lang.String"/>
+	<field name="discalculia" class="java.lang.String"/>
+	<title>
+		<band height="70" splitType="Stretch">
+			<staticText>
+				<reportElement x="120" y="0" width="435" height="20" uuid="b1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6"/>
+				<textElement textAlignment="Center">
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[INSTITUCIÓN EDUCATIVA FRANCISCO JOSÉ DE CALDAS]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="120" y="20" width="435" height="15" uuid="c1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6"/>
+				<textElement textAlignment="Center">
+					<font size="10" isItalic="true"/>
+				</textElement>
+				<text><![CDATA[CIENCIA, ESTUDIO Y RESPONSABILIDAD]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="40" width="555" height="30" uuid="d1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="18" isBold="true"/>
+				</textElement>
+				<text><![CDATA[OBSERVADOR DEL ESTUDIANTE]]></text>
+			</staticText>
+		</band>
+	</title>
+	<detail>
+		<band height="450" splitType="Stretch">
+			<frame>
+				<reportElement x="0" y="10" width="555" height="220" uuid="e1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<staticText>
+					<reportElement style="FieldLabel" x="10" y="10" width="150" height="15" uuid="f1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6"/>
+					<text><![CDATA[INFORMACIÓN DEL ESTUDIANTE]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="FieldLabel" x="10" y="35" width="100" height="15" uuid="01b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6"/>
+					<text><![CDATA[TIPO DE DOCUMENTO:]]></text>
+				</staticText>
+				<textField>
+					<reportElement x="110" y="35" width="150" height="15" uuid="11b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6"/>
+					<textFieldExpression><![CDATA[$F{tipo_documento}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement style="FieldLabel" x="10" y="55" width="100" height="15" uuid="21b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6"/>
+					<text><![CDATA[N° DOCUMENTO:]]></text>
+				</staticText>
+				<textField>
+					<reportElement x="110" y="55" width="150" height="15" uuid="31b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6"/>
+					<textFieldExpression><![CDATA[$F{nro_doc_id}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement style="FieldLabel" x="10" y="75" width="140" height="15" uuid="41b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6"/>
+					<text><![CDATA[NOMBRE DEL ESTUDIANTE:]]></text>
+				</staticText>
+				<textField>
+					<reportElement x="150" y="75" width="280" height="15" uuid="51b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6"/>
+					<textFieldExpression><![CDATA[$F{nombres}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement style="FieldLabel" x="10" y="95" width="120" height="15" uuid="61b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6"/>
+					<text><![CDATA[FECHA DE NACIMIENTO:]]></text>
+				</staticText>
+				<textField pattern="dd/MM/yyyy">
+					<reportElement x="130" y="95" width="130" height="15" uuid="71b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6"/>
+					<textFieldExpression><![CDATA[$F{fecha_nacimiento}]]></textFieldExpression>
+				</textField>
+				<image>
+					<reportElement x="445" y="10" width="100" height="110" uuid="81b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6"/>
+					<box>
+						<pen lineWidth="1.0"/>
+					</box>
+					<imageExpression><![CDATA[$F{avatar}]]></imageExpression>
+				</image>
+				<staticText>
+					<reportElement style="FieldLabel" x="280" y="35" width="50" height="15" uuid="91b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6"/>
+					<text><![CDATA[GÉNERO:]]></text>
+				</staticText>
+				<textField>
+					<reportElement x="330" y="35" width="100" height="15" uuid="a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d7"/>
+					<textFieldExpression><![CDATA[$F{genero}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement style="FieldLabel" x="280" y="55" width="40" height="15" uuid="b1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d8"/>
+					<text><![CDATA[EDAD:]]></text>
+				</staticText>
+				<textField>
+					<reportElement x="320" y="55" width="100" height="15" uuid="c1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d9"/>
+					<textFieldExpression><![CDATA[$F{edad}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement x="0" y="240" width="555" height="100" uuid="4e2f8d22-2624-4b67-96a8-2a1e944b2a8c"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<staticText>
+					<reportElement style="FieldLabel" x="10" y="5" width="200" height="15" uuid="5d1a8c3e-8f5b-4e89-9a01-4c1d6b9d6c1f"/>
+					<text><![CDATA[BARRERAS PARA EL APRENDIZAJE]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="FieldLabel" x="10" y="25" width="120" height="15" uuid="8c7a6e1a-4d2a-4f28-8b9a-7a5d1b3f5e9d"/>
+					<text><![CDATA[TIPO DE LIMITACIÓN]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="FieldLabel" x="180" y="25" width="150" height="15" uuid="1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d"/>
+					<text><![CDATA[DETALLE]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="FieldLabel" x="380" y="25" width="150" height="15" uuid="9f8e7d6c-5b4a-3c2d-1e0f-9a8b7c6d5e4f"/>
+					<text><![CDATA[EPS DX/DOCTOR]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="10" y="45" width="100" height="15" uuid="7a6b5c4d-3e2f-1a0b-9c8d-7e6f5a4b3c2d"/>
+					<text><![CDATA[VISUALES]]></text>
+				</staticText>
+				<textField isBlankWhenNull="true">
+					<reportElement x="180" y="45" width="180" height="15" uuid="6c5b4a3d-2e1f-0a9b-8c7d-6e5f4a3b2c1d"/>
+					<box>
+						<bottomPen lineWidth="0.5"/>
+					</box>
+					<textFieldExpression><![CDATA[$F{barrera_visual_detalle}]]></textFieldExpression>
+				</textField>
+				<textField isBlankWhenNull="true">
+					<reportElement x="380" y="45" width="165" height="15" uuid="5b4a3c2d-1e0f-9a8b-7c6d-5e4f3a2b1c0d"/>
+					<box>
+						<bottomPen lineWidth="0.5"/>
+					</box>
+					<textFieldExpression><![CDATA[$F{barrera_visual_eps}]]></textFieldExpression>
+				</textField>
+			</frame>
+		</band>
+	</detail>
+</jasperReport>

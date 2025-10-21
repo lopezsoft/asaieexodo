@@ -155,7 +155,7 @@ class JReportModel  extends MasterModel {
             return response()->json([
                 'success'   => true,
                 'pathFile'  => utf8_encode($output),
-            ], 200);
+            ]);
 
 		} catch (Exception $e) {
 			// Depuración de errores
@@ -163,7 +163,8 @@ class JReportModel  extends MasterModel {
 
             return response()->json([
                 'success'   => false,
-                'error'     => $output_error ?? "",
+                'error'     => $output_error ?? 'Error al procesar el reporte',
+                'code'      => $e->getCode(),
                 'message'   => $e->getMessage(),
                 'line'         => $e->getLine(),
                 'file'         => $e->getFile(),

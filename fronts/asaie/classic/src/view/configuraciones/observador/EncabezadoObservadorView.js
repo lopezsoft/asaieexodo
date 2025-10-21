@@ -1,7 +1,7 @@
 /**
  * Created by LOPEZSOFT2 on 31/03/2017.
  */
-Ext.define('Admin.view.configuraciones.EncabezadoObservadorView',{
+Ext.define('Admin.view.configuraciones.EncabezadoObservadorView', {
     extend  : 'Admin.base.WindowCrud',
     controller  : 'configuraciones',
     alias       : 'widget.EncabezadoObservadorView',
@@ -15,6 +15,11 @@ Ext.define('Admin.view.configuraciones.EncabezadoObservadorView',{
         {
             xtype   : 'customform',
             items: [
+                {
+                    xtype   : 'hidden',
+                    itemId  : 'id_observador',
+                    name    : 'id_observador'
+                },
                 {
                     xtype   : 'customhtmleditor',
                     name    : 'encabezado',

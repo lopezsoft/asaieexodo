@@ -1,5 +1,7 @@
 eclipse.preferences.version=1
 encoding//subreports/datos_estudiante_constancia_subreport.jrxml=UTF-8
+encoding//subreports/ficha_obs_mod3_general_subreport.jrxml=UTF-8
+encoding//subreports/ficha_obs_mod5_general_subreport.jrxml=UTF-8
 encoding//subreports/firma_rector_subreport.jrxml=UTF-8
 encoding//subreports/header_final_certificate.jrxml=UTF-8
 encoding//subreports/report_footer.jrxml=UTF-8
@@ -62,6 +64,7 @@ encoding/fechas_nacimiento.jrxml=UTF-8
 encoding/ficha_matricula.jrxml=UTF-8
 encoding/ficha_matricula2.jrxml=UTF-8
 encoding/ficha_observador_mod3.jrxml=UTF-8
+encoding/ficha_observador_mod5.jrxml=UTF-8
 encoding/historial_academico.jrxml=UTF-8
 encoding/libro_carta_prescolar.jrxml=UTF-8
 encoding/libro_final.jrxml=UTF-8

@@ -121,9 +121,9 @@ class StudentEnrollment
         $school         = SchoolQueries::getSchoolRequest($request);
         $db	            = $school->db;
         $year           = $school->year;
-        $search         = $request->input('query') ?? null;
-        $promoted       = $request->input('promoted') ?? null;
-        $withObserver   = $request->input('withObserver') ?? null;
+        $search         = $request->input('query');
+        $promoted       = $request->input('promoted');
+        $withObserver   = $request->input('withObserver');
         $query = DB::table($db.'student_enrollment','tm')
             ->selectRaw("tm.*, CONCAT(rtrim(ti.apellido1),' ',rtrim(ti.apellido2),' ',
 					rtrim(ti.nombre1),' ',rtrim(ti.nombre2)) AS nombres,
@@ -147,9 +147,18 @@ class StudentEnrollment
                     ->where('tm.id_state','>', '1');
         }
         if($withObserver) {
-            $query->whereExists(function ($query) use ($db) {
+            $obs_modelos_observador = DB::table("{$db}obs_modelos_observador")
+                ->select('id')
+                ->where('estado', 1)
+                ->first();
+            $type = $obs_modelos_observador->id ?? 3;
+            $tableObserver = match ($type) {
+                5 => "obs_observer_mod_5",
+                default => "obs_observador_mod_3",
+            };
+            $query->whereExists(function ($query) use ($db, $tableObserver) {
                 $query->select(DB::raw(1))
-                    ->from($db.'obs_observador_mod_3 AS bb')
+                    ->from("{$db}{$tableObserver} AS bb")
                     ->whereRaw('bb.id_matric = tm.id');
             });
         }

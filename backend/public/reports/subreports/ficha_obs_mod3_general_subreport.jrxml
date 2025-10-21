@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Created with Jaspersoft Studio version 6.8.0.final using JasperReports Library version 6.8.0-2ed8dfabb690ff337a5797129f2cd92902b0c87b  -->
+<!-- Created with Jaspersoft Studio version 6.18.1.final using JasperReports Library version 6.18.1-9d75d1969e774d4f179fb3be8401e98a0e6d1611  -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="ficha_obs_mod3_general_subreport" pageWidth="556" pageHeight="727" whenNoDataType="NoDataSection" columnWidth="556" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="33974257-97b3-4498-8fe2-7887b59433ce">
 	<property name="ireport.zoom" value="1.5"/>
 	<property name="ireport.x" value="35"/>
@@ -342,7 +342,7 @@
 					</textElement>
 					<text><![CDATA[Nº. Matricula:]]></text>
 				</staticText>
-				<textField isStretchWithOverflow="true">
+				<textField textAdjust="StretchHeight">
 					<reportElement positionType="Float" stretchType="ContainerHeight" x="52" y="0" width="35" height="10" uuid="84d8e7c6-98a2-4a86-b16f-8da04a6a9a1f">
 						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 					</reportElement>
@@ -359,7 +359,7 @@
 					</textElement>
 					<text><![CDATA[Nº. Folio:]]></text>
 				</staticText>
-				<textField isStretchWithOverflow="true">
+				<textField textAdjust="StretchHeight">
 					<reportElement positionType="Float" stretchType="ContainerHeight" x="127" y="0" width="30" height="10" uuid="dac7d25d-1999-46f3-8d55-85b21158e2f6"/>
 					<box leftPadding="2" rightPadding="2"/>
 					<textElement verticalAlignment="Middle">
@@ -367,7 +367,7 @@
 					</textElement>
 					<textFieldExpression><![CDATA[$F{id_folio}]]></textFieldExpression>
 				</textField>
-				<textField isStretchWithOverflow="true">
+				<textField textAdjust="StretchHeight">
 					<reportElement positionType="Float" stretchType="ContainerHeight" x="186" y="0" width="30" height="10" uuid="7c5fa0ec-5d3d-46d7-95b6-eb7179e2d85a">
 						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 					</reportElement>
@@ -420,7 +420,7 @@
 						<pen lineWidth="0.75"/>
 					</graphicElement>
 				</line>
-				<textField isStretchWithOverflow="true" pattern="MMM d, yyyy">
+				<textField textAdjust="StretchHeight" pattern="MMM d, yyyy">
 					<reportElement positionType="Float" stretchType="ContainerHeight" x="273" y="0" width="66" height="10" uuid="7dde1b3a-9643-4e4c-b424-e55ed9a0cb69"/>
 					<box leftPadding="2" rightPadding="2"/>
 					<textElement verticalAlignment="Middle">
@@ -473,7 +473,7 @@
 						<pen lineWidth="0.75"/>
 					</graphicElement>
 				</line>
-				<textField isStretchWithOverflow="true" pattern="MMM d, yyyy">
+				<textField textAdjust="StretchHeight" pattern="MMM d, yyyy">
 					<reportElement positionType="Float" stretchType="ContainerHeight" x="396" y="0" width="158" height="10" uuid="1f8aff68-eab6-4e82-b218-04c290daf77b"/>
 					<box leftPadding="2" rightPadding="2"/>
 					<textElement verticalAlignment="Middle">
@@ -500,7 +500,7 @@
 					</textElement>
 					<text><![CDATA[Dirección:]]></text>
 				</staticText>
-				<textField isStretchWithOverflow="true">
+				<textField textAdjust="StretchHeight">
 					<reportElement positionType="Float" stretchType="ContainerHeight" x="52" y="0" width="218" height="10" uuid="4b88450c-da4e-4ba8-9ec1-263380fee0fe">
 						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 					</reportElement>
@@ -528,7 +528,7 @@
 					</textElement>
 					<text><![CDATA[Zona:]]></text>
 				</staticText>
-				<textField isStretchWithOverflow="true" pattern="MMM d, yyyy">
+				<textField textAdjust="StretchHeight" pattern="MMM d, yyyy">
 					<reportElement positionType="Float" stretchType="ContainerHeight" x="299" y="0" width="66" height="10" uuid="b20cb732-879f-44ce-9747-1ed9fff056af"/>
 					<box leftPadding="2" rightPadding="2"/>
 					<textElement verticalAlignment="Middle">
@@ -545,7 +545,7 @@
 						<pen lineWidth="0.75"/>
 					</graphicElement>
 				</line>
-				<textField isStretchWithOverflow="true" pattern="MMM d, yyyy">
+				<textField textAdjust="StretchHeight" pattern="MMM d, yyyy">
 					<reportElement positionType="Float" stretchType="ContainerHeight" x="393" y="0" width="160" height="10" uuid="19487138-ea7e-4f25-8538-78516ef711d5"/>
 					<box leftPadding="2" rightPadding="2"/>
 					<textElement verticalAlignment="Middle">
@@ -607,7 +607,7 @@
 						<pen lineWidth="0.75"/>
 					</graphicElement>
 				</line>
-				<textField isStretchWithOverflow="true">
+				<textField textAdjust="StretchHeight">
 					<reportElement positionType="Float" stretchType="ContainerHeight" x="39" y="0" width="70" height="10" uuid="09c6e641-718c-41e7-b21f-b403dd89980c">
 						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 					</reportElement>
@@ -635,7 +635,7 @@
 						<pen lineWidth="0.75"/>
 					</graphicElement>
 				</line>
-				<textField isStretchWithOverflow="true">
+				<textField textAdjust="StretchHeight">
 					<reportElement positionType="Float" stretchType="ContainerHeight" x="140" y="0" width="226" height="10" uuid="b4478118-2005-4c94-96b9-63e72fc1ab05">
 						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 					</reportElement>
@@ -654,7 +654,7 @@
 						<pen lineWidth="0.75"/>
 					</graphicElement>
 				</line>
-				<textField isStretchWithOverflow="true">
+				<textField textAdjust="StretchHeight">
 					<reportElement positionType="Float" stretchType="ContainerHeight" x="400" y="0" width="70" height="10" uuid="bf393614-ea2e-40a2-93ef-5e2542834a67">
 						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 					</reportElement>
@@ -709,7 +709,7 @@
 						<pen lineWidth="0.75"/>
 					</graphicElement>
 				</line>
-				<textField isStretchWithOverflow="true">
+				<textField textAdjust="StretchHeight">
 					<reportElement positionType="Float" stretchType="ContainerHeight" x="483" y="0" width="70" height="10" uuid="da6ed5b3-ef45-4892-b043-7b1e50933131">
 						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 					</reportElement>
@@ -746,7 +746,7 @@
 					</textElement>
 					<text><![CDATA[Tipo sangre:]]></text>
 				</staticText>
-				<textField isStretchWithOverflow="true">
+				<textField textAdjust="StretchHeight">
 					<reportElement positionType="Float" stretchType="ContainerHeight" x="48" y="0" width="30" height="10" uuid="4f15beb9-a2ed-4cf3-bded-89f4a6540d09">
 						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 					</reportElement>
@@ -765,7 +765,7 @@
 						<pen lineWidth="0.75"/>
 					</graphicElement>
 				</line>
-				<textField isStretchWithOverflow="true">
+				<textField textAdjust="StretchHeight">
 					<reportElement positionType="Float" stretchType="ContainerHeight" x="105" y="0" width="44" height="10" uuid="0af30c20-79b4-40f5-8852-b377362b97a6">
 						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 					</reportElement>
@@ -820,7 +820,7 @@
 						<pen lineWidth="0.75"/>
 					</graphicElement>
 				</line>
-				<textField isStretchWithOverflow="true">
+				<textField textAdjust="StretchHeight">
 					<reportElement positionType="Float" stretchType="ContainerHeight" x="176" y="0" width="44" height="10" uuid="77d971b7-025e-4ac7-bf49-afed83d88688">
 						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 					</reportElement>
@@ -857,7 +857,7 @@
 						<pen lineWidth="0.75"/>
 					</graphicElement>
 				</line>
-				<textField isStretchWithOverflow="true">
+				<textField textAdjust="StretchHeight">
 					<reportElement positionType="Float" stretchType="ContainerHeight" x="248" y="0" width="120" height="10" uuid="3aa7f119-a0cd-40b5-b02e-e87e102cec39">
 						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 					</reportElement>
@@ -903,7 +903,7 @@
 						<pen lineWidth="0.75"/>
 					</graphicElement>
 				</line>
-				<textField isStretchWithOverflow="true">
+				<textField textAdjust="StretchHeight">
 					<reportElement positionType="Float" stretchType="ContainerHeight" x="396" y="0" width="156" height="10" uuid="1f9a3314-ab41-48ee-8efb-e61050524b7e">
 						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 					</reportElement>
@@ -933,7 +933,7 @@
 					</textElement>
 					<text><![CDATA[Capacidad excepcional:]]></text>
 				</staticText>
-				<textField isStretchWithOverflow="true">
+				<textField textAdjust="StretchHeight">
 					<reportElement positionType="Float" stretchType="ContainerHeight" x="92" y="0" width="128" height="10" uuid="54597b0c-d7da-4cbf-8a19-7555c6f8f389">
 						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 					</reportElement>
@@ -968,7 +968,7 @@
 						<pen lineWidth="0.75"/>
 					</graphicElement>
 				</line>
-				<textField isStretchWithOverflow="true">
+				<textField textAdjust="StretchHeight">
 					<reportElement positionType="Float" stretchType="ContainerHeight" x="277" y="0" width="90" height="10" uuid="860301d9-9ce8-4b76-b17c-929b9c15d3e7">
 						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 					</reportElement>
@@ -1014,7 +1014,7 @@
 						<pen lineWidth="0.75"/>
 					</graphicElement>
 				</line>
-				<textField isStretchWithOverflow="true">
+				<textField textAdjust="StretchHeight">
 					<reportElement positionType="Float" stretchType="ContainerHeight" x="396" y="0" width="156" height="10" uuid="9b567988-4b46-419f-ad25-589716151293">
 						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 					</reportElement>
@@ -1054,7 +1054,7 @@
 					</textElement>
 					<text><![CDATA[Resguardo:]]></text>
 				</staticText>
-				<textField isStretchWithOverflow="true">
+				<textField textAdjust="StretchHeight">
 					<reportElement positionType="Float" stretchType="ContainerHeight" x="49" y="0" width="156" height="10" uuid="9f4af3bf-8428-42d5-b683-3f5c3f1509f8">
 						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
 					</reportElement>
@@ -1253,7 +1253,7 @@
 							<pen lineWidth="0.75"/>
 						</graphicElement>
 					</line>
-					<textField isStretchWithOverflow="true">
+					<textField textAdjust="StretchHeight">
 						<reportElement positionType="Float" stretchType="ContainerHeight" x="0" y="0" width="87" height="10" uuid="188435f7-61af-4713-b240-ef2f9be3dad3"/>
 						<box leftPadding="2" rightPadding="2"/>
 						<textElement verticalAlignment="Middle">
@@ -1261,7 +1261,7 @@
 						</textElement>
 						<textFieldExpression><![CDATA[$F{religion}]]></textFieldExpression>
 					</textField>
-					<textField isStretchWithOverflow="true">
+					<textField textAdjust="StretchHeight">
 						<reportElement positionType="Float" stretchType="ContainerHeight" x="88" y="0" width="87" height="10" uuid="35575f60-43f0-4390-ab65-e68b731c6289"/>
 						<box leftPadding="2" rightPadding="2"/>
 						<textElement verticalAlignment="Middle">
@@ -1269,7 +1269,7 @@
 						</textElement>
 						<textFieldExpression><![CDATA[$F{deporte}]]></textFieldExpression>
 					</textField>
-					<textField isStretchWithOverflow="true">
+					<textField textAdjust="StretchHeight">
 						<reportElement positionType="Float" stretchType="ContainerHeight" x="264" y="0" width="87" height="10" uuid="e4051015-6aa6-4009-874f-8819fb0221bd"/>
 						<box leftPadding="2" rightPadding="2"/>
 						<textElement verticalAlignment="Middle">
@@ -1277,7 +1277,7 @@
 						</textElement>
 						<textFieldExpression><![CDATA[$F{arte}]]></textFieldExpression>
 					</textField>
-					<textField isStretchWithOverflow="true">
+					<textField textAdjust="StretchHeight">
 						<reportElement positionType="Float" stretchType="ContainerHeight" x="176" y="0" width="87" height="10" uuid="cc5b475f-3994-4ac1-852c-c1482a1d239e"/>
 						<box leftPadding="2" rightPadding="2"/>
 						<textElement verticalAlignment="Middle">
@@ -1285,7 +1285,7 @@
 						</textElement>
 						<textFieldExpression><![CDATA[$F{musica}]]></textFieldExpression>
 					</textField>
-					<textField isStretchWithOverflow="true">
+					<textField textAdjust="StretchHeight">
 						<reportElement positionType="Float" stretchType="ContainerHeight" x="440" y="0" width="112" height="10" uuid="022a6660-ec89-484e-a9fd-94d6d0f72325"/>
 						<box leftPadding="2" rightPadding="2"/>
 						<textElement verticalAlignment="Middle">
@@ -1293,7 +1293,7 @@
 						</textElement>
 						<textFieldExpression><![CDATA[$F{prof_oficio}]]></textFieldExpression>
 					</textField>
-					<textField isStretchWithOverflow="true">
+					<textField textAdjust="StretchHeight">
 						<reportElement positionType="Float" stretchType="ContainerHeight" x="351" y="0" width="87" height="10" uuid="7137e934-9e10-4566-92a6-53df888b8c74"/>
 						<box leftPadding="2" rightPadding="2"/>
 						<textElement verticalAlignment="Middle">
@@ -1491,7 +1491,7 @@
 							<pen lineWidth="0.75"/>
 						</graphicElement>
 					</line>
-					<textField isStretchWithOverflow="true">
+					<textField textAdjust="StretchHeight">
 						<reportElement positionType="Float" stretchType="ContainerHeight" x="0" y="0" width="87" height="10" uuid="c4ad389a-5925-43e3-a570-db8b13ea20c6"/>
 						<box leftPadding="2" rightPadding="2"/>
 						<textElement verticalAlignment="Middle">
@@ -1499,7 +1499,7 @@
 						</textElement>
 						<textFieldExpression><![CDATA[$F{motricidad_fina}]]></textFieldExpression>
 					</textField>
-					<textField isStretchWithOverflow="true">
+					<textField textAdjust="StretchHeight">
 						<reportElement positionType="Float" stretchType="ContainerHeight" x="88" y="0" width="87" height="10" uuid="ea4e5278-f9fd-42a4-ac03-851140d23dcc"/>
 						<box leftPadding="2" rightPadding="2"/>
 						<textElement verticalAlignment="Middle">
@@ -1507,7 +1507,7 @@
 						</textElement>
 						<textFieldExpression><![CDATA[$F{motricidad_gruesa}]]></textFieldExpression>
 					</textField>
-					<textField isStretchWithOverflow="true">
+					<textField textAdjust="StretchHeight">
 						<reportElement positionType="Float" stretchType="ContainerHeight" x="264" y="0" width="87" height="10" uuid="80ea6cc5-1bc8-487e-b56c-f23d4993817d"/>
 						<box leftPadding="2" rightPadding="2"/>
 						<textElement verticalAlignment="Middle">
@@ -1515,7 +1515,7 @@
 						</textElement>
 						<textFieldExpression><![CDATA[$F{actitud_verval}]]></textFieldExpression>
 					</textField>
-					<textField isStretchWithOverflow="true">
+					<textField textAdjust="StretchHeight">
 						<reportElement positionType="Float" stretchType="ContainerHeight" x="176" y="0" width="87" height="10" uuid="6831f4e2-1001-425c-9a69-17887ef22272"/>
 						<box leftPadding="2" rightPadding="2"/>
 						<textElement verticalAlignment="Middle">
@@ -1523,7 +1523,7 @@
 						</textElement>
 						<textFieldExpression><![CDATA[$F{temporo_espacial}]]></textFieldExpression>
 					</textField>
-					<textField isStretchWithOverflow="true">
+					<textField textAdjust="StretchHeight">
 						<reportElement positionType="Float" stretchType="ContainerHeight" x="440" y="0" width="112" height="10" uuid="7b9e459c-8159-49c0-99e8-a09c44e4491f"/>
 						<box leftPadding="2" rightPadding="2"/>
 						<textElement verticalAlignment="Middle">
@@ -1531,7 +1531,7 @@
 						</textElement>
 						<textFieldExpression><![CDATA[$F{liderazgo}]]></textFieldExpression>
 					</textField>
-					<textField isStretchWithOverflow="true">
+					<textField textAdjust="StretchHeight">
 						<reportElement positionType="Float" stretchType="ContainerHeight" x="351" y="0" width="87" height="10" uuid="6835d9c4-2bf1-4824-a1d7-aafc12b0313f"/>
 						<box leftPadding="2" rightPadding="2"/>
 						<textElement verticalAlignment="Middle">
@@ -1568,7 +1568,7 @@
 						</textElement>
 						<text><![CDATA[Cpmportamiento:]]></text>
 					</staticText>
-					<textField isStretchWithOverflow="true">
+					<textField textAdjust="StretchHeight">
 						<reportElement positionType="Float" stretchType="ContainerHeight" x="89" y="0" width="173" height="10" uuid="43c0a95f-f6aa-4ff6-b3ff-25096b5c0370"/>
 						<box leftPadding="2" rightPadding="2"/>
 						<textElement verticalAlignment="Middle">
@@ -1602,7 +1602,7 @@
 					</textElement>
 					<text><![CDATA[Dislexia:]]></text>
 				</staticText>
-				<textField isStretchWithOverflow="true">
+				<textField textAdjust="StretchHeight">
 					<reportElement positionType="Float" stretchType="ContainerHeight" x="41" y="0" width="106" height="10" uuid="93702a20-dabd-4837-90df-43f3b2b063c1"/>
 					<box leftPadding="2" rightPadding="2"/>
 					<textElement verticalAlignment="Middle">
@@ -1627,7 +1627,7 @@
 					</textElement>
 					<text><![CDATA[Disortografía:]]></text>
 				</staticText>
-				<textField isStretchWithOverflow="true">
+				<textField textAdjust="StretchHeight">
 					<reportElement positionType="Float" stretchType="ContainerHeight" x="203" y="0" width="106" height="10" uuid="b84cedde-0c7c-4885-a020-892da79724ad"/>
 					<box leftPadding="2" rightPadding="2"/>
 					<textElement verticalAlignment="Middle">
@@ -1661,7 +1661,7 @@
 					</textElement>
 					<text><![CDATA[Discalculia:]]></text>
 				</staticText>
-				<textField isStretchWithOverflow="true">
+				<textField textAdjust="StretchHeight">
 					<reportElement positionType="Float" stretchType="ContainerHeight" x="381" y="0" width="170" height="10" uuid="9d732b1b-4495-440d-b01b-7d90bbd8c5ba"/>
 					<box leftPadding="2" rightPadding="2"/>
 					<textElement verticalAlignment="Middle">

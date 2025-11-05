@@ -27,7 +27,7 @@ class ObserverReports
                 ->select('id')
                 ->where('estado', 1)
                 ->first();
-            $type = $obs_modelos_observador->id ?? 3;
+            $type = (int)$obs_modelos_observador->id ?? 3;
             if ($type === 5) {
                 return self::getObserver5($request, $school);
             }

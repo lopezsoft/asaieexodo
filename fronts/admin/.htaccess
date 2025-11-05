@@ -1,0 +1,121 @@
+# ===============================================
+# ASAIE EXODO - Admin Panel Security Configuration
+# Angular SPA Protection & Security Headers
+# Version: 2.2.1
+# ===============================================
+
+# Habilitar el motor de reescritura
+RewriteEngine On
+
+# ===============================================
+# SECURITY HEADERS (Opcional - requiere mod_headers)
+# ===============================================
+
+<IfModule mod_headers.c>
+    # Prevenir ataques de clickjacking
+    Header always set X-Frame-Options "SAMEORIGIN"
+    
+    # Activar protección XSS del navegador
+    Header always set X-XSS-Protection "1; mode=block"
+    
+    # Prevenir MIME type sniffing
+    Header always set X-Content-Type-Options "nosniff"
+    
+    # Referrer Policy
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# ===============================================
+# ACCESS RESTRICTIONS
+# ===============================================
+
+# Bloquear acceso a archivos de configuración sensibles
+<FilesMatch "\.(htaccess|htpasswd|ini|log|sh|inc|bak|backup|swp)$">
+    <IfVersion >= 2.4>
+        Require all denied
+    </IfVersion>
+    <IfVersion < 2.4>
+        Order deny,allow
+        Deny from all
+    </IfVersion>
+</FilesMatch>
+
+# Bloquear acceso a archivos TypeScript y mapas de desarrollo
+<FilesMatch "\.(ts|map)$">
+    <IfVersion >= 2.4>
+        Require all denied
+    </IfVersion>
+    <IfVersion < 2.4>
+        Order deny,allow
+        Deny from all
+    </IfVersion>
+</FilesMatch>
+
+# Bloquear acceso a archivos de entorno
+<Files ".env">
+    <IfVersion >= 2.4>
+        Require all denied
+    </IfVersion>
+    <IfVersion < 2.4>
+        Order deny,allow
+        Deny from all
+    </IfVersion>
+</Files>
+
+# Bloquear listado de directorios
+Options -Indexes
+
+# ===============================================
+# ANTI-MALWARE & ATTACK PREVENTION (Básico)
+# ===============================================
+
+# Bloquear intentos de path traversal
+RewriteCond %{REQUEST_URI} \.\./
+RewriteRule .* - [F,L]
+
+# Proteger contra inyección de PHP básica
+RewriteCond %{REQUEST_URI} (php://|data://|expect://) [NC]
+RewriteRule .* - [F,L]
+
+# ===============================================
+# PERFORMANCE OPTIMIZATION
+# ===============================================
+
+# Habilitar compresión GZIP
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE application/javascript
+    AddOutputFilterByType DEFLATE application/json
+    AddOutputFilterByType DEFLATE text/css
+    AddOutputFilterByType DEFLATE text/html
+    AddOutputFilterByType DEFLATE text/javascript
+    AddOutputFilterByType DEFLATE text/plain
+    AddOutputFilterByType DEFLATE image/svg+xml
+</IfModule>
+
+# Cache Control Headers
+<IfModule mod_expires.c>
+    ExpiresActive on
+    ExpiresByType text/html "access plus 0 seconds"
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType image/png "access plus 6 months"
+    ExpiresByType image/jpg "access plus 6 months"
+    ExpiresByType image/jpeg "access plus 6 months"
+    ExpiresByType image/svg+xml "access plus 6 months"
+</IfModule>
+
+# ===============================================
+# ANGULAR SPA ROUTING CONFIGURATION
+# ===============================================
+
+# Manejar rutas de Angular - redirigir todo a index.html excepto archivos reales
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^.*$ /index.html [L]
+
+# ===============================================
+# ERROR PAGE HANDLING
+# ===============================================
+
+# Redirigir errores 404 a index.html para que Angular maneje las rutas
+ErrorDocument 404 /index.html

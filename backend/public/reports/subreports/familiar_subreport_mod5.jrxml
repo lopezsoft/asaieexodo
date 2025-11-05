@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.18.1.final using JasperReports Library version 6.18.1-9d75d1969e774d4f179fb3be8401e98a0e6d1611  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="familiar_subreport_mod5" pageWidth="556" pageHeight="752" columnWidth="556" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" whenResourceMissingType="Error" uuid="989ba5e9-3545-497e-ab45-356ef1fd0da1">
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="altos-db"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="212"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="781"/>
+	<property name="com.jaspersoft.studio.property.dataset.dialog.DatasetDialog.sash.w1" value="546"/>
+	<property name="com.jaspersoft.studio.property.dataset.dialog.DatasetDialog.sash.w2" value="444"/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<parameter name="id_student" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT t1.*, t3.name_kinship, t4.family_type_name FROM `families` AS t1 
+LEFT JOIN aux_families_students AS t2 ON t2.id_family = t1.id
+LEFT JOIN family_relationships AS t3 ON t2.id_relationship = t3.id
+LEFT JOIN family_type AS t4 ON t2.id_type = t4.id 
+WHERE t2.id_student =  $P{id_student} ]]>
+	</queryString>
+	<field name="id" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="id"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="families"/>
+	</field>
+	<field name="id_country" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="id_country"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="families"/>
+	</field>
+	<field name="id_document" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="id_document"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="families"/>
+	</field>
+	<field name="id_sex" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="id_sex"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="families"/>
+	</field>
+	<field name="document" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="document"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="families"/>
+	</field>
+	<field name="expedition_plane" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="expedition_plane"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="families"/>
+	</field>
+	<field name="birth_place" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="birth_place"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="families"/>
+	</field>
+	<field name="lastname1" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="lastname1"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="families"/>
+	</field>
+	<field name="lastname2" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="lastname2"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="families"/>
+	</field>
+	<field name="name1" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="name1"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="families"/>
+	</field>
+	<field name="name2" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="name2"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="families"/>
+	</field>
+	<field name="blood_type" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="blood_type"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="families"/>
+	</field>
+	<field name="address" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="address"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="families"/>
+	</field>
+	<field name="mobile" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="mobile"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="families"/>
+	</field>
+	<field name="occupation" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="occupation"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="families"/>
+	</field>
+	<field name="work_address" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="work_address"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="families"/>
+	</field>
+	<field name="company" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="company"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="families"/>
+	</field>
+	<field name="email" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="email"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="families"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="image" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="image"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="families"/>
+	</field>
+	<field name="mime" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="mime"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="families"/>
+	</field>
+	<field name="active" class="java.lang.Boolean">
+		<property name="com.jaspersoft.studio.field.label" value="active"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="families"/>
+	</field>
+	<field name="name_kinship" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="name_kinship"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="family_relationships"/>
+	</field>
+	<field name="family_type_name" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="family_type_name"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="family_type"/>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<detail>
+		<band height="25" splitType="Stretch">
+			<staticText>
+				<reportElement positionType="Float" mode="Opaque" x="0" y="12" width="55" height="12" backcolor="#E8E8E8" uuid="22947fb7-27bc-4bb1-8fa4-c347cc24e398"/>
+				<box leftPadding="1" rightPadding="1">
+					<leftPen lineWidth="0.15"/>
+					<rightPen lineWidth="0.15"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Ocupación:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" mode="Opaque" x="250" y="12" width="40" height="12" backcolor="#E8E8E8" uuid="57b967c7-879d-49fd-bc14-795d7af9520d"/>
+				<box leftPadding="1" rightPadding="1">
+					<leftPen lineWidth="0.15"/>
+					<rightPen lineWidth="0.15"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Celular:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="68" y="0" width="192" height="12" uuid="c5c07ffd-3126-46df-9294-f5097c799744">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box leftPadding="1" rightPadding="1">
+					<leftPen lineWidth="0.15"/>
+					<rightPen lineWidth="0.15"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{lastname1}.trim()+ " " +$F{lastname2}.trim()+
+" "+$F{name1}.trim()+" "+$F{name2}.trim()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="55" y="12" width="195" height="12" uuid="6be7d9dc-c65b-47e1-b927-624c57c929bb"/>
+				<box leftPadding="1" rightPadding="1">
+					<leftPen lineWidth="0.15"/>
+					<rightPen lineWidth="0.15"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{occupation}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="290" y="12" width="70" height="12" uuid="440d5b2a-1925-4dd8-8317-b76de7dcfc7e"/>
+				<box leftPadding="1" rightPadding="1">
+					<leftPen lineWidth="0.15"/>
+					<rightPen lineWidth="0.15"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{mobile}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement mode="Opaque" x="0" y="0" width="68" height="12" backcolor="#E8E8E8" uuid="1c114115-f58f-4e4a-bfd0-dfb5238d1e5a"/>
+				<box leftPadding="1" rightPadding="1">
+					<leftPen lineWidth="0.15"/>
+					<rightPen lineWidth="0.15"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font fontName="DejaVu Serif" size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{family_type_name}+":"]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="Float" mode="Opaque" x="260" y="0" width="84" height="12" backcolor="#E8E8E8" uuid="3194bb4d-9fb3-400c-8c6a-0c0f67d98972"/>
+				<box leftPadding="1" rightPadding="1">
+					<leftPen lineWidth="0.15"/>
+					<rightPen lineWidth="0.15"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[N° identificación:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="344" y="0" width="75" height="12" uuid="21f083f0-081d-49ac-bac1-4d89419efdc1">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box leftPadding="1" rightPadding="1">
+					<leftPen lineWidth="0.15"/>
+					<rightPen lineWidth="0.15"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{document}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="Float" mode="Opaque" x="419" y="0" width="55" height="12" backcolor="#E8E8E8" uuid="9d58160a-f9c9-4149-a70f-2497b449151e">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<box leftPadding="1" rightPadding="1">
+					<leftPen lineWidth="0.15"/>
+					<rightPen lineWidth="0.15"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Parentesco:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="474" y="0" width="82" height="12" uuid="076a1b8f-2b7c-4d12-9f7c-4ece0ada4e19">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box leftPadding="1" rightPadding="1">
+					<leftPen lineWidth="0.15"/>
+					<rightPen lineWidth="0.15"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{name_kinship}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="405" y="12" width="151" height="12" uuid="910a795d-90c1-437f-9a17-91ec3ba72a5a"/>
+				<box leftPadding="1" rightPadding="1">
+					<leftPen lineWidth="0.15"/>
+					<rightPen lineWidth="0.15"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{address}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="Float" mode="Opaque" x="360" y="12" width="45" height="12" backcolor="#E8E8E8" uuid="22e73de4-4e67-4414-aad2-8a1cc52eabf2">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<box leftPadding="1" rightPadding="1">
+					<leftPen lineWidth="0.15"/>
+					<rightPen lineWidth="0.15"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Dirección:]]></text>
+			</staticText>
+			<line>
+				<reportElement x="0" y="12" width="556" height="1" uuid="ef65cdc3-ae14-4f6f-8fb7-d1cc9f285830">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<graphicElement>
+					<pen lineWidth="0.15"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement x="0" y="24" width="556" height="1" uuid="e8952944-b7f5-453d-8b72-046129130292">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<graphicElement>
+					<pen lineWidth="0.15"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement x="0" y="0" width="556" height="1" uuid="6c1f06ff-f6b5-4287-9ec1-f9683a8c733a">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<graphicElement>
+					<pen lineWidth="0.15"/>
+				</graphicElement>
+			</line>
+		</band>
+	</detail>
+</jasperReport>

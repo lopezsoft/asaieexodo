@@ -249,7 +249,7 @@ Ext.define('Admin.view.docentes.controller.ObservadorController', {
 			win = btn.up('window'),
 			name = win.getItemId();
 		switch (name){
-			case 'CrudObservadorView' :
+			case 'CrudObserverView' :
 				url = 'reports/observer-sheet';
 				let values = win.down('grid').getSelection()[0];
 				param = {
@@ -262,7 +262,7 @@ Ext.define('Admin.view.docentes.controller.ObservadorController', {
 				};
 				break;
 			case 'EstudiantesView' :
-				url = 'reports/report_ficha_observador';
+				url = 'reports/observer-sheet';
 				values = win.down('grid').getSelection()[0];
 				param = {
 					pdbGrado: values.get('id_grado'),

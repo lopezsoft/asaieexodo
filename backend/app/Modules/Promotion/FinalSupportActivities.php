@@ -104,6 +104,30 @@ class FinalSupportActivities
                         HAVING final BETWEEN {$desde} AND {$hasta}
                         ORDER BY a.id_area
                     ");
+                /**
+                * Si está activa la configuración donde: Si un estudiante pierde una asignatura de una Área compuesta pierde el Área
+                */
+                if ($setting->fail_subject_of_the_area > 0) {
+                    $querySubjectsOthers = DB::select("
+                       SELECT * FROM (
+                            SELECT
+                                a.id_matric,
+                                a.id_area,
+                                a.id_asig,
+                                a.prom, 
+                                a.t_areas,
+                                SUM(a.final) OVER (PARTITION BY a.id_matric, a.id_area) AS nota_final_area
+                            FROM
+                                {$db}{$table}{$view}{$extraName} AS a
+                            WHERE
+                                a.id_matric = {$enrollment->id}  AND a.year = {$year}{$where}
+                        ) AS calculo
+                        WHERE
+                            calculo.t_areas > 1
+                            AND calculo.prom BETWEEN {$desde} AND {$hasta}
+                            AND calculo.nota_final_area > {$hasta}
+                    ");
+                }
             }else{
                 $view       = "_view_prom_por_area";
                 $queryAreas = DB::select("
@@ -117,7 +141,9 @@ class FinalSupportActivities
                     ");
             }
             $totalAreas = count($queryAreas);
+            // Si el estudiante ha reprobado áreas pero no llega al límite para reprobar el año
             if ($totalAreas > 0 && ($totalAreas < $setting->areas_pierde)) {
+                // Recorremos las áreas reprobadas
                 foreach ($queryAreas as $area) {
                     $querySubjects = DB::select("
                         SELECT a.id_matric, a.id_asig, a.id_area, a.{$finalField} AS final
@@ -136,6 +162,18 @@ class FinalSupportActivities
                         $params = "{$area->id_matric},{$nro},{$curso},'{$final}'";
                          DB::select("CALL {$call}({$params})");
                     }
+                }
+
+            }
+            /**
+            * Si está activa la configuración donde: Si un estudiante pierde una asignatura de una Área compuesta pierde el Área
+            */
+            if ($setting->fail_subject_of_the_area > 0 && isset($querySubjectsOthers) && count($querySubjectsOthers) > 0) {
+                foreach ($querySubjectsOthers as $subjectOther) {
+                    $final = $subjectOther->prom;
+                    $call = "{$db}sp_insert_respeciales";
+                    $params = "{$subjectOther->id_matric},{$nro},{$curso},'{$final}'";
+                     DB::select("CALL {$call}({$params})");
                 }
             }
         }

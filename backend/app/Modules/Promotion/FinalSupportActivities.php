@@ -126,6 +126,7 @@ class FinalSupportActivities
                             calculo.t_areas > 1
                             AND calculo.prom BETWEEN {$desde} AND {$hasta}
                             AND calculo.nota_final_area > {$hasta}
+                            AND calculo.id_asig = {$asig}
                     ");
                 }
             }else{

@@ -45,10 +45,10 @@ FROM (
         JOIN `aux_asignaturas` `aux` ON (`aux`.`id_asign` = `tc`.`id_asig` AND `aux`.`year` = `tc`.`year`) 
         JOIN `matcurso` `tmc` ON (`tmc`.`id_asig` = `tc`.`id_asig` AND `tmc`.`year` = `tc`.`year` AND `tmc`.`id_grado` = `tc`.`id_grado`)
     GROUP BY 
-        `tn`.`id_matric`, `aux`.`id_area`, `tc`.`id_asig`, `tn`.`year`, `tn`.`periodo`, `tmc`.`porciento`, `tc`.`id_grado`
+        `tn`.`id_matric`, `aux`.`id_area`, `tc`.`id_asig`, `tn`.`year`
 ) AS dt
 ORDER BY 
-    dt.`id_matric`, dt.`periodo`, dt.`id_area`, dt.`id_asig`;
+    dt.`id_matric`, dt.`id_area`, dt.`id_asig`;
 
 -- **2. Query de `nscp001_view_porcentaje_areas_periodos`**
 SELECT DISTINCT
@@ -99,7 +99,7 @@ FROM (
         JOIN `aux_asignaturas` `aux` ON (`aux`.`id_asign` = `tc`.`id_asig` AND `aux`.`year` = `tc`.`year`) 
         JOIN `matcurso` `tmc` ON (`tmc`.`id_asig` = `tc`.`id_asig` AND `tmc`.`year` = `tc`.`year` AND `tmc`.`id_grado` = `tc`.`id_grado`)
     GROUP BY 
-        `tn`.`id_matric`, `aux`.`id_area`, `tc`.`id_asig`, `tn`.`year`, `tn`.`periodo`, `tmc`.`porciento`, `tc`.`id_grado`
+        `tn`.`id_matric`, `aux`.`id_area`, `tc`.`id_asig`, `tn`.`year`
 ) AS dt
 ORDER BY 
     dt.`id_matric`, dt.`id_area`, dt.`id_asig`;
@@ -133,7 +133,7 @@ FROM (
         JOIN `aux_asignaturas` `aux` ON (`aux`.`id_asign` = `tc`.`id_asig` AND `aux`.`year` = `tc`.`year`) 
         JOIN `matcurso` `tmc` ON (`tmc`.`id_asig` = `tc`.`id_asig` AND `tmc`.`year` = `tc`.`year` AND `tmc`.`id_grado` = `tc`.`id_grado`)
     GROUP BY 
-        `tn`.`id_matric`, `aux`.`id_area`, `tc`.`id_asig`, `tn`.`periodo`, `tn`.`year`, `tmc`.`porciento`, `tc`.`id_grado`
+        `tn`.`id_matric`, `aux`.`id_area`, `tc`.`id_asig`, `tn`.`periodo`, `tn`.`year`
 ) AS dt
 ORDER BY 
     dt.`id_matric`, dt.`periodo`, dt.`id_area`, dt.`id_asig`;
@@ -171,10 +171,10 @@ FROM (
         JOIN `aux_asignaturas` `aux` ON (`aux`.`id_asign` = `tc`.`id_asig` AND `aux`.`year` = `tc`.`year`) 
         JOIN `matcurso` `tmc` ON (`tmc`.`id_asig` = `tc`.`id_asig` AND `tmc`.`year` = `tc`.`year` AND `tmc`.`id_grado` = `tc`.`id_grado`)
     GROUP BY 
-        `tn`.`id_matric`, `aux`.`id_area`, `tc`.`id_asig`, `tn`.`year`, `tn`.`periodo`, `tmc`.`porciento`, `tc`.`id_grado`
+        `tn`.`id_matric`, `aux`.`id_area`, `tc`.`id_asig`, `tn`.`year`
 ) AS dt
 ORDER BY 
-    dt.`id_matric`, dt.`periodo`, dt.`id_area`, dt.`id_asig`;
+    dt.`id_matric`, dt.`id_area`, dt.`id_asig`;
 
 -- **6. Query de `nscp002_view_porcentaje_areas_periodos`**
 SELECT DISTINCT
@@ -225,7 +225,7 @@ FROM (
         JOIN `aux_asignaturas` `aux` ON (`aux`.`id_asign` = `tc`.`id_asig` AND `aux`.`year` = `tc`.`year`) 
         JOIN `matcurso` `tmc` ON (`tmc`.`id_asig` = `tc`.`id_asig` AND `tmc`.`year` = `tc`.`year` AND `tmc`.`id_grado` = `tc`.`id_grado`)
     GROUP BY 
-        `tn`.`id_matric`, `aux`.`id_area`, `tc`.`id_asig`, `tn`.`year`, `tn`.`periodo`, `tmc`.`porciento`, `tc`.`id_grado`
+        `tn`.`id_matric`, `aux`.`id_area`, `tc`.`id_asig`, `tn`.`year`
 ) AS dt
 ORDER BY 
     dt.`id_matric`, dt.`id_area`, dt.`id_asig`;
@@ -259,7 +259,7 @@ FROM (
         JOIN `aux_asignaturas` `aux` ON (`aux`.`id_asign` = `tc`.`id_asig` AND `aux`.`year` = `tc`.`year`) 
         JOIN `matcurso` `tmc` ON (`tmc`.`id_asig` = `tc`.`id_asig` AND `tmc`.`year` = `tc`.`year` AND `tmc`.`id_grado` = `tc`.`id_grado`)
     GROUP BY 
-        `tn`.`id_matric`, `aux`.`id_area`, `tc`.`id_asig`, `tn`.`periodo`, `tn`.`year`, `tmc`.`porciento`, `tc`.`id_grado`
+        `tn`.`id_matric`, `aux`.`id_area`, `tc`.`id_asig`, `tn`.`periodo`, `tn`.`year`
 ) AS dt
 ORDER BY 
     dt.`id_matric`, dt.`periodo`, dt.`id_area`, dt.`id_asig`;
@@ -297,10 +297,10 @@ FROM (
         JOIN `aux_asignaturas` `aux` ON (`aux`.`id_asign` = `tc`.`id_asig` AND `aux`.`year` = `tc`.`year`) 
         JOIN `matcurso` `tmc` ON (`tmc`.`id_asig` = `tc`.`id_asig` AND `tmc`.`year` = `tc`.`year` AND `tmc`.`id_grado` = `tc`.`id_grado`)
     GROUP BY 
-        `tn`.`id_matric`, `aux`.`id_area`, `tc`.`id_asig`, `tn`.`year`, `tn`.`periodo`, `tmc`.`porciento`, `tc`.`id_grado`
+        `tn`.`id_matric`, `aux`.`id_area`, `tc`.`id_asig`, `tn`.`year`
 ) AS dt
 ORDER BY 
-    dt.`id_matric`, dt.`periodo`, dt.`id_area`, dt.`id_asig`;
+    dt.`id_matric`, dt.`id_area`, dt.`id_asig`;
 
 -- **10. Query de `nscp003_view_porcentaje_areas_periodos`**
 SELECT DISTINCT
@@ -351,7 +351,7 @@ FROM (
         JOIN `aux_asignaturas` `aux` ON (`aux`.`id_asign` = `tc`.`id_asig` AND `aux`.`year` = `tc`.`year`) 
         JOIN `matcurso` `tmc` ON (`tmc`.`id_asig` = `tc`.`id_asig` AND `tmc`.`year` = `tc`.`year` AND `tmc`.`id_grado` = `tc`.`id_grado`)
     GROUP BY 
-        `tn`.`id_matric`, `aux`.`id_area`, `tc`.`id_asig`, `tn`.`year`, `tn`.`periodo`, `tmc`.`porciento`, `tc`.`id_grado`
+        `tn`.`id_matric`, `aux`.`id_area`, `tc`.`id_asig`, `tn`.`year`
 ) AS dt
 ORDER BY 
     dt.`id_matric`, dt.`id_area`, dt.`id_asig`;
@@ -385,7 +385,7 @@ FROM (
         JOIN `aux_asignaturas` `aux` ON (`aux`.`id_asign` = `tc`.`id_asig` AND `aux`.`year` = `tc`.`year`) 
         JOIN `matcurso` `tmc` ON (`tmc`.`id_asig` = `tc`.`id_asig` AND `tmc`.`year` = `tc`.`year` AND `tmc`.`id_grado` = `tc`.`id_grado`)
     GROUP BY 
-        `tn`.`id_matric`, `aux`.`id_area`, `tc`.`id_asig`, `tn`.`periodo`, `tn`.`year`, `tmc`.`porciento`, `tc`.`id_grado`
+        `tn`.`id_matric`, `aux`.`id_area`, `tc`.`id_asig`, `tn`.`periodo`, `tn`.`year`
 ) AS dt
 ORDER BY 
     dt.`id_matric`, dt.`periodo`, dt.`id_area`, dt.`id_asig`;
@@ -423,10 +423,10 @@ FROM (
         JOIN `aux_asignaturas` `aux` ON (`aux`.`id_asign` = `tc`.`id_asig` AND `aux`.`year` = `tc`.`year`) 
         JOIN `matcurso` `tmc` ON (`tmc`.`id_asig` = `tc`.`id_asig` AND `tmc`.`year` = `tc`.`year` AND `tmc`.`id_grado` = `tc`.`id_grado`)
     GROUP BY 
-        `tn`.`id_matric`, `aux`.`id_area`, `tc`.`id_asig`, `tn`.`year`, `tn`.`periodo`, `tmc`.`porciento`, `tc`.`id_grado`
+        `tn`.`id_matric`, `aux`.`id_area`, `tc`.`id_asig`, `tn`.`year`
 ) AS dt
 ORDER BY 
-    dt.`id_matric`, dt.`periodo`, dt.`id_area`, dt.`id_asig`;
+    dt.`id_matric`, dt.`id_area`, dt.`id_asig`;
 
 -- **14. Query de `nscp00_view_porcentaje_areas_periodos`**
 SELECT DISTINCT
@@ -477,7 +477,7 @@ FROM (
         JOIN `aux_asignaturas` `aux` ON (`aux`.`id_asign` = `tc`.`id_asig` AND `aux`.`year` = `tc`.`year`) 
         JOIN `matcurso` `tmc` ON (`tmc`.`id_asig` = `tc`.`id_asig` AND `tmc`.`year` = `tc`.`year` AND `tmc`.`id_grado` = `tc`.`id_grado`)
     GROUP BY 
-        `tn`.`id_matric`, `aux`.`id_area`, `tc`.`id_asig`, `tn`.`year`, `tn`.`periodo`, `tmc`.`porciento`, `tc`.`id_grado`
+        `tn`.`id_matric`, `aux`.`id_area`, `tc`.`id_asig`, `tn`.`year`
 ) AS dt
 ORDER BY 
     dt.`id_matric`, dt.`id_area`, dt.`id_asig`;
@@ -511,7 +511,7 @@ FROM (
         JOIN `aux_asignaturas` `aux` ON (`aux`.`id_asign` = `tc`.`id_asig` AND `aux`.`year` = `tc`.`year`) 
         JOIN `matcurso` `tmc` ON (`tmc`.`id_asig` = `tc`.`id_asig` AND `tmc`.`year` = `tc`.`year` AND `tmc`.`id_grado` = `tc`.`id_grado`)
     GROUP BY 
-        `tn`.`id_matric`, `aux`.`id_area`, `tc`.`id_asig`, `tn`.`periodo`, `tn`.`year`, `tmc`.`porciento`, `tc`.`id_grado`
+        `tn`.`id_matric`, `aux`.`id_area`, `tc`.`id_asig`, `tn`.`periodo`, `tn`.`year`
 ) AS dt
 ORDER BY 
     dt.`id_matric`, dt.`periodo`, dt.`id_area`, dt.`id_asig`;

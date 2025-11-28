@@ -161,6 +161,9 @@ class FinalReport
             ->where('sc.year', $year)
             ->get();
 
+        $groupDirectorSignature = CallExecute::execute("{$db}sp_firma_dir_grupo(?, ?, ?, ?, ?)",
+                [$school->headquarter, $school->grade, $school->group, $school->workingDay, $year]);
+
         $watermark      = self::getWatermark($school, $paperSize);
         $fileDescription= 'Informe final de evaluacion';
         $pdfBuilder     = new BuildReportsPDF($reportView, $fileDescription, $school);
@@ -183,7 +186,8 @@ class FinalReport
             'scale'             => $ratingScale,
             'isAreaDistributed' => $isAreaDistributed,
             'sumIH'             => 0,
-            'ratingScale'       => RatingScale::getScaleString($school->grade, $year, $db)
+            'ratingScale'       => RatingScale::getScaleString($school->grade, $year, $db),
+            'groupDirectorSignature'    => count($groupDirectorSignature) > 0 ? $groupDirectorSignature[0] : null
         ];
         return $pdfBuilder->build($params, ['mode' => 'utf-8', 'format' => $formatSize], true);
     }

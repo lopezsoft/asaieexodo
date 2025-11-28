@@ -24,6 +24,13 @@
             </td>
         </tr>
     @endif
+    @if($signatures->firmadirgrupo === 1)
+        <tr>
+            <td class="text-center">
+                @include('reports.signatures.signature-group-director')
+            </td>
+        </tr>
+    @endif
     </tbody>
 </table>
 

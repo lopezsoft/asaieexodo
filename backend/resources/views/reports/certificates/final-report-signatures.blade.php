@@ -1,6 +1,6 @@
 <table class="table-signatures" style="margin-top: 32px">
     <tbody>
-    @if($signatures->firmarector === 1 && $signatures->firmasecre === 1)
+    @if($signatures->firmarector === 1 && $signatures->firmasecre === 1 && $signatures->firmadirgrupo === 0)
         <tr class="td-50">
             <td class="text-center">
                 @include('reports.signatures.signature-director')
@@ -10,21 +10,44 @@
             </td>
         </tr>
     @endif
-    @if($signatures->firmarector === 1 && $signatures->firmasecre === 0)
+    @if($signatures->firmarector === 1 && $signatures->firmasecre === 0 && $signatures->firmadirgrupo === 0)
         <tr>
             <td class="text-center">
                 @include('reports.signatures.signature-director')
             </td>
         </tr>
     @endif
-    @if($signatures->firmarector === 0 && $signatures->firmasecre === 1)
+    @if($signatures->firmarector === 0 && $signatures->firmasecre === 1 && $signatures->firmadirgrupo === 0)
         <tr>
             <td class="text-center">
                 @include('reports.signatures.signature-secretary')
             </td>
         </tr>
     @endif
-    @if($signatures->firmadirgrupo === 1)
+    @if($signatures->firmarector === 1 && $signatures->firmasecre === 1 && $signatures->firmadirgrupo === 1 )
+        <tr class="td-50">
+            <td class="text-center">
+                @include('reports.signatures.signature-director')
+            </td>
+            <td class="text-center">
+                @include('reports.signatures.signature-secretary')
+            </td>
+            <td class="text-center">
+                @include('reports.signatures.signature-group-director')
+            </td>
+        </tr>
+    @endif
+    @if($signatures->firmarector === 1 && $signatures->firmasecre === 0 && $signatures->firmadirgrupo === 1 )
+        <tr class="td-50">
+            <td class="text-center">
+                @include('reports.signatures.signature-director')
+            </td>
+            <td class="text-center">
+                @include('reports.signatures.signature-group-director')
+            </td>
+        </tr>
+    @endif
+    @if($signatures->firmarector === 0 && $signatures->firmasecre === 0 && $signatures->firmadirgrupo === 1 )
         <tr>
             <td class="text-center">
                 @include('reports.signatures.signature-group-director')

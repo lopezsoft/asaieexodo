@@ -109,6 +109,8 @@ describe('PostgreSQL 17 Single-DB Multi-Tenant RLS, pgvector School CRM & Swagge
           crm_channels_count: string;
           crm_ticket_categories_count: string;
           pgvector_version: string;
+          tables_without_comment: string;
+          columns_without_comment: string;
         }>(`
           SELECT
             (SELECT COUNT(*)::text FROM information_schema.tables WHERE table_schema = 'public' AND table_type = 'BASE TABLE') AS total_tables,
@@ -125,7 +127,22 @@ describe('PostgreSQL 17 Single-DB Multi-Tenant RLS, pgvector School CRM & Swagge
             (SELECT COUNT(*)::text FROM study_methodologies) AS methodologies_count,
             (SELECT COUNT(*)::text FROM crm_channels) AS crm_channels_count,
             (SELECT COUNT(*)::text FROM crm_ticket_categories) AS crm_ticket_categories_count,
-            (SELECT extversion FROM pg_extension WHERE extname = 'vector') AS pgvector_version
+            (SELECT extversion FROM pg_extension WHERE extname = 'vector') AS pgvector_version,
+            (SELECT COUNT(*)::text
+             FROM pg_catalog.pg_class c
+             JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+             WHERE n.nspname = 'public'
+               AND c.relkind IN ('r', 'p')
+               AND COALESCE(pg_catalog.obj_description(c.oid, 'pg_class'), '') = '') AS tables_without_comment,
+            (SELECT COUNT(*)::text
+             FROM pg_catalog.pg_class c
+             JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+             JOIN pg_catalog.pg_attribute a ON a.attrelid = c.oid
+             WHERE n.nspname = 'public'
+               AND c.relkind IN ('r', 'p')
+               AND a.attnum > 0
+               AND NOT a.attisdropped
+               AND COALESCE(pg_catalog.col_description(c.oid, a.attnum), '') = '') AS columns_without_comment
         `);
         return res.rows[0];
       },
@@ -133,6 +150,8 @@ describe('PostgreSQL 17 Single-DB Multi-Tenant RLS, pgvector School CRM & Swagge
 
     expect(Number(verification.total_tables)).toBe(135);
     expect(Number(verification.non_english_cols)).toBe(0);
+    expect(Number(verification.tables_without_comment)).toBe(0);
+    expect(Number(verification.columns_without_comment)).toBe(0);
     expect(Number(verification.countries_count)).toBe(250);
     expect(Number(verification.departments_count)).toBe(34);
     expect(Number(verification.cities_count)).toBe(1127);

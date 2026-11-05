@@ -55,6 +55,7 @@ export class StaticCatalogsSeedCli {
       '01-extensions.sql',
       '02-core-schema-rls.sql',
       '03-static-catalogs-seeds.sql',
+      '04-data-dictionary-comments.sql',
     ];
 
     for (const fileName of orderedFiles) {
@@ -69,7 +70,7 @@ export class StaticCatalogsSeedCli {
     }
 
     this.logger.log(
-      'Esquema 3NF en ingles y 53 catalogos estaticos insertados correctamente.',
+      'Esquema 3NF en ingles, 55 catalogos estaticos y Diccionario de Datos (135 tablas / 1,127 columnas) aplicados correctamente.',
       StaticCatalogsSeedCli.name,
     );
   }

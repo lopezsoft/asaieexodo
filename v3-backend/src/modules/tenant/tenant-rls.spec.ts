@@ -152,9 +152,9 @@ describe('PostgreSQL 17 Single-DB Multi-Tenant RLS, pgvector School CRM & Swagge
     expect(Number(verification.non_english_cols)).toBe(0);
     expect(Number(verification.tables_without_comment)).toBe(0);
     expect(Number(verification.columns_without_comment)).toBe(0);
-    expect(Number(verification.countries_count)).toBe(250);
-    expect(Number(verification.departments_count)).toBe(34);
-    expect(Number(verification.cities_count)).toBe(1127);
+    expect(Number(verification.countries_count)).toBe(264);
+    expect(Number(verification.departments_count)).toBe(363);
+    expect(Number(verification.cities_count)).toBe(9252);
     expect(Number(verification.reserves_count)).toBe(646);
     expect(Number(verification.ethnic_groups_count)).toBe(99);
     expect(Number(verification.health_providers_count)).toBe(68);

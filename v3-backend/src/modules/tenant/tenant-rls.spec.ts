@@ -198,5 +198,43 @@ describe('PostgreSQL 17 Single-DB Multi-Tenant RLS, pgvector School CRM & Swagge
     expect(openApiDoc.paths['/api/v1/crm/knowledge/semantic-search']).toBeDefined();
     expect(openApiDoc.paths['/api/v1/crm/conversations']).toBeDefined();
     expect(openApiDoc.paths['/api/v1/auth/login']).toBeDefined();
+    expect(openApiDoc.paths['/api/v1/auth/forgot-password']).toBeDefined();
+    expect(openApiDoc.paths['/api/v1/auth/reset-password']).toBeDefined();
+    expect(openApiDoc.paths['/api/v1/auth/change-password']).toBeDefined();
+  });
+
+  it('sends email confirmation, password recovery and password change alerts via Nodemailer and updates password_hash', async () => {
+    const confirmationReq = await authUseCase.requestEmailConfirmation(1n);
+    expect(confirmationReq.mailDelivery.delivered).toBe(true);
+    expect(confirmationReq.mailDelivery.templateType).toBe('EMAIL_CONFIRMATION');
+
+    const confirmed = await authUseCase.confirmEmailToken(
+      confirmationReq.confirmationToken,
+    );
+    expect(confirmed.verified).toBe(true);
+    expect(confirmed.userId).toBe(1);
+
+    const resetReq = await authUseCase.requestPasswordReset({
+      identifier: 'admin.comunidad',
+    });
+    expect(resetReq.mailDelivery.delivered).toBe(true);
+    expect(resetReq.mailDelivery.templateType).toBe('PASSWORD_RESET');
+
+    const resetDone = await authUseCase.resetPasswordWithToken({
+      resetToken: resetReq.resetToken,
+      newPassword: 'Asaie2026*Temp',
+    });
+    expect(resetDone.updated).toBe(true);
+    expect(resetDone.mailDelivery?.templateType).toBe('PASSWORD_CHANGED_ALERT');
+
+    // Restaurar la contrasena original mediante changePassword y verificar alerta Nodemailer
+    const restored = await authUseCase.changePassword({
+      userId: 1n,
+      currentPassword: 'Asaie2026*Temp',
+      newPassword: 'Asaie2026*',
+    });
+    expect(restored.updated).toBe(true);
+    expect(restored.mailDelivery?.delivered).toBe(true);
+    expect(restored.mailDelivery?.templateType).toBe('PASSWORD_CHANGED_ALERT');
   });
 });

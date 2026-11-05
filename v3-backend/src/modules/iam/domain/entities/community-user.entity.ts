@@ -42,6 +42,10 @@ export class CommunityUser extends AggregateRoot<bigint, CommunityUserProps> {
     return this.props.username;
   }
 
+  get email(): string | null {
+    return this.props.email;
+  }
+
   get passwordHash(): string {
     return this.props.passwordHash;
   }

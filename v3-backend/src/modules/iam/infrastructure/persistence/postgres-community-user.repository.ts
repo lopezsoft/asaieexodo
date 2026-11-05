@@ -128,6 +128,29 @@ export class PostgresCommunityUserRepository
     return this.mapToAggregate(userRow, memberships);
   }
 
+  async updatePasswordHash(
+    userId: bigint,
+    newPasswordHash: string,
+  ): Promise<void> {
+    await this.db.queryGlobal(
+      `UPDATE users
+       SET password_hash = $2,
+           updated_at = NOW()
+       WHERE id = $1`,
+      [String(userId), newPasswordHash],
+    );
+  }
+
+  async markEmailVerified(userId: bigint): Promise<void> {
+    await this.db.queryGlobal(
+      `UPDATE users
+       SET email_verified_at = NOW(),
+           updated_at = NOW()
+       WHERE id = $1`,
+      [String(userId)],
+    );
+  }
+
   private async loadUserMemberships(
     userId: bigint,
   ): Promise<SchoolMembershipItem[]> {

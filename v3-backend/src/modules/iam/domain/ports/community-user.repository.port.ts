@@ -23,4 +23,9 @@ export abstract class CommunityUserRepositoryPort {
   abstract upsertWithMembership(
     input: UpsertCommunityUserInput,
   ): Promise<CommunityUser>;
+  abstract updatePasswordHash(
+    userId: bigint,
+    newPasswordHash: string,
+  ): Promise<void>;
+  abstract markEmailVerified(userId: bigint): Promise<void>;
 }

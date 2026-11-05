@@ -48,6 +48,12 @@ WHERE a.`year` = 2022 AND NOT EXISTS (
     SELECT 1 FROM cursos AS b WHERE b.id_asig = a.id_asig AND b.id_grado = a.id_grado AND b.`year` = a.`year`
 );
 
+
+SELECT * FROM cursos AS a
+WHERE a.`year` = 2025 AND NOT EXISTS (
+    SELECT 1 FROM matcurso AS b WHERE b.id_asig = a.id_asig AND b.id_grado = a.id_grado AND b.`year` = a.`year`
+);
+
 INSERT INTO matcurso(id_grado, id_asig, year)
 SELECT a.id_grado, a.id_asig, a.`year` FROM cursos AS a
 WHERE a.`year` = 2021 AND NOT EXISTS (

@@ -3,6 +3,22 @@
 Todos los cambios notables de **v3-backend** (NestJS 11 + Fastify 5 + PostgreSQL 17 Unificado con RLS) se documentan en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [3.3.0] - 2026-11-05
+
+### Añadido
+- **Motor de Correos Transaccionales con Nodemailer (`src/shared/infrastructure/mail/nodemailer-smtp.adapter.ts`):**
+  - Instalación e integración de `nodemailer` y `@types/nodemailer` bajo arquitectura hexagonal mediante el puerto [`MailSenderPort`](src/shared/application/ports/mail-sender.port.ts) y el adaptador [`NodemailerSmtpMailAdapter`](src/shared/infrastructure/mail/nodemailer-smtp.adapter.ts).
+  - Plantillas institucionales HTML responsivas en español para:
+    - Confirmación de correo electrónico (`sendEmailConfirmation`).
+    - Recuperación de contraseña con enlace temporal (`sendPasswordResetEmail`).
+    - Alerta de seguridad por cambio o restablecimiento de contraseña (`sendPasswordChangedAlert`).
+    - Notificaciones por correo del CRM Escolar Omnicanal (`sendCrmOmnichannelNotification`).
+- **Flujos de Confirmación de Cuenta, Recuperación y Cambio de Contraseña en IAM (`src/modules/iam/`):**
+  - Nuevos casos de uso en [`AuthenticateCommunityUserUseCase`](src/modules/iam/application/use-cases/authenticate-community-user.use-case.ts) y endpoints documentados en Swagger en [`IamController`](src/modules/iam/infrastructure/http/iam.controller.ts):
+    - `POST /api/v1/auth/request-email-confirmation` y `POST /api/v1/auth/confirm-email` (`email_verified_at`).
+    - `POST /api/v1/auth/forgot-password` y `POST /api/v1/auth/reset-password` (token JWT de 30 minutos + actualización `scrypt`).
+    - `POST /api/v1/auth/change-password` (verificación de contraseña actual + actualización `scrypt` + alerta de seguridad por correo).
+
 ## [3.2.0] - 2026-11-05
 
 ### Añadido

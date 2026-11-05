@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.18.1.final using JasperReports Library version 6.18.1-9d75d1969e774d4f179fb3be8401e98a0e6d1611  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="carnets" columnCount="2" pageWidth="612" pageHeight="792" whenNoDataType="NoDataSection" columnWidth="278" leftMargin="28" rightMargin="28" topMargin="43" bottomMargin="20" uuid="33974257-97b3-4498-8fe2-7887b59433ce">
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="35"/>
+	<property name="ireport.y" value="18"/>
+	<property name="ireport.callouts" value="##Sun Dec 13 17:00:36 COT 2015\ncallouts.1.text=Informe plantilla base para crear los dem\u00E1s informes\n\ncallouts.1.bounds=-12,404,240,51"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="asaie "/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="0"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="1000"/>
+	<parameter name="SQL_PARAM" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="R_ESCUDO" class="java.lang.String"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["D:\\wamp\\www\\SME\\reports\\"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="R_PATH_DIR" class="java.lang.String"/>
+	<queryString language="SQL">
+		<![CDATA[SELECT a.documento, 
+CONCAT(TRIM(a.nombre1),' ',TRIM(a.nombre2),' ',TRIM(a.apellido1),' ',TRIM(a.apellido2)) docente,
+a.tipo_sangre, if(LENGTH(a.image) > 15, a.image, 'assets/img/avatars.png') image , a.movil, a.email,
+ b.year, c.abrev, d.url, d.name, d.school, d.info, d.header , d.qr
+FROM docentes a
+LEFT JOIN aux_docentes AS b ON b.id_docente = a.id_docente 
+LEFT JOIN documentos AS c ON a.id_documento = c.id
+LEFT JOIN carnets AS d ON d.active = 1
+WHERE b.year = 2019 AND a.estado = 1]]>
+	</queryString>
+	<field name="documento" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="documento"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="docentes"/>
+	</field>
+	<field name="docente" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="docente"/>
+	</field>
+	<field name="tipo_sangre" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="tipo_sangre"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="docentes"/>
+	</field>
+	<field name="image" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="image"/>
+	</field>
+	<field name="movil" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="movil"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="docentes"/>
+	</field>
+	<field name="email" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="email"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="docentes"/>
+	</field>
+	<field name="year" class="java.sql.Date">
+		<property name="com.jaspersoft.studio.field.label" value="year"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="aux_docentes"/>
+	</field>
+	<field name="abrev" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="abrev"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="documentos"/>
+	</field>
+	<field name="url" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="url"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="carnets"/>
+	</field>
+	<field name="name" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="name"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="carnets"/>
+	</field>
+	<field name="school" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="school"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="carnets"/>
+	</field>
+	<field name="info" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="info"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="carnets"/>
+	</field>
+	<field name="header" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="header"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="carnets"/>
+	</field>
+	<field name="qr" class="java.lang.Boolean">
+		<property name="com.jaspersoft.studio.field.label" value="qr"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="carnets"/>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<detail>
+		<band height="162" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+		</band>
+	</detail>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

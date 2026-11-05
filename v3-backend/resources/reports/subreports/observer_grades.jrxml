@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.18.1.final using JasperReports Library version 6.18.1-9d75d1969e774d4f179fb3be8401e98a0e6d1611  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="observer_grades" pageWidth="556" pageHeight="752" columnWidth="556" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" whenResourceMissingType="Error" uuid="989ba5e9-3545-497e-ab45-356ef1fd0da1">
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="212"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="781"/>
+	<property name="com.jaspersoft.studio.property.dataset.dialog.DatasetDialog.sash.w1" value="546"/>
+	<property name="com.jaspersoft.studio.property.dataset.dialog.DatasetDialog.sash.w2" value="444"/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="altos-db"/>
+	<parameter name="id_student" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="P_COURSE" class="java.lang.String"/>
+	<parameter name="P_STUDY_DAY" class="java.lang.String"/>
+	<parameter name="P_BRANCH" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[SELECT a.inst_address, a.inst_origin, a.`year`, ap.msg, g.cod_grado, g.grado
+FROM grados AS g
+LEFT JOIN student_enrollment AS a  ON (a.id_grade = g.id AND a.id_student = $P{id_student}  )
+LEFT JOIN acta_promocion AS ap ON ap.id_matric = a.id
+WHERE g.id BETWEEN 4 AND 15 AND g.uso = 1]]>
+	</queryString>
+	<field name="inst_address" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="inst_address"/>
+		<property name="com.jaspersoft.studio.field.label" value="inst_address"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="student_enrollment"/>
+	</field>
+	<field name="inst_origin" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="inst_origin"/>
+		<property name="com.jaspersoft.studio.field.label" value="inst_origin"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="student_enrollment"/>
+	</field>
+	<field name="year" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="year"/>
+		<property name="com.jaspersoft.studio.field.label" value="year"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="student_enrollment"/>
+	</field>
+	<field name="msg" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="msg"/>
+		<property name="com.jaspersoft.studio.field.label" value="msg"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="acta_promocion"/>
+	</field>
+	<field name="cod_grado" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="cod_grado"/>
+		<property name="com.jaspersoft.studio.field.label" value="cod_grado"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="grados"/>
+	</field>
+	<field name="grado" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="grado"/>
+		<property name="com.jaspersoft.studio.field.label" value="grado"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="grados"/>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<pageHeader>
+		<band height="22">
+			<staticText>
+				<reportElement positionType="Float" mode="Opaque" x="0" y="0" width="556" height="10" backcolor="#E8E8E8" uuid="cf1a52d3-1b70-49d0-a91a-a2c92f8cc680"/>
+				<box>
+					<topPen lineWidth="0.15"/>
+					<leftPen lineWidth="0.15"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.15"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="DejaVu Serif" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[HISTORIAL DE MATRICULA]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" mode="Opaque" x="0" y="10" width="90" height="12" backcolor="#E8E8E8" uuid="7afee3f7-2d7b-4e61-aa25-d70e3e03e000"/>
+				<box>
+					<topPen lineWidth="0.15" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.15" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.15" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.15" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="DejaVu Serif" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Grado/grupo actual]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" mode="Opaque" x="184" y="10" width="46" height="12" backcolor="#E8E8E8" uuid="fed9e093-70a0-4038-95a3-ef302ee4007f">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.15" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.15" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.15" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.15" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="DejaVu Serif" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Jornada]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" mode="Opaque" x="296" y="10" width="34" height="12" backcolor="#E8E8E8" uuid="ffc6e83c-789d-449c-9bc0-80ed4b5d76c1">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.15" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.15" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.15" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.15" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="DejaVu Serif" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Sede]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="90" y="10" width="94" height="12" uuid="626a87c0-4e8d-46e9-a7bf-e3841af4d2ad">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box leftPadding="1" rightPadding="1">
+					<leftPen lineWidth="0.15"/>
+					<bottomPen lineWidth="0.15"/>
+					<rightPen lineWidth="0.15"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{P_COURSE}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="230" y="10" width="66" height="12" uuid="f16d4c32-12c8-4058-8cda-124c335798d9">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box leftPadding="1" rightPadding="1">
+					<leftPen lineWidth="0.15"/>
+					<bottomPen lineWidth="0.15"/>
+					<rightPen lineWidth="0.15"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{P_STUDY_DAY}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="330" y="10" width="226" height="12" uuid="a6a34e79-d4f2-4f47-a0b0-4f048e73c81d">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box leftPadding="1" rightPadding="1">
+					<leftPen lineWidth="0.15"/>
+					<bottomPen lineWidth="0.15"/>
+					<rightPen lineWidth="0.15"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{P_BRANCH}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="20">
+			<staticText>
+				<reportElement positionType="Float" mode="Opaque" x="0" y="0" width="556" height="10" backcolor="#E8E8E8" uuid="38760d92-9e38-4dd9-8ae1-0d6c8aae362f"/>
+				<box>
+					<leftPen lineWidth="0.15"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.15"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="DejaVu Serif" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[MOVILIDAD, RETIROS Y DESERCIONES ESCOLARES]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" mode="Opaque" x="0" y="10" width="40" height="10" backcolor="#E8E8E8" uuid="788b799e-ea17-45ed-a2a9-836aa30a3c75"/>
+				<box>
+					<topPen lineWidth="0.15" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.15" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.15" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.15" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="DejaVu Serif" size="6" isBold="true"/>
+				</textElement>
+				<text><![CDATA[AÑO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" mode="Opaque" x="40" y="10" width="50" height="10" backcolor="#E8E8E8" uuid="b01a4c53-ab7f-4eb2-a00f-62afa4708990"/>
+				<box>
+					<topPen lineWidth="0.15" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.15" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.15" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.15" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="DejaVu Serif" size="6" isBold="true"/>
+				</textElement>
+				<text><![CDATA[GRADO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" mode="Opaque" x="249" y="10" width="141" height="10" backcolor="#E8E8E8" uuid="4b433d8a-831a-4e14-ae36-923511697123"/>
+				<box>
+					<topPen lineWidth="0.15" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.15" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.15" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.15" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="DejaVu Serif" size="6" isBold="true"/>
+				</textElement>
+				<text><![CDATA[PROMOCIÓN Y/O REPROBACIÓN]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" mode="Opaque" x="390" y="10" width="166" height="10" backcolor="#E8E8E8" uuid="a55a379d-65d8-444e-9ed0-23f4b614e1e8"/>
+				<box>
+					<topPen lineWidth="0.15" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.15" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.15" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.15" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="DejaVu Serif" size="6" isBold="true"/>
+				</textElement>
+				<text><![CDATA[MOTIVO DE LA MOVILIDAD, RETIRO O DESERCIÓN]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" mode="Opaque" x="90" y="10" width="159" height="10" backcolor="#E8E8E8" uuid="d53ea008-978d-488a-a141-e2bc11a74821"/>
+				<box>
+					<topPen lineWidth="0.15" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.15" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.15" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.15" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="DejaVu Serif" size="6" isBold="true"/>
+				</textElement>
+				<text><![CDATA[INSTITUCIÓN]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="12" splitType="Stretch">
+			<textField isBlankWhenNull="true">
+				<reportElement x="0" y="0" width="40" height="12" uuid="c5c07ffd-3126-46df-9294-f5097c799744">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box leftPadding="1" rightPadding="1">
+					<leftPen lineWidth="0.15"/>
+					<bottomPen lineWidth="0.15"/>
+					<rightPen lineWidth="0.15"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{year}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="249" y="0" width="141" height="12" uuid="6be7d9dc-c65b-47e1-b927-624c57c929bb"/>
+				<box leftPadding="1" rightPadding="1">
+					<leftPen lineWidth="0.15"/>
+					<bottomPen lineWidth="0.15"/>
+					<rightPen lineWidth="0.15"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{msg}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="390" y="0" width="166" height="12" uuid="440d5b2a-1925-4dd8-8317-b76de7dcfc7e"/>
+				<box leftPadding="1" rightPadding="1">
+					<leftPen lineWidth="0.15"/>
+					<bottomPen lineWidth="0.15"/>
+					<rightPen lineWidth="0.15"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="40" y="0" width="50" height="12" uuid="076a1b8f-2b7c-4d12-9f7c-4ece0ada4e19">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box leftPadding="1" rightPadding="1">
+					<leftPen lineWidth="0.15"/>
+					<bottomPen lineWidth="0.15"/>
+					<rightPen lineWidth="0.15"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{cod_grado}+'º']]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="90" y="0" width="159" height="12" uuid="d42717f5-e201-46de-be95-d8774c866ab5"/>
+				<box leftPadding="1" rightPadding="1">
+					<leftPen lineWidth="0.15"/>
+					<bottomPen lineWidth="0.15"/>
+					<rightPen lineWidth="0.15"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{inst_origin}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

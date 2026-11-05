@@ -1,0 +1,58 @@
+<div class="breadcrumb-card mb-25 d-md-flex align-items-center justify-content-between">
+  <h5 class="mb-0">
+    {{ 'profileChange.title' | transloco }}
+  </h5>
+  <ol class="breadcrumb list-unstyled mt-0 mb-0 p-0">
+    <li class="breadcrumb-item d-inline-block position-relative">
+      <a routerLink="/dashboard/profile" class="d-inline-block position-relative">
+        <i class="material-symbols-outlined">
+          account_circle
+        </i>
+        {{ 'menu.user.profile' | transloco }}
+      </a>
+    </li>
+    <li class="breadcrumb-item d-inline-block position-relative">
+      {{ 'menu.user.profileChange' | transloco }}
+    </li>
+  </ol>
+</div>
+<section class="users-change-username">
+  <div class="card">
+    <div class="card-header">
+      <h4><strong>{{ 'profileChange.title' | transloco | uppercase }}</strong></h4>
+    </div>
+    <div class="card-body">
+      <form [formGroup]="changeForm" >
+        <div class="row">
+          <div class="col-md-6 form-group">
+            <label>{{ 'profileChange.currentUsername' | transloco }}</label>
+            <input type="text" class="form-control" formControlName="user_name">
+          </div>
+
+          <div class="col-md-6 form-group">
+            <label>{{ 'profileChange.newEmail' | transloco }}</label>
+            <input type="email" class="form-control" formControlName="email"
+                   [placeholder]="'profileChange.newEmailPlaceholder' | transloco" autofocus>
+
+            @if (changeForm.get('email')?.invalid && changeForm.get('email')?.touched) {
+              <small class="text-danger">
+                @if (changeForm.get('email')?.errors?.['required']) {
+                  <span>{{ 'validation.required' | transloco }}</span>
+                }
+                @if (changeForm.get('email')?.errors?.['email']) {
+                  <span>{{ 'validation.invalidEmail' | transloco }}</span>
+                }
+              </small>
+            }
+          </div>
+        </div>
+        <app-footer-form
+          [disabled]="changeForm.invalid"
+          [showSaveAndCreate]="false"
+          (saveAndCloseEvent)="onSubmit()"
+          (cancelEvent)="onCancel()">
+        </app-footer-form>
+      </form>
+    </div>
+  </div>
+</section>

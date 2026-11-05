@@ -1,0 +1,465 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.5.1.final using JasperReports Library version 6.5.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="firmas_final_subreport" pageWidth="546" pageHeight="842" columnWidth="546" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="64e860b9-b024-4653-bea2-b64292bf6089">
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="SME"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<parameter name="año" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="id_inst" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="id_sede" class="java.lang.Integer"/>
+	<parameter name="cod_grado" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="grupo" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="id_jorn" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["D:\\wamp\\www\\SME2017\\reports\\"]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT firma1, firma2, firma3, firma4,
+	firmarector, firmasecre, firmacoor, firmadirgrupo
+	FROM firmas AS tcn
+	WHERE tcn.id_inst = $P{id_inst} LIMIT 1]]>
+	</queryString>
+	<field name="firma1" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="firma1"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="firmas"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="firma2" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="firma2"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="firmas"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="firma3" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="firma3"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="firmas"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="firma4" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="firma4"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="firmas"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="firmarector" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="firmarector"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="firmas"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="firmasecre" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="firmasecre"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="firmas"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="firmacoor" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="firmacoor"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="firmas"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="firmadirgrupo" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="firmadirgrupo"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="firmas"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="1" splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="13" splitType="Stretch">
+			<textField isStretchWithOverflow="true">
+				<reportElement stretchType="ContainerHeight" x="346" y="0" width="170" height="10" isRemoveLineWhenBlank="true" uuid="e7381ce2-3620-4433-94cf-521dbfe9ea68">
+					<printWhenExpression><![CDATA[$F{firmarector}.equals(1)
+&& $F{firmasecre}.equals(1)
+&& $F{firmacoor}.equals(0)
+&& $F{firmadirgrupo}.equals(0)
+? true
+: false]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font fontName="DejaVu Serif" size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{firma2}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement stretchType="ElementGroupBottom" x="1" y="0" width="135" height="10" isRemoveLineWhenBlank="true" uuid="36c09132-f870-45c3-bc38-a420b2b65004">
+					<printWhenExpression><![CDATA[$F{firmarector}.equals(1)
+&& $F{firmasecre}.equals(1)
+&& $F{firmacoor}.equals(1)
+&& $F{firmadirgrupo}.equals(1)
+? true
+: false]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font fontName="DejaVu Serif" size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{firma1}.trim()]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement stretchType="ContainerHeight" x="411" y="0" width="135" height="10" isRemoveLineWhenBlank="true" uuid="405a2572-17bc-4f07-b753-cf5239b3625a">
+					<printWhenExpression><![CDATA[$F{firmarector}.equals(1)
+&& $F{firmasecre}.equals(1)
+&& $F{firmacoor}.equals(1)
+&& $F{firmadirgrupo}.equals(1)
+? true
+: false]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font fontName="DejaVu Serif" size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{firma2}.trim()]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement stretchType="ContainerHeight" x="137" y="0" width="135" height="10" isRemoveLineWhenBlank="true" uuid="dd03dfb3-963a-4ce6-ab2c-6b09e543d523">
+					<printWhenExpression><![CDATA[$F{firmarector}.equals(1)
+&& $F{firmasecre}.equals(1)
+&& $F{firmacoor}.equals(1)
+&& $F{firmadirgrupo}.equals(1)
+? true
+: false]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font fontName="DejaVu Serif" size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{firma3}.trim()]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement stretchType="ContainerHeight" x="346" y="0" width="170" height="10" isRemoveLineWhenBlank="true" uuid="d82b9f47-34ac-4601-82fe-a9be0b393236">
+					<printWhenExpression><![CDATA[$F{firmarector}.equals(1)
+&& $F{firmasecre}.equals(0)
+&& $F{firmacoor}.equals(1)
+&& $F{firmadirgrupo}.equals(0)
+? true
+: false]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font fontName="DejaVu Serif" size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{firma3}.trim()]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement stretchType="ElementGroupBottom" x="31" y="0" width="170" height="10" isRemoveLineWhenBlank="true" uuid="dcdaef13-6549-4706-803b-ea839642b8f9">
+					<printWhenExpression><![CDATA[$F{firmarector}.equals(1)
+&& $F{firmasecre}.equals(0)
+&& $F{firmacoor}.equals(3)
+&& $F{firmadirgrupo}.equals(0)
+? true
+: false]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font fontName="DejaVu Serif" size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{firma1}.trim()]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement stretchType="ElementGroupBottom" x="31" y="0" width="170" height="10" isRemoveLineWhenBlank="true" uuid="e665f6dd-0367-4c5d-af98-82d0f33d9ef9">
+					<printWhenExpression><![CDATA[$F{firmarector}.equals(1)
+&& $F{firmasecre}.equals(0)
+&& $F{firmacoor}.equals(0)
+&& $F{firmadirgrupo}.equals(1)
+? true
+: false]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font fontName="DejaVu Serif" size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{firma1}.trim()]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement stretchType="ContainerHeight" x="31" y="0" width="170" height="10" isRemoveLineWhenBlank="true" uuid="a88dabf1-0d5f-40a0-94c4-37e6579e1295">
+					<printWhenExpression><![CDATA[$F{firmarector}.equals(0)
+&& $F{firmasecre}.equals(0)
+&& $F{firmacoor}.equals(1)
+&& $F{firmadirgrupo}.equals(1)
+? true
+: false]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font fontName="DejaVu Serif" size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{firma3}.trim()]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement stretchType="ContainerHeight" x="346" y="0" width="170" height="10" isRemoveLineWhenBlank="true" uuid="2157bc3d-a8fa-44de-af29-833d0eb08461">
+					<printWhenExpression><![CDATA[$F{firmarector}.equals(0)
+&& $F{firmasecre}.equals(1)
+&& $F{firmacoor}.equals(1)
+&& $F{firmadirgrupo}.equals(0)
+? true
+: false]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font fontName="DejaVu Serif" size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{firma3}.trim()]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement stretchType="ContainerHeight" x="31" y="0" width="170" height="10" isRemoveLineWhenBlank="true" uuid="53fcc584-ff9e-4291-babe-1d0e46a29b01">
+					<printWhenExpression><![CDATA[$F{firmarector}.equals(0)
+&& $F{firmasecre}.equals(1)
+&& $F{firmacoor}.equals(1)
+&& $F{firmadirgrupo}.equals(0)
+? true
+: false]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font fontName="DejaVu Serif" size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{firma2}.trim()]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement stretchType="ContainerHeight" x="31" y="0" width="170" height="10" isRemoveLineWhenBlank="true" uuid="2fc0e3fc-dc95-4163-b084-3a1b6ef75a6b">
+					<printWhenExpression><![CDATA[$F{firmarector}.equals(0)
+&& $F{firmasecre}.equals(1)
+&& $F{firmacoor}.equals(0)
+&& $F{firmadirgrupo}.equals(1)
+? true
+: false]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font fontName="DejaVu Serif" size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{firma2}.trim()]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement stretchType="ContainerHeight" x="188" y="0" width="170" height="10" isRemoveLineWhenBlank="true" uuid="a736936b-5f06-492d-a322-c036b12d3576">
+					<printWhenExpression><![CDATA[$F{firmarector}.equals(0)
+&& $F{firmasecre}.equals(1)
+&& $F{firmacoor}.equals(0)
+&& $F{firmadirgrupo}.equals(0)
+? true
+: false]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font fontName="DejaVu Serif" size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{firma2}.trim()]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement stretchType="ElementGroupBottom" x="188" y="0" width="170" height="10" isRemoveLineWhenBlank="true" uuid="acdb0e17-e83b-4e5b-b632-ad8122bd39cc">
+					<printWhenExpression><![CDATA[$F{firmarector}.equals(1)
+&& $F{firmasecre}.equals(0)
+&& $F{firmacoor}.equals(0)
+&& $F{firmadirgrupo}.equals(0)
+? true
+: false]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font fontName="DejaVu Serif" size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{firma1}.trim()]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement stretchType="ContainerHeight" x="188" y="0" width="170" height="10" isRemoveLineWhenBlank="true" uuid="d18aab0e-bfaf-4963-8122-b2c46c190910">
+					<printWhenExpression><![CDATA[$F{firmarector}.equals(0)
+&& $F{firmasecre}.equals(0)
+&& $F{firmacoor}.equals(1)
+&& $F{firmadirgrupo}.equals(0)
+? true
+: false]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font fontName="DejaVu Serif" size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{firma3}.trim()]]></textFieldExpression>
+			</textField>
+			<subreport>
+				<reportElement positionType="Float" stretchType="RelativeToBandHeight" x="346" y="0" width="135" height="10" isRemoveLineWhenBlank="true" uuid="dff8fd18-f76c-4f05-929f-bc59bc3b4fce">
+					<printWhenExpression><![CDATA[$F{firmarector}.equals(1)
+&& $F{firmasecre}.equals(0)
+&& $F{firmacoor}.equals(0)
+&& $F{firmadirgrupo}.equals(1)
+? true
+: false]]></printWhenExpression>
+				</reportElement>
+				<subreportParameter name="cod_grado">
+					<subreportParameterExpression><![CDATA[$P{cod_grado}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="grupo">
+					<subreportParameterExpression><![CDATA[$P{grupo}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="id_inst">
+					<subreportParameterExpression><![CDATA[$P{id_inst}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="año">
+					<subreportParameterExpression><![CDATA[$P{año}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="id_jorn">
+					<subreportParameterExpression><![CDATA[$P{id_jorn}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="id_sede">
+					<subreportParameterExpression><![CDATA[$P{id_sede}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "firma_dri_grupo_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement positionType="Float" stretchType="RelativeToBandHeight" x="283" y="0" width="135" height="10" isRemoveLineWhenBlank="true" uuid="a58ba428-c982-4386-8d69-70f6b1a3a2ab">
+					<printWhenExpression><![CDATA[$F{firmarector}.equals(1)
+&& $F{firmasecre}.equals(1)
+&& $F{firmacoor}.equals(1)
+&& $F{firmadirgrupo}.equals(1)
+? true
+: false]]></printWhenExpression>
+				</reportElement>
+				<subreportParameter name="grupo">
+					<subreportParameterExpression><![CDATA[$P{grupo}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="cod_grado">
+					<subreportParameterExpression><![CDATA[$P{cod_grado}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="id_inst">
+					<subreportParameterExpression><![CDATA[$P{id_inst}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="año">
+					<subreportParameterExpression><![CDATA[$P{año}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="id_sede">
+					<subreportParameterExpression><![CDATA[$P{id_sede}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="id_jorn">
+					<subreportParameterExpression><![CDATA[$P{id_jorn}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "firma_dri_grupo_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement positionType="Float" stretchType="RelativeToBandHeight" x="346" y="0" width="170" height="10" isRemoveLineWhenBlank="true" uuid="40ad917b-e9c4-4f36-90b6-0441983c5593">
+					<printWhenExpression><![CDATA[$F{firmarector}.equals(0)
+&& $F{firmasecre}.equals(0)
+&& $F{firmacoor}.equals(1)
+&& $F{firmadirgrupo}.equals(1)
+? true
+: false]]></printWhenExpression>
+				</reportElement>
+				<subreportParameter name="grupo">
+					<subreportParameterExpression><![CDATA[$P{grupo}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="cod_grado">
+					<subreportParameterExpression><![CDATA[$P{cod_grado}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="id_inst">
+					<subreportParameterExpression><![CDATA[$P{id_inst}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="año">
+					<subreportParameterExpression><![CDATA[$P{año}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="id_sede">
+					<subreportParameterExpression><![CDATA[$P{id_sede}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="id_jorn">
+					<subreportParameterExpression><![CDATA[$P{id_jorn}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "firma_dri_grupo_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement positionType="Float" stretchType="RelativeToBandHeight" x="346" y="0" width="170" height="10" isRemoveLineWhenBlank="true" uuid="110294ca-e436-4396-99c1-7ed6d233d62a">
+					<printWhenExpression><![CDATA[$F{firmarector}.equals(0)
+&& $F{firmasecre}.equals(1)
+&& $F{firmacoor}.equals(0)
+&& $F{firmadirgrupo}.equals(1)
+? true
+: false]]></printWhenExpression>
+				</reportElement>
+				<subreportParameter name="grupo">
+					<subreportParameterExpression><![CDATA[$P{grupo}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="cod_grado">
+					<subreportParameterExpression><![CDATA[$P{cod_grado}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="id_inst">
+					<subreportParameterExpression><![CDATA[$P{id_inst}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="año">
+					<subreportParameterExpression><![CDATA[$P{año}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="id_sede">
+					<subreportParameterExpression><![CDATA[$P{id_sede}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="id_jorn">
+					<subreportParameterExpression><![CDATA[$P{id_jorn}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "firma_dri_grupo_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement positionType="Float" stretchType="RelativeToBandHeight" x="188" y="0" width="135" height="10" isRemoveLineWhenBlank="true" uuid="bacd550f-a139-468d-a875-19e712e5cd3b">
+					<printWhenExpression><![CDATA[$F{firmarector}.equals(0)
+&& $F{firmasecre}.equals(0)
+&& $F{firmacoor}.equals(0)
+&& $F{firmadirgrupo}.equals(1)
+? true
+: false]]></printWhenExpression>
+				</reportElement>
+				<subreportParameter name="grupo">
+					<subreportParameterExpression><![CDATA[$P{grupo}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="cod_grado">
+					<subreportParameterExpression><![CDATA[$P{cod_grado}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="id_inst">
+					<subreportParameterExpression><![CDATA[$P{id_inst}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="año">
+					<subreportParameterExpression><![CDATA[$P{año}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="id_sede">
+					<subreportParameterExpression><![CDATA[$P{id_sede}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="id_jorn">
+					<subreportParameterExpression><![CDATA[$P{id_jorn}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "firma_dri_grupo_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement x="31" y="0" width="170" height="10" uuid="b0c64cea-4791-4bfa-89e3-5a25572c27c7">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<printWhenExpression><![CDATA[$F{firmarector}.equals(1)
+&& $F{firmasecre}.equals(1)
+&& $F{firmacoor}.equals(0)
+&& $F{firmadirgrupo}.equals(0)
+? true
+: false]]></printWhenExpression>
+				</reportElement>
+				<subreportParameter name="año">
+					<subreportParameterExpression><![CDATA[$P{año}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="id_inst">
+					<subreportParameterExpression><![CDATA[$P{id_inst}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR}+"firma_rector_subreport.jasper"]]></subreportExpression>
+			</subreport>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.3.1.final using JasperReports Library version 6.3.1  -->
+<!-- 2017-06-06T23:11:00 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="conv_control_seguimiento_subreport" pageWidth="556" pageHeight="792" columnWidth="556" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="160944e9-575b-421a-99c3-e13f5b6dbef4">
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="dbsme"/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<property name="com.jaspersoft.studio.property.dataset.dialog.DatasetDialog.sash.w1" value="436"/>
+	<property name="com.jaspersoft.studio.property.dataset.dialog.DatasetDialog.sash.w2" value="550"/>
+	<parameter name="_id" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[0]]></defaultValueExpression>
+	</parameter>
+	<queryString language="SQL">
+		<![CDATA[SELECT *
+FROM conv_control_seguimiento
+WHERE 
+	 conv_control_seguimiento.id = $P{_id}]]>
+	</queryString>
+	<field name="compromiso_estudiante" class="java.lang.String"/>
+	<field name="compromiso_acudiente" class="java.lang.String"/>
+	<field name="compromiso_docente" class="java.lang.String"/>
+	<field name="fecha_acta" class="java.sql.Date"/>
+	<field name="hora_acta" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<detail>
+		<band height="85" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+			<staticText>
+				<reportElement positionType="Float" mode="Transparent" x="0" y="0" width="556" height="14" uuid="67825e8a-9892-4bf4-855e-b693c86b3bfa">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[COMPROMISO DEL ESTUDIANTE]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true">
+				<reportElement positionType="Float" mode="Transparent" x="0" y="14" width="556" height="15" uuid="975de6ca-66af-4d63-ace5-e90f26e849a9"/>
+				<box topPadding="0" leftPadding="3" bottomPadding="2" rightPadding="3">
+					<pen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Justified"/>
+				<textFieldExpression><![CDATA[$F{compromiso_estudiante}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="Float" mode="Transparent" x="0" y="29" width="556" height="13" uuid="12ba5d18-abe9-4372-8fdb-7fadc9f17c08">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[COMPROMISO DEL PADRE DE FAMILIA O ACUDIENTE]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true">
+				<reportElement positionType="Float" mode="Transparent" x="0" y="42" width="556" height="15" uuid="334da8a2-fff8-4550-86b4-f8a2e51b47d7"/>
+				<box topPadding="0" leftPadding="3" bottomPadding="2" rightPadding="3">
+					<pen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Justified"/>
+				<textFieldExpression><![CDATA[$F{compromiso_acudiente}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="Float" mode="Transparent" x="0" y="57" width="556" height="13" uuid="debed0bd-329d-4571-b517-be199ad68e6b">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[COMPROMISO DEL DOCENTE]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true">
+				<reportElement positionType="Float" mode="Transparent" x="0" y="70" width="556" height="15" uuid="bdbb2582-2e6c-4bf4-be87-7dd9bae6f2c0"/>
+				<box topPadding="0" leftPadding="3" bottomPadding="2" rightPadding="3">
+					<pen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Justified"/>
+				<textFieldExpression><![CDATA[$F{compromiso_docente}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<summary>
+		<band height="33">
+			<staticText>
+				<reportElement positionType="Float" x="2" y="20" width="208" height="13" uuid="1121845a-615e-4340-b80c-a1b54f71dd50">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[FECHA Y HORA DEL LEVANTAMIENTO DEL ACTA:]]></text>
+			</staticText>
+			<textField pattern="MMMM d, yyyy">
+				<reportElement x="210" y="20" width="90" height="13" uuid="6ec2a3df-0ccd-4a65-af36-5f79cf40b0c0"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{fecha_acta}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="300" y="20" width="50" height="13" uuid="b4f61846-40c8-4797-9ed5-01b8cf7c04e8"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{hora_acta}]]></textFieldExpression>
+			</textField>
+		</band>
+	</summary>
+</jasperReport>

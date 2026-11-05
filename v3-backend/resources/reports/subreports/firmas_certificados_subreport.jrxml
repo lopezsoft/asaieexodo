@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.8.0.final using JasperReports Library version 6.8.0-2ed8dfabb690ff337a5797129f2cd92902b0c87b  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="firmas_certificados_subreport" pageWidth="546" pageHeight="842" columnWidth="546" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="64e860b9-b024-4653-bea2-b64292bf6089">
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="0"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="1000"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.property.dataset.dialog.DatasetDialog.sash.w1" value="568"/>
+	<property name="com.jaspersoft.studio.property.dataset.dialog.DatasetDialog.sash.w2" value="418"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="ASAIE"/>
+	<property name="net.sf.jasperreports.print.create.bookmarks" value="false"/>
+	<parameter name="YEAR" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["D:\\wamp\\www\\SME2017\\reports\\"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="FIRMA_REC" class="java.lang.Boolean">
+		<parameterDescription><![CDATA[]]></parameterDescription>
+		<defaultValueExpression><![CDATA[0]]></defaultValueExpression>
+	</parameter>
+	<parameter name="FIRMA_SEC" class="java.lang.Boolean">
+		<parameterDescription><![CDATA[]]></parameterDescription>
+		<defaultValueExpression><![CDATA[0]]></defaultValueExpression>
+	</parameter>
+	<parameter name="R_PATH_DIR" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[SELECT tcn.firma1, tcn.firma2, firma_escaneada, usar_firma_escan, mime 
+FROM firmas AS tcn LIMIT 1]]>
+	</queryString>
+	<field name="firma1" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="firma1"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="firmas"/>
+	</field>
+	<field name="firma2" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="firma2"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="firmas"/>
+	</field>
+	<field name="firma_escaneada" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="firma_escaneada"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="firmas"/>
+	</field>
+	<field name="usar_firma_escan" class="java.lang.Boolean">
+		<property name="com.jaspersoft.studio.field.label" value="usar_firma_escan"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="firmas"/>
+	</field>
+	<field name="mime" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="mime"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="firmas"/>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="10" splitType="Immediate">
+			<image scaleImage="RealSize">
+				<reportElement positionType="Float" stretchType="ContainerHeight" x="188" y="0" width="180" height="10" isRemoveLineWhenBlank="true" isPrintInFirstWholeBand="true" uuid="746b2159-c832-4b2e-a35f-a989679afa84">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<printWhenExpression><![CDATA[$P{FIRMA_REC} && !$P{FIRMA_SEC} && $F{usar_firma_escan} ? true : false]]></printWhenExpression>
+				</reportElement>
+				<imageExpression><![CDATA[$P{R_PATH_DIR} + $F{firma_escaneada}]]></imageExpression>
+			</image>
+			<image scaleImage="RealSize">
+				<reportElement positionType="Float" stretchType="ContainerHeight" x="31" y="0" width="180" height="10" isRemoveLineWhenBlank="true" uuid="cf4f0b85-fc65-4eac-a76d-5605e87e7135">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<printWhenExpression><![CDATA[$P{FIRMA_REC} && $P{FIRMA_SEC} && $F{usar_firma_escan} ? true : false]]></printWhenExpression>
+				</reportElement>
+				<imageExpression><![CDATA[$P{R_PATH_DIR} + $F{firma_escaneada}]]></imageExpression>
+			</image>
+			<textField isStretchWithOverflow="true">
+				<reportElement positionType="Float" stretchType="ContainerHeight" x="31" y="0" width="180" height="10" isRemoveLineWhenBlank="true" uuid="342cd2c9-5cc6-4a07-ae96-4ef3acd59748">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<printWhenExpression><![CDATA[$P{FIRMA_REC} && $P{FIRMA_SEC}  ? true : false]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Bottom">
+					<font fontName="Arial" size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{firma1}.trim()]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement positionType="Float" stretchType="ContainerHeight" x="346" y="0" width="180" height="10" isRemoveLineWhenBlank="true" uuid="e7381ce2-3620-4433-94cf-521dbfe9ea68">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<printWhenExpression><![CDATA[$P{FIRMA_REC} && $P{FIRMA_SEC} ? true : false]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{firma2}.trim()]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement positionType="Float" stretchType="ContainerHeight" x="188" y="0" width="180" height="10" isRemoveLineWhenBlank="true" uuid="1222bc19-d074-465f-ad56-afea69b3347a">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<printWhenExpression><![CDATA[$P{FIRMA_REC} && !$P{FIRMA_SEC} ? true : false]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Bottom">
+					<font fontName="Arial" size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{firma1}.trim()]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement positionType="Float" stretchType="ContainerHeight" x="188" y="0" width="180" height="10" isRemoveLineWhenBlank="true" uuid="cb9b819a-0713-4362-afbf-d667510dfb89">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<printWhenExpression><![CDATA[!$P{FIRMA_REC} && $P{FIRMA_SEC} ? true : false]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{firma2}.trim()]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

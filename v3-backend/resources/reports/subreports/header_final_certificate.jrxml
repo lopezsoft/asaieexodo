@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.18.1.final using JasperReports Library version 6.18.1-9d75d1969e774d4f179fb3be8401e98a0e6d1611  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="header_final_certificate" pageWidth="568" pageHeight="792" columnWidth="568" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="5cdba6aa-d21f-4273-81be-aa654a7b64a4">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Asaie"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="0"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="1000"/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<property name="com.jaspersoft.studio.property.dataset.dialog.DatasetDialog.sash.w1" value="614"/>
+	<property name="com.jaspersoft.studio.property.dataset.dialog.DatasetDialog.sash.w2" value="376"/>
+	<parameter name="AWS_PATH" class="java.lang.String"/>
+	<parameter name="R_YEAR" class="java.lang.String"/>
+	<parameter name="R_TYPE_HEADER" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[CALL `sp_header_final_certificate`($P{R_YEAR} , $P{R_TYPE_HEADER} )]]>
+	</queryString>
+	<field name="id" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="id"/>
+		<property name="com.jaspersoft.studio.field.label" value="id"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="config_const_cert_end"/>
+	</field>
+	<field name="header1" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="header1"/>
+		<property name="com.jaspersoft.studio.field.label" value="header1"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="config_const_cert_end"/>
+	</field>
+	<field name="header2" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="header2"/>
+		<property name="com.jaspersoft.studio.field.label" value="header2"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="config_const_cert_end"/>
+	</field>
+	<field name="body" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="body"/>
+		<property name="com.jaspersoft.studio.field.label" value="body"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="config_const_cert_end"/>
+	</field>
+	<field name="expedition" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="expedition"/>
+		<property name="com.jaspersoft.studio.field.label" value="expedition"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="config_const_cert_end"/>
+	</field>
+	<field name="message" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="message"/>
+		<property name="com.jaspersoft.studio.field.label" value="message"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="config_const_cert_end"/>
+	</field>
+	<field name="resolution" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="resolution"/>
+		<property name="com.jaspersoft.studio.field.label" value="resolution"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="config_const_cert_end"/>
+	</field>
+	<field name="rector_firm" class="java.lang.Boolean">
+		<property name="com.jaspersoft.studio.field.name" value="rector_firm"/>
+		<property name="com.jaspersoft.studio.field.label" value="rector_firm"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="config_const_cert_end"/>
+	</field>
+	<field name="signature_secretary" class="java.lang.Boolean">
+		<property name="com.jaspersoft.studio.field.name" value="signature_secretary"/>
+		<property name="com.jaspersoft.studio.field.label" value="signature_secretary"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="config_const_cert_end"/>
+	</field>
+	<field name="show_number" class="java.lang.Boolean">
+		<property name="com.jaspersoft.studio.field.name" value="show_number"/>
+		<property name="com.jaspersoft.studio.field.label" value="show_number"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="config_const_cert_end"/>
+	</field>
+	<field name="show_number_message" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="show_number_message"/>
+		<property name="com.jaspersoft.studio.field.label" value="show_number_message"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="config_const_cert_end"/>
+	</field>
+	<field name="year_from" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="year_from"/>
+		<property name="com.jaspersoft.studio.field.label" value="year_from"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="config_const_cert_end"/>
+	</field>
+	<field name="year_until" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="year_until"/>
+		<property name="com.jaspersoft.studio.field.label" value="year_until"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="config_const_cert_end"/>
+	</field>
+	<field name="type" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="type"/>
+		<property name="com.jaspersoft.studio.field.label" value="type"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="config_const_cert_end"/>
+	</field>
+	<field name="cons" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="cons"/>
+		<property name="com.jaspersoft.studio.field.label" value="cons"/>
+	</field>
+	<field name="year" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="year"/>
+		<property name="com.jaspersoft.studio.field.label" value="year"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="certificate_numbers"/>
+	</field>
+	<field name="logo" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="logo"/>
+		<property name="com.jaspersoft.studio.field.label" value="logo"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="encabezado_reportes"/>
+	</field>
+	<field name="escudo" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="escudo"/>
+		<property name="com.jaspersoft.studio.field.label" value="escudo"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="encabezado_reportes"/>
+	</field>
+	<field name="pie" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="pie"/>
+		<property name="com.jaspersoft.studio.field.label" value="pie"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="encabezado_reportes"/>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<detail>
+		<band height="118" splitType="Stretch">
+			<image onErrorType="Icon">
+				<reportElement x="496" y="0" width="72" height="72" isRemoveLineWhenBlank="true" uuid="4a14be13-4dfe-46fb-bf75-a51379e9be22"/>
+				<imageExpression><![CDATA[$P{AWS_PATH}.trim() + $F{escudo}]]></imageExpression>
+			</image>
+			<image onErrorType="Icon">
+				<reportElement x="0" y="0" width="72" height="72" uuid="0852d335-e433-4fc1-82ca-86ff58e7c760">
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<imageExpression><![CDATA[$P{AWS_PATH} + $F{logo}]]></imageExpression>
+			</image>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement positionType="Float" x="12" y="88" width="548" height="13" isRemoveLineWhenBlank="true" uuid="904e6e4d-a632-471e-adb3-663b7f9d9b0f">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" markup="html">
+					<font fontName="Arial" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{body}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement positionType="Float" x="72" y="1" width="426" height="72" isRemoveLineWhenBlank="true" uuid="fba8f93a-76a4-4b6d-a83c-8de9f5c70808">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle" markup="html">
+					<font fontName="Arial" size="12" isBold="false" pdfEncoding=""/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{header1}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight">
+				<reportElement positionType="Float" x="12" y="73" width="548" height="11" isRemoveLineWhenBlank="true" uuid="db5e9c27-75b7-4fe7-beda-4e9a0e4805d1"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle" markup="html">
+					<font fontName="Arial" size="8" isBold="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{header2}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement positionType="Float" x="12" y="105" width="548" height="13" isRemoveLineWhenBlank="true" uuid="968da662-592c-4306-ab22-23116ae26dc4"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle" markup="html">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{message}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement positionType="Float" x="340" y="106" width="219" height="11" isRemoveLineWhenBlank="true" uuid="62998fb3-c2e5-4212-856d-53332a53946b">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<printWhenExpression><![CDATA[new Boolean($F{show_number})]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial" size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{show_number_message} + " "+ $F{cons}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

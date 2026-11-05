@@ -5,6 +5,7 @@
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 CREATE EXTENSION IF NOT EXISTS "unaccent";
 CREATE EXTENSION IF NOT EXISTS "pg_trgm";
+CREATE EXTENSION IF NOT EXISTS "vector";
 
 -- Rol de ejecucion de aplicacion sin privilegios SUPERUSER ni BYPASSRLS
 -- Garantiza que PostgreSQL aplique Row-Level Security (RLS) sin excepcion

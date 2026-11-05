@@ -7,6 +7,7 @@ import {
 } from '@nestjs/platform-fastify';
 import { AppModule } from './app.module';
 import { GlobalExceptionFilter } from './shared/infrastructure/http/filters/global-exception.filter';
+import { setupOpenApiSwagger } from './shared/infrastructure/http/swagger/openapi-swagger.config';
 import { SmartLoggerService } from './shared/infrastructure/logging/smart-logger.service';
 
 async function bootstrap(): Promise<void> {
@@ -45,15 +46,18 @@ async function bootstrap(): Promise<void> {
   );
   app.useGlobalFilters(new GlobalExceptionFilter(smartLogger));
 
+  setupOpenApiSwagger(app);
+
   const port = Number(configService.get<string>('PORT', '3100'));
   const host = configService.get<string>('HOST', '0.0.0.0');
 
   await app.listen(port, host);
   smartLogger.log(
-    `Servidor ASAIE EXODO V3 (NestJS + Fastify) escuchando en http://${host}:${port}/api/v1`,
+    `Servidor ASAIE EXODO V3 (NestJS + Fastify + PostgreSQL 17 pgvector + Swagger) escuchando en http://${host}:${port}/api/v1`,
     {
       environment: configService.get<string>('NODE_ENV', 'development'),
       database: configService.get<string>('DB_NAME', 'asaie_v3_unified'),
+      swaggerDocsUrl: `http://${host}:${port}/api/docs`,
     },
   );
 }

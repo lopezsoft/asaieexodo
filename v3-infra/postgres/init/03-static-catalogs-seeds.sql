@@ -2764,10 +2764,30 @@ INSERT INTO system_modules (id, tag, module_name, is_active) VALUES
     (4, 'STUDENT_OBSERVER', 'Observador del Estudiante y Convivencia', TRUE),
     (5, 'VIRTUAL_CLASSROOM', 'Aula Virtual y Evaluaciones en Linea', TRUE),
     (6, 'SCHOOL_ELECTIONS', 'Gobierno Escolar y Votaciones', TRUE),
-    (7, 'CERTIFICATES_REPORTS', 'Boletines, Actas y Constancias Jasper', TRUE)
+    (7, 'CERTIFICATES_REPORTS', 'Boletines, Actas y Constancias Jasper', TRUE),
+    (8, 'SCHOOL_CRM_OMNICHANNEL', 'CRM Escolar, Comunicacion Omnicanal y Asistente IA Vectorial', TRUE)
   ON CONFLICT (tag) DO NOTHING;
 
--- 54. Seed de las 9 Instituciones Educativas Activas y Contexto Inicial
+-- 54. crm_channels (Canales de Comunicacion Omnicanal CRM Escolar)
+INSERT INTO crm_channels (id, code, name, provider_name, supports_bidirectional, is_active) VALUES
+    (1, 'IN_APP', 'Mensajeria Interna Plataforma ASAIE', 'ASAIE_REALTIME', TRUE, TRUE),
+    (2, 'WHATSAPP', 'WhatsApp Institucional Cloud API', 'META_CLOUD_API', TRUE, TRUE),
+    (3, 'EMAIL', 'Correo Electronico Institucional', 'SMTP_SES', TRUE, TRUE),
+    (4, 'SMS', 'Mensaje de Texto Corto (SMS)', 'AWS_SNS', FALSE, TRUE),
+    (5, 'PUSH_NOTIFICATION', 'Notificacion Push Web y Movil', 'FCM_WEB_PUSH', FALSE, TRUE)
+  ON CONFLICT (id) DO NOTHING;
+
+-- 55. crm_ticket_categories (Categorias PQRSD y Solicitudes CRM Escolar)
+INSERT INTO crm_ticket_categories (id, code, name, sla_hours, is_active) VALUES
+    (1, 'ACADEMIC_INQUIRY', 'Consulta Academica y Evaluacion Periodica', 24, TRUE),
+    (2, 'ENROLLMENT_CERTIFICATE', 'Solicitud de Certificados, Constancias y SIMAT', 48, TRUE),
+    (3, 'CONVIVENCIA_REPORT', 'Atencion a Padres y Convivencia Escolar', 24, TRUE),
+    (4, 'FINANCIAL_BILLING', 'Pagos, Paz y Salvos y Derechos Academicos', 48, TRUE),
+    (5, 'TECHNICAL_SUPPORT', 'Soporte Tecnico de Acceso al Portal Educativo', 12, TRUE),
+    (6, 'GENERAL_PQRSD', 'Peticiones, Quejas, Reclamos, Sugerencias y Denuncias', 72, TRUE)
+  ON CONFLICT (id) DO NOTHING;
+
+-- 56. Seed de las 9 Instituciones Educativas Activas y Contexto Inicial
 INSERT INTO schools (country_id, dane_code, name, short_name, storage_folder, subscription_lock_date, is_active, legacy_db_name)
 VALUES
   (45, '323580006675', 'INSTITUCIÓN EDUCATIVA BEATO JUAN XXIII', 'BEATO JUAN XXIII', 'pto_beato', '2027-12-31', TRUE, 'pto_beato'),

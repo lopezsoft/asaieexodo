@@ -1,6 +1,7 @@
 import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { CrmModule } from './modules/crm/crm.module';
 import { GradingModule } from './modules/grading/grading.module';
 import { IamModule } from './modules/iam/iam.module';
 import { MigrationModule } from './modules/migration/migration.module';
@@ -28,6 +29,7 @@ import { SharedModule } from './shared/shared.module';
     TenantModule,
     IamModule,
     GradingModule,
+    CrmModule,
     ReportingModule,
     MigrationModule,
   ],

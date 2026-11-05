@@ -1,6 +1,6 @@
 {
   "name": "asaie-exodo-v3-backend",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "description": "Backend SaaS Multi-Tenant de Base de Datos Unica (PostgreSQL 17 + NestJS 11 + Fastify 5 + Arquitectura Hexagonal) para ASAIE EXODO",
   "author": "LOPEZSOFT",
   "private": true,

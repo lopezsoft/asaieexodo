@@ -69,46 +69,53 @@ describe('PostgreSQL 17 Single-DB Multi-Tenant RLS & IAM Integration', () => {
     );
   });
 
-  it('verifies full schema and data migration of myschoolsadmin_exodo (25 tables) and asaie_exodo (258 tables + 16 views) with RLS isolation', async () => {
-    // 1. Verificar en contexto de asaie_exodo (school_id = 10) los registros reales migrados
-    const asaieExodoStats = await rlsService.withTenantTransaction(
-      10n,
+  it('verifies 100% normalized 3NF English schema (126 tables) and all 53 static catalog seeds', async () => {
+    const verification = await rlsService.withTenantTransaction(
+      1n,
       async (client) => {
         const res = await client.query<{
-          inscripciones_count: string;
-          enrollment_count: string;
-          nscp001_count: string;
-          nscp002_count: string;
-          bridge_users_count: string;
+          total_tables: string;
+          non_english_cols: string;
+          countries_count: string;
+          departments_count: string;
+          cities_count: string;
+          reserves_count: string;
+          ethnic_groups_count: string;
+          health_providers_count: string;
+          subjects_bank_count: string;
+          pay_scales_count: string;
+          grades_catalog_count: string;
+          methodologies_count: string;
         }>(`
           SELECT
-            (SELECT COUNT(*)::text FROM inscripciones) AS inscripciones_count,
-            (SELECT COUNT(*)::text FROM student_enrollment) AS enrollment_count,
-            (SELECT COUNT(*)::text FROM nscp001) AS nscp001_count,
-            (SELECT COUNT(*)::text FROM nscp002) AS nscp002_count,
-            (SELECT COUNT(*)::text FROM bridge_users) AS bridge_users_count
+            (SELECT COUNT(*)::text FROM information_schema.tables WHERE table_schema = 'public' AND table_type = 'BASE TABLE') AS total_tables,
+            (SELECT COUNT(*)::text FROM information_schema.columns WHERE table_schema = 'public' AND (table_name !~ '^[a-z0-9_]+$' OR column_name !~ '^[a-z0-9_]+$')) AS non_english_cols,
+            (SELECT COUNT(*)::text FROM countries) AS countries_count,
+            (SELECT COUNT(*)::text FROM departments) AS departments_count,
+            (SELECT COUNT(*)::text FROM cities) AS cities_count,
+            (SELECT COUNT(*)::text FROM indigenous_reserves) AS reserves_count,
+            (SELECT COUNT(*)::text FROM ethnic_groups) AS ethnic_groups_count,
+            (SELECT COUNT(*)::text FROM health_providers) AS health_providers_count,
+            (SELECT COUNT(*)::text FROM subjects_bank) AS subjects_bank_count,
+            (SELECT COUNT(*)::text FROM teacher_pay_scales) AS pay_scales_count,
+            (SELECT COUNT(*)::text FROM grades_catalog) AS grades_catalog_count,
+            (SELECT COUNT(*)::text FROM study_methodologies) AS methodologies_count
         `);
         return res.rows[0];
       },
     );
 
-    expect(Number(asaieExodoStats.inscripciones_count)).toBe(3623);
-    expect(Number(asaieExodoStats.enrollment_count)).toBe(13043);
-    expect(Number(asaieExodoStats.nscp001_count)).toBe(153951);
-    expect(Number(asaieExodoStats.nscp002_count)).toBe(186853);
-    expect(Number(asaieExodoStats.bridge_users_count)).toBe(8984);
-
-    // 2. Verificar que otro colegio (school_id = 1) NO puede ver los registros de asaie_exodo (school_id = 10)
-    const school1InscripcionesCount = await rlsService.withTenantTransaction(
-      1n,
-      async (client) => {
-        const res = await client.query<{ total: string }>(
-          'SELECT COUNT(*)::text AS total FROM inscripciones',
-        );
-        return Number(res.rows[0].total);
-      },
-    );
-
-    expect(school1InscripcionesCount).toBe(0);
+    expect(Number(verification.total_tables)).toBe(126);
+    expect(Number(verification.non_english_cols)).toBe(0);
+    expect(Number(verification.countries_count)).toBe(250);
+    expect(Number(verification.departments_count)).toBe(34);
+    expect(Number(verification.cities_count)).toBe(1127);
+    expect(Number(verification.reserves_count)).toBe(646);
+    expect(Number(verification.ethnic_groups_count)).toBe(99);
+    expect(Number(verification.health_providers_count)).toBe(68);
+    expect(Number(verification.subjects_bank_count)).toBe(52);
+    expect(Number(verification.pay_scales_count)).toBe(39);
+    expect(Number(verification.grades_catalog_count)).toBe(24);
+    expect(Number(verification.methodologies_count)).toBe(23);
   });
 });

@@ -3,6 +3,20 @@
 Todos los cambios notables de **v3-backend** (NestJS 11 + Fastify 5 + PostgreSQL 17 Unificado con RLS) se documentan en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [3.2.0] - 2026-11-05
+
+### Añadido
+- **Extensión Vectorial `pgvector 0.8.1` en PostgreSQL 17 (`01-extensions.sql` y `02-core-schema-rls.sql`):**
+  - Activación de `CREATE EXTENSION IF NOT EXISTS "vector"` con soporte de vectores de **768 dimensiones (`vector(768)`)** e índice aproximado de vecino más cercano **HNSW (`USING hnsw (embedding vector_cosine_ops)`)**.
+- **Dominio 11 — CRM Escolar Omnicanal y Búsqueda Semántica (`02-core-schema-rls.sql` y `03-static-catalogs-seeds.sql`):**
+  - Nuevas tablas 100% normalizadas en 3NF y en inglés para conectar a toda la comunidad educativa (Directivos, Administrativos, Docentes, Estudiantes y Padres/Acudientes): `crm_channels` (catálogo estático #54), `crm_ticket_categories` (catálogo estático #55), `crm_conversations`, `crm_conversation_participants`, `crm_messages`, `crm_announcements`, `crm_announcement_receipts`, `crm_support_tickets` y `crm_knowledge_embeddings`.
+  - Políticas **Row-Level Security (`RLS`)** aplicadas a las 7 tablas operativas del CRM Escolar para garantizar aislamiento estricto por `school_id`.
+- **Módulo Hexagonal `CrmModule` (`src/modules/crm/`):**
+  - Implementación de `ManageSchoolCrmUseCase`, `PostgresSchoolCrmRepository` y `CrmController` para gestionar hilos de conversación omnicanal (`POST /api/v1/crm/conversations`, `GET /api/v1/crm/conversations/:schoolId`), indexación documental (`POST /api/v1/crm/knowledge/embeddings`) y búsqueda semántica por distancia coseno `<=>` (`POST /api/v1/crm/knowledge/semantic-search`) sobre PEI, SIEE, Manual de Convivencia y mensajes del CRM.
+- **Documentación Interactiva OpenAPI 3.0 / Swagger (`src/shared/infrastructure/http/swagger/openapi-swagger.config.ts`):**
+  - Exposición de interfaz interactiva Swagger UI en `GET /api/docs`, especificación JSON en `GET /api/docs-json` y YAML en `GET /api/docs-yaml` sobre Fastify 5.
+  - Decoración completa (`@ApiTags`, `@ApiOperation`, `@ApiBearerAuth`, `@ApiHeader`, `@ApiResponse`, `@ApiProperty`) en todos los controladores (`TenantController`, `IamController`, `GradingController`, `CrmController`, `ReportingController`).
+
 ## [3.1.0] - 2026-11-05
 
 ### Añadido

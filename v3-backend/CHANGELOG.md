@@ -3,6 +3,20 @@
 Todos los cambios notables de **v3-backend** (NestJS 11 + Fastify 5 + PostgreSQL 17 Unificado con RLS) se documentan en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [3.4.0] - 2026-11-05
+
+### Añadido
+- **Motor de Almacenamiento en la Nube con AWS S3 SDK v3 (`src/shared/infrastructure/storage/aws-s3-storage.adapter.ts`):**
+  - Instalación e integración de `@aws-sdk/client-s3`, `@aws-sdk/s3-request-presigner` y `@fastify/multipart` bajo arquitectura hexagonal mediante el puerto [`CloudStoragePort`](src/shared/application/ports/cloud-storage.port.ts) y el adaptador [`AwsS3StorageAdapter`](src/shared/infrastructure/storage/aws-s3-storage.adapter.ts).
+  - Resolución automática de la carpeta física del colegio (`schools.storage_folder`, ej. `pto_beato/student-documents/2026/<uuid>-archivo.pdf`) y generación de URLs prefirmadas temporales (`GET` y `PUT`) firmadas con SigV4.
+- **Módulo Hexagonal `StorageModule` y Gestión Multi-Tenant de `cloud_files` (`src/modules/storage/`):**
+  - Implementación de [`ManageCloudFilesUseCase`](src/modules/storage/application/use-cases/manage-cloud-files.use-case.ts), [`PostgresCloudFileRepository`](src/modules/storage/infrastructure/persistence/postgres-cloud-file.repository.ts) y [`StorageController`](src/modules/storage/infrastructure/http/storage.controller.ts) documentados en Swagger:
+    - `POST /api/v1/storage/files/upload` (carga a AWS S3 + registro en `cloud_files` bajo RLS).
+    - `POST /api/v1/storage/files/presigned-upload` (genera URL prefirmada `PUT` para carga directa al bucket).
+    - `GET /api/v1/storage/files/:schoolId` (lista archivos del colegio aplicando RLS).
+    - `GET /api/v1/storage/files/:schoolId/:fileId/presigned-url` (genera URL prefirmada `GET` de descarga).
+    - `DELETE /api/v1/storage/files/:schoolId/:fileId` (elimina el objeto de S3 y de `cloud_files` bajo RLS).
+
 ## [3.3.0] - 2026-11-05
 
 ### Añadido

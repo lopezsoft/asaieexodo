@@ -6,6 +6,7 @@ import { GradingModule } from './modules/grading/grading.module';
 import { IamModule } from './modules/iam/iam.module';
 import { MigrationModule } from './modules/migration/migration.module';
 import { ReportingModule } from './modules/reporting/reporting.module';
+import { StorageModule } from './modules/storage/storage.module';
 import { TenantModule } from './modules/tenant/tenant.module';
 import { SharedModule } from './shared/shared.module';
 
@@ -30,6 +31,7 @@ import { SharedModule } from './shared/shared.module';
     IamModule,
     GradingModule,
     CrmModule,
+    StorageModule,
     ReportingModule,
     MigrationModule,
   ],

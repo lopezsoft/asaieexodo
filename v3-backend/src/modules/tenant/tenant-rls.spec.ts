@@ -9,6 +9,7 @@ import { setupOpenApiSwagger } from '../../shared/infrastructure/http/swagger/op
 import { ManageSchoolCrmUseCase } from '../crm/application/use-cases/manage-school-crm.use-case';
 import { AuthenticateCommunityUserUseCase } from '../iam/application/use-cases/authenticate-community-user.use-case';
 import { CommunityRole } from '../iam/domain/enums/community-role.enum';
+import { ManageCloudFilesUseCase } from '../storage/application/use-cases/manage-cloud-files.use-case';
 import { ManageSchoolsUseCase } from './application/use-cases/manage-schools.use-case';
 
 describe('PostgreSQL 17 Single-DB Multi-Tenant RLS, pgvector School CRM & Swagger OpenAPI Integration', () => {
@@ -18,6 +19,7 @@ describe('PostgreSQL 17 Single-DB Multi-Tenant RLS, pgvector School CRM & Swagge
   let manageSchoolsUseCase: ManageSchoolsUseCase;
   let authUseCase: AuthenticateCommunityUserUseCase;
   let crmUseCase: ManageSchoolCrmUseCase;
+  let cloudFilesUseCase: ManageCloudFilesUseCase;
 
   beforeAll(async () => {
     moduleRef = await Test.createTestingModule({
@@ -36,6 +38,7 @@ describe('PostgreSQL 17 Single-DB Multi-Tenant RLS, pgvector School CRM & Swagge
     manageSchoolsUseCase = moduleRef.get(ManageSchoolsUseCase);
     authUseCase = moduleRef.get(AuthenticateCommunityUserUseCase);
     crmUseCase = moduleRef.get(ManageSchoolCrmUseCase);
+    cloudFilesUseCase = moduleRef.get(ManageCloudFilesUseCase);
   });
 
   afterAll(async () => {
@@ -236,5 +239,40 @@ describe('PostgreSQL 17 Single-DB Multi-Tenant RLS, pgvector School CRM & Swagge
     expect(restored.updated).toBe(true);
     expect(restored.mailDelivery?.delivered).toBe(true);
     expect(restored.mailDelivery?.templateType).toBe('PASSWORD_CHANGED_ALERT');
+  });
+
+  it('uploads files to AWS S3 under the school storage_folder, generates presigned URLs and enforces RLS on cloud_files', async () => {
+    const uploadedSchool1 = await cloudFilesUseCase.uploadSchoolFile({
+      schoolId: 1n,
+      uploadedByUserId: 1n,
+      category: 'STUDENT_DOCUMENTS',
+      originalFileName: 'Registro Civil Estudiante.pdf',
+      description: 'Documento SIMAT Beato Juan XXIII',
+      mimeType: 'application/pdf',
+      contentBuffer: Buffer.from('%PDF-1.4 sample content school 1'),
+    });
+
+    // El Colegio 1 tiene storage_folder = 'pto_beato'
+    expect(uploadedSchool1.schoolId).toBe('1');
+    expect(uploadedSchool1.storagePath).toMatch(
+      /^pto_beato\/student-documents\/\d{4}\//,
+    );
+    expect(uploadedSchool1.extension).toBe('pdf');
+
+    // Generar URL prefirmada (GET) con @aws-sdk/s3-request-presigner
+    const presigned = await cloudFilesUseCase.getPresignedDownloadUrl(
+      1n,
+      BigInt(uploadedSchool1.id),
+    );
+    expect(presigned.presignedDownload.url).toContain('X-Amz-Signature=');
+    expect(presigned.presignedDownload.storageKey).toBe(
+      uploadedSchool1.storagePath,
+    );
+
+    // Verificar aislamiento RLS: el Colegio 7 NO puede ver archivos de cloud_files del Colegio 1
+    const school7Files = await cloudFilesUseCase.listSchoolFiles(7n);
+    expect(
+      school7Files.some((f) => f.id === uploadedSchool1.id),
+    ).toBe(false);
   });
 });

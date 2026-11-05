@@ -69,6 +69,10 @@ export function buildOpenApiDocument(app: INestApplication): OpenAPIObject {
       'CRM Escolar Omnicanal (Conversaciones, Circulares, PQRSD) y Búsqueda Semántica Vectorial con pgvector (PEI, SIEE, Convivencia)',
     )
     .addTag(
+      'Cloud Storage & AWS S3 Files',
+      'Almacenamiento en AWS S3 por carpeta institucional (schools.storage_folder), URLs prefirmadas y gestión de cloud_files bajo RLS',
+    )
+    .addTag(
       'JasperReports Engine',
       'Generación asíncrona de reportes oficiales (.jrxml / .jasper) mediante BullMQ y Redis 7.4',
     )

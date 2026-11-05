@@ -12,6 +12,7 @@
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "migration:bootstrap": "node dist/bootstrap-nine-schools.cli.js",
+    "migration:full-etl": "ts-node -e \"import { FullDatabaseMigrationCli } from './src/modules/migration/infrastructure/cli/full-database-migration.cli'; new FullDatabaseMigrationCli().executeFullMigration();\"",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage"

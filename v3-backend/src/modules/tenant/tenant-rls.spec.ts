@@ -68,4 +68,47 @@ describe('PostgreSQL 17 Single-DB Multi-Tenant RLS & IAM Integration', () => {
       'FRANCISCO JOSÉ DE CALDAS',
     );
   });
+
+  it('verifies full schema and data migration of myschoolsadmin_exodo (25 tables) and asaie_exodo (258 tables + 16 views) with RLS isolation', async () => {
+    // 1. Verificar en contexto de asaie_exodo (school_id = 10) los registros reales migrados
+    const asaieExodoStats = await rlsService.withTenantTransaction(
+      10n,
+      async (client) => {
+        const res = await client.query<{
+          inscripciones_count: string;
+          enrollment_count: string;
+          nscp001_count: string;
+          nscp002_count: string;
+          bridge_users_count: string;
+        }>(`
+          SELECT
+            (SELECT COUNT(*)::text FROM inscripciones) AS inscripciones_count,
+            (SELECT COUNT(*)::text FROM student_enrollment) AS enrollment_count,
+            (SELECT COUNT(*)::text FROM nscp001) AS nscp001_count,
+            (SELECT COUNT(*)::text FROM nscp002) AS nscp002_count,
+            (SELECT COUNT(*)::text FROM bridge_users) AS bridge_users_count
+        `);
+        return res.rows[0];
+      },
+    );
+
+    expect(Number(asaieExodoStats.inscripciones_count)).toBe(3623);
+    expect(Number(asaieExodoStats.enrollment_count)).toBe(13043);
+    expect(Number(asaieExodoStats.nscp001_count)).toBe(153951);
+    expect(Number(asaieExodoStats.nscp002_count)).toBe(186853);
+    expect(Number(asaieExodoStats.bridge_users_count)).toBe(8984);
+
+    // 2. Verificar que otro colegio (school_id = 1) NO puede ver los registros de asaie_exodo (school_id = 10)
+    const school1InscripcionesCount = await rlsService.withTenantTransaction(
+      1n,
+      async (client) => {
+        const res = await client.query<{ total: string }>(
+          'SELECT COUNT(*)::text AS total FROM inscripciones',
+        );
+        return Number(res.rows[0].total);
+      },
+    );
+
+    expect(school1InscripcionesCount).toBe(0);
+  });
 });

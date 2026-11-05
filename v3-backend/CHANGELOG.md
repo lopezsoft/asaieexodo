@@ -3,6 +3,14 @@
 Todos los cambios notables de **v3-backend** (NestJS 11 + Fastify 5 + PostgreSQL 17 Unificado con RLS) se documentan en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [3.5.0] - 2026-11-05
+
+### Añadido
+- **Diccionario de Datos Oficial Nativo en PostgreSQL 17 (`04-data-dictionary-comments.sql`) y Documentación Markdown (`docs/2026-11-05_17-30_database-data-dictionary.md`):**
+  - Registro del `100%` de metadatos descriptivos directamente en el catálogo del motor PostgreSQL 17 (`pg_description` mediante `COMMENT ON TABLE` y `COMMENT ON COLUMN`) para las **135 relaciones (127 tablas base + 8 particiones)** y las **1,127 columnas** del esquema 3NF.
+  - Generación del documento maestro [`docs/2026-11-05_17-30_database-data-dictionary.md`](../docs/2026-11-05_17-30_database-data-dictionary.md) estructurado por los 11 dominios funcionales, detallando el propósito de cada tabla, su política RLS y cada columna (nombre en inglés, tipo de dato, nulabilidad y descripción funcional en español).
+  - Integración automática de `04-data-dictionary-comments.sql` en [`StaticCatalogsSeedCli`](src/modules/migration/infrastructure/cli/static-catalogs-seed.cli.ts) (`npm run db:seed`) y verificación automatizada en Jest (`tables_without_comment = 0` y `columns_without_comment = 0`).
+
 ## [3.4.0] - 2026-11-05
 
 ### Añadido

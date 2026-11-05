@@ -3,6 +3,14 @@
 Todos los cambios notables de **v3-backend** (NestJS 11 + Fastify 5 + PostgreSQL 17 Unificado con RLS) se documentan en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [3.6.0] - 2026-11-05
+
+### Añadido
+- **Migración y Unificación Geográfica Completa desde `iglesia238/backend` (`03-static-catalogs-seeds.sql`):**
+  - **`countries` (264 países):** Normalización de códigos `iso_code` (ISO 3166-1 alfa-2), `iso_alpha3` (ISO 3166-1 alfa-3), nombres en español CLDR e indicativos telefónicos `phone_prefix` preservando los IDs originales (`1..250`, con Colombia en `id = 45`) e incorporando los **14 países faltantes** (`AU`, `CA`, `BQ`, `KM`, `GE`, `GP`, `CX`, `KZ`, `XK`, `MA`, `NO`, `PR`, `RU`, `BL`, `TL`).
+  - **`departments` (363 departamentos/estados/provincias):** Conservación de los 34 registros base de Colombia (`id = 1..34`) e incorporación de las **329 subdivisiones administrativas** de los 17 países adicionales (`AR`, `BO`, `CL`, `CR`, `CU`, `DO`, `EC`, `GT`, `HN`, `MX`, `NI`, `PA`, `PE`, `PY`, `SV`, `UY`, `VE`) provenientes de `iglesia238/backend/prisma/seed-data/divisions/*.json`.
+  - **`cities` (9,252 municipios/ciudades):** Conservación de los 1,127 municipios originales de Colombia (`id = 1..1127`) con actualización ortográfica de nombres oficiales DANE, adición de los **19 municipios DANE faltantes en Colombia** (incluyendo `Tuchín`, `San José de Uré`, `Coveñas`, `El Roble`, `Norosí`, `Guachené`, `Sucre`, `Carmen del Darién`, `Cértegui`, `Medio San Juan`, `Río Iró`, `Albania`, `Nueva Granada`, `Santa Bárbara de Pinto`, `Zapayán`, `Zona Bananera`, `Nariño`, `Mapiripana` y `Santa Rosalía`) e inserción de los **8,106 municipios** de los 17 países latinoamericanos y del Caribe restantes.
+
 ## [3.5.0] - 2026-11-05
 
 ### Añadido

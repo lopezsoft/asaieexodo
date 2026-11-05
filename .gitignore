@@ -54,3 +54,4 @@ backend/storage/tmp/*
 **/*.angular*
 **/*dist*
 **/*node_modules*
+backend/database/Scripts/*backup*.sql

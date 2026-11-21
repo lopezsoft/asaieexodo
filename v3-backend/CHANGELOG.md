@@ -3,6 +3,16 @@
 Todos los cambios notables de **v3-backend** (NestJS 11 + Fastify 5 + PostgreSQL 17 Unificado con RLS) se documentan en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [3.18.0] - 2026-11-21
+
+### Añadido
+- **Motor Cloud-Native de Reportes Institucionales (Fase 3 — Reemplazo total de 192 plantillas `.jrxml` / Java):**
+  - Servicio **Gotenberg 8** (`gotenberg/gotenberg:8`, Chromium headless aislado con `--chromium-disable-javascript=true` y `no-new-privileges`) incorporado en `v3-infra/docker-compose.yml` (`127.0.0.1:${GOTENBERG_PORT:-3010}:3000`).
+  - Catálogo unificado de **35 plantillas institucionales nativas** (+ 3 alias de compatibilidad `libro_final_calificaciones`, `sabanas_finales`, `acta_promocion`) en `report-catalog.constants.ts` cubriendo boletines (8 formatos + preinformes), consolidados, estadísticas, reprobados, cuadro de honor, libro final, ficha/libro de matrículas, listas, directorio, edades SIMAT/DANE, carnés, constancias, certificados, actas de grado, observador, directores de grupo, parcelador de clases y actas de nivelaciones/recuperaciones finales.
+  - Extractor 100% RLS-safe `InstitutionalReportDataService` sobre PostgreSQL 17 (`v_siee_subject_period_scores`, `v_siee_area_period_scores`, `v_siee_subject_annual_scores`, consecutivos `document_number_sequences`), constructor HTML5/CSS imprimible XSS-safe `HtmlReportTemplateBuilder`, generador nativo `ExcelReportBuilder` (`exceljs` `.xlsx` estilizado + CSV UTF-8 BOM) y adaptador `NativeDocumentReportAdapter` con fallback opcional `REPORT_ENGINE=jasper`.
+  - Nuevos endpoints HTTP en `ReportingController`: `GET /api/v1/reports/catalog` y `POST /api/v1/reports/generate-direct` (streaming binario inmediato vía `StreamableFile` con `Content-Disposition` expuesto por CORS en `main.ts`), manteniendo compatibilidad 100% con la cola asíncrona BullMQ + AWS S3 (`POST /api/v1/reports/enqueue`).
+  - Nueva suite en vivo `reporting-engine.spec.ts` validando seguridad anti-traversal/SQL_PARAM/XSS, generación real Gotenberg 8 PDF (`%PDF-`), libros ExcelJS (`.xlsx`) y aislamiento RLS sobre `school_id = 7` vs `school_id = 1` — **13/13 suites (53/53 tests) PASS en vivo**.
+
 ## [3.17.0] - 2026-11-21
 
 ### Añadido

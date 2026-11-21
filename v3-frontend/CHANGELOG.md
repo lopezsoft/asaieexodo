@@ -3,6 +3,17 @@
 Todos los cambios notables de **v3-frontend** (Angular 20+ para toda la Comunidad Educativa) se documentan en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [3.12.0] - 2026-11-21
+
+### Añadido
+- **Paridad UI Completa SIEE Decreto 1290, Promoción, Consolidados y Motor Nativo de Reportes:**
+  - **Evaluación y SIEE (`EvaluationSettingsComponent`, `V3SettingsService`):** edición y visualización de los 10 nuevos parámetros Decreto 1290 en Reglas de Promoción (umbral/nota redondeo de gracia, mínimo promedio de área, modo reprobación tras recuperación `0..3`, pierde área por asignatura, pierde año por área obligatoria, modalidad anual/ciclos, puestos por áreas, control de fechas de recuperación y estudiantes por libro) + banderas `isFailing`/`isGradable` en Escala de Desempeños.
+  - **Libro Final y Promoción (`FinalBookPromotionComponent`, `V3PromotionService`):** columnas de `recoveryAverage`, `passedAreasCount`/`failedAreasCount`, conmutador de Promoción por Comisión (`isCommissionPromoted`), botón **"Habilitaciones SIEE"** (`POST /promotion/final-recoveries/generate`), modal interactivo **"Sábana Final Anual"** (`GET /promotion/final-sabana`) y descarga inmediata de Libro PDF, Sábana Excel y Actas PDF.
+  - **Cierre de Año Lectivo (`YearClosingComponent`):** opción `cloneToNextYear` y tarjeta resumen de clonación de las 7 tablas maestras (+ columnas de dimensión) al año `Y+1`.
+  - **Centro de Reportes e Informes Docentes (`AcademicReportsCenterComponent`, `TeacherReportsComponent`, `V3AcademicService`):** descarga directa instantánea PDF/XLSX/CSV/DOCX (`POST /reports/generate-direct` con `Blob` + `Content-Disposition`) junto a la cola BullMQ + S3, además de visor interactivo **"Consolidado SIEE (Asignaturas / Áreas)"** y acción **"Materializar Áreas"**.
+  - **Matrículas (`EnrollmentsManagementComponent`):** botón **"Renumerar Folios"** (`POST /academic/enrollments/renumber-folios`) y visualización de `Libro` y `Folio` por estudiante.
+  - Validación completa: `check-native-title.js` (`0` atributos `title` nativos en 24 HTML y 118 TS), `0` usos de `console.*` y `ng build --configuration production` aprobado con `0` errores.
+
 ## [3.11.0] - 2026-11-21
 
 ### Cambiado

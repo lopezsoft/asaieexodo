@@ -148,6 +148,14 @@
       "staff": "Administrative Staff",
       "groupManagers": "Homeroom Teachers"
     },
+    "settings": {
+      "title": "Settings",
+      "hub": "Settings Hub",
+      "structure": "Academic Structure",
+      "evaluation": "Evaluation & SIEE",
+      "observer": "Student Observer",
+      "branding": "Signatures & Bulletins"
+    },
     "student": {
       "academicNote": "Academic Grades",
       "academicReport": "Academic Reports",

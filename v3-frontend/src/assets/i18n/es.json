@@ -149,6 +149,14 @@
       "staff"         : "Personal Administrativo",
       "groupManagers" : "Directores de Grupo"
     },
+    "settings": {
+      "title"      : "Configuraciones",
+      "hub"        : "Panel de Configuraciones",
+      "structure"  : "Estructura Académica",
+      "evaluation" : "Evaluación y SIEE",
+      "observer"   : "Observador",
+      "branding"   : "Firmas y Boletines"
+    },
     "student"   : {
       "academicNote"      : "Notas Académicas",
       "academicReport"    : "Informes Académicos",

@@ -34,6 +34,13 @@ export const routes: Routes = [
       import('./admin/admin.routes').then((m) => m.adminRoutes),
   },
   {
+    path: 'settings',
+    component: DashboardComponent,
+    canActivate: [authGuard],
+    loadChildren: () =>
+      import('./settings/settings.routes').then((m) => m.settingsRoutes),
+  },
+  {
     path: 'profile',
     component: DashboardComponent,
     canActivate: [authGuard],

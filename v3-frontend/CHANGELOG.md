@@ -3,6 +3,11 @@
 Todos los cambios notables de **v3-frontend** (Angular 20+ para toda la Comunidad Educativa) se documentan en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [3.8.1] - 2026-11-20
+
+### Cambiado
+- Actualización de `favicon.ico` institucional y sincronización de la constante `VERSION` en `environment.ts`, `environment.hmr.ts` y `environment.prod.ts`.
+
 ## [3.8.0] - 2026-11-20
 
 ### Añadido

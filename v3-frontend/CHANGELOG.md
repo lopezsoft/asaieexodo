@@ -3,6 +3,16 @@
 Todos los cambios notables de **v3-frontend** (Angular 20+ para toda la Comunidad Educativa) se documentan en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [3.11.0] - 2026-11-21
+
+### Cambiado
+- **Alineación Frontend con Esquema Unificado `academic_scores` y Plan de Estudios Decimal (`matcurso.ih`):**
+  - **Planilla Docente (`TeacherGradebookComponent` y `V3PortalService`):** eliminados los 4 campos obsoletos manuales (`Saber`, `Hacer`, `Ser`, `Evaluación`) y la columna `Observación` tanto en la tabla interactiva como en exportación/importación Excel (`.xlsx`), operando directamente sobre las columnas dinámicas `N1..N30`, `Definitiva`, `Recuperación` y asistencias (`F.J`, `F.I`, `Ret.`).
+  - **Desvinculación de Logros por Clave Natural:** actualizado `unassignAchievement` para enviar `(academicScoreId, achievementStandardId, academicYear)` contra `DELETE /api/v1/teacher/grades/assigned-achievements/:academicScoreId/:achievementStandardId` sin depender de IDs surrogados.
+  - **Boletín Estudiantil y Servicios (`AcademicNotesComponent`, `V3AcademicService`):** depuración de propiedades obsoletas (`teacherObservations`, `levelingScore`, `periodId`, `isLocked`) y soporte nullable para `periodNumber`/`recoveryDate` en recuperaciones finales.
+  - **Plan de Estudios y Carga Académica (`CurriculumManagementComponent`):** habilitación de intensidades horarias decimales (`min="0.5" step="0.5"`) en `IHS` para paridad exacta con `matcurso.ih`.
+  - Validación completa: `npm run build` (`ng build --configuration production`) aprobado con `0` errores, `0` atributos `title` nativos y `0` usos de `console.*`.
+
 ## [3.10.0] - 2026-11-21
 
 ### Añadido

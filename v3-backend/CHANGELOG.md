@@ -3,6 +3,25 @@
 Todos los cambios notables de **v3-backend** (NestJS 11 + Fastify 5 + PostgreSQL 17 Unificado con RLS) se documentan en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [3.16.0] - 2026-11-21
+
+### Añadido
+- **Esquema Unificado PostgreSQL 17 (`01..04`, `155` relaciones, `140` tablas runtime + `15` particiones RLS con `REVOKE ALL`, `0` columnas sin comentario):**
+  - Se incorporan **12 tablas operativas legacy P0/P1** faltantes en el núcleo: `campus_study_methodologies` (`cong_metod`), `grade_group_memberships` (`aux_grados_agrupados`), `teacher_academic_years` (`aux_docentes`), `subject_area_assignments` (`aux_asignaturas` por año), `academic_suggestions` (`sugerencias`), `academic_score_suggestions` (`sug_nscp00..003`, particionada con PK natural), `student_enrollment_access_controls` (`student_access`), `advance_promotions` + `advance_promotion_subject_details` (`promoted_header` / `promoted_observation` / `detail_promoted`), `observer_criteria_evaluations` (`obs_items_modelo_3`), `document_number_sequences` (`certificate_numbers`) y `document_templates` (`config_const_cert`, `config_acta_grado`, `carnets`).
+  - Se añaden semillas nativas en `03-static-catalogs-seeds.sql` para `document_types (id=20, PPT)` y `system_modules` (`ACADEMIC_ACTIVITIES`, `SIMULACRUM`), eliminando parches en tiempo de ejecución.
+  - Se completan reglas SIEE Decreto 1290 (`academic_grading_rules`, `grading_scales.is_failing`/`is_gradable`, `academic_periods.is_gradable`, `evaluation_dimension_columns.column_type`/`is_editable`, `teacher_gradebook_columns` colores y vínculos, `subjects.is_excluded_from_average`) y `curriculum_study_plans.weekly_hours` / `course_assignments.weekly_hours` pasan a `NUMERIC(4,1)` para preservar intensidades decimales reales de `matcurso.ih`.
+
+### Cambiado
+- **Rediseño Limpio y Alineado de `academic_scores` (reemplaza `academic_grades`, `-31.5%` más compacta que MariaDB origen):**
+  - Renombramiento unificado `academic_grades` → `academic_scores`, `academic_grade_achievements` → `academic_score_achievements` (particionada con PK natural compuesta `(school_id, academic_year, academic_score_id, achievement_standard_id)` sin `id` surrogado) y `academic_grade_audit_logs` → `academic_score_audit_logs`.
+  - Ordenamiento físico óptimo de columnas en PostgreSQL (`8B → 4B → 2B → 1B → short-varlena`, `0` bytes de padding interno), eliminando **12 columnas inventadas/no usadas** (`conceptual_score`, `procedural_score`, `attitudinal_score`, `evaluation_exam_score`, `period_id`, `leveling_score`, `effective_score`, `teacher_observations`, `has_pre_report_alert`, `is_locked`, `updated_by_user_id`, `created_at`) y recuperando **3 columnas reales** de `nscp00..003` (`lost_score`, `is_leveled`, `leveled_at`) junto a `recovery_score` nullable y `n1..n30 NUMERIC(5,2) DEFAULT NULL`.
+  - Ajuste de `student_enrollments` a `UNIQUE (school_id, student_profile_id, academic_year, grade_id)` para preservar matrículas duales de Promoción Anticipada intra-año, `users.document_number` nullable sin documentos sintéticos y `period_recovery_records` con `period_number` y `recovery_date` nullables (sin corromper `academic_scores`).
+  - Refactorización completa de repositorios hexagonales (`grading`, `academic`, `portal`, `promotion`, `settings`, `migration`), corrección de `school_shifts` en `MigrateLegacySchoolsUseCase` y eliminación de `DELETE /teacher/grades/assigned-achievements/:linkId` en favor de clave natural `DELETE /teacher/grades/assigned-achievements/:academicScoreId/:achievementStandardId`.
+  - **Validación en vivo tras recreación limpia (`01..04`) + ETL completo `2011–2026` (IE Franjocal Momil, `163.1 s`) + `VACUUM FULL ANALYZE`:**
+    - Tamaño total en disco: **`598.82 MB`** (`-84.4%` vs `3,848 MB` en v1 y **`-31.5%` menor que los `874.2 MB` de MariaDB origen**), con `academic_scores_2026` en **`20 MB`** y consultas por curso/periodo en **`0.100 ms`** (`Index Scan`).
+    - Reconciliación completa: `32,018` matrículas canónicas (`99.997%`), `1,449,674` calificaciones (`99.9992%` fidelidad de checksum), `12,391,099` celdas `n1..n30`, `851,894` vínculos de logros, `38,110` vínculos de sugerencias, `25,397` controles de acceso, `2,524` planes de estudio (`matcurso`), `462` asignaciones anuales `aux_asignaturas`, `1,632` registros `aux_docentes`, `675` evaluaciones de criterios Modelo 3, `27,919` promociones y `93,580` rankings.
+    - Suite completa **11/11 suites (38/38 tests) PASS en vivo** incluyendo verificación RLS `155` relaciones / `140` tablas runtime / `0` columnas sin comentario.
+
 ## [3.15.0] - 2026-11-21
 
 ### Añadido

@@ -1,4 +1,5 @@
 import { AggregateRoot } from '../../../../shared/domain/aggregate-root.base';
+import { computeEffectiveScore } from '../helpers/siee-decimal.helper';
 import { GradingScore } from '../strategies/grading-calculation.strategy';
 
 export interface AcademicGradeProps {
@@ -36,8 +37,10 @@ export class AcademicGrade extends AggregateRoot<bigint, AcademicGradeProps> {
   }
 
   get effectiveScore(): number {
-    const rec = this.props.recoveryScore?.value ?? 0;
-    return rec > 0 ? rec : this.props.finalScore.value;
+    return computeEffectiveScore(
+      this.props.finalScore.value,
+      this.props.recoveryScore?.value ?? null,
+    );
   }
 
   toPrimitives(): Record<string, unknown> {

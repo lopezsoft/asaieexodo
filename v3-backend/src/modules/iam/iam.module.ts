@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
+import { IamCommunityProvisioningService } from './application/services/iam-community-provisioning.service';
 import { AuthenticateCommunityUserUseCase } from './application/use-cases/authenticate-community-user.use-case';
 import { RegisterSchoolUseCase } from './application/use-cases/register-school.use-case';
 import { CommunityUserRepositoryPort } from './domain/ports/community-user.repository.port';
@@ -31,6 +32,7 @@ import { CryptoPasswordHasherAdapter } from './infrastructure/security/crypto-pa
   providers: [
     AuthenticateCommunityUserUseCase,
     RegisterSchoolUseCase,
+    IamCommunityProvisioningService,
     {
       provide: CommunityUserRepositoryPort,
       useClass: PostgresCommunityUserRepository,
@@ -48,6 +50,7 @@ import { CryptoPasswordHasherAdapter } from './infrastructure/security/crypto-pa
     JwtModule,
     AuthenticateCommunityUserUseCase,
     RegisterSchoolUseCase,
+    IamCommunityProvisioningService,
     CommunityUserRepositoryPort,
     SchoolOnboardingRepositoryPort,
     PasswordHasherPort,

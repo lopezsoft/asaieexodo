@@ -100,26 +100,55 @@ export class PostgresSettingsRepository implements SettingsRepositoryPort {
     input: Parameters<SettingsRepositoryPort['upsertGradingRule']>[1],
   ): Promise<GradingRuleRecord> {
     return this.db.withTenantTransaction(schoolId, async (client) => {
+      const failsAfterRecoveryMode =
+        input.failsAfterRecoveryMode !== undefined
+          ? input.failsAfterRecoveryMode
+          : input.failsAfterRecovery === false
+            ? 0
+            : 1;
+      const failsAfterRecovery =
+        input.failsAfterRecovery !== undefined
+          ? input.failsAfterRecovery
+          : failsAfterRecoveryMode > 0;
+
       const saved = await client.query<{ id: string }>(
         `INSERT INTO academic_grading_rules (
            school_id, academic_year, grade_group_id, decimals_count,
-           min_passing_score, max_recovery_score, failed_areas_limit,
-           fails_after_recovery, promotion_mode, uses_weighted_areas,
-           absence_fail_percentage, rounds_period_score, rounds_final_score, promotion_date
+           min_passing_score, max_recovery_score,
+           rounding_threshold_score, rounding_target_score, min_area_average,
+           failed_areas_limit, fails_after_recovery, fails_after_recovery_mode,
+           fails_area_if_any_subject_fails, fails_year_by_mandatory_area,
+           promotion_mode, academic_year_mode, uses_weighted_areas,
+           ranks_by_area_average, enforces_recovery_dates,
+           absence_fail_percentage, rounds_period_score, rounds_final_score,
+           students_per_book, promotion_date
          )
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+         VALUES (
+           $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12,
+           $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24
+         )
          ON CONFLICT (school_id, academic_year, grade_group_id)
          DO UPDATE SET
            decimals_count = EXCLUDED.decimals_count,
            min_passing_score = EXCLUDED.min_passing_score,
            max_recovery_score = EXCLUDED.max_recovery_score,
+           rounding_threshold_score = EXCLUDED.rounding_threshold_score,
+           rounding_target_score = EXCLUDED.rounding_target_score,
+           min_area_average = EXCLUDED.min_area_average,
            failed_areas_limit = EXCLUDED.failed_areas_limit,
            fails_after_recovery = EXCLUDED.fails_after_recovery,
+           fails_after_recovery_mode = EXCLUDED.fails_after_recovery_mode,
+           fails_area_if_any_subject_fails = EXCLUDED.fails_area_if_any_subject_fails,
+           fails_year_by_mandatory_area = EXCLUDED.fails_year_by_mandatory_area,
            promotion_mode = EXCLUDED.promotion_mode,
+           academic_year_mode = EXCLUDED.academic_year_mode,
            uses_weighted_areas = EXCLUDED.uses_weighted_areas,
+           ranks_by_area_average = EXCLUDED.ranks_by_area_average,
+           enforces_recovery_dates = EXCLUDED.enforces_recovery_dates,
            absence_fail_percentage = EXCLUDED.absence_fail_percentage,
            rounds_period_score = EXCLUDED.rounds_period_score,
            rounds_final_score = EXCLUDED.rounds_final_score,
+           students_per_book = EXCLUDED.students_per_book,
            promotion_date = EXCLUDED.promotion_date
          RETURNING id`,
         [
@@ -129,13 +158,23 @@ export class PostgresSettingsRepository implements SettingsRepositoryPort {
           input.decimalsCount ?? 2,
           input.minPassingScore ?? 3.0,
           input.maxRecoveryScore ?? 3.0,
+          input.roundingThresholdScore ?? 0.0,
+          input.roundingTargetScore ?? 0.0,
+          input.minAreaAverage ?? 0.0,
           input.failedAreasLimit ?? 3,
-          input.failsAfterRecovery ?? true,
+          failsAfterRecovery,
+          failsAfterRecoveryMode,
+          input.failsAreaIfAnySubjectFails ?? false,
+          input.failsYearByMandatoryArea ?? false,
           input.promotionMode ?? 1,
+          input.academicYearMode ?? 0,
           input.usesWeightedAreas ?? true,
+          input.ranksByAreaAverage ?? false,
+          input.enforcesRecoveryDates ?? false,
           input.absenceFailPercentage ?? 25.0,
           input.roundsPeriodScore ?? false,
           input.roundsFinalScore ?? false,
+          input.studentsPerBook ?? 500,
           input.promotionDate ?? null,
         ],
       );
@@ -600,7 +639,9 @@ export class PostgresSettingsRepository implements SettingsRepositoryPort {
         ? await client.query<{ id: string }>(
             `UPDATE grading_scales
              SET grade_group_id = $2, national_scale_id = $3,
-                 min_score = $4, max_score = $5, rank_order = $6
+                 min_score = $4, max_score = $5, rank_order = $6,
+                 is_failing = COALESCE($7, is_failing),
+                 is_gradable = COALESCE($8, is_gradable)
              WHERE id = $1
              RETURNING id`,
             [
@@ -610,14 +651,16 @@ export class PostgresSettingsRepository implements SettingsRepositoryPort {
               input.minScore,
               input.maxScore,
               input.rankOrder?.trim() || null,
+              input.isFailing ?? null,
+              input.isGradable ?? null,
             ],
           )
         : await client.query<{ id: string }>(
             `INSERT INTO grading_scales (
                school_id, grade_group_id, national_scale_id, academic_year,
-               min_score, max_score, rank_order
+               min_score, max_score, rank_order, is_failing, is_gradable
              )
-             VALUES ($1, $2, $3, $4, $5, $6, $7)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
              RETURNING id`,
             [
               String(schoolId),
@@ -627,6 +670,8 @@ export class PostgresSettingsRepository implements SettingsRepositoryPort {
               input.minScore,
               input.maxScore,
               input.rankOrder?.trim() || null,
+              input.isFailing ?? false,
+              input.isGradable ?? true,
             ],
           );
 
@@ -1231,13 +1276,25 @@ export class PostgresSettingsRepository implements SettingsRepositoryPort {
       decimalsCount: Number(r.decimals_count),
       minPassingScore: Number(r.min_passing_score),
       maxRecoveryScore: Number(r.max_recovery_score),
+      roundingThresholdScore: Number(r.rounding_threshold_score ?? 0),
+      roundingTargetScore: Number(r.rounding_target_score ?? 0),
+      minAreaAverage: Number(r.min_area_average ?? 0),
       failedAreasLimit: Number(r.failed_areas_limit),
       failsAfterRecovery: Boolean(r.fails_after_recovery),
+      failsAfterRecoveryMode: Number(
+        r.fails_after_recovery_mode ?? (r.fails_after_recovery ? 1 : 0),
+      ),
+      failsAreaIfAnySubjectFails: Boolean(r.fails_area_if_any_subject_fails),
+      failsYearByMandatoryArea: Boolean(r.fails_year_by_mandatory_area),
       promotionMode: Number(r.promotion_mode),
+      academicYearMode: Number(r.academic_year_mode ?? 0),
       usesWeightedAreas: Boolean(r.uses_weighted_areas),
+      ranksByAreaAverage: Boolean(r.ranks_by_area_average),
+      enforcesRecoveryDates: Boolean(r.enforces_recovery_dates),
       absenceFailPercentage: Number(r.absence_fail_percentage),
       roundsPeriodScore: Boolean(r.rounds_period_score),
       roundsFinalScore: Boolean(r.rounds_final_score),
+      studentsPerBook: Number(r.students_per_book ?? 500),
       promotionDate: this.toIsoDate(r.promotion_date),
     };
   }
@@ -1306,6 +1363,8 @@ export class PostgresSettingsRepository implements SettingsRepositoryPort {
       minScore: Number(r.min_score),
       maxScore: Number(r.max_score),
       rankOrder: (r.rank_order as string | null) ?? null,
+      isFailing: Boolean(r.is_failing),
+      isGradable: r.is_gradable !== false,
     };
   }
 

@@ -4,8 +4,12 @@ export interface InstitutionalGradingRulesSnapshot {
   readonly minScaleScore: number;
   readonly maxScaleScore: number;
   readonly minPassingScore: number;
+  readonly failingMaxScore?: number;
   readonly maxRecoveryScore: number;
   readonly decimalsCount: number;
+  readonly roundsPeriodScore?: boolean;
+  readonly roundingThresholdScore?: number;
+  readonly roundingTargetScore?: number;
 }
 
 export interface SaveAcademicGradeInput {

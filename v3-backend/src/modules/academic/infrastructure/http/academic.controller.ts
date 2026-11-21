@@ -23,9 +23,11 @@ import {
   AdminUpdateGradeScoreDto,
   HonorRollRequestDto,
   LinkStudentFamilyDto,
+  MaterializeAreaResultsDto,
   MoveEnrollmentsDto,
   ReassignTeacherCoursesDto,
   RecordEnrollmentNoveltyDto,
+  RenumberFoliosDto,
   SaveAcademicAreaDto,
   SaveCourseAssignmentDto,
   SaveEnrollmentDto,
@@ -573,7 +575,11 @@ export class AcademicController {
   ) {
     return {
       success: true,
-      data: await this.academicUseCase.savePeriodRecovery(p.schoolId, dto),
+      data: await this.academicUseCase.savePeriodRecovery(
+        p.schoolId,
+        dto,
+        p.userId,
+      ),
     };
   }
 
@@ -583,6 +589,9 @@ export class AcademicController {
     @CurrentUser() p: ActiveTenantContext,
     @Query('academicYear') academicYear?: string,
     @Query('periodNumber') periodNumber?: string,
+    @Query('honorScope') honorScope?: string,
+    @Query('topLimit') topLimit?: string,
+    @Query('mode') mode?: string,
   ) {
     return {
       success: true,
@@ -591,6 +600,15 @@ export class AcademicController {
         this.parseYear(academicYear, p.academicYear),
         periodNumber && /^\d+$/.test(periodNumber) ? Number(periodNumber) : 1,
         false,
+        {
+          honorScope:
+            honorScope && /^[1-5]$/.test(honorScope)
+              ? Number(honorScope)
+              : undefined,
+          topLimit:
+            topLimit && /^\d+$/.test(topLimit) ? Number(topLimit) : undefined,
+          mode: mode === 'ANNUAL' ? 'ANNUAL' : 'PERIOD',
+        },
       ),
     };
   }
@@ -598,7 +616,7 @@ export class AcademicController {
   @Post('honor-roll/calculate')
   @Roles(...WRITE_ROLES)
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Calcular y persistir Cuadro de Honor y puestos por grupo/grado' })
+  @ApiOperation({ summary: 'Calcular y persistir Cuadro de Honor y puestos por grupo/grado bajo SIEE' })
   async calculateHonorRoll(
     @CurrentUser() p: ActiveTenantContext,
     @Body() dto: HonorRollRequestDto,
@@ -610,6 +628,92 @@ export class AcademicController {
         dto.academicYear,
         dto.periodNumber,
         true,
+        {
+          honorScope: dto.honorScope,
+          topLimit: dto.topLimit,
+          mode: 'PERIOD',
+        },
+      ),
+    };
+  }
+
+  @Get('consolidated')
+  @Roles(...READ_ROLES)
+  @ApiOperation({
+    summary:
+      'Generar consolidado/sábana SIEE por asignaturas, áreas o docente (periodo individual o todos los periodos)',
+  })
+  async getConsolidated(
+    @CurrentUser() p: ActiveTenantContext,
+    @Query('academicYear') academicYear?: string,
+    @Query('mode') mode?: string,
+    @Query('academicGroupId') academicGroupId?: string,
+    @Query('teacherProfileId') teacherProfileId?: string,
+    @Query('periodNumber') periodNumber?: string,
+    @Query('allPeriods') allPeriods?: string,
+  ) {
+    const safeMode: 'subjects' | 'areas' | 'teacher' =
+      mode === 'areas' || mode === 'teacher' ? mode : 'subjects';
+    return {
+      success: true,
+      data: await this.academicUseCase.getConsolidatedReport(p.schoolId, {
+        academicYear: this.parseYear(academicYear, p.academicYear),
+        mode: safeMode,
+        academicGroupId:
+          academicGroupId && /^\d+$/.test(academicGroupId)
+            ? Number(academicGroupId)
+            : undefined,
+        teacherProfileId:
+          teacherProfileId && /^\d+$/.test(teacherProfileId)
+            ? Number(teacherProfileId)
+            : undefined,
+        periodNumber:
+          periodNumber && /^[1-6]$/.test(periodNumber)
+            ? Number(periodNumber)
+            : 1,
+        allPeriods: allPeriods === 'true' || allPeriods === '1',
+      }),
+    };
+  }
+
+  @Post('consolidated/materialize-areas')
+  @Roles(...WRITE_ROLES)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary:
+      'Materializar resultados ponderados por área y periodo en academic_area_period_results',
+  })
+  async materializeAreaResults(
+    @CurrentUser() p: ActiveTenantContext,
+    @Body() dto: MaterializeAreaResultsDto,
+  ) {
+    return {
+      success: true,
+      data: await this.academicUseCase.materializeAreaPeriodResults(
+        p.schoolId,
+        dto.academicYear,
+        dto.periodNumber,
+      ),
+    };
+  }
+
+  @Post('enrollments/renumber-folios')
+  @Roles(...RECTOR_ROLES, CommunityRole.SECRETARY)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary:
+      'Renumerar secuencialmente número de registro, libro y folio de matrículas del año según students_per_book',
+  })
+  async renumberFolios(
+    @CurrentUser() p: ActiveTenantContext,
+    @Body() dto: RenumberFoliosDto,
+  ) {
+    return {
+      success: true,
+      data: await this.academicUseCase.renumberEnrollmentFolios(
+        p.schoolId,
+        dto.academicYear,
+        dto.onlyActive ?? true,
       ),
     };
   }

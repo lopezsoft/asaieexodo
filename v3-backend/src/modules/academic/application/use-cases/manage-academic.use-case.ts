@@ -209,8 +209,9 @@ export class ManageAcademicUseCase {
   savePeriodRecovery(
     schoolId: bigint,
     input: Parameters<AcademicRepositoryPort['savePeriodRecovery']>[1],
+    userId?: bigint,
   ) {
-    return this.repository.savePeriodRecovery(schoolId, input);
+    return this.repository.savePeriodRecovery(schoolId, input, userId);
   }
 
   calculateAndListHonorRoll(
@@ -218,12 +219,49 @@ export class ManageAcademicUseCase {
     academicYear: number,
     periodNumber: number,
     recalculate: boolean,
+    options?: {
+      honorScope?: number;
+      topLimit?: number;
+      mode?: 'PERIOD' | 'ANNUAL';
+    },
   ) {
     return this.repository.calculateAndListHonorRoll(
       schoolId,
       academicYear,
       periodNumber,
       recalculate,
+      options,
+    );
+  }
+
+  getConsolidatedReport(
+    schoolId: bigint,
+    input: Parameters<AcademicRepositoryPort['getConsolidatedReport']>[1],
+  ) {
+    return this.repository.getConsolidatedReport(schoolId, input);
+  }
+
+  materializeAreaPeriodResults(
+    schoolId: bigint,
+    academicYear: number,
+    periodNumber: number,
+  ) {
+    return this.repository.materializeAreaPeriodResults(
+      schoolId,
+      academicYear,
+      periodNumber,
+    );
+  }
+
+  renumberEnrollmentFolios(
+    schoolId: bigint,
+    academicYear: number,
+    onlyActive = true,
+  ) {
+    return this.repository.renumberEnrollmentFolios(
+      schoolId,
+      academicYear,
+      onlyActive,
     );
   }
 

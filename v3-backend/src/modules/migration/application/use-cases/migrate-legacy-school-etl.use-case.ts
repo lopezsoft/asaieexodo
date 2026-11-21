@@ -360,6 +360,7 @@ export class MigrateLegacySchoolEtlUseCase {
   ): Promise<T> {
     return this.db.withTenantTransaction(schoolId, async (client) => {
       await client.query(`SET LOCAL statement_timeout = '300000'`);
+      await client.query(`SELECT set_config('app.skip_score_audit_trigger', 'on', true)`);
       if (fastCommit) {
         await client.query(`SET LOCAL synchronous_commit = off`);
       }
@@ -1382,16 +1383,20 @@ export class MigrateLegacySchoolEtlUseCase {
           coexistenceRecurrence: safeInt(c.conv_reincidencia, 0),
           enrollmentFormPerYear: safeInt(c['ficha_mat_x_año'], 1) === 1,
         };
+        const failsAfterRecMode = Math.min(
+          3,
+          Math.max(0, safeInt(c.pierde_luego_rec, 1)),
+        );
         await client.query(
           `INSERT INTO academic_grading_rules (
              school_id, academic_year, grade_group_id, decimals_count, min_passing_score,
              max_recovery_score, rounding_threshold_score, rounding_target_score, min_area_average,
-             failed_areas_limit, fails_after_recovery, fails_area_if_any_subject_fails,
+             failed_areas_limit, fails_after_recovery, fails_after_recovery_mode, fails_area_if_any_subject_fails,
              fails_year_by_mandatory_area, promotion_mode, academic_year_mode,
              uses_weighted_areas, ranks_by_area_average, enforces_recovery_dates,
              absence_fail_percentage, rounds_final_score, students_per_book, promotion_date, extra_settings
            )
-           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22::date,$23::jsonb)
+           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23::date,$24::jsonb)
            ON CONFLICT (school_id, academic_year, grade_group_id)
            DO UPDATE SET
              decimals_count = EXCLUDED.decimals_count,
@@ -1402,6 +1407,7 @@ export class MigrateLegacySchoolEtlUseCase {
              min_area_average = EXCLUDED.min_area_average,
              failed_areas_limit = EXCLUDED.failed_areas_limit,
              fails_after_recovery = EXCLUDED.fails_after_recovery,
+             fails_after_recovery_mode = EXCLUDED.fails_after_recovery_mode,
              fails_area_if_any_subject_fails = EXCLUDED.fails_area_if_any_subject_fails,
              fails_year_by_mandatory_area = EXCLUDED.fails_year_by_mandatory_area,
              promotion_mode = EXCLUDED.promotion_mode,
@@ -1425,7 +1431,8 @@ export class MigrateLegacySchoolEtlUseCase {
             safeDecimal(c.nota_final_redondeo, 0.0, 0, 100),
             safeDecimal(c.prom_areas, 0.0, 0, 100),
             safeInt(c.areas_pierde, 3),
-            safeInt(c.pierde_luego_rec, 1) === 1,
+            failsAfterRecMode === 1,
+            failsAfterRecMode,
             safeInt(c.fail_subject_of_the_area, 0) === 1,
             safeInt(c['pierde_año_lectivo_area'], 0) === 1,
             safeInt(c.promocion, 1),

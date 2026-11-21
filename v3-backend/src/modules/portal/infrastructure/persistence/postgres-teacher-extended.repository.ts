@@ -1,6 +1,11 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { ResourceNotFoundException } from '../../../../shared/domain/exceptions/resource-not-found.exception';
 import { PostgresRlsService } from '../../../../shared/infrastructure/database/postgres-rls.service';
+import { applyGraceRounding } from '../../../grading/domain/helpers/siee-decimal.helper';
+import {
+  GradebookDimensionConfig,
+  TwoLevelGradebookCalculationStrategy,
+} from '../../../grading/domain/strategies/grading-calculation.strategy';
 import {
   GradeAchievementAssignedRow,
   ObserverExtendedData,
@@ -25,6 +30,8 @@ const GRADE_SCORE_RETURNING = GRADE_SCORE_COLUMNS.join(', ');
 
 @Injectable()
 export class PostgresTeacherExtendedRepository extends TeacherExtendedRepositoryPort {
+  private readonly gradebookStrategy = new TwoLevelGradebookCalculationStrategy();
+
   constructor(private readonly db: PostgresRlsService) {
     super();
   }
@@ -364,158 +371,256 @@ export class PostgresTeacherExtendedRepository extends TeacherExtendedRepository
         gradebookColumnId?: number | null;
       }>;
     },
+    userId?: bigint,
   ): Promise<{ savedCount: number }> {
-    return this.db.withTenantTransaction(schoolId, async (client) => {
-      const courseMetaRes = await client.query<{
-        grade_group_id: string | null;
-      }>(
-        `SELECT g.grade_group_id
-           FROM course_assignments ca
-           INNER JOIN grades g ON g.school_id = ca.school_id AND g.id = ca.grade_id
-          WHERE ca.school_id = $1 AND ca.id = $2`,
-        [schoolId.toString(), courseAssignmentId.toString()],
-      );
-      const gradeGroupId = courseMetaRes.rows[0]?.grade_group_id ?? null;
-
-      const periodRes = await client.query<{ id: string; is_closed: boolean }>(
-        `SELECT id, is_closed FROM academic_periods
-          WHERE school_id = $1 AND academic_year = $2 AND period_number = $3
-            AND (grade_group_id IS NULL OR grade_group_id = $4::bigint)
-          ORDER BY (grade_group_id IS NOT NULL AND grade_group_id = $4::bigint) DESC, grade_group_id NULLS LAST
-          LIMIT 1`,
-        [schoolId.toString(), input.academicYear, input.periodNumber, gradeGroupId],
-      );
-      if (periodRes.rowCount === 0 || periodRes.rows[0].is_closed) {
-        throw new BadRequestException(
-          'El periodo no existe o se encuentra cerrado.',
+    return this.db.withTenantTransaction(
+      schoolId,
+      async (client) => {
+        const courseMetaRes = await client.query<{
+          grade_group_id: string | null;
+        }>(
+          `SELECT g.grade_group_id
+             FROM course_assignments ca
+             INNER JOIN grades g ON g.school_id = ca.school_id AND g.id = ca.grade_id
+            WHERE ca.school_id = $1 AND ca.id = $2`,
+          [schoolId.toString(), courseAssignmentId.toString()],
         );
-      }
+        const gradeGroupId = courseMetaRes.rows[0]?.grade_group_id ?? null;
 
-      // Cargar pesos porcentuales configurados por columna n1..n30 del curso y periodo
-      const weightsRes = await client.query<{
-        column_number: number;
-        weight_percentage: string;
-      }>(
-        `SELECT column_number, weight_percentage
-           FROM teacher_gradebook_columns
-          WHERE school_id = $1
-            AND course_assignment_id = $2
-            AND period_number = $3`,
-        [schoolId.toString(), courseAssignmentId.toString(), input.periodNumber],
-      );
-      const weightByCol = new Map<number, number>();
-      for (const w of weightsRes.rows) {
-        weightByCol.set(Number(w.column_number), Number(w.weight_percentage));
-      }
-
-      // Agrupar por matrícula para ejecutar 1 solo UPSERT por estudiante tocado
-      const updatesByEnrollment = new Map<number, Map<number, number>>();
-      let savedCount = 0;
-      for (const item of input.items) {
-        if (
-          !Number.isInteger(item.itemNumber) ||
-          item.itemNumber < 1 ||
-          item.itemNumber > 30
-        ) {
+        const periodRes = await client.query<{ id: string; is_closed: boolean }>(
+          `SELECT id, is_closed FROM academic_periods
+            WHERE school_id = $1 AND academic_year = $2 AND period_number = $3
+              AND (grade_group_id IS NULL OR grade_group_id = $4::bigint)
+            ORDER BY (grade_group_id IS NOT NULL AND grade_group_id = $4::bigint) DESC, grade_group_id NULLS LAST
+            LIMIT 1`,
+          [schoolId.toString(), input.academicYear, input.periodNumber, gradeGroupId],
+        );
+        if (periodRes.rowCount === 0 || periodRes.rows[0].is_closed) {
           throw new BadRequestException(
-            `Número de casilla de calificación inválido (${String(item.itemNumber)}). Debe estar entre 1 y 30.`,
+            'El periodo no existe o se encuentra cerrado.',
           );
         }
-        let colMap = updatesByEnrollment.get(item.enrollmentId);
-        if (!colMap) {
-          colMap = new Map<number, number>();
-          updatesByEnrollment.set(item.enrollmentId, colMap);
-        }
-        colMap.set(item.itemNumber, item.score);
-        savedCount += 1;
-      }
 
-      for (const [enrollmentId, colMap] of updatesByEnrollment.entries()) {
-        const entries = Array.from(colMap.entries());
-        const colNames = entries.map(([num]) => GRADE_SCORE_COLUMNS[num - 1]);
-        const colValues = entries.map(([, score]) => (score > 0 ? score : null));
-        const baseParams: unknown[] = [
-          schoolId.toString(),
+        const rules = await this.getGradingRuleThresholds(
+          client,
+          schoolId,
           input.academicYear,
-          enrollmentId,
-          courseAssignmentId.toString(),
-          input.periodNumber,
-        ];
-        const valuePlaceholders = colNames.map(
-          (_, idx) => `$${baseParams.length + idx + 1}::numeric`,
-        );
-        const conflictUpdates = colNames
-          .map((col) => `${col} = EXCLUDED.${col}`)
-          .join(', ');
-
-        const gradeRes = await client.query<
-          { id: string } & Record<(typeof GRADE_SCORE_COLUMNS)[number], string | null>
-        >(
-          `INSERT INTO academic_scores (
-             school_id, academic_year, enrollment_id, course_assignment_id,
-             period_number, final_score, ${colNames.join(', ')}
-           )
-           VALUES ($1,$2,$3,$4,$5,0,${valuePlaceholders.join(', ')})
-           ON CONFLICT (school_id, academic_year, enrollment_id, period_number, course_assignment_id)
-           DO UPDATE SET ${conflictUpdates}, updated_at = NOW()
-           RETURNING id, ${GRADE_SCORE_RETURNING}`,
-          [...baseParams, ...colValues],
+          gradeGroupId,
         );
 
-        const row = gradeRes.rows[0];
-        let weightedSum = 0;
-        let totalWeight = 0;
-        let simpleSum = 0;
-        let simpleCount = 0;
-        for (let idx = 0; idx < GRADE_SCORE_COLUMNS.length; idx++) {
-          const raw = row[GRADE_SCORE_COLUMNS[idx]];
-          if (raw === null || raw === undefined) continue;
-          const val = Number(raw);
-          if (!Number.isFinite(val)) continue;
-          const w = weightByCol.get(idx + 1) ?? 0;
-          if (w > 0) {
-            weightedSum += val * w;
-            totalWeight += w;
+        // Cargar dimensiones institucionales + columnas n1..n30 + pesos específicos del curso
+        const dimsRes = await client.query<{
+          dimension_id: string;
+          dim_weight: string;
+          is_gradable: boolean;
+          column_number: number | null;
+          col_weight: string | null;
+        }>(
+          `SELECT d.id AS dimension_id,
+                  d.weight_percentage AS dim_weight,
+                  d.is_gradable,
+                  edc.column_number,
+                  edc.weight_percentage AS col_weight
+             FROM evaluation_dimensions d
+             LEFT JOIN evaluation_dimension_columns edc
+               ON edc.school_id = d.school_id
+              AND edc.dimension_id = d.id
+              AND edc.column_type = 'NOTA'
+            WHERE d.school_id = $1
+              AND d.academic_year = $2
+              AND (d.grade_group_id IS NULL OR d.grade_group_id = $3::bigint)
+            ORDER BY (d.grade_group_id IS NOT NULL AND d.grade_group_id = $3::bigint) DESC,
+                     d.dimension_code ASC,
+                     edc.column_number ASC`,
+          [schoolId.toString(), input.academicYear, gradeGroupId],
+        );
+
+        const teacherColsRes = await client.query<{
+          dimension_id: string;
+          column_number: number;
+          weight_percentage: string;
+        }>(
+          `SELECT dimension_id, column_number, weight_percentage
+             FROM teacher_gradebook_columns
+            WHERE school_id = $1
+              AND course_assignment_id = $2
+              AND period_number = $3
+              AND is_active = TRUE`,
+          [schoolId.toString(), courseAssignmentId.toString(), input.periodNumber],
+        );
+
+        const weightByCol = new Map<number, number>();
+        const dimBuilders = new Map<
+          number,
+          {
+            dimensionId: number;
+            weightPercentage: number;
+            isGradable: boolean;
+            columnNumbers: Set<number>;
+            columnWeights: Map<number, number>;
           }
-          simpleSum += val;
-          simpleCount += 1;
+        >();
+
+        for (const r of dimsRes.rows) {
+          const dimId = Number(r.dimension_id);
+          let builder = dimBuilders.get(dimId);
+          if (!builder) {
+            builder = {
+              dimensionId: dimId,
+              weightPercentage: Number(r.dim_weight),
+              isGradable: Boolean(r.is_gradable),
+              columnNumbers: new Set<number>(),
+              columnWeights: new Map<number, number>(),
+            };
+            dimBuilders.set(dimId, builder);
+          }
+          if (r.column_number !== null) {
+            const colNum = Number(r.column_number);
+            builder.columnNumbers.add(colNum);
+            if (r.col_weight !== null && Number(r.col_weight) > 0) {
+              builder.columnWeights.set(colNum, Number(r.col_weight));
+            }
+          }
         }
 
-        const finalScore =
-          totalWeight > 0
-            ? Number((weightedSum / totalWeight).toFixed(2))
-            : simpleCount > 0
-              ? Number((simpleSum / simpleCount).toFixed(2))
-              : 0;
+        for (const tc of teacherColsRes.rows) {
+          const dimId = Number(tc.dimension_id);
+          const colNum = Number(tc.column_number);
+          const w = Number(tc.weight_percentage);
+          if (w > 0) {
+            weightByCol.set(colNum, w);
+          }
+          const builder = dimBuilders.get(dimId);
+          if (builder) {
+            builder.columnNumbers.add(colNum);
+            if (w > 0) {
+              builder.columnWeights.set(colNum, w);
+            }
+          }
+        }
 
-        await client.query(
-          `UPDATE academic_scores ag
-              SET final_score = $4::numeric,
-                  national_scale_id = (
-                    SELECT gs.national_scale_id
-                      FROM grading_scales gs
-                     WHERE gs.school_id = ag.school_id
-                       AND gs.academic_year = ag.academic_year
-                       AND COALESCE(NULLIF(ag.recovery_score, 0), $4::numeric)
-                           BETWEEN gs.min_score AND gs.max_score
-                       AND (gs.grade_group_id IS NULL OR gs.grade_group_id = $5::bigint)
-                     ORDER BY (gs.grade_group_id IS NOT NULL AND gs.grade_group_id = $5::bigint) DESC, gs.grade_group_id NULLS LAST
-                     LIMIT 1
-                  ),
-                  updated_at = NOW()
-            WHERE ag.school_id = $1 AND ag.academic_year = $2 AND ag.id = $3`,
-          [
+        const dimensions: GradebookDimensionConfig[] = Array.from(
+          dimBuilders.values(),
+        ).map((b) => ({
+          dimensionId: b.dimensionId,
+          weightPercentage: b.weightPercentage,
+          isGradable: b.isGradable,
+          columnNumbers: Array.from(b.columnNumbers).sort((a, c) => a - c),
+          columnWeights: b.columnWeights,
+        }));
+
+        // Agrupar por matrícula para ejecutar 1 solo UPSERT por estudiante tocado
+        const updatesByEnrollment = new Map<number, Map<number, number>>();
+        let savedCount = 0;
+        for (const item of input.items) {
+          if (
+            !Number.isInteger(item.itemNumber) ||
+            item.itemNumber < 1 ||
+            item.itemNumber > 30
+          ) {
+            throw new BadRequestException(
+              `Número de casilla de calificación inválido (${String(item.itemNumber)}). Debe estar entre 1 y 30.`,
+            );
+          }
+          let colMap = updatesByEnrollment.get(item.enrollmentId);
+          if (!colMap) {
+            colMap = new Map<number, number>();
+            updatesByEnrollment.set(item.enrollmentId, colMap);
+          }
+          colMap.set(item.itemNumber, item.score);
+          savedCount += 1;
+        }
+
+        for (const [enrollmentId, colMap] of updatesByEnrollment.entries()) {
+          const entries = Array.from(colMap.entries());
+          const colNames = entries.map(([num]) => GRADE_SCORE_COLUMNS[num - 1]);
+          const colValues = entries.map(([, score]) => (score > 0 ? score : null));
+          const baseParams: unknown[] = [
             schoolId.toString(),
             input.academicYear,
-            row.id,
-            finalScore,
-            gradeGroupId,
-          ],
-        );
-      }
+            enrollmentId,
+            courseAssignmentId.toString(),
+            input.periodNumber,
+          ];
+          const valuePlaceholders = colNames.map(
+            (_, idx) => `$${baseParams.length + idx + 1}::numeric`,
+          );
+          const conflictUpdates = colNames
+            .map((col) => `${col} = EXCLUDED.${col}`)
+            .join(', ');
 
-      return { savedCount };
-    });
+          const gradeRes = await client.query<
+            { id: string } & Record<
+              (typeof GRADE_SCORE_COLUMNS)[number],
+              string | null
+            >
+          >(
+            `INSERT INTO academic_scores (
+               school_id, academic_year, enrollment_id, course_assignment_id,
+               period_number, final_score, ${colNames.join(', ')}
+             )
+             VALUES ($1,$2,$3,$4,$5,0,${valuePlaceholders.join(', ')})
+             ON CONFLICT (school_id, academic_year, enrollment_id, period_number, course_assignment_id)
+             DO UPDATE SET ${conflictUpdates}, updated_at = NOW()
+             RETURNING id, ${GRADE_SCORE_RETURNING}`,
+            [...baseParams, ...colValues],
+          );
+
+          const row = gradeRes.rows[0];
+          const scoresByColumn = new Map<number, number>();
+          for (let idx = 0; idx < GRADE_SCORE_COLUMNS.length; idx++) {
+            const raw = row[GRADE_SCORE_COLUMNS[idx]];
+            if (raw === null || raw === undefined) continue;
+            const val = Number(raw);
+            if (!Number.isFinite(val) || val <= 0) continue;
+            scoresByColumn.set(idx + 1, val);
+          }
+
+          const rawFinalScore = this.gradebookStrategy.calculateFromGrid({
+            scoresByColumn,
+            dimensions,
+            fallbackColumnWeights: weightByCol,
+            decimalsCount: rules.decimalsCount,
+          });
+
+          const finalScore = applyGraceRounding(
+            rawFinalScore,
+            rules.failingMaxScore,
+            rules.roundingThresholdScore,
+            rules.roundingTargetScore,
+            rules.roundsPeriodScore,
+          );
+
+          await client.query(
+            `UPDATE academic_scores ag
+                SET final_score = $4::numeric,
+                    national_scale_id = fn_siee_resolve_scale(
+                      ag.school_id,
+                      ag.academic_year,
+                      $5::bigint,
+                      GREATEST(COALESCE(ag.recovery_score, 0), $4::numeric),
+                      $6::smallint
+                    ),
+                    updated_at = NOW()
+              WHERE ag.school_id = $1 AND ag.academic_year = $2 AND ag.id = $3`,
+            [
+              schoolId.toString(),
+              input.academicYear,
+              row.id,
+              finalScore,
+              gradeGroupId,
+              rules.decimalsCount,
+            ],
+          );
+        }
+
+        return { savedCount };
+      },
+      {
+        userId: userId ?? null,
+        changeReason: 'Actualización de ítems de planilla docente (n1..n30)',
+      },
+    );
   }
 
   async createAchievementsMultiScale(
@@ -773,6 +878,7 @@ export class PostgresTeacherExtendedRepository extends TeacherExtendedRepository
     courseAssignmentId: bigint,
     academicYear: number,
     periodNumber: number,
+    filterMode: 'FAILED' | 'LEVELED' | 'ALL' = 'FAILED',
   ): Promise<TeacherLevelingListView> {
     return this.db.withTenantTransaction(schoolId, async (client) => {
       const courseGroupRes = await client.query<{
@@ -790,6 +896,13 @@ export class PostgresTeacherExtendedRepository extends TeacherExtendedRepository
         academicYear,
         courseGroupRes.rows[0]?.grade_group_id ?? null,
       );
+
+      const filterClause =
+        filterMode === 'LEVELED'
+          ? `AND (gr.is_leveled = TRUE OR COALESCE(gr.recovery_score, 0) > 0)`
+          : filterMode === 'ALL'
+            ? `AND (gr.final_score <= $5 OR gr.is_leveled = TRUE OR COALESCE(gr.recovery_score, 0) > 0)`
+            : `AND gr.final_score <= $5`;
 
       const res = await client.query<{
         enrollment_id: string;
@@ -815,7 +928,10 @@ export class PostgresTeacherExtendedRepository extends TeacherExtendedRepository
                 gr.final_score, COALESCE(gr.recovery_score, 0)::text AS recovery_score,
                 prr.recovery_date::text, prr.act_number, prr.observations
            FROM academic_scores gr
-           INNER JOIN student_enrollments se ON se.school_id = gr.school_id AND se.id = gr.enrollment_id
+           INNER JOIN student_enrollments se
+             ON se.school_id = gr.school_id
+            AND se.id = gr.enrollment_id
+            AND se.enrollment_status_id = 2
            INNER JOIN student_profiles sp ON sp.school_id = se.school_id AND sp.id = se.student_profile_id
            INNER JOIN course_assignments ca ON ca.school_id = gr.school_id AND ca.id = gr.course_assignment_id
            INNER JOIN campuses c ON c.school_id = ca.school_id AND c.id = ca.campus_id
@@ -837,6 +953,7 @@ export class PostgresTeacherExtendedRepository extends TeacherExtendedRepository
                 AND r.enrollment_id = gr.enrollment_id
                 AND r.course_assignment_id = gr.course_assignment_id
                 AND r.period_number = gr.period_number
+                AND r.recovery_type = 'PERIOD_RECOVERY'
               ORDER BY r.id DESC
               LIMIT 1
            ) prr ON TRUE
@@ -844,19 +961,20 @@ export class PostgresTeacherExtendedRepository extends TeacherExtendedRepository
             AND gr.academic_year = $2
             AND gr.course_assignment_id = $3
             AND gr.period_number = $4
-            AND gr.final_score < $5
+            ${filterClause}
           ORDER BY full_name`,
         [
           schoolId.toString(),
           academicYear,
           courseAssignmentId.toString(),
           periodNumber,
-          rules.minPassingScore,
+          rules.failingMaxScore,
         ],
       );
 
       return {
-        ...rules,
+        minPassingScore: rules.minPassingScore,
+        maxRecoveryScore: rules.maxRecoveryScore,
         rows: res.rows.map((r) => this.mapLevelingCandidate(r)),
       };
     });
@@ -875,17 +993,15 @@ export class PostgresTeacherExtendedRepository extends TeacherExtendedRepository
         academicYear,
       );
 
-      const params: unknown[] = [
-        schoolId.toString(),
-        academicYear,
-        rules.minPassingScore,
-      ];
+      const params: unknown[] = [schoolId.toString(), academicYear];
       let teacherClause = '';
       if (role === 'TEACHER') {
         params.push(userId.toString());
         teacherClause = `AND tp.user_id = $${params.length}`;
       }
 
+      // Usa `v_siee_subject_annual_scores` con `enrollment_status_id = 2` y valida elegibilidad SIEE
+      // (0 < áreas reprobadas < failed_areas_limit del grade_group del estudiante, o acta FINAL_RECOVERY existente)
       const res = await client.query<{
         enrollment_id: string;
         course_assignment_id: string;
@@ -903,8 +1019,53 @@ export class PostgresTeacherExtendedRepository extends TeacherExtendedRepository
         act_number: string | null;
         observations: string | null;
       }>(
-        `SELECT gr.enrollment_id,
-                gr.course_assignment_id,
+        `WITH area_summary AS (
+           SELECT v.enrollment_id,
+                  v.grade_group_id,
+                  v.academic_area_id,
+                  CASE
+                    WHEN BOOL_OR(COALESCE(r.uses_weighted_areas, TRUE))
+                     AND BOOL_OR(v.area_weight_percentage > 0 AND v.area_weight_percentage < 100)
+                    THEN ROUND(SUM(v.annual_score * v.area_weight_percentage / 100.0)::numeric, MAX(COALESCE(r.decimals_count, 2)))
+                    ELSE ROUND(AVG(v.annual_score)::numeric, MAX(COALESCE(r.decimals_count, 2)))
+                  END AS area_annual_score,
+                  MAX(v.failing_max_score) AS failing_max_score,
+                  COUNT(*) FILTER (WHERE v.annual_score <= v.failing_max_score) AS failed_subjs_in_area,
+                  COUNT(*) AS subjs_in_area,
+                  BOOL_OR(COALESCE(r.fails_area_if_any_subject_fails, FALSE)) AS fails_area_if_any_subj,
+                  MAX(COALESCE(r.failed_areas_limit, 3)) AS failed_areas_limit
+             FROM v_siee_subject_annual_scores v
+             LEFT JOIN LATERAL (
+               SELECT agr.*
+                 FROM academic_grading_rules agr
+                WHERE agr.school_id = v.school_id
+                  AND agr.academic_year = v.academic_year
+                  AND (agr.grade_group_id = v.grade_group_id OR v.grade_group_id IS NULL)
+                ORDER BY (agr.grade_group_id = v.grade_group_id) DESC, agr.id ASC
+                LIMIT 1
+             ) r ON TRUE
+            WHERE v.school_id = $1
+              AND v.academic_year = $2
+              AND v.enrollment_status_id = 2
+              AND v.is_excluded_from_average = FALSE
+              AND v.academic_area_id IS NOT NULL
+            GROUP BY v.enrollment_id, v.grade_group_id, v.academic_area_id
+         ),
+         eligible_enrollments AS (
+           SELECT enrollment_id
+             FROM area_summary
+            GROUP BY enrollment_id
+           HAVING COUNT(*) FILTER (
+                    WHERE area_annual_score <= failing_max_score
+                       OR (fails_area_if_any_subj AND subjs_in_area > 1 AND failed_subjs_in_area > 0)
+                  ) > 0
+              AND COUNT(*) FILTER (
+                    WHERE area_annual_score <= failing_max_score
+                       OR (fails_area_if_any_subj AND subjs_in_area > 1 AND failed_subjs_in_area > 0)
+                  ) < MAX(failed_areas_limit)
+         )
+         SELECT v.enrollment_id,
+                v.course_assignment_id,
                 sp.document_number,
                 TRIM(CONCAT_WS(' ', sp.last_name, sp.second_last_name, sp.first_name)) AS full_name,
                 g.name AS grade_name,
@@ -912,47 +1073,49 @@ export class PostgresTeacherExtendedRepository extends TeacherExtendedRepository
                 s.name AS subject_name,
                 COALESCE(aa.name, 'Sin área') AS area_name,
                 c.name AS campus_name,
-                MAX(gr.period_number) AS period_number,
-                ROUND(AVG(COALESCE(NULLIF(gr.recovery_score, 0), gr.final_score))::numeric, 2)::text AS final_score,
-                COALESCE(MAX(prr.recovery_score), 0)::text AS recovery_score,
-                MAX(prr.recovery_date::text) AS recovery_date,
-                MAX(prr.act_number) AS act_number,
-                MAX(prr.observations) AS observations
-           FROM academic_scores gr
-           INNER JOIN student_enrollments se ON se.school_id = gr.school_id AND se.id = gr.enrollment_id
-           INNER JOIN student_profiles sp ON sp.school_id = se.school_id AND sp.id = se.student_profile_id
-           INNER JOIN course_assignments ca ON ca.school_id = gr.school_id AND ca.id = gr.course_assignment_id
+                GREATEST(1, v.scored_periods_count)::smallint AS period_number,
+                v.annual_score::text AS final_score,
+                COALESCE(prr.recovery_score, 0)::text AS recovery_score,
+                prr.recovery_date::text AS recovery_date,
+                prr.act_number,
+                prr.observations
+           FROM v_siee_subject_annual_scores v
+           INNER JOIN student_profiles sp ON sp.school_id = v.school_id AND sp.id = v.student_profile_id
+           INNER JOIN course_assignments ca ON ca.school_id = v.school_id AND ca.id = v.course_assignment_id
            INNER JOIN teacher_profiles tp ON tp.school_id = ca.school_id AND tp.id = ca.teacher_profile_id
-           INNER JOIN campuses c ON c.school_id = ca.school_id AND c.id = ca.campus_id
-           INNER JOIN grades g ON g.school_id = ca.school_id AND g.id = ca.grade_id
-           INNER JOIN academic_groups ag ON ag.school_id = ca.school_id AND ag.id = ca.academic_group_id
-           INNER JOIN subjects s ON s.school_id = ca.school_id AND s.id = ca.subject_id
-           LEFT JOIN subject_area_assignments saa
-             ON saa.school_id = gr.school_id
-            AND saa.academic_year = gr.academic_year
-            AND saa.subject_id = s.id
-           LEFT JOIN academic_areas aa
-             ON aa.school_id = s.school_id
-            AND aa.id = COALESCE(saa.academic_area_id, s.academic_area_id)
-           LEFT JOIN period_recovery_records prr
-             ON prr.school_id = gr.school_id
-            AND prr.academic_year = gr.academic_year
-            AND prr.enrollment_id = gr.enrollment_id
-            AND prr.course_assignment_id = gr.course_assignment_id
-            AND prr.recovery_type = 'FINAL_RECOVERY'
-          WHERE gr.school_id = $1
-            AND gr.academic_year = $2
+           INNER JOIN campuses c ON c.school_id = v.school_id AND c.id = v.campus_id
+           INNER JOIN grades g ON g.school_id = v.school_id AND g.id = v.grade_id
+           INNER JOIN academic_groups ag ON ag.school_id = v.school_id AND ag.id = v.academic_group_id
+           INNER JOIN subjects s ON s.school_id = v.school_id AND s.id = v.subject_id
+           LEFT JOIN academic_areas aa ON aa.school_id = v.school_id AND aa.id = v.academic_area_id
+           LEFT JOIN LATERAL (
+             SELECT r.recovery_score, r.recovery_date, r.act_number, r.observations
+               FROM period_recovery_records r
+              WHERE r.school_id = v.school_id
+                AND r.academic_year = v.academic_year
+                AND r.enrollment_id = v.enrollment_id
+                AND r.course_assignment_id = v.course_assignment_id
+                AND r.recovery_type = 'FINAL_RECOVERY'
+              ORDER BY r.id DESC
+              LIMIT 1
+           ) prr ON TRUE
+          WHERE v.school_id = $1
+            AND v.academic_year = $2
+            AND v.enrollment_status_id = 2
+            AND v.is_excluded_from_average = FALSE
+            AND v.annual_score <= v.failing_max_score
+            AND (
+              v.enrollment_id IN (SELECT enrollment_id FROM eligible_enrollments)
+              OR prr.act_number IS NOT NULL
+            )
             ${teacherClause}
-          GROUP BY gr.enrollment_id, gr.course_assignment_id, sp.document_number,
-                   sp.last_name, sp.second_last_name, sp.first_name,
-                   g.name, ag.group_code, s.name, COALESCE(aa.name, 'Sin área'), c.name
-          HAVING AVG(COALESCE(NULLIF(gr.recovery_score, 0), gr.final_score)) < $3
-          ORDER BY g.name, ag.group_code, full_name`,
+          ORDER BY g.display_order, ag.group_code, full_name`,
         params,
       );
 
       return {
-        ...rules,
+        minPassingScore: rules.minPassingScore,
+        maxRecoveryScore: rules.maxRecoveryScore,
         rows: res.rows.map((r) => this.mapLevelingCandidate(r)),
       };
     });
@@ -974,136 +1137,210 @@ export class PostgresTeacherExtendedRepository extends TeacherExtendedRepository
         observations?: string | null;
       }>;
     },
+    userId?: bigint,
   ): Promise<{ savedCount: number }> {
-    return this.db.withTenantTransaction(schoolId, async (client) => {
-      let savedCount = 0;
-      for (const row of input.rows) {
-        const groupRes = await client.query<{ grade_group_id: string | null }>(
-          `SELECT g.grade_group_id
-             FROM course_assignments ca
-             INNER JOIN grades g ON g.school_id = ca.school_id AND g.id = ca.grade_id
-            WHERE ca.school_id = $1 AND ca.id = $2`,
-          [schoolId.toString(), row.courseAssignmentId],
-        );
-        const rules = await this.getGradingRuleThresholds(
-          client,
-          schoolId,
-          input.academicYear,
-          groupRes.rows[0]?.grade_group_id ?? null,
-        );
+    return this.db.withTenantTransaction(
+      schoolId,
+      async (client) => {
+        let savedCount = 0;
+        const todayIso = new Date().toISOString().slice(0, 10);
 
-        if (row.recoveryScore > 0) {
-          if (row.recoveryScore < row.previousScore) {
-            throw new BadRequestException(
-              `La nota recuperada (${row.recoveryScore}) no puede ser menor a la nota perdida (${row.previousScore}).`,
-            );
-          }
-          if (
-            rules.maxRecoveryScore > 0 &&
-            row.recoveryScore > rules.maxRecoveryScore
-          ) {
-            throw new BadRequestException(
-              `La nota de nivelación (${row.recoveryScore}) excede el máximo institucional (${rules.maxRecoveryScore}).`,
-            );
-          }
-        }
-
-        // Actualizar registro previo si existe para evitar duplicación al editar nivelaciones
-        const targetPeriodNumber =
-          input.recoveryType === 'FINAL_RECOVERY' ? null : row.periodNumber;
-        const existingRec = await client.query<{ id: string }>(
-          `SELECT id FROM period_recovery_records
-            WHERE school_id = $1
-              AND academic_year = $2
-              AND enrollment_id = $3
-              AND course_assignment_id = $4
-              AND period_number IS NOT DISTINCT FROM $5
-              AND recovery_type = $6
-            ORDER BY id DESC
-            LIMIT 1`,
-          [
-            schoolId.toString(),
-            input.academicYear,
-            row.enrollmentId,
-            row.courseAssignmentId,
-            targetPeriodNumber,
-            input.recoveryType,
-          ],
-        );
-
-        if (existingRec.rowCount && existingRec.rowCount > 0) {
-          await client.query(
-            `UPDATE period_recovery_records
-                SET act_number = $3,
-                    previous_score = $4,
-                    recovery_score = $5,
-                    recovery_date = COALESCE($6::date, recovery_date),
-                    observations = $7,
-                    updated_at = NOW()
-              WHERE school_id = $1 AND id = $2`,
-            [
-              schoolId.toString(),
-              existingRec.rows[0].id,
-              row.actNumber ?? null,
-              row.previousScore,
-              row.recoveryScore,
-              row.recoveryDate ?? null,
-              row.observations ?? null,
-            ],
+        for (const row of input.rows) {
+          const groupRes = await client.query<{ grade_group_id: string | null }>(
+            `SELECT g.grade_group_id
+               FROM course_assignments ca
+               INNER JOIN grades g ON g.school_id = ca.school_id AND g.id = ca.grade_id
+              WHERE ca.school_id = $1 AND ca.id = $2`,
+            [schoolId.toString(), row.courseAssignmentId],
           );
-        } else {
-          await client.query(
-            `INSERT INTO period_recovery_records (
-               school_id, academic_year, enrollment_id, course_assignment_id,
-               period_number, act_number, previous_score, recovery_score,
-               recovery_type, recovery_date, observations
-             )
-             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9, COALESCE($10::date, CURRENT_DATE), $11)`,
+          const gradeGroupId = groupRes.rows[0]?.grade_group_id ?? null;
+          const rules = await this.getGradingRuleThresholds(
+            client,
+            schoolId,
+            input.academicYear,
+            gradeGroupId,
+          );
+
+          // Para nivelaciones de periodo, validar periodo abierto y ventana de fechas si aplica
+          if (input.recoveryType === 'PERIOD_RECOVERY') {
+            const periodRes = await client.query<{
+              is_closed: boolean;
+              recovery_open_date: string | null;
+              recovery_close_date: string | null;
+            }>(
+              `SELECT is_closed,
+                      recovery_open_date::text,
+                      recovery_close_date::text
+                 FROM academic_periods
+                WHERE school_id = $1
+                  AND academic_year = $2
+                  AND period_number = $3
+                  AND (grade_group_id IS NULL OR grade_group_id = $4::bigint)
+                ORDER BY (grade_group_id IS NOT NULL AND grade_group_id = $4::bigint) DESC, grade_group_id NULLS LAST
+                LIMIT 1`,
+              [
+                schoolId.toString(),
+                input.academicYear,
+                row.periodNumber,
+                gradeGroupId,
+              ],
+            );
+
+            const period = periodRes.rows[0];
+            if (period?.is_closed) {
+              throw new BadRequestException(
+                `El periodo ${row.periodNumber} del año ${input.academicYear} se encuentra cerrado y no admite nivelaciones.`,
+              );
+            }
+            if (rules.enforcesRecoveryDates && period) {
+              if (
+                period.recovery_open_date &&
+                todayIso < period.recovery_open_date
+              ) {
+                throw new BadRequestException(
+                  `La ventana de nivelación del periodo ${row.periodNumber} abre el ${period.recovery_open_date}.`,
+                );
+              }
+              if (
+                period.recovery_close_date &&
+                todayIso > period.recovery_close_date
+              ) {
+                throw new BadRequestException(
+                  `La ventana de nivelación del periodo ${row.periodNumber} cerró el ${period.recovery_close_date}.`,
+                );
+              }
+            }
+          }
+
+          if (row.recoveryScore > 0) {
+            if (row.recoveryScore < row.previousScore) {
+              throw new BadRequestException(
+                `La nota recuperada (${row.recoveryScore}) no puede ser menor a la nota perdida (${row.previousScore}).`,
+              );
+            }
+            if (
+              rules.maxRecoveryScore > 0 &&
+              row.recoveryScore > rules.maxRecoveryScore
+            ) {
+              throw new BadRequestException(
+                `La nota de nivelación (${row.recoveryScore}) excede el máximo institucional (${rules.maxRecoveryScore}).`,
+              );
+            }
+          }
+
+          // Actualizar registro previo si existe para evitar duplicación al editar nivelaciones
+          const targetPeriodNumber =
+            input.recoveryType === 'FINAL_RECOVERY' ? null : row.periodNumber;
+          const existingRec = await client.query<{ id: string }>(
+            `SELECT id FROM period_recovery_records
+              WHERE school_id = $1
+                AND academic_year = $2
+                AND enrollment_id = $3
+                AND course_assignment_id = $4
+                AND period_number IS NOT DISTINCT FROM $5
+                AND recovery_type = $6
+              ORDER BY id DESC
+              LIMIT 1`,
             [
               schoolId.toString(),
               input.academicYear,
               row.enrollmentId,
               row.courseAssignmentId,
               targetPeriodNumber,
-              row.actNumber ?? null,
-              row.previousScore,
-              row.recoveryScore,
               input.recoveryType,
-              row.recoveryDate ?? null,
-              row.observations ?? null,
             ],
           );
+
+          if (existingRec.rowCount && existingRec.rowCount > 0) {
+            await client.query(
+              `UPDATE period_recovery_records
+                  SET act_number = COALESCE($3, act_number),
+                      previous_score = $4,
+                      recovery_score = $5,
+                      recovery_date = COALESCE($6::date, recovery_date),
+                      observations = $7,
+                      updated_at = NOW()
+                WHERE school_id = $1 AND id = $2`,
+              [
+                schoolId.toString(),
+                existingRec.rows[0].id,
+                row.actNumber ?? null,
+                row.previousScore,
+                row.recoveryScore,
+                row.recoveryDate ?? null,
+                row.observations ?? null,
+              ],
+            );
+          } else {
+            await client.query(
+              `INSERT INTO period_recovery_records (
+                 school_id, academic_year, enrollment_id, course_assignment_id,
+                 period_number, act_number, previous_score, recovery_score,
+                 recovery_type, recovery_date, observations
+               )
+               VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9, COALESCE($10::date, CURRENT_DATE), $11)`,
+              [
+                schoolId.toString(),
+                input.academicYear,
+                row.enrollmentId,
+                row.courseAssignmentId,
+                targetPeriodNumber,
+                row.actNumber ?? null,
+                row.previousScore,
+                row.recoveryScore,
+                input.recoveryType,
+                row.recoveryDate ?? null,
+                row.observations ?? null,
+              ],
+            );
+          }
+
+          if (input.recoveryType === 'PERIOD_RECOVERY') {
+            await client.query(
+              `UPDATE academic_scores
+                  SET lost_score = COALESCE(lost_score, final_score),
+                      recovery_score = $6,
+                      is_leveled = TRUE,
+                      leveled_at = COALESCE($7::date, CURRENT_DATE),
+                      national_scale_id = fn_siee_resolve_scale(
+                        school_id,
+                        academic_year,
+                        $8::bigint,
+                        GREATEST($6::numeric, final_score),
+                        $9::smallint
+                      ),
+                      updated_at = NOW()
+                WHERE school_id = $1
+                  AND academic_year = $2
+                  AND enrollment_id = $3
+                  AND period_number = $4
+                  AND course_assignment_id = $5`,
+              [
+                schoolId.toString(),
+                input.academicYear,
+                row.enrollmentId,
+                row.periodNumber,
+                row.courseAssignmentId,
+                row.recoveryScore,
+                row.recoveryDate ?? null,
+                gradeGroupId,
+                rules.decimalsCount,
+              ],
+            );
+          }
+          savedCount += 1;
         }
 
-        if (input.recoveryType === 'PERIOD_RECOVERY') {
-          await client.query(
-            `UPDATE academic_scores
-                SET lost_score = COALESCE(lost_score, final_score),
-                    recovery_score = $6,
-                    is_leveled = TRUE,
-                    leveled_at = COALESCE($7::date, CURRENT_DATE),
-                    updated_at = NOW()
-              WHERE school_id = $1
-                AND academic_year = $2
-                AND enrollment_id = $3
-                AND period_number = $4
-                AND course_assignment_id = $5`,
-            [
-              schoolId.toString(),
-              input.academicYear,
-              row.enrollmentId,
-              row.periodNumber,
-              row.courseAssignmentId,
-              row.recoveryScore,
-              row.recoveryDate ?? null,
-            ],
-          );
-        }
-        savedCount += 1;
-      }
-
-      return { savedCount };
-    });
+        return { savedCount };
+      },
+      {
+        userId: userId ?? null,
+        changeReason:
+          input.recoveryType === 'FINAL_RECOVERY'
+            ? 'Registro de nivelación final SIEE'
+            : 'Registro de nivelación periódica SIEE',
+      },
+    );
   }
 
   async getObserverExtendedData(
@@ -1333,23 +1570,60 @@ export class PostgresTeacherExtendedRepository extends TeacherExtendedRepository
     schoolId: bigint,
     academicYear: number,
     gradeGroupId: string | null = null,
-  ): Promise<{ minPassingScore: number; maxRecoveryScore: number }> {
+  ): Promise<{
+    minPassingScore: number;
+    failingMaxScore: number;
+    maxRecoveryScore: number;
+    decimalsCount: number;
+    enforcesRecoveryDates: boolean;
+    roundsPeriodScore: boolean;
+    roundingThresholdScore: number;
+    roundingTargetScore: number;
+  }> {
     const res = await client.query<{
       min_passing_score: string;
       max_recovery_score: string;
+      decimals_count: number;
+      enforces_recovery_dates: boolean;
+      rounds_period_score: boolean;
+      rounding_threshold_score: string;
+      rounding_target_score: string;
+      failing_max_score: string | null;
     }>(
-      `SELECT min_passing_score, max_recovery_score
-         FROM academic_grading_rules
-        WHERE school_id = $1 AND academic_year = $2
-        ORDER BY (grade_group_id IS NOT NULL AND grade_group_id = $3::bigint) DESC, id
+      `SELECT r.min_passing_score,
+              r.max_recovery_score,
+              r.decimals_count,
+              r.enforces_recovery_dates,
+              r.rounds_period_score,
+              r.rounding_threshold_score,
+              r.rounding_target_score,
+              (
+                SELECT MAX(gs.max_score)
+                  FROM grading_scales gs
+                 WHERE gs.school_id = r.school_id
+                   AND gs.academic_year = r.academic_year
+                   AND gs.is_failing = TRUE
+                   AND (gs.grade_group_id IS NULL OR gs.grade_group_id = COALESCE($3::bigint, r.grade_group_id))
+              ) AS failing_max_score
+         FROM academic_grading_rules r
+        WHERE r.school_id = $1 AND r.academic_year = $2
+        ORDER BY (r.grade_group_id IS NOT NULL AND r.grade_group_id = $3::bigint) DESC, r.id
         LIMIT 1`,
       [schoolId.toString(), academicYear, gradeGroupId],
     );
+    const row = res.rows[0];
+    const minPassingScore = row ? Number(row.min_passing_score) : 3.0;
     return {
-      minPassingScore: res.rows[0] ? Number(res.rows[0].min_passing_score) : 3.0,
-      maxRecoveryScore: res.rows[0]
-        ? Number(res.rows[0].max_recovery_score)
-        : 3.0,
+      minPassingScore,
+      failingMaxScore: row?.failing_max_score
+        ? Number(row.failing_max_score)
+        : Number((minPassingScore - 0.01).toFixed(2)),
+      maxRecoveryScore: row ? Number(row.max_recovery_score) : 3.0,
+      decimalsCount: row ? Number(row.decimals_count) : 2,
+      enforcesRecoveryDates: Boolean(row?.enforces_recovery_dates),
+      roundsPeriodScore: Boolean(row?.rounds_period_score),
+      roundingThresholdScore: row ? Number(row.rounding_threshold_score) : 0,
+      roundingTargetScore: row ? Number(row.rounding_target_score) : 0,
     };
   }
 

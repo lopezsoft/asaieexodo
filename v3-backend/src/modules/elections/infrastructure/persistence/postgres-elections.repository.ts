@@ -672,25 +672,52 @@ export class PostgresElectionsRepository extends ElectionsRepositoryPort {
       const electionRes = await client.query<{
         academic_year: number;
         is_active: boolean;
+        election_date: string;
+        start_time: string;
+        end_time: string;
+        is_within_window: boolean;
       }>(
-        `SELECT academic_year, is_active FROM school_elections WHERE school_id = $1 AND id = $2`,
+        `SELECT academic_year,
+                is_active,
+                election_date::text,
+                start_time::text,
+                end_time::text,
+                (
+                  election_date = CURRENT_DATE
+                  AND LOCALTIME BETWEEN start_time AND end_time
+                ) AS is_within_window
+           FROM school_elections
+          WHERE school_id = $1 AND id = $2`,
         [schoolId.toString(), electionId.toString()],
       );
       if (electionRes.rowCount === 0) {
         throw new ResourceNotFoundException('SchoolElection', electionId.toString());
       }
-      if (!electionRes.rows[0].is_active) {
+      const election = electionRes.rows[0];
+      if (!election.is_active) {
         throw new ForbiddenException('La jornada electoral no se encuentra habilitada.');
       }
+      if (!election.is_within_window) {
+        throw new ForbiddenException(
+          `La votación solo está permitida el ${election.election_date} entre las ${election.start_time.slice(0, 5)} y las ${election.end_time.slice(0, 5)}.`,
+        );
+      }
 
-      const enrRes = await client.query<{ enrollment_id: string }>(
-        `SELECT se.id AS enrollment_id
+      const enrRes = await client.query<{
+        enrollment_id: string;
+        grade_id: string;
+      }>(
+        `SELECT se.id AS enrollment_id, se.grade_id
            FROM student_profiles sp
            INNER JOIN student_enrollments se
              ON se.school_id = sp.school_id AND se.student_profile_id = sp.id
-          WHERE sp.school_id = $1 AND sp.user_id = $2 AND se.academic_year = $3
+          WHERE sp.school_id = $1
+            AND sp.user_id = $2
+            AND se.academic_year = $3
+            AND se.enrollment_status_id = 2
+          ORDER BY se.id DESC
           LIMIT 1`,
-        [schoolId.toString(), userId.toString(), electionRes.rows[0].academic_year],
+        [schoolId.toString(), userId.toString(), election.academic_year],
       );
       if (enrRes.rowCount === 0) {
         throw new ForbiddenException(
@@ -698,6 +725,60 @@ export class PostgresElectionsRepository extends ElectionsRepositoryPort {
         );
       }
       const enrollmentId = Number(enrRes.rows[0].enrollment_id);
+      const studentGradeId = Number(enrRes.rows[0].grade_id);
+
+      // Validar mesa electoral activa y pertenencia del grado a `allowed_grades`
+      let resolvedStationId: number | null = input.pollingStationId ?? null;
+      if (resolvedStationId !== null) {
+        const stRes = await client.query<{
+          id: string;
+          is_active: boolean;
+          allowed_grades: unknown;
+        }>(
+          `SELECT id, is_active, allowed_grades
+             FROM election_polling_stations
+            WHERE school_id = $1 AND election_id = $2 AND id = $3`,
+          [schoolId.toString(), electionId.toString(), resolvedStationId],
+        );
+        if (stRes.rowCount === 0 || !stRes.rows[0].is_active) {
+          throw new ForbiddenException(
+            'La mesa de votación seleccionada no existe o no se encuentra habilitada.',
+          );
+        }
+        const allowed = Array.isArray(stRes.rows[0].allowed_grades)
+          ? (stRes.rows[0].allowed_grades as unknown[]).map(Number)
+          : [];
+        if (allowed.length > 0 && !allowed.includes(studentGradeId)) {
+          throw new ForbiddenException(
+            'Tu grado escolar no está habilitado para votar en la mesa seleccionada.',
+          );
+        }
+      } else {
+        const activeStationsRes = await client.query<{
+          id: string;
+          allowed_grades: unknown;
+        }>(
+          `SELECT id, allowed_grades
+             FROM election_polling_stations
+            WHERE school_id = $1 AND election_id = $2 AND is_active = TRUE
+            ORDER BY id ASC`,
+          [schoolId.toString(), electionId.toString()],
+        );
+        if (activeStationsRes.rows.length > 0) {
+          const matching = activeStationsRes.rows.find((st) => {
+            const allowed = Array.isArray(st.allowed_grades)
+              ? (st.allowed_grades as unknown[]).map(Number)
+              : [];
+            return allowed.length === 0 || allowed.includes(studentGradeId);
+          });
+          if (!matching) {
+            throw new ForbiddenException(
+              'No existe una mesa de votación activa habilitada para tu grado escolar.',
+            );
+          }
+          resolvedStationId = Number(matching.id);
+        }
+      }
 
       const candRes = await client.query<{ id: string }>(
         `SELECT id
@@ -746,7 +827,7 @@ export class PostgresElectionsRepository extends ElectionsRepositoryPort {
         [
           schoolId.toString(),
           electionId.toString(),
-          input.pollingStationId ?? null,
+          resolvedStationId,
           input.candidacyTypeId,
           enrollmentId,
           input.candidateId,
@@ -780,7 +861,7 @@ export class PostgresElectionsRepository extends ElectionsRepositoryPort {
       const eligibleRes = await client.query<{ total: string }>(
         `SELECT COUNT(*)::text AS total
            FROM student_enrollments
-          WHERE school_id = $1 AND academic_year = $2`,
+          WHERE school_id = $1 AND academic_year = $2 AND enrollment_status_id = 2`,
         [schoolId.toString(), election.academicYear],
       );
       const totalEligibleStudents = Number(eligibleRes.rows[0]?.total ?? 0);

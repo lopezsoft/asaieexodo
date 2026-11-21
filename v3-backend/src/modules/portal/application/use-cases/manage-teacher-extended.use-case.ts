@@ -89,8 +89,14 @@ export class ManageTeacherExtendedUseCase {
     schoolId: bigint,
     courseAssignmentId: bigint,
     dto: SaveGradeItemsBatchDto,
+    userId?: bigint,
   ): Promise<{ savedCount: number }> {
-    return this.repository.saveGradeItemsBatch(schoolId, courseAssignmentId, dto);
+    return this.repository.saveGradeItemsBatch(
+      schoolId,
+      courseAssignmentId,
+      dto,
+      userId,
+    );
   }
 
   createAchievementsMultiScale(
@@ -152,12 +158,14 @@ export class ManageTeacherExtendedUseCase {
     courseAssignmentId: bigint,
     academicYear: number,
     periodNumber: number,
+    filterMode?: 'FAILED' | 'LEVELED' | 'ALL',
   ): Promise<TeacherLevelingListView> {
     return this.repository.listPeriodicLevelings(
       schoolId,
       courseAssignmentId,
       academicYear,
       periodNumber,
+      filterMode,
     );
   }
 
@@ -173,8 +181,9 @@ export class ManageTeacherExtendedUseCase {
   saveLevelingsBatch(
     schoolId: bigint,
     dto: SaveLevelingsBatchDto,
+    userId?: bigint,
   ): Promise<{ savedCount: number }> {
-    return this.repository.saveLevelingsBatch(schoolId, dto);
+    return this.repository.saveLevelingsBatch(schoolId, dto, userId);
   }
 
   getObserverExtendedData(

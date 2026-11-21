@@ -1643,4 +1643,13 @@ COMMENT ON COLUMN observer_criteria_evaluations.period_3_rating IS 'Valoración 
 COMMENT ON COLUMN observer_criteria_evaluations.period_4_rating IS 'Valoración del criterio en el periodo 4 (S, CS, AV, N).';
 COMMENT ON COLUMN observer_criteria_evaluations.updated_at IS 'Fecha y hora de la última actualización de la valoración.';
 
+-- Columna SIEE tri-estado de perdida tras recuperacion + vistas y funciones SIEE unificadas
+COMMENT ON COLUMN academic_grading_rules.fails_after_recovery_mode IS 'Modo de evaluación tras recuperación final (config001.pierde_luego_rec: 1=pierde año al fallar 1, 2=pierde si falla todas o dificultad si parcial, 0/3=todas las áreas).';
+COMMENT ON FUNCTION fn_siee_apply_grace_rounding(NUMERIC, NUMERIC, NUMERIC, NUMERIC, BOOLEAN) IS 'Aplica el redondeo de gracia SIEE de fin de año cuando la nota cae dentro del umbral configurado.';
+COMMENT ON FUNCTION fn_siee_resolve_scale(BIGINT, SMALLINT, BIGINT, NUMERIC, SMALLINT) IS 'Resuelve el identificador de escala nacional (MEN) respetando grupo de grados y redondeo decimal SIEE.';
+COMMENT ON FUNCTION fn_audit_academic_scores_changes() IS 'Función disparadora antifraude que registra automáticamente cambios y eliminaciones de notas en academic_score_audit_logs.';
+COMMENT ON VIEW v_siee_subject_period_scores IS 'Vista unificada RLS-safe de calificaciones periódicas por asignatura con área anual, peso curricular y nota efectiva (reemplaza 8 vistas legacy *_periodos).';
+COMMENT ON VIEW v_siee_area_period_scores IS 'Vista unificada RLS-safe de calificaciones consolidadas por área y periodo aplicando ponderación, decimales y regla fail_subject_of_the_area.';
+COMMENT ON VIEW v_siee_subject_annual_scores IS 'Vista unificada RLS-safe de definitivas anuales por asignatura respetando promotion_mode, redondeo de gracia y recuperaciones finales (reemplaza 8 vistas anuales legacy).';
+
 COMMIT;

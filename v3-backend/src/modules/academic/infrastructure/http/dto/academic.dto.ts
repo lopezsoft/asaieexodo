@@ -558,11 +558,15 @@ export class SavePeriodRecoveryDto {
   @Min(1)
   courseAssignmentId!: number;
 
-  @ApiProperty({ example: 1 })
+  @ApiPropertyOptional({
+    example: 1,
+    description: 'Obligatorio para PERIOD_RECOVERY (1..6); opcional/nulo para FINAL_RECOVERY',
+  })
+  @IsOptional()
   @IsInt()
   @Min(1)
   @Max(6)
-  periodNumber!: number;
+  periodNumber?: number | null;
 
   @ApiPropertyOptional()
   @IsOptional()
@@ -607,6 +611,50 @@ export class HonorRollRequestDto {
   @Min(1)
   @Max(6)
   periodNumber!: number;
+
+  @ApiPropertyOptional({
+    example: 1,
+    description: '1=Grupo, 2=Grado, 3=Sede, 4=Nivel Educativo, 5=Institución',
+  })
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(5)
+  honorScope?: number;
+
+  @ApiPropertyOptional({ example: 3 })
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(20)
+  topLimit?: number;
+}
+
+export class MaterializeAreaResultsDto {
+  @ApiProperty({ example: 2026 })
+  @IsInt()
+  @Min(1990)
+  @Max(2100)
+  academicYear!: number;
+
+  @ApiProperty({ example: 1 })
+  @IsInt()
+  @Min(1)
+  @Max(6)
+  periodNumber!: number;
+}
+
+export class RenumberFoliosDto {
+  @ApiProperty({ example: 2026 })
+  @IsInt()
+  @Min(1990)
+  @Max(2100)
+  academicYear!: number;
+
+  @ApiPropertyOptional({ default: true })
+  @IsOptional()
+  @IsBoolean()
+  onlyActive?: boolean;
 }
 
 export class UppercaseAchievementsDto {

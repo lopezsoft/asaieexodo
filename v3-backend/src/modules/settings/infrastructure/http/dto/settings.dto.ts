@@ -94,6 +94,27 @@ export class UpsertGradingRuleDto {
   @Max(100)
   maxRecoveryScore?: number;
 
+  @ApiPropertyOptional({ example: 2.95 })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Max(100)
+  roundingThresholdScore?: number;
+
+  @ApiPropertyOptional({ example: 3.0 })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Max(100)
+  roundingTargetScore?: number;
+
+  @ApiPropertyOptional({ example: 3.0 })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Max(100)
+  minAreaAverage?: number;
+
   @ApiPropertyOptional({ example: 3 })
   @IsOptional()
   @IsInt()
@@ -106,6 +127,27 @@ export class UpsertGradingRuleDto {
   @IsBoolean()
   failsAfterRecovery?: boolean;
 
+  @ApiPropertyOptional({
+    example: 1,
+    description:
+      '0=No reprueba tras recuperación, 1=Reprueba si pierde 1+ área, 2=Reprueba si pierde 2+ áreas, 3=Reprueba si no supera la totalidad de áreas habilitadas',
+  })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  @Max(3)
+  failsAfterRecoveryMode?: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsBoolean()
+  failsAreaIfAnySubjectFails?: boolean;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsBoolean()
+  failsYearByMandatoryArea?: boolean;
+
   @ApiPropertyOptional()
   @IsOptional()
   @IsInt()
@@ -113,10 +155,27 @@ export class UpsertGradingRuleDto {
   @Max(5)
   promotionMode?: number;
 
+  @ApiPropertyOptional({ example: 0, description: '0=Anual estándar, 1=Ciclos/Semestralizado' })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  @Max(2)
+  academicYearMode?: number;
+
   @ApiPropertyOptional()
   @IsOptional()
   @IsBoolean()
   usesWeightedAreas?: boolean;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsBoolean()
+  ranksByAreaAverage?: boolean;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsBoolean()
+  enforcesRecoveryDates?: boolean;
 
   @ApiPropertyOptional({ example: 25 })
   @IsOptional()
@@ -134,6 +193,13 @@ export class UpsertGradingRuleDto {
   @IsOptional()
   @IsBoolean()
   roundsFinalScore?: boolean;
+
+  @ApiPropertyOptional({ example: 500 })
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(10000)
+  studentsPerBook?: number;
 
   @ApiPropertyOptional()
   @IsOptional()
@@ -353,6 +419,16 @@ export class SaveGradingScaleDto {
   @IsString()
   @MaxLength(5)
   rankOrder?: string | null;
+
+  @ApiPropertyOptional({ example: false })
+  @IsOptional()
+  @IsBoolean()
+  isFailing?: boolean;
+
+  @ApiPropertyOptional({ example: true })
+  @IsOptional()
+  @IsBoolean()
+  isGradable?: boolean;
 }
 
 export class SaveEvaluationDimensionDto {

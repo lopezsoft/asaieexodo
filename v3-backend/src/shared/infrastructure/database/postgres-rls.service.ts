@@ -48,11 +48,16 @@ export class PostgresRlsService implements OnModuleDestroy {
 
   /**
    * Ejecuta una operacion dentro de una transaccion con rol `asaie_app_runtime` (NOBYPASSRLS)
-   * y `app.current_school_id` activo para RLS.
+   * y `app.current_school_id` activo para RLS. Opcionalmente propaga contexto de auditoria
+   * (`app.current_user_id` y `app.current_change_reason`) para triggers antifraude.
    */
   async withTenantTransaction<T>(
     schoolId: bigint,
     operation: (client: PoolClient) => Promise<T>,
+    auditContext?: {
+      readonly userId?: bigint | number | null;
+      readonly changeReason?: string | null;
+    },
   ): Promise<T> {
     if (schoolId <= 0n) {
       throw new TenantAccessDeniedException(
@@ -70,6 +75,18 @@ export class PostgresRlsService implements OnModuleDestroy {
         `SELECT set_config('app.current_school_id', $1, true)`,
         [String(schoolId)],
       );
+      if (auditContext?.userId !== undefined && auditContext.userId !== null) {
+        await client.query(
+          `SELECT set_config('app.current_user_id', $1, true)`,
+          [String(auditContext.userId)],
+        );
+      }
+      if (auditContext?.changeReason) {
+        await client.query(
+          `SELECT set_config('app.current_change_reason', $1, true)`,
+          [auditContext.changeReason.slice(0, 250)],
+        );
+      }
       const result = await operation(client);
       await client.query('COMMIT');
       return result;

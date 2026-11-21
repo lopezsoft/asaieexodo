@@ -165,6 +165,7 @@ export class TeacherExtendedController {
         p.schoolId,
         courseAssignmentId,
         dto,
+        p.userId,
       ),
     };
   }
@@ -267,10 +268,13 @@ export class TeacherExtendedController {
     @Query('courseAssignmentId') courseAssignmentId: string,
     @Query('academicYear') academicYear?: string,
     @Query('periodNumber') periodNumber?: string,
+    @Query('filterMode') filterMode?: string,
   ) {
     const cid = /^\d+$/.test(courseAssignmentId ?? '')
       ? BigInt(courseAssignmentId)
       : 0n;
+    const safeMode: 'FAILED' | 'LEVELED' | 'ALL' =
+      filterMode === 'LEVELED' || filterMode === 'ALL' ? filterMode : 'FAILED';
     return {
       success: true,
       data: await this.useCase.listPeriodicLevelings(
@@ -278,6 +282,7 @@ export class TeacherExtendedController {
         cid,
         this.parseYear(academicYear, p.academicYear),
         periodNumber && /^\d+$/.test(periodNumber) ? Number(periodNumber) : 1,
+        safeMode,
       ),
     };
   }
@@ -308,7 +313,7 @@ export class TeacherExtendedController {
   ) {
     return {
       success: true,
-      data: await this.useCase.saveLevelingsBatch(p.schoolId, dto),
+      data: await this.useCase.saveLevelingsBatch(p.schoolId, dto, p.userId),
     };
   }
 

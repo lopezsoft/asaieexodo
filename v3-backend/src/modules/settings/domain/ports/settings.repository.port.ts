@@ -19,13 +19,23 @@ export interface GradingRuleRecord {
   readonly decimalsCount: number;
   readonly minPassingScore: number;
   readonly maxRecoveryScore: number;
+  readonly roundingThresholdScore: number;
+  readonly roundingTargetScore: number;
+  readonly minAreaAverage: number;
   readonly failedAreasLimit: number;
   readonly failsAfterRecovery: boolean;
+  readonly failsAfterRecoveryMode: number;
+  readonly failsAreaIfAnySubjectFails: boolean;
+  readonly failsYearByMandatoryArea: boolean;
   readonly promotionMode: number;
+  readonly academicYearMode: number;
   readonly usesWeightedAreas: boolean;
+  readonly ranksByAreaAverage: boolean;
+  readonly enforcesRecoveryDates: boolean;
   readonly absenceFailPercentage: number;
   readonly roundsPeriodScore: boolean;
   readonly roundsFinalScore: boolean;
+  readonly studentsPerBook: number;
   readonly promotionDate: string | null;
 }
 
@@ -105,6 +115,8 @@ export interface GradingScaleRecord {
   readonly minScore: number;
   readonly maxScore: number;
   readonly rankOrder: string | null;
+  readonly isFailing: boolean;
+  readonly isGradable: boolean;
 }
 
 export interface DimensionColumnRecord {
@@ -207,13 +219,23 @@ export abstract class SettingsRepositoryPort {
       decimalsCount?: number;
       minPassingScore?: number;
       maxRecoveryScore?: number;
+      roundingThresholdScore?: number;
+      roundingTargetScore?: number;
+      minAreaAverage?: number;
       failedAreasLimit?: number;
       failsAfterRecovery?: boolean;
+      failsAfterRecoveryMode?: number;
+      failsAreaIfAnySubjectFails?: boolean;
+      failsYearByMandatoryArea?: boolean;
       promotionMode?: number;
+      academicYearMode?: number;
       usesWeightedAreas?: boolean;
+      ranksByAreaAverage?: boolean;
+      enforcesRecoveryDates?: boolean;
       absenceFailPercentage?: number;
       roundsPeriodScore?: boolean;
       roundsFinalScore?: boolean;
+      studentsPerBook?: number;
       promotionDate?: string | null;
     },
   ): Promise<GradingRuleRecord>;
@@ -305,6 +327,8 @@ export abstract class SettingsRepositoryPort {
       minScore: number;
       maxScore: number;
       rankOrder?: string | null;
+      isFailing?: boolean;
+      isGradable?: boolean;
     },
   ): Promise<GradingScaleRecord>;
   abstract deleteGradingScale(schoolId: bigint, scaleId: bigint): Promise<void>;

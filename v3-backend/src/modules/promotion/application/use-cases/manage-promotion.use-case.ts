@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import {
+  CloseAcademicYearResult,
+  FinalSabanaReport,
   PromotionRecordView,
   PromotionRepositoryPort,
   PromotionStatusOption,
@@ -11,6 +13,7 @@ import {
   CloseAcademicYearDto,
   EnrollReturningStudentsDto,
   GenerateFinalBookDto,
+  GenerateFinalRecoveriesDto,
   UpdateCertificateHeadersDto,
   UpdatePromotionRecordDto,
 } from '../../infrastructure/http/dto/promotion.dto';
@@ -85,14 +88,38 @@ export class ManagePromotionUseCase {
     return this.repository.updateCertificateHeaders(schoolId, dto);
   }
 
+  generateFinalRecoveries(
+    schoolId: bigint,
+    dto: GenerateFinalRecoveriesDto,
+  ): Promise<{
+    eligibleStudentsCount: number;
+    generatedRecordsCount: number;
+    skippedExistingCount: number;
+  }> {
+    return this.repository.generateFinalRecoveries(schoolId, dto);
+  }
+
+  getFinalSabana(
+    schoolId: bigint,
+    academicYear: number,
+    academicGroupId?: number,
+  ): Promise<FinalSabanaReport> {
+    return this.repository.getFinalSabana(
+      schoolId,
+      academicYear,
+      academicGroupId,
+    );
+  }
+
   setAcademicYearClosedState(
     schoolId: bigint,
     dto: CloseAcademicYearDto,
-  ): Promise<{ academicYear: number; isClosed: boolean; periodsUpdated: number }> {
+  ): Promise<CloseAcademicYearResult> {
     return this.repository.setAcademicYearClosedState(
       schoolId,
       dto.academicYear,
       dto.isClosed ?? true,
+      { cloneToNextYear: dto.cloneToNextYear ?? true },
     );
   }
 }

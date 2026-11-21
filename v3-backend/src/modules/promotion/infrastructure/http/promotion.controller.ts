@@ -23,6 +23,7 @@ import {
   CloseAcademicYearDto,
   EnrollReturningStudentsDto,
   GenerateFinalBookDto,
+  GenerateFinalRecoveriesDto,
   UpdateCertificateHeadersDto,
   UpdatePromotionRecordDto,
 } from './dto/promotion.dto';
@@ -87,7 +88,7 @@ export class PromotionController {
   @Post('generate-final-book')
   @Roles(...RECTOR_ROLES, CommunityRole.COORDINATOR)
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Generar libro final de calificaciones y actas de promoción' })
+  @ApiOperation({ summary: 'Generar libro final de calificaciones y actas de promoción bajo reglas SIEE Decreto 1290' })
   async generateFinalBook(
     @CurrentUser() p: ActiveTenantContext,
     @Body() dto: GenerateFinalBookDto,
@@ -95,6 +96,46 @@ export class PromotionController {
     return {
       success: true,
       data: await this.promotionUseCase.generateFinalBook(p.schoolId, dto),
+    };
+  }
+
+  @Post('final-recoveries/generate')
+  @Roles(...RECTOR_ROLES, CommunityRole.COORDINATOR)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary:
+      'Generar actas de nivelación/habilitación final únicamente para estudiantes elegibles SIEE (0 < áreas reprobadas < límite)',
+  })
+  async generateFinalRecoveries(
+    @CurrentUser() p: ActiveTenantContext,
+    @Body() dto: GenerateFinalRecoveriesDto,
+  ) {
+    return {
+      success: true,
+      data: await this.promotionUseCase.generateFinalRecoveries(p.schoolId, dto),
+    };
+  }
+
+  @Get('final-sabana')
+  @Roles(...READ_ROLES)
+  @ApiOperation({
+    summary:
+      'Consultar sábana final anual consolidada por grupo con notas definitivas, nivelaciones finales y estado de promoción',
+  })
+  async getFinalSabana(
+    @CurrentUser() p: ActiveTenantContext,
+    @Query('academicYear') academicYear?: string,
+    @Query('academicGroupId') academicGroupId?: string,
+  ) {
+    return {
+      success: true,
+      data: await this.promotionUseCase.getFinalSabana(
+        p.schoolId,
+        this.parseYear(academicYear, p.academicYear),
+        academicGroupId && /^\d+$/.test(academicGroupId)
+          ? Number(academicGroupId)
+          : undefined,
+      ),
     };
   }
 

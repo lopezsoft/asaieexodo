@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { ResourceNotFoundException } from '../../../../shared/domain/exceptions/resource-not-found.exception';
 import { PostgresRlsService } from '../../../../shared/infrastructure/database/postgres-rls.service';
+import { IamCommunityProvisioningService } from '../../../iam/application/services/iam-community-provisioning.service';
+import { CommunityRole } from '../../../iam/domain/enums/community-role.enum';
 import {
   AdministrationRepositoryPort,
   AdministrativeStaffRecord,
@@ -24,7 +26,10 @@ import {
 export class PostgresAdministrationRepository
   implements AdministrationRepositoryPort
 {
-  constructor(private readonly db: PostgresRlsService) {}
+  constructor(
+    private readonly db: PostgresRlsService,
+    private readonly iamProvisioning: IamCommunityProvisioningService,
+  ) {}
 
   async getDashboardStatistics(
     schoolId: bigint,
@@ -615,24 +620,42 @@ export class PostgresAdministrationRepository
     input: SaveTeacherInput,
   ): Promise<TeacherProfileRecord> {
     return this.db.withTenantTransaction(schoolId, async (client) => {
+      // Aprovisionamiento automático IAM (`users` con scrypt + membresía TEACHER)
+      // Paridad segura del trigger legacy `docentes_after_insert`
+      const userId = await this.iamProvisioning.provisionCommunityUser(client, {
+        schoolId,
+        role: CommunityRole.TEACHER,
+        documentTypeId: input.documentTypeId ?? 1,
+        documentNumber: input.documentNumber,
+        firstName: input.firstName,
+        middleName: input.middleName,
+        lastName: input.lastName,
+        secondLastName: input.secondLastName,
+        email: input.email,
+        phone: input.phone,
+        genderId: input.genderId,
+        birthDate: input.birthDate,
+      });
+
       const res = await client.query<{ id: string }>(
         `INSERT INTO teacher_profiles (
-           school_id, document_type_id, document_number,
+           school_id, user_id, document_type_id, document_number,
            first_name, middle_name, last_name, second_last_name,
            gender_id, birth_date, address, phone, email,
            academic_degree_id, pay_scale_id, teaching_area_id, technical_area_id,
            appointment_type_id, position_id, workplace_location_id, signature_url, is_active
          )
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22)
          RETURNING id`,
         [
           String(schoolId),
+          String(userId),
           input.documentTypeId ?? 1,
           input.documentNumber.trim(),
-          input.firstName.trim(),
-          input.middleName?.trim() || null,
-          input.lastName.trim(),
-          input.secondLastName?.trim() || null,
+          input.firstName.trim().toUpperCase(),
+          input.middleName?.trim().toUpperCase() || null,
+          input.lastName.trim().toUpperCase(),
+          input.secondLastName?.trim().toUpperCase() || null,
           input.genderId ?? null,
           input.birthDate || null,
           input.address?.trim() || null,
@@ -648,6 +671,22 @@ export class PostgresAdministrationRepository
           input.signatureUrl?.trim() || null,
           input.isActive ?? true,
         ],
+      );
+
+      // Registrar en planta docente activa (`teacher_academic_years`, paridad `aux_docentes`)
+      const yearRes = await client.query<{ active_year: number }>(
+        `SELECT COALESCE(MAX(year), EXTRACT(YEAR FROM CURRENT_DATE)::smallint) AS active_year
+           FROM academic_years
+          WHERE school_id = $1 AND is_closed = FALSE`,
+        [String(schoolId)],
+      );
+      const activeYear =
+        yearRes.rows[0]?.active_year ?? new Date().getFullYear();
+      await client.query(
+        `INSERT INTO teacher_academic_years (school_id, academic_year, teacher_profile_id, is_active)
+         VALUES ($1, $2, $3, TRUE)
+         ON CONFLICT (school_id, academic_year, teacher_profile_id) DO NOTHING`,
+        [String(schoolId), activeYear, res.rows[0].id],
       );
 
       return this.fetchTeacherById(client, res.rows[0].id);
@@ -786,23 +825,41 @@ export class PostgresAdministrationRepository
     input: SaveAdministrativeStaffInput,
   ): Promise<AdministrativeStaffRecord> {
     return this.db.withTenantTransaction(schoolId, async (client) => {
+      // Aprovisionamiento automático IAM (`users` con scrypt + membresía SECRETARY)
+      // Paridad segura del trigger legacy `administrativos_after_insert`
+      const userId = await this.iamProvisioning.provisionCommunityUser(client, {
+        schoolId,
+        role: CommunityRole.SECRETARY,
+        documentTypeId: input.documentTypeId ?? 1,
+        documentNumber: input.documentNumber,
+        firstName: input.firstName,
+        middleName: input.middleName,
+        lastName: input.lastName,
+        secondLastName: input.secondLastName,
+        email: input.email,
+        phone: input.phone,
+        genderId: input.genderId,
+        birthDate: input.birthDate,
+      });
+
       const res = await client.query<{ id: string }>(
         `INSERT INTO administrative_staff (
-           school_id, document_type_id, document_number,
+           school_id, user_id, document_type_id, document_number,
            first_name, middle_name, last_name, second_last_name,
            gender_id, birth_date, phone, email,
            hierarchy_level_id, career_type_id, appointment_type_id, workplace_location_id, is_active
          )
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
          RETURNING id`,
         [
           String(schoolId),
+          String(userId),
           input.documentTypeId ?? 1,
           input.documentNumber.trim(),
-          input.firstName.trim(),
-          input.middleName?.trim() || null,
-          input.lastName.trim(),
-          input.secondLastName?.trim() || null,
+          input.firstName.trim().toUpperCase(),
+          input.middleName?.trim().toUpperCase() || null,
+          input.lastName.trim().toUpperCase(),
+          input.secondLastName?.trim().toUpperCase() || null,
           input.genderId ?? null,
           input.birthDate || null,
           input.phone?.trim() || null,

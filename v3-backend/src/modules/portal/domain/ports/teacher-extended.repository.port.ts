@@ -185,6 +185,7 @@ export abstract class TeacherExtendedRepositoryPort {
         gradebookColumnId?: number | null;
       }>;
     },
+    userId?: bigint,
   ): Promise<{ savedCount: number }>;
 
   abstract createAchievementsMultiScale(
@@ -238,6 +239,7 @@ export abstract class TeacherExtendedRepositoryPort {
     courseAssignmentId: bigint,
     academicYear: number,
     periodNumber: number,
+    filterMode?: 'FAILED' | 'LEVELED' | 'ALL',
   ): Promise<TeacherLevelingListView>;
 
   abstract listFinalLevelings(
@@ -263,6 +265,7 @@ export abstract class TeacherExtendedRepositoryPort {
         observations?: string | null;
       }>;
     },
+    userId?: bigint,
   ): Promise<{ savedCount: number }>;
 
   abstract getObserverExtendedData(

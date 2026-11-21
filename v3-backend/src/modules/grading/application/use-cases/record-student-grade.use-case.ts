@@ -2,6 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { DomainException } from '../../../../shared/domain/exceptions/domain.exception';
 import { AcademicGrade } from '../../domain/entities/academic-grade.entity';
 import {
+  applyGraceRounding,
+  computeEffectiveScore,
+} from '../../domain/helpers/siee-decimal.helper';
+import {
   AcademicGradeRepositoryPort,
   StudentBulletinGradeSummary,
 } from '../../domain/ports/academic-grade.repository.port';
@@ -51,9 +55,19 @@ export class RecordStudentGradeUseCase {
         ? this.weightedStrategy
         : this.arithmeticStrategy;
 
-    const calculatedFinal = strategy.calculatePeriodFinalScore(
+    const rawFinal = strategy.calculatePeriodFinalScore(
       command.competencyScores,
       rules.decimalsCount,
+    );
+
+    const failingMax =
+      rules.failingMaxScore ?? Number((rules.minPassingScore - 0.01).toFixed(2));
+    const calculatedFinal = applyGraceRounding(
+      rawFinal,
+      failingMax,
+      rules.roundingThresholdScore ?? 0,
+      rules.roundingTargetScore ?? 0,
+      rules.roundsPeriodScore ?? false,
     );
 
     const validatedFinalScore = GradingScore.create(
@@ -80,10 +94,10 @@ export class RecordStudentGradeUseCase {
       validatedRecovery = recoveryVo.value;
     }
 
-    const effective =
-      validatedRecovery !== null && validatedRecovery > 0
-        ? validatedRecovery
-        : validatedFinalScore.value;
+    const effective = computeEffectiveScore(
+      validatedFinalScore.value,
+      validatedRecovery,
+    );
 
     return this.gradeRepository.upsertGrade({
       schoolId: command.schoolId,
@@ -97,7 +111,7 @@ export class RecordStudentGradeUseCase {
       unjustifiedAbsences: command.unjustifiedAbsences ?? 0,
       lateArrivals: command.lateArrivals ?? 0,
       preReportObservations: command.teacherObservations ?? null,
-      hasPreReportAlert: effective < rules.minPassingScore,
+      hasPreReportAlert: effective <= failingMax,
       changeReason: command.changeReason ?? null,
       updatedByUserId: command.updatedByUserId,
     });

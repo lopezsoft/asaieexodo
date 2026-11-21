@@ -214,7 +214,7 @@ export class PostgresPortalRepository extends PortalRepositoryPort {
                 gr.final_score,
                 gr.lost_score,
                 gr.recovery_score,
-                COALESCE(NULLIF(gr.recovery_score, 0), gr.final_score) AS effective_score,
+                GREATEST(COALESCE(gr.recovery_score, 0), gr.final_score) AS effective_score,
                 gr.justified_absences,
                 gr.unjustified_absences,
                 gr.late_arrivals,
@@ -321,109 +321,208 @@ export class PostgresPortalRepository extends PortalRepositoryPort {
       }>;
     },
   ): Promise<{ savedCount: number }> {
-    return this.db.withTenantTransaction(schoolId, async (client) => {
-      const periodRes = await client.query<{ id: string; is_closed: boolean }>(
-        `SELECT id, is_closed
-           FROM academic_periods
-          WHERE school_id = $1 AND academic_year = $2 AND period_number = $3
-          ORDER BY grade_group_id NULLS LAST
-          LIMIT 1`,
-        [schoolId.toString(), input.academicYear, input.periodNumber],
-      );
-      if (periodRes.rowCount === 0) {
-        throw new BadRequestException(
-          `No existe un periodo académico configurado para el año ${input.academicYear} periodo ${input.periodNumber}.`,
-        );
-      }
-      if (periodRes.rows[0].is_closed) {
-        throw new ForbiddenException(
-          `El periodo ${input.periodNumber} del año ${input.academicYear} se encuentra cerrado.`,
-        );
-      }
-      let savedCount = 0;
-      for (const row of input.rows) {
-        const prevRes = await client.query<{
-          final_score: string;
+    return this.db.withTenantTransaction(
+      schoolId,
+      async (client) => {
+        const courseMetaRes = await client.query<{
+          grade_group_id: string | null;
+          decimals_count: number | null;
         }>(
-          `SELECT final_score
-             FROM academic_scores
-            WHERE school_id = $1
-              AND academic_year = $2
-              AND enrollment_id = $3
-              AND period_number = $4
-              AND course_assignment_id = $5`,
-          [
-            schoolId.toString(),
-            input.academicYear,
-            row.enrollmentId,
-            input.periodNumber,
-            courseAssignmentId.toString(),
-          ],
+          `SELECT g.grade_group_id, agr.decimals_count
+             FROM course_assignments ca
+             INNER JOIN grades g ON g.school_id = ca.school_id AND g.id = ca.grade_id
+             LEFT JOIN academic_grading_rules agr
+               ON agr.school_id = ca.school_id
+              AND agr.academic_year = $3
+              AND agr.grade_group_id = g.grade_group_id
+            WHERE ca.school_id = $1 AND ca.id = $2
+            LIMIT 1`,
+          [schoolId.toString(), courseAssignmentId.toString(), input.academicYear],
         );
+        const gradeGroupId = courseMetaRes.rows[0]?.grade_group_id ?? null;
+        const decimalsCount = courseMetaRes.rows[0]?.decimals_count ?? 2;
 
-        const recScore =
-          row.recoveryScore !== undefined && row.recoveryScore > 0
-            ? row.recoveryScore
-            : null;
+        const periodRes = await client.query<{ id: string; is_closed: boolean }>(
+          `SELECT id, is_closed
+             FROM academic_periods
+            WHERE school_id = $1 AND academic_year = $2 AND period_number = $3
+              AND (grade_group_id IS NULL OR grade_group_id = $4::bigint)
+            ORDER BY (grade_group_id IS NOT NULL AND grade_group_id = $4::bigint) DESC, grade_group_id NULLS LAST
+            LIMIT 1`,
+          [schoolId.toString(), input.academicYear, input.periodNumber, gradeGroupId],
+        );
+        if (periodRes.rowCount === 0) {
+          throw new BadRequestException(
+            `No existe un periodo académico configurado para el año ${input.academicYear} periodo ${input.periodNumber}.`,
+          );
+        }
+        if (periodRes.rows[0].is_closed) {
+          throw new ForbiddenException(
+            `El periodo ${input.periodNumber} del año ${input.academicYear} se encuentra cerrado.`,
+          );
+        }
 
-        await client.query(
-          `INSERT INTO academic_scores (
-             school_id, academic_year, enrollment_id, course_assignment_id,
-             period_number, final_score, recovery_score, is_leveled, leveled_at,
-             justified_absences, unjustified_absences, late_arrivals
-           )
-           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9::date,$10,$11,$12)
-           ON CONFLICT (school_id, academic_year, enrollment_id, period_number, course_assignment_id)
-           DO UPDATE SET
-             final_score = EXCLUDED.final_score,
-             recovery_score = COALESCE(EXCLUDED.recovery_score, academic_scores.recovery_score),
-             is_leveled = CASE WHEN EXCLUDED.is_leveled THEN TRUE ELSE academic_scores.is_leveled END,
-             leveled_at = COALESCE(EXCLUDED.leveled_at, academic_scores.leveled_at),
-             justified_absences = EXCLUDED.justified_absences,
-             unjustified_absences = EXCLUDED.unjustified_absences,
-             late_arrivals = EXCLUDED.late_arrivals,
-             updated_at = NOW()`,
-          [
-            schoolId.toString(),
-            input.academicYear,
-            row.enrollmentId,
-            courseAssignmentId.toString(),
-            input.periodNumber,
+        let savedCount = 0;
+        for (const row of input.rows) {
+          const prevRes = await client.query<{
+            final_score: string;
+            recovery_score: string | null;
+          }>(
+            `SELECT final_score, recovery_score
+               FROM academic_scores
+              WHERE school_id = $1
+                AND academic_year = $2
+                AND enrollment_id = $3
+                AND period_number = $4
+                AND course_assignment_id = $5`,
+            [
+              schoolId.toString(),
+              input.academicYear,
+              row.enrollmentId,
+              input.periodNumber,
+              courseAssignmentId.toString(),
+            ],
+          );
+
+          const recScore =
+            row.recoveryScore !== undefined && row.recoveryScore > 0
+              ? row.recoveryScore
+              : null;
+          const prevRec = prevRes.rows[0]?.recovery_score
+            ? Number(prevRes.rows[0].recovery_score)
+            : 0;
+          const effectiveForScale = Math.max(
             row.finalScore,
-            recScore,
-            recScore !== null,
-            recScore !== null ? new Date().toISOString().slice(0, 10) : null,
-            row.justifiedAbsences ?? 0,
-            row.unjustifiedAbsences ?? 0,
-            row.lateArrivals ?? 0,
-          ],
-        );
+            recScore ?? prevRec,
+          );
 
-        const prevScore = prevRes.rows[0] ? Number(prevRes.rows[0].final_score) : null;
-        if (prevScore !== null && prevScore !== row.finalScore) {
+          // Nota: los UPDATE se auditan automáticamente mediante el trigger antifraude PG17
           await client.query(
-            `INSERT INTO academic_score_audit_logs (
+            `INSERT INTO academic_scores (
                school_id, academic_year, enrollment_id, course_assignment_id,
-               period_number, previous_score, new_score, changed_by_user_id, change_reason
+               period_number, final_score, recovery_score, is_leveled, leveled_at,
+               national_scale_id, justified_absences, unjustified_absences, late_arrivals
              )
-             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,'Actualización desde planilla docente V3')`,
+             VALUES (
+               $1,$2,$3,$4,$5,$6,$7,$8,$9::date,
+               fn_siee_resolve_scale($1::bigint, $2::smallint, $13::bigint, $14::numeric, $15::smallint),
+               $10,$11,$12
+             )
+             ON CONFLICT (school_id, academic_year, enrollment_id, period_number, course_assignment_id)
+             DO UPDATE SET
+               final_score = EXCLUDED.final_score,
+               recovery_score = COALESCE(EXCLUDED.recovery_score, academic_scores.recovery_score),
+               is_leveled = CASE WHEN EXCLUDED.is_leveled THEN TRUE ELSE academic_scores.is_leveled END,
+               leveled_at = COALESCE(EXCLUDED.leveled_at, academic_scores.leveled_at),
+               national_scale_id = fn_siee_resolve_scale(
+                 $1::bigint,
+                 $2::smallint,
+                 $13::bigint,
+                 GREATEST(COALESCE(COALESCE(EXCLUDED.recovery_score, academic_scores.recovery_score), 0), EXCLUDED.final_score),
+                 $15::smallint
+               ),
+               justified_absences = EXCLUDED.justified_absences,
+               unjustified_absences = EXCLUDED.unjustified_absences,
+               late_arrivals = EXCLUDED.late_arrivals,
+               updated_at = NOW()`,
             [
               schoolId.toString(),
               input.academicYear,
               row.enrollmentId,
               courseAssignmentId.toString(),
               input.periodNumber,
-              prevScore,
               row.finalScore,
-              userId.toString(),
+              recScore,
+              recScore !== null,
+              recScore !== null ? new Date().toISOString().slice(0, 10) : null,
+              row.justifiedAbsences ?? 0,
+              row.unjustifiedAbsences ?? 0,
+              row.lateArrivals ?? 0,
+              gradeGroupId,
+              effectiveForScale,
+              decimalsCount,
             ],
           );
-        }
-        savedCount += 1;
-      }
 
-      return { savedCount };
-    });
+          // Auditar INSERT inicial (los UPDATE los captura automáticamente el trigger PG17)
+          if (prevRes.rowCount === 0) {
+            await client.query(
+              `INSERT INTO academic_score_audit_logs (
+                 school_id, academic_year, enrollment_id, course_assignment_id,
+                 period_number, previous_score, new_score, changed_by_user_id, change_reason, snapshot_data
+               )
+               VALUES ($1,$2,$3,$4,$5,NULL,$6,$7,'Registro inicial desde planilla docente V3',$8::jsonb)`,
+              [
+                schoolId.toString(),
+                input.academicYear,
+                row.enrollmentId,
+                courseAssignmentId.toString(),
+                input.periodNumber,
+                row.finalScore,
+                userId.toString(),
+                JSON.stringify({
+                  operation: 'INSERT',
+                  newFinalScore: row.finalScore,
+                  newRecoveryScore: recScore,
+                }),
+              ],
+            );
+          }
+
+          // Sincronizar alertas/observaciones de preinforme cuando sean suministradas
+          if (
+            row.hasPreReportAlert === true ||
+            (row.teacherObservations && row.teacherObservations.trim().length > 0)
+          ) {
+            await client.query(
+              `INSERT INTO academic_pre_reports (
+                 school_id, academic_year, enrollment_id, course_assignment_id,
+                 period_number, partial_score, observations, is_active
+               )
+               VALUES ($1,$2,$3,$4,$5,$6,$7,TRUE)
+               ON CONFLICT (school_id, academic_year, enrollment_id, course_assignment_id, period_number)
+               DO UPDATE SET
+                 partial_score = EXCLUDED.partial_score,
+                 observations = COALESCE(EXCLUDED.observations, academic_pre_reports.observations),
+                 is_active = TRUE`,
+              [
+                schoolId.toString(),
+                input.academicYear,
+                row.enrollmentId,
+                courseAssignmentId.toString(),
+                input.periodNumber,
+                effectiveForScale,
+                row.teacherObservations?.trim() || null,
+              ],
+            );
+          } else if (row.hasPreReportAlert === false) {
+            await client.query(
+              `UPDATE academic_pre_reports
+                  SET is_active = FALSE
+                WHERE school_id = $1
+                  AND academic_year = $2
+                  AND enrollment_id = $3
+                  AND course_assignment_id = $4
+                  AND period_number = $5`,
+              [
+                schoolId.toString(),
+                input.academicYear,
+                row.enrollmentId,
+                courseAssignmentId.toString(),
+                input.periodNumber,
+              ],
+            );
+          }
+          savedCount += 1;
+        }
+
+        return { savedCount };
+      },
+      {
+        userId,
+        changeReason: 'Actualización desde planilla docente V3',
+      },
+    );
   }
 
   async listPreReports(
@@ -1867,6 +1966,11 @@ export class PostgresPortalRepository extends PortalRepositoryPort {
           observerAnnotations: [],
         };
       }
+      if (!enr.accessControls.canViewScores) {
+        throw new ForbiddenException(
+          'El acceso a la consulta de calificaciones se encuentra restringido temporalmente para esta matrícula.',
+        );
+      }
 
       const params: unknown[] = [schoolId.toString(), academicYear, enr.enrollmentId];
       let periodClause = '';
@@ -1893,7 +1997,7 @@ export class PostgresPortalRepository extends PortalRepositoryPort {
                 COALESCE(aa.name, 'Sin área') AS area_name,
                 TRIM(CONCAT_WS(' ', tp.first_name, tp.last_name)) AS teacher_name,
                 gr.final_score, gr.lost_score, gr.recovery_score,
-                COALESCE(NULLIF(gr.recovery_score, 0), gr.final_score) AS effective_score,
+                GREATEST(COALESCE(gr.recovery_score, 0), gr.final_score) AS effective_score,
                 gr.justified_absences, gr.unjustified_absences,
                 pr.observations AS pre_report_obs
            FROM academic_scores gr
@@ -1981,7 +2085,7 @@ export class PostgresPortalRepository extends PortalRepositoryPort {
         userId,
         academicYear,
       );
-      if (!enr) return [];
+      if (!enr || !enr.accessControls.canViewActivities) return [];
 
       const res = await client.query<{
         id: string;
@@ -2073,6 +2177,11 @@ export class PostgresPortalRepository extends PortalRepositoryPort {
           'No se encontró una matrícula activa para enviar la actividad.',
         );
       }
+      if (!enr.accessControls.canViewActivities) {
+        throw new ForbiddenException(
+          'El acceso a actividades académicas está restringido para esta matrícula.',
+        );
+      }
 
       const res = await client.query<{ id: string; submitted_at: string }>(
         `INSERT INTO virtual_activity_submissions (
@@ -2109,7 +2218,7 @@ export class PostgresPortalRepository extends PortalRepositoryPort {
         userId,
         academicYear,
       );
-      if (!enr) return [];
+      if (!enr || !enr.accessControls.canTakeEvaluations) return [];
 
       const evalsRes = await client.query<{
         id: string;
@@ -2202,6 +2311,11 @@ export class PostgresPortalRepository extends PortalRepositoryPort {
       if (!enr) {
         throw new ForbiddenException(
           'No se encontró una matrícula activa para presentar evaluaciones.',
+        );
+      }
+      if (!enr.accessControls.canTakeEvaluations) {
+        throw new ForbiddenException(
+          'El acceso a evaluaciones en línea se encuentra restringido para esta matrícula.',
         );
       }
 
@@ -2303,7 +2417,7 @@ export class PostgresPortalRepository extends PortalRepositoryPort {
         userId,
         academicYear,
       );
-      if (!enr) return [];
+      if (!enr || !enr.accessControls.canJoinLiveClasses) return [];
 
       const res = await client.query<{
         id: string;
@@ -2362,6 +2476,11 @@ export class PostgresPortalRepository extends PortalRepositoryPort {
         userId,
         academicYear,
       );
+      if (enr && !enr.accessControls.canJoinLiveClasses) {
+        throw new ForbiddenException(
+          'El acceso a clases en vivo se encuentra restringido para esta matrícula.',
+        );
+      }
       const classRes = await client.query<{ meeting_url: string }>(
         `SELECT meeting_url FROM live_classes WHERE school_id = $1 AND id = $2 AND is_active = TRUE`,
         [schoolId.toString(), liveClassId.toString()],
@@ -2560,6 +2679,15 @@ export class PostgresPortalRepository extends PortalRepositoryPort {
     gradeName: string;
     groupCode: string;
     homeroomTeacherName: string | null;
+    accessControls: {
+      canViewScores: boolean;
+      canViewReportCards: boolean;
+      canViewCertificates: boolean;
+      canTakeEvaluations: boolean;
+      canViewActivities: boolean;
+      canJoinLiveClasses: boolean;
+      canViewLevelings: boolean;
+    };
   } | null> {
     const res = await client.query<{
       enrollment_id: string;
@@ -2572,6 +2700,13 @@ export class PostgresPortalRepository extends PortalRepositoryPort {
       grade_name: string;
       group_code: string;
       homeroom_teacher_name: string | null;
+      can_view_scores: boolean | null;
+      can_view_report_cards: boolean | null;
+      can_view_certificates: boolean | null;
+      can_take_evaluations: boolean | null;
+      can_view_activities: boolean | null;
+      can_join_live_classes: boolean | null;
+      can_view_levelings: boolean | null;
     }>(
       `SELECT se.id AS enrollment_id,
               sp.id AS student_profile_id,
@@ -2582,7 +2717,14 @@ export class PostgresPortalRepository extends PortalRepositoryPort {
               ss.name AS shift_name,
               g.name AS grade_name,
               ag.group_code,
-              TRIM(CONCAT_WS(' ', tp.first_name, tp.last_name)) AS homeroom_teacher_name
+              TRIM(CONCAT_WS(' ', tp.first_name, tp.last_name)) AS homeroom_teacher_name,
+              ac.can_view_scores,
+              ac.can_view_report_cards,
+              ac.can_view_certificates,
+              ac.can_take_evaluations,
+              ac.can_view_activities,
+              ac.can_join_live_classes,
+              ac.can_view_levelings
          FROM student_enrollments se
          INNER JOIN student_profiles sp ON sp.school_id = se.school_id AND sp.id = se.student_profile_id
          INNER JOIN campuses c ON c.school_id = se.school_id AND c.id = se.campus_id
@@ -2590,6 +2732,8 @@ export class PostgresPortalRepository extends PortalRepositoryPort {
          INNER JOIN grades g ON g.school_id = se.school_id AND g.id = se.grade_id
          INNER JOIN academic_groups ag ON ag.school_id = se.school_id AND ag.id = se.academic_group_id
          LEFT JOIN teacher_profiles tp ON tp.school_id = ag.school_id AND tp.id = ag.homeroom_teacher_id
+         LEFT JOIN student_enrollment_access_controls ac
+           ON ac.school_id = se.school_id AND ac.enrollment_id = se.id
         WHERE se.school_id = $1
           AND se.academic_year = $3
           AND (
@@ -2604,7 +2748,7 @@ export class PostgresPortalRepository extends PortalRepositoryPort {
                  AND fp.user_id = $2
             )
           )
-        ORDER BY se.id DESC
+        ORDER BY (se.enrollment_status_id = 2) DESC, se.id DESC
         LIMIT 1`,
       [schoolId.toString(), userId.toString(), academicYear],
     );
@@ -2622,6 +2766,15 @@ export class PostgresPortalRepository extends PortalRepositoryPort {
       gradeName: r.grade_name,
       groupCode: r.group_code,
       homeroomTeacherName: r.homeroom_teacher_name || null,
+      accessControls: {
+        canViewScores: r.can_view_scores ?? true,
+        canViewReportCards: r.can_view_report_cards ?? true,
+        canViewCertificates: r.can_view_certificates ?? true,
+        canTakeEvaluations: r.can_take_evaluations ?? true,
+        canViewActivities: r.can_view_activities ?? true,
+        canJoinLiveClasses: r.can_join_live_classes ?? true,
+        canViewLevelings: r.can_view_levelings ?? true,
+      },
     };
   }
 }

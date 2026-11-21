@@ -48,6 +48,11 @@ export class UpdatePromotionRecordDto {
   @ApiPropertyOptional()
   @IsOptional()
   @IsBoolean()
+  isCommissionPromoted?: boolean;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsBoolean()
   isGraduated?: boolean;
 
   @ApiPropertyOptional({ example: 'DIP-2026-101' })
@@ -180,6 +185,20 @@ export class UpdateCertificateHeadersDto {
   graduationActSettings!: Record<string, unknown>;
 }
 
+export class GenerateFinalRecoveriesDto {
+  @ApiProperty({ example: 2026 })
+  @IsInt()
+  @Min(1990)
+  @Max(2100)
+  academicYear!: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  academicGroupId?: number;
+}
+
 export class CloseAcademicYearDto {
   @ApiProperty({ example: 2026 })
   @IsInt()
@@ -191,4 +210,13 @@ export class CloseAcademicYearDto {
   @IsOptional()
   @IsBoolean()
   isClosed?: boolean;
+
+  @ApiPropertyOptional({
+    default: true,
+    description:
+      'Si es true al cerrar el año, crea el año lectivo siguiente y clona las 7 tablas maestras (escalas, dimensiones, reglas SIEE, plan de estudios, asignaturas/áreas, planta docente y periodos).',
+  })
+  @IsOptional()
+  @IsBoolean()
+  cloneToNextYear?: boolean;
 }

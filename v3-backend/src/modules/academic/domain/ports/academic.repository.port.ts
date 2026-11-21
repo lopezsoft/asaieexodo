@@ -175,7 +175,7 @@ export interface PeriodRecoveryRecord {
   readonly studentFullName: string;
   readonly courseAssignmentId: number;
   readonly subjectName: string;
-  readonly periodNumber: number;
+  readonly periodNumber: number | null;
   readonly actNumber: string | null;
   readonly previousScore: number;
   readonly recoveryScore: number;
@@ -196,10 +196,57 @@ export interface HonorRollRecord {
   readonly campusName: string;
   readonly periodNumber: number;
   readonly averageScore: number;
+  readonly totalScore: number | null;
+  readonly maxScore: number | null;
+  readonly minScore: number | null;
   readonly groupRank: number;
+  readonly groupTotalStudents: number | null;
   readonly gradeRank: number | null;
   readonly failedSubjectsCount: number;
   readonly isHonorRoll: boolean;
+  readonly honorRollRank: number | null;
+  readonly honorRollScope: number | null;
+}
+
+export interface ConsolidatedColumn {
+  readonly key: string;
+  readonly entityId: number;
+  readonly name: string;
+  readonly abbreviation: string | null;
+  readonly areaName?: string;
+}
+
+export interface ConsolidatedStudentRow {
+  readonly enrollmentId: number;
+  readonly studentDocumentNumber: string;
+  readonly studentFullName: string;
+  readonly gradeName: string;
+  readonly groupCode: string;
+  readonly averageScore: number;
+  readonly failedCount: number;
+  readonly cells: Record<
+    string,
+    {
+      readonly score: number;
+      readonly isFailed: boolean;
+      readonly periodScores?: Record<number, number>;
+    }
+  >;
+}
+
+export interface ConsolidatedReportView {
+  readonly academicYear: number;
+  readonly mode: 'subjects' | 'areas' | 'teacher';
+  readonly periodNumber: number | null;
+  readonly allPeriods: boolean;
+  readonly columns: ConsolidatedColumn[];
+  readonly rows: ConsolidatedStudentRow[];
+  readonly failedTotalsByColumn: Record<string, number>;
+  readonly summary: {
+    readonly totalStudents: number;
+    readonly studentsWithZeroFailures: number;
+    readonly studentsWithFailures: number;
+  };
 }
 
 export abstract class AcademicRepositoryPort {
@@ -443,13 +490,14 @@ export abstract class AcademicRepositoryPort {
       academicYear: number;
       enrollmentId: number;
       courseAssignmentId: number;
-      periodNumber: number;
+      periodNumber?: number | null;
       actNumber?: string | null;
       previousScore: number;
       recoveryScore: number;
       recoveryType?: string;
       observations?: string | null;
     },
+    userId?: bigint,
   ): Promise<PeriodRecoveryRecord>;
 
   abstract calculateAndListHonorRoll(
@@ -457,7 +505,36 @@ export abstract class AcademicRepositoryPort {
     academicYear: number,
     periodNumber: number,
     recalculate: boolean,
+    options?: {
+      honorScope?: number;
+      topLimit?: number;
+      mode?: 'PERIOD' | 'ANNUAL';
+    },
   ): Promise<HonorRollRecord[]>;
+
+  abstract getConsolidatedReport(
+    schoolId: bigint,
+    input: {
+      academicYear: number;
+      mode: 'subjects' | 'areas' | 'teacher';
+      academicGroupId?: number;
+      teacherProfileId?: number;
+      periodNumber?: number;
+      allPeriods?: boolean;
+    },
+  ): Promise<ConsolidatedReportView>;
+
+  abstract materializeAreaPeriodResults(
+    schoolId: bigint,
+    academicYear: number,
+    periodNumber: number,
+  ): Promise<{ materializedCount: number }>;
+
+  abstract renumberEnrollmentFolios(
+    schoolId: bigint,
+    academicYear: number,
+    onlyActive?: boolean,
+  ): Promise<{ updatedCount: number; studentsPerBook: number; totalBooks: number }>;
 
   abstract uppercaseAchievementStandards(
     schoolId: bigint,

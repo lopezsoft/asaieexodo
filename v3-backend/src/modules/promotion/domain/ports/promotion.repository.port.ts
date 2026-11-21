@@ -23,15 +23,78 @@ export interface PromotionRecordView {
   readonly promotionStatusDescription: string;
   readonly actNumber: string | null;
   readonly finalAverage: number;
+  readonly recoveryAverage: number;
+  readonly passedAreasCount: number;
   readonly failedAreasCount: number;
   readonly failedSubjectsCount: number;
   readonly totalAbsences: number;
   readonly groupRank: number | null;
+  readonly isCommissionPromoted: boolean;
   readonly isGraduated: boolean;
   readonly diplomaNumber: string | null;
   readonly graduationFolio: string | null;
   readonly observations: string | null;
+  readonly promotionMessages: Record<string, unknown>;
   readonly promotedAt: string | null;
+}
+
+export interface FinalSabanaSubjectColumn {
+  readonly subjectId: number;
+  readonly subjectName: string;
+  readonly abbreviation: string | null;
+  readonly academicAreaId: number;
+  readonly academicAreaName: string;
+  readonly weeklyHours: number;
+}
+
+export interface FinalSabanaStudentRow {
+  readonly enrollmentId: number;
+  readonly studentProfileId: number;
+  readonly studentDocumentNumber: string;
+  readonly studentFullName: string;
+  readonly groupCode: string;
+  readonly gradeName: string;
+  readonly finalAverage: number;
+  readonly recoveryAverage: number;
+  readonly passedAreasCount: number;
+  readonly failedAreasCount: number;
+  readonly failedSubjectsCount: number;
+  readonly groupRank: number | null;
+  readonly promotionStatusDescription: string | null;
+  readonly isCommissionPromoted: boolean;
+  readonly scoresBySubject: Record<
+    number,
+    {
+      readonly annualScore: number;
+      readonly finalRecoveryScore: number | null;
+      readonly finalEffectiveScore: number;
+      readonly isFailed: boolean;
+    }
+  >;
+}
+
+export interface FinalSabanaReport {
+  readonly academicYear: number;
+  readonly academicGroupId: number | null;
+  readonly subjects: FinalSabanaSubjectColumn[];
+  readonly students: FinalSabanaStudentRow[];
+}
+
+export interface CloseAcademicYearResult {
+  readonly academicYear: number;
+  readonly isClosed: boolean;
+  readonly periodsUpdated: number;
+  readonly nextYearCloned: number | null;
+  readonly clonedCounts?: {
+    readonly gradingScales: number;
+    readonly evaluationDimensions: number;
+    readonly evaluationDimensionColumns: number;
+    readonly gradingRules: number;
+    readonly curriculumStudyPlans: number;
+    readonly subjectAreaAssignments: number;
+    readonly teacherAcademicYears: number;
+    readonly academicPeriods: number;
+  };
 }
 
 export interface StudentAcademicHistoryYear {
@@ -86,12 +149,31 @@ export abstract class PromotionRepositoryPort {
     input: {
       promotionStatusId?: number;
       actNumber?: string | null;
+      isCommissionPromoted?: boolean;
       isGraduated?: boolean;
       diplomaNumber?: string | null;
       graduationFolio?: string | null;
       observations?: string | null;
     },
   ): Promise<PromotionRecordView>;
+
+  abstract generateFinalRecoveries(
+    schoolId: bigint,
+    input: {
+      academicYear: number;
+      academicGroupId?: number;
+    },
+  ): Promise<{
+    eligibleStudentsCount: number;
+    generatedRecordsCount: number;
+    skippedExistingCount: number;
+  }>;
+
+  abstract getFinalSabana(
+    schoolId: bigint,
+    academicYear: number,
+    academicGroupId?: number,
+  ): Promise<FinalSabanaReport>;
 
   abstract applyAdvancePromotion(
     schoolId: bigint,
@@ -144,5 +226,8 @@ export abstract class PromotionRepositoryPort {
     schoolId: bigint,
     academicYear: number,
     isClosed: boolean,
-  ): Promise<{ academicYear: number; isClosed: boolean; periodsUpdated: number }>;
+    options?: {
+      cloneToNextYear?: boolean;
+    },
+  ): Promise<CloseAcademicYearResult>;
 }

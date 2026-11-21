@@ -661,6 +661,7 @@ CREATE TABLE IF NOT EXISTS academic_grading_rules (
   min_area_average NUMERIC(5,2) NOT NULL DEFAULT 0.00,
   failed_areas_limit SMALLINT NOT NULL DEFAULT 3,
   fails_after_recovery BOOLEAN NOT NULL DEFAULT TRUE,
+  fails_after_recovery_mode SMALLINT NOT NULL DEFAULT 1 CHECK (fails_after_recovery_mode IN (0, 1, 2, 3)),
   fails_area_if_any_subject_fails BOOLEAN NOT NULL DEFAULT FALSE,
   fails_year_by_mandatory_area BOOLEAN NOT NULL DEFAULT FALSE,
   promotion_mode SMALLINT NOT NULL DEFAULT 1,
@@ -2063,9 +2064,11 @@ BEGIN
     EXECUTE format('GRANT SELECT ON TABLE %I TO asaie_app_runtime;', t_name);
   END LOOP;
 
-  -- Inmutabilidad de bitacora de auditoria para rol runtime
+  -- Inmutabilidad de bitacoras de auditoria para rol runtime
   REVOKE UPDATE, DELETE, TRUNCATE ON TABLE audit_logs FROM asaie_app_runtime;
   GRANT SELECT, INSERT ON TABLE audit_logs TO asaie_app_runtime;
+  REVOKE UPDATE, DELETE, TRUNCATE ON TABLE academic_score_audit_logs FROM asaie_app_runtime;
+  GRANT SELECT, INSERT ON TABLE academic_score_audit_logs TO asaie_app_runtime;
 
   -- Acceso a particiones solo a traves de las tablas padre particionadas (RLS garantizado)
   FOREACH t_name IN ARRAY partition_tables LOOP
@@ -2073,3 +2076,491 @@ BEGIN
   END LOOP;
 END
 $$;
+
+-- =============================================================================
+-- MOTOR SIEE DECRETO 1290 EN POSTGRESQL 17: FUNCIONES PURAS, VISTAS RLS Y AUDITORIA
+-- (Unifica las 16 vistas legacy nscp00*_view_* en 3 vistas RLS-safe security_invoker)
+-- =============================================================================
+
+CREATE OR REPLACE FUNCTION fn_siee_apply_grace_rounding(
+  p_score NUMERIC,
+  p_failing_max NUMERIC,
+  p_threshold NUMERIC,
+  p_target NUMERIC,
+  p_enabled BOOLEAN
+) RETURNS NUMERIC
+LANGUAGE sql
+IMMUTABLE
+SET search_path = pg_catalog, public
+AS $$
+  SELECT CASE
+    WHEN COALESCE(p_enabled, FALSE)
+     AND p_score IS NOT NULL
+     AND COALESCE(p_threshold, 0) > 0
+     AND COALESCE(p_target, 0) > 0
+     AND p_score <= COALESCE(p_failing_max, p_target - 0.01)
+     AND p_score >= p_threshold
+     AND p_score < p_target
+    THEN p_target
+    ELSE p_score
+  END;
+$$;
+
+CREATE OR REPLACE FUNCTION fn_siee_resolve_scale(
+  p_school_id BIGINT,
+  p_year SMALLINT,
+  p_grade_group_id BIGINT,
+  p_score NUMERIC,
+  p_decimals SMALLINT DEFAULT 2
+) RETURNS SMALLINT
+LANGUAGE sql
+STABLE
+SECURITY INVOKER
+SET search_path = pg_catalog, public
+AS $$
+  SELECT gs.national_scale_id
+    FROM grading_scales gs
+   WHERE gs.school_id = p_school_id
+     AND gs.academic_year = p_year
+     AND ROUND(COALESCE(p_score, 0)::numeric, GREATEST(0, LEAST(COALESCE(p_decimals, 2), 4)))
+         BETWEEN gs.min_score AND gs.max_score
+     AND (gs.grade_group_id IS NULL OR gs.grade_group_id = p_grade_group_id)
+   ORDER BY (gs.grade_group_id IS NOT NULL AND gs.grade_group_id = p_grade_group_id) DESC,
+            gs.grade_group_id NULLS LAST,
+            gs.min_score DESC
+   LIMIT 1;
+$$;
+
+CREATE OR REPLACE VIEW v_siee_subject_period_scores
+WITH (security_invoker = true) AS
+SELECT
+  sc.id AS academic_score_id,
+  sc.school_id,
+  sc.academic_year,
+  sc.enrollment_id,
+  se.student_profile_id,
+  se.campus_id,
+  se.shift_id,
+  se.grade_id,
+  g.grade_group_id,
+  g.education_level_id,
+  se.academic_group_id,
+  se.enrollment_status_id,
+  sc.course_assignment_id,
+  ca.teacher_profile_id,
+  ca.subject_id,
+  COALESCE(saa.academic_area_id, s.academic_area_id) AS academic_area_id,
+  sc.period_number,
+  sc.final_score,
+  sc.lost_score,
+  sc.recovery_score,
+  GREATEST(COALESCE(sc.recovery_score, 0), sc.final_score) AS effective_score,
+  sc.is_leveled,
+  sc.national_scale_id,
+  sc.justified_absences,
+  sc.unjustified_absences,
+  sc.late_arrivals,
+  COALESCE(csp_campus.area_weight_percentage, csp_global.area_weight_percentage, ca.area_weight_percentage, 100.00) AS area_weight_percentage,
+  COALESCE(csp_campus.weekly_hours, csp_global.weekly_hours, ca.weekly_hours, 1.0) AS weekly_hours,
+  s.is_excluded_from_average,
+  s.is_elective,
+  s.is_active AS subject_is_active,
+  ca.is_active AS course_is_active,
+  COALESCE(aa.fails_school_year, FALSE) AS area_fails_school_year,
+  COUNT(*) OVER (
+    PARTITION BY sc.school_id, sc.academic_year, sc.enrollment_id, sc.period_number,
+                 COALESCE(saa.academic_area_id, s.academic_area_id)
+  ) AS subjects_in_area
+FROM academic_scores sc
+INNER JOIN student_enrollments se
+  ON se.school_id = sc.school_id AND se.id = sc.enrollment_id
+INNER JOIN grades g
+  ON g.school_id = se.school_id AND g.id = se.grade_id
+INNER JOIN course_assignments ca
+  ON ca.school_id = sc.school_id AND ca.id = sc.course_assignment_id
+INNER JOIN subjects s
+  ON s.school_id = ca.school_id AND s.id = ca.subject_id
+LEFT JOIN subject_area_assignments saa
+  ON saa.school_id = sc.school_id
+ AND saa.academic_year = sc.academic_year
+ AND saa.subject_id = ca.subject_id
+LEFT JOIN academic_areas aa
+  ON aa.school_id = sc.school_id
+ AND aa.id = COALESCE(saa.academic_area_id, s.academic_area_id)
+LEFT JOIN curriculum_study_plans csp_campus
+  ON csp_campus.school_id = sc.school_id
+ AND csp_campus.academic_year = sc.academic_year
+ AND csp_campus.grade_id = se.grade_id
+ AND csp_campus.subject_id = ca.subject_id
+ AND csp_campus.campus_id = se.campus_id
+LEFT JOIN curriculum_study_plans csp_global
+  ON csp_global.school_id = sc.school_id
+ AND csp_global.academic_year = sc.academic_year
+ AND csp_global.grade_id = se.grade_id
+ AND csp_global.subject_id = ca.subject_id
+ AND csp_global.campus_id IS NULL;
+
+CREATE OR REPLACE VIEW v_siee_area_period_scores
+WITH (security_invoker = true) AS
+WITH base AS (
+  SELECT
+    v.*,
+    COALESCE(r.decimals_count, 2) AS decimals_count,
+    COALESCE(r.uses_weighted_areas, TRUE) AS uses_weighted_areas,
+    COALESCE(r.fails_area_if_any_subject_fails, FALSE) AS fails_area_if_any_subject_fails,
+    COALESCE(
+      (
+        SELECT MAX(gs.max_score)
+          FROM grading_scales gs
+         WHERE gs.school_id = v.school_id
+           AND gs.academic_year = v.academic_year
+           AND gs.is_failing = TRUE
+           AND (gs.grade_group_id IS NULL OR gs.grade_group_id = v.grade_group_id)
+      ),
+      COALESCE(r.min_passing_score, 3.00) - 0.01
+    ) AS failing_max_score
+  FROM v_siee_subject_period_scores v
+  LEFT JOIN LATERAL (
+    SELECT agr.*
+      FROM academic_grading_rules agr
+     WHERE agr.school_id = v.school_id
+       AND agr.academic_year = v.academic_year
+       AND (agr.grade_group_id = v.grade_group_id OR v.grade_group_id IS NULL)
+     ORDER BY (agr.grade_group_id = v.grade_group_id) DESC, agr.id ASC
+     LIMIT 1
+  ) r ON TRUE
+  WHERE v.is_excluded_from_average = FALSE
+    AND v.academic_area_id IS NOT NULL
+),
+agg AS (
+  SELECT
+    school_id,
+    academic_year,
+    enrollment_id,
+    student_profile_id,
+    campus_id,
+    shift_id,
+    grade_id,
+    grade_group_id,
+    education_level_id,
+    academic_group_id,
+    enrollment_status_id,
+    period_number,
+    academic_area_id,
+    BOOL_OR(area_fails_school_year) AS area_fails_school_year,
+    COUNT(*)::INTEGER AS subject_count,
+    COUNT(*) FILTER (WHERE effective_score <= failing_max_score)::INTEGER AS failed_subjects_in_area,
+    MAX(decimals_count)::SMALLINT AS decimals_count,
+    BOOL_OR(fails_area_if_any_subject_fails) AS fails_area_if_any_subject_fails,
+    MAX(failing_max_score) AS failing_max_score,
+    ROUND(
+      CASE
+        WHEN BOOL_OR(uses_weighted_areas)
+         AND BOOL_OR(area_weight_percentage > 0 AND area_weight_percentage < 100)
+        THEN SUM(effective_score * area_weight_percentage / 100.0)
+        ELSE AVG(effective_score)
+      END::numeric,
+      GREATEST(0, LEAST(MAX(decimals_count), 4))
+    ) AS raw_area_score,
+    SUM(justified_absences)::INTEGER AS justified_absences,
+    SUM(unjustified_absences)::INTEGER AS unjustified_absences,
+    SUM(late_arrivals)::INTEGER AS late_arrivals
+  FROM base
+  GROUP BY
+    school_id, academic_year, enrollment_id, student_profile_id,
+    campus_id, shift_id, grade_id, grade_group_id, education_level_id,
+    academic_group_id, enrollment_status_id, period_number, academic_area_id
+)
+SELECT
+  school_id,
+  academic_year,
+  enrollment_id,
+  student_profile_id,
+  campus_id,
+  shift_id,
+  grade_id,
+  grade_group_id,
+  education_level_id,
+  academic_group_id,
+  enrollment_status_id,
+  period_number,
+  academic_area_id,
+  area_fails_school_year,
+  subject_count,
+  failed_subjects_in_area,
+  raw_area_score,
+  CASE
+    WHEN fails_area_if_any_subject_fails
+     AND subject_count > 1
+     AND failed_subjects_in_area > 0
+     AND raw_area_score > failing_max_score
+    THEN failing_max_score
+    ELSE raw_area_score
+  END AS area_score,
+  (
+    CASE
+      WHEN fails_area_if_any_subject_fails
+       AND subject_count > 1
+       AND failed_subjects_in_area > 0
+       AND raw_area_score > failing_max_score
+      THEN failing_max_score
+      ELSE raw_area_score
+    END <= failing_max_score
+  ) AS is_area_failed,
+  failing_max_score,
+  justified_absences,
+  unjustified_absences,
+  late_arrivals
+FROM agg;
+
+CREATE OR REPLACE VIEW v_siee_subject_annual_scores
+WITH (security_invoker = true) AS
+WITH per_subject AS (
+  SELECT
+    v.school_id,
+    v.academic_year,
+    v.enrollment_id,
+    v.student_profile_id,
+    v.campus_id,
+    v.shift_id,
+    v.grade_id,
+    v.grade_group_id,
+    v.education_level_id,
+    v.academic_group_id,
+    v.enrollment_status_id,
+    v.subject_id,
+    v.academic_area_id,
+    MAX(v.course_assignment_id) AS course_assignment_id,
+    MAX(v.area_weight_percentage) AS area_weight_percentage,
+    MAX(v.weekly_hours) AS weekly_hours,
+    BOOL_OR(v.is_excluded_from_average) AS is_excluded_from_average,
+    BOOL_OR(v.is_elective) AS is_elective,
+    BOOL_OR(v.area_fails_school_year) AS area_fails_school_year,
+    COUNT(DISTINCT v.period_number)::INTEGER AS scored_periods_count,
+    MAX(v.period_number)::SMALLINT AS latest_period_number,
+    SUM(v.effective_score) AS sum_effective_scores,
+    (ARRAY_AGG(v.effective_score ORDER BY v.period_number DESC))[1] AS latest_period_score,
+    SUM(v.justified_absences)::INTEGER AS justified_absences,
+    SUM(v.unjustified_absences)::INTEGER AS unjustified_absences,
+    SUM(v.late_arrivals)::INTEGER AS late_arrivals
+  FROM v_siee_subject_period_scores v
+  GROUP BY
+    v.school_id, v.academic_year, v.enrollment_id, v.student_profile_id,
+    v.campus_id, v.shift_id, v.grade_id, v.grade_group_id, v.education_level_id,
+    v.academic_group_id, v.enrollment_status_id, v.subject_id, v.academic_area_id
+),
+enriched AS (
+  SELECT
+    ps.*,
+    COALESCE(r.decimals_count, 2) AS decimals_count,
+    COALESCE(r.promotion_mode, 1) AS promotion_mode,
+    COALESCE(r.rounding_threshold_score, 0.00) AS rounding_threshold_score,
+    COALESCE(r.rounding_target_score, 0.00) AS rounding_target_score,
+    COALESCE(r.rounds_final_score, FALSE) AS rounds_final_score,
+    COALESCE(
+      (
+        SELECT MAX(gs.max_score)
+          FROM grading_scales gs
+         WHERE gs.school_id = ps.school_id
+           AND gs.academic_year = ps.academic_year
+           AND gs.is_failing = TRUE
+           AND (gs.grade_group_id IS NULL OR gs.grade_group_id = ps.grade_group_id)
+      ),
+      COALESCE(r.min_passing_score, 3.00) - 0.01
+    ) AS failing_max_score,
+    COALESCE(
+      NULLIF(
+        (
+          SELECT COUNT(*)::INTEGER
+            FROM academic_periods ap
+           WHERE ap.school_id = ps.school_id
+             AND ap.academic_year = ps.academic_year
+             AND ap.is_gradable = TRUE
+             AND (ap.grade_group_id = ps.grade_group_id OR (ps.grade_group_id IS NULL AND ap.grade_group_id IS NULL))
+        ),
+        0
+      ),
+      NULLIF(
+        (
+          SELECT COUNT(*)::INTEGER
+            FROM academic_periods ap
+           WHERE ap.school_id = ps.school_id
+             AND ap.academic_year = ps.academic_year
+             AND ap.is_gradable = TRUE
+             AND ap.grade_group_id IS NULL
+        ),
+        0
+      ),
+      ps.scored_periods_count
+    ) AS configured_periods_count,
+    (
+      SELECT MAX(prr.recovery_score)
+        FROM period_recovery_records prr
+        INNER JOIN course_assignments ca_rec
+          ON ca_rec.school_id = prr.school_id AND ca_rec.id = prr.course_assignment_id
+       WHERE prr.school_id = ps.school_id
+         AND prr.academic_year = ps.academic_year
+         AND prr.enrollment_id = ps.enrollment_id
+         AND ca_rec.subject_id = ps.subject_id
+         AND prr.recovery_type = 'FINAL_RECOVERY'
+         AND prr.status = 1
+    ) AS final_recovery_score
+  FROM per_subject ps
+  LEFT JOIN LATERAL (
+    SELECT agr.*
+      FROM academic_grading_rules agr
+     WHERE agr.school_id = ps.school_id
+       AND agr.academic_year = ps.academic_year
+       AND (agr.grade_group_id = ps.grade_group_id OR ps.grade_group_id IS NULL)
+     ORDER BY (agr.grade_group_id = ps.grade_group_id) DESC, agr.id ASC
+     LIMIT 1
+  ) r ON TRUE
+),
+calc AS (
+  SELECT
+    e.*,
+    ROUND(
+      CASE
+        WHEN e.promotion_mode IN (3, 4) THEN e.latest_period_score
+        ELSE e.sum_effective_scores / GREATEST(1, e.configured_periods_count)
+      END::numeric,
+      GREATEST(0, LEAST(e.decimals_count, 4))
+    ) AS raw_annual_score
+  FROM enriched e
+)
+SELECT
+  school_id,
+  academic_year,
+  enrollment_id,
+  student_profile_id,
+  campus_id,
+  shift_id,
+  grade_id,
+  grade_group_id,
+  education_level_id,
+  academic_group_id,
+  enrollment_status_id,
+  subject_id,
+  academic_area_id,
+  course_assignment_id,
+  area_weight_percentage,
+  weekly_hours,
+  is_excluded_from_average,
+  is_elective,
+  area_fails_school_year,
+  scored_periods_count,
+  configured_periods_count,
+  raw_annual_score,
+  fn_siee_apply_grace_rounding(
+    raw_annual_score,
+    failing_max_score,
+    rounding_threshold_score,
+    rounding_target_score,
+    rounds_final_score
+  ) AS annual_score,
+  final_recovery_score,
+  GREATEST(
+    fn_siee_apply_grace_rounding(
+      raw_annual_score,
+      failing_max_score,
+      rounding_threshold_score,
+      rounding_target_score,
+      rounds_final_score
+    ),
+    COALESCE(final_recovery_score, 0)
+  ) AS final_effective_score,
+  failing_max_score,
+  justified_absences,
+  unjustified_absences,
+  late_arrivals
+FROM calc;
+
+-- Trigger antifraude inmutable para cambios y eliminaciones sobre academic_scores
+-- 0% overhead en carga masiva INSERT ETL; omisible en re-ejecuciones ETL via GUC app.skip_score_audit_trigger='on'
+CREATE OR REPLACE FUNCTION fn_audit_academic_scores_changes()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY INVOKER
+SET search_path = pg_catalog, public
+AS $$
+DECLARE
+  v_user_id BIGINT;
+  v_reason VARCHAR(250);
+BEGIN
+  IF COALESCE(current_setting('app.skip_score_audit_trigger', true), '') = 'on' THEN
+    RETURN COALESCE(NEW, OLD);
+  END IF;
+
+  v_user_id := NULLIF(current_setting('app.current_user_id', true), '')::BIGINT;
+  v_reason := NULLIF(current_setting('app.current_change_reason', true), '');
+
+  IF TG_OP = 'DELETE' THEN
+    INSERT INTO academic_score_audit_logs (
+      school_id, academic_year, enrollment_id, course_assignment_id, period_number,
+      previous_score, new_score, changed_by_user_id, change_reason, snapshot_data
+    ) VALUES (
+      OLD.school_id,
+      OLD.academic_year,
+      OLD.enrollment_id,
+      OLD.course_assignment_id,
+      OLD.period_number,
+      OLD.final_score,
+      NULL,
+      v_user_id,
+      COALESCE(v_reason, 'Eliminación de registro de calificación'),
+      jsonb_build_object(
+        'operation', 'DELETE',
+        'previousFinalScore', OLD.final_score,
+        'previousRecoveryScore', OLD.recovery_score,
+        'previousLostScore', OLD.lost_score,
+        'isLeveled', OLD.is_leveled
+      )
+    );
+    RETURN OLD;
+  END IF;
+
+  IF OLD.final_score IS DISTINCT FROM NEW.final_score
+     OR OLD.recovery_score IS DISTINCT FROM NEW.recovery_score
+     OR OLD.lost_score IS DISTINCT FROM NEW.lost_score THEN
+    INSERT INTO academic_score_audit_logs (
+      school_id, academic_year, enrollment_id, course_assignment_id, period_number,
+      previous_score, new_score, changed_by_user_id, change_reason, snapshot_data
+    ) VALUES (
+      NEW.school_id,
+      NEW.academic_year,
+      NEW.enrollment_id,
+      NEW.course_assignment_id,
+      NEW.period_number,
+      OLD.final_score,
+      NEW.final_score,
+      v_user_id,
+      COALESCE(v_reason, 'Actualización de calificación'),
+      jsonb_build_object(
+        'operation', 'UPDATE',
+        'previousFinalScore', OLD.final_score,
+        'newFinalScore', NEW.final_score,
+        'previousRecoveryScore', OLD.recovery_score,
+        'newRecoveryScore', NEW.recovery_score,
+        'previousLostScore', OLD.lost_score,
+        'newLostScore', NEW.lost_score,
+        'isLeveled', NEW.is_leveled
+      )
+    );
+  END IF;
+
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS trg_audit_academic_scores_changes ON academic_scores;
+CREATE TRIGGER trg_audit_academic_scores_changes
+  AFTER UPDATE OR DELETE ON academic_scores
+  FOR EACH ROW
+  EXECUTE FUNCTION fn_audit_academic_scores_changes();
+
+GRANT EXECUTE ON FUNCTION fn_siee_apply_grace_rounding(NUMERIC, NUMERIC, NUMERIC, NUMERIC, BOOLEAN) TO asaie_app_runtime;
+GRANT EXECUTE ON FUNCTION fn_siee_resolve_scale(BIGINT, SMALLINT, BIGINT, NUMERIC, SMALLINT) TO asaie_app_runtime;
+GRANT EXECUTE ON FUNCTION fn_audit_academic_scores_changes() TO asaie_app_runtime;
+GRANT SELECT ON v_siee_subject_period_scores TO asaie_app_runtime;
+GRANT SELECT ON v_siee_area_period_scores TO asaie_app_runtime;
+GRANT SELECT ON v_siee_subject_annual_scores TO asaie_app_runtime;

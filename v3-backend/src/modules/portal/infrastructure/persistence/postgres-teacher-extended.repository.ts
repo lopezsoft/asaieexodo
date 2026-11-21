@@ -13,6 +13,16 @@ import {
   TeacherSelfProfile,
 } from '../../domain/ports/teacher-extended.repository.port';
 
+/** Lista estática segura (allowlist) de las 30 casillas parciales inline en `academic_grades`. */
+const GRADE_SCORE_COLUMNS = [
+  'n1', 'n2', 'n3', 'n4', 'n5', 'n6', 'n7', 'n8', 'n9', 'n10',
+  'n11', 'n12', 'n13', 'n14', 'n15', 'n16', 'n17', 'n18', 'n19', 'n20',
+  'n21', 'n22', 'n23', 'n24', 'n25', 'n26', 'n27', 'n28', 'n29', 'n30',
+] as const;
+
+const GRADE_SCORE_SELECT_PREFIXED = GRADE_SCORE_COLUMNS.map((c) => `ag.${c}`).join(', ');
+const GRADE_SCORE_RETURNING = GRADE_SCORE_COLUMNS.join(', ');
+
 @Injectable()
 export class PostgresTeacherExtendedRepository extends TeacherExtendedRepositoryPort {
   constructor(private readonly db: PostgresRlsService) {
@@ -293,13 +303,16 @@ export class PostgresTeacherExtendedRepository extends TeacherExtendedRepository
     }>
   > {
     return this.db.withTenantTransaction(schoolId, async (client) => {
-      const gradesRes = await client.query<{
-        enrollment_id: string;
-        grade_id: string;
-        gender_code: string | null;
-        national_scale_id: number | null;
-      }>(
-        `SELECT ag.enrollment_id, ag.id AS grade_id, gn.code AS gender_code, ag.national_scale_id
+      const gradesRes = await client.query<
+        {
+          enrollment_id: string;
+          grade_id: string;
+          gender_code: string | null;
+          national_scale_id: number | null;
+        } & Record<(typeof GRADE_SCORE_COLUMNS)[number], string | null>
+      >(
+        `SELECT ag.enrollment_id, ag.id AS grade_id, gn.code AS gender_code, ag.national_scale_id,
+                ${GRADE_SCORE_SELECT_PREFIXED}
            FROM academic_grades ag
            INNER JOIN student_enrollments se
              ON se.school_id = ag.school_id AND se.id = ag.enrollment_id
@@ -318,44 +331,22 @@ export class PostgresTeacherExtendedRepository extends TeacherExtendedRepository
         ],
       );
 
-      const itemsRes = await client.query<{
-        academic_grade_id: string;
-        item_number: number;
-        score: string;
-      }>(
-        `SELECT agi.academic_grade_id, agi.item_number, agi.score
-           FROM academic_grade_items agi
-           INNER JOIN academic_grades ag
-             ON ag.school_id = agi.school_id
-            AND ag.academic_year = agi.academic_year
-            AND ag.id = agi.academic_grade_id
-          WHERE ag.school_id = $1
-            AND ag.academic_year = $2
-            AND ag.course_assignment_id = $3
-            AND ag.period_number = $4`,
-        [
-          schoolId.toString(),
-          academicYear,
-          courseAssignmentId.toString(),
-          periodNumber,
-        ],
-      );
-
-      const itemsByGrade = new Map<number, Record<number, number>>();
-      for (const row of itemsRes.rows) {
-        const gid = Number(row.academic_grade_id);
-        const rec = itemsByGrade.get(gid) ?? {};
-        rec[Number(row.item_number)] = Number(row.score);
-        itemsByGrade.set(gid, rec);
-      }
-
-      return gradesRes.rows.map((g) => ({
-        enrollmentId: Number(g.enrollment_id),
-        academicGradeId: Number(g.grade_id),
-        genderCode: g.gender_code,
-        nationalScaleId: g.national_scale_id ? Number(g.national_scale_id) : null,
-        items: itemsByGrade.get(Number(g.grade_id)) ?? {},
-      }));
+      return gradesRes.rows.map((g) => {
+        const items: Record<number, number> = {};
+        for (let idx = 0; idx < GRADE_SCORE_COLUMNS.length; idx++) {
+          const raw = g[GRADE_SCORE_COLUMNS[idx]];
+          if (raw !== null && raw !== undefined) {
+            items[idx + 1] = Number(raw);
+          }
+        }
+        return {
+          enrollmentId: Number(g.enrollment_id),
+          academicGradeId: Number(g.grade_id),
+          genderCode: g.gender_code,
+          nationalScaleId: g.national_scale_id ? Number(g.national_scale_id) : null,
+          items,
+        };
+      });
     });
   }
 
@@ -400,98 +391,128 @@ export class PostgresTeacherExtendedRepository extends TeacherExtendedRepository
         );
       }
       const periodId = periodRes.rows[0].id;
-      const touchedGradeIds = new Set<string>();
 
+      // Cargar pesos porcentuales configurados por columna n1..n30 del curso y periodo
+      const weightsRes = await client.query<{
+        column_number: number;
+        weight_percentage: string;
+      }>(
+        `SELECT column_number, weight_percentage
+           FROM teacher_gradebook_columns
+          WHERE school_id = $1
+            AND course_assignment_id = $2
+            AND period_number = $3`,
+        [schoolId.toString(), courseAssignmentId.toString(), input.periodNumber],
+      );
+      const weightByCol = new Map<number, number>();
+      for (const w of weightsRes.rows) {
+        weightByCol.set(Number(w.column_number), Number(w.weight_percentage));
+      }
+
+      // Agrupar por matrícula para ejecutar 1 solo UPSERT por estudiante tocado
+      const updatesByEnrollment = new Map<number, Map<number, number>>();
       let savedCount = 0;
       for (const item of input.items) {
-        const gradeRes = await client.query<{ id: string }>(
-          `INSERT INTO academic_grades (
-             school_id, academic_year, enrollment_id, course_assignment_id,
-             period_id, period_number, final_score
-           )
-           VALUES ($1,$2,$3,$4,$5,$6,0)
-           ON CONFLICT (school_id, academic_year, enrollment_id, course_assignment_id, period_number)
-           DO UPDATE SET updated_at = NOW()
-           RETURNING id`,
-          [
-            schoolId.toString(),
-            input.academicYear,
-            item.enrollmentId,
-            courseAssignmentId.toString(),
-            periodId,
-            input.periodNumber,
-          ],
-        );
-
-        const gradeId = gradeRes.rows[0].id;
-        touchedGradeIds.add(gradeId);
-
-        await client.query(
-          `INSERT INTO academic_grade_items (
-             school_id, academic_year, academic_grade_id, dimension_id,
-             gradebook_column_id, item_number, score
-           )
-           VALUES ($1,$2,$3,$4,$5,$6,$7)
-           ON CONFLICT (school_id, academic_year, academic_grade_id, item_number)
-           DO UPDATE SET
-             score = EXCLUDED.score,
-             dimension_id = COALESCE(EXCLUDED.dimension_id, academic_grade_items.dimension_id),
-             gradebook_column_id = COALESCE(EXCLUDED.gradebook_column_id, academic_grade_items.gradebook_column_id)`,
-          [
-            schoolId.toString(),
-            input.academicYear,
-            gradeId,
-            item.dimensionId ?? null,
-            item.gradebookColumnId ?? null,
-            item.itemNumber,
-            item.score,
-          ],
-        );
+        if (
+          !Number.isInteger(item.itemNumber) ||
+          item.itemNumber < 1 ||
+          item.itemNumber > 30
+        ) {
+          throw new BadRequestException(
+            `Número de casilla de calificación inválido (${String(item.itemNumber)}). Debe estar entre 1 y 30.`,
+          );
+        }
+        let colMap = updatesByEnrollment.get(item.enrollmentId);
+        if (!colMap) {
+          colMap = new Map<number, number>();
+          updatesByEnrollment.set(item.enrollmentId, colMap);
+        }
+        colMap.set(item.itemNumber, item.score);
         savedCount += 1;
       }
 
-      // Recalcular final_score y national_scale_id de cada nota tocada respetando grade_group_id
-      for (const gradeId of touchedGradeIds) {
-        await client.query(
-          `UPDATE academic_grades ag
-              SET final_score = COALESCE(
-                    (
-                      SELECT CASE
-                               WHEN SUM(COALESCE(tgc.weight_percentage, 0)) > 0 THEN
-                                 ROUND(
-                                   (SUM(agi.score * COALESCE(tgc.weight_percentage, 0)) / NULLIF(SUM(COALESCE(tgc.weight_percentage, 0)), 0))::numeric,
-                                   2
-                                 )
-                               ELSE ROUND(AVG(agi.score)::numeric, 2)
-                             END
-                        FROM academic_grade_items agi
-                        LEFT JOIN teacher_gradebook_columns tgc
-                          ON tgc.school_id = agi.school_id AND tgc.id = agi.gradebook_column_id
-                       WHERE agi.school_id = ag.school_id
-                         AND agi.academic_year = ag.academic_year
-                         AND agi.academic_grade_id = ag.id
-                    ),
-                    ag.final_score
-                  ),
-                  updated_at = NOW()
-            WHERE ag.school_id = $1 AND ag.academic_year = $2 AND ag.id = $3`,
-          [schoolId.toString(), input.academicYear, gradeId],
+      for (const [enrollmentId, colMap] of updatesByEnrollment.entries()) {
+        const entries = Array.from(colMap.entries());
+        const colNames = entries.map(([num]) => GRADE_SCORE_COLUMNS[num - 1]);
+        const colValues = entries.map(([, score]) => (score > 0 ? score : null));
+        const baseParams: unknown[] = [
+          schoolId.toString(),
+          input.academicYear,
+          enrollmentId,
+          courseAssignmentId.toString(),
+          periodId,
+          input.periodNumber,
+        ];
+        const valuePlaceholders = colNames.map(
+          (_, idx) => `$${baseParams.length + idx + 1}::numeric`,
         );
+        const conflictUpdates = colNames
+          .map((col) => `${col} = EXCLUDED.${col}`)
+          .join(', ');
+
+        const gradeRes = await client.query<
+          { id: string } & Record<(typeof GRADE_SCORE_COLUMNS)[number], string | null>
+        >(
+          `INSERT INTO academic_grades (
+             school_id, academic_year, enrollment_id, course_assignment_id,
+             period_id, period_number, final_score, ${colNames.join(', ')}
+           )
+           VALUES ($1,$2,$3,$4,$5,$6,0,${valuePlaceholders.join(', ')})
+           ON CONFLICT (school_id, academic_year, enrollment_id, course_assignment_id, period_number)
+           DO UPDATE SET ${conflictUpdates}, updated_at = NOW()
+           RETURNING id, ${GRADE_SCORE_RETURNING}`,
+          [...baseParams, ...colValues],
+        );
+
+        const row = gradeRes.rows[0];
+        let weightedSum = 0;
+        let totalWeight = 0;
+        let simpleSum = 0;
+        let simpleCount = 0;
+        for (let idx = 0; idx < GRADE_SCORE_COLUMNS.length; idx++) {
+          const raw = row[GRADE_SCORE_COLUMNS[idx]];
+          if (raw === null || raw === undefined) continue;
+          const val = Number(raw);
+          if (!Number.isFinite(val)) continue;
+          const w = weightByCol.get(idx + 1) ?? 0;
+          if (w > 0) {
+            weightedSum += val * w;
+            totalWeight += w;
+          }
+          simpleSum += val;
+          simpleCount += 1;
+        }
+
+        const finalScore =
+          totalWeight > 0
+            ? Number((weightedSum / totalWeight).toFixed(2))
+            : simpleCount > 0
+              ? Number((simpleSum / simpleCount).toFixed(2))
+              : 0;
 
         await client.query(
           `UPDATE academic_grades ag
-              SET national_scale_id = (
-                SELECT gs.national_scale_id
-                  FROM grading_scales gs
-                 WHERE gs.school_id = ag.school_id
-                   AND gs.academic_year = ag.academic_year
-                   AND ag.effective_score BETWEEN gs.min_score AND gs.max_score
-                   AND (gs.grade_group_id IS NULL OR gs.grade_group_id = $4::bigint)
-                 ORDER BY (gs.grade_group_id IS NOT NULL AND gs.grade_group_id = $4::bigint) DESC, gs.grade_group_id NULLS LAST
-                 LIMIT 1
-              )
+              SET final_score = $4::numeric,
+                  national_scale_id = (
+                    SELECT gs.national_scale_id
+                      FROM grading_scales gs
+                     WHERE gs.school_id = ag.school_id
+                       AND gs.academic_year = ag.academic_year
+                       AND GREATEST($4::numeric, ag.recovery_score, ag.leveling_score)
+                           BETWEEN gs.min_score AND gs.max_score
+                       AND (gs.grade_group_id IS NULL OR gs.grade_group_id = $5::bigint)
+                     ORDER BY (gs.grade_group_id IS NOT NULL AND gs.grade_group_id = $5::bigint) DESC, gs.grade_group_id NULLS LAST
+                     LIMIT 1
+                  ),
+                  updated_at = NOW()
             WHERE ag.school_id = $1 AND ag.academic_year = $2 AND ag.id = $3`,
-          [schoolId.toString(), input.academicYear, gradeId, gradeGroupId],
+          [
+            schoolId.toString(),
+            input.academicYear,
+            row.id,
+            finalScore,
+            gradeGroupId,
+          ],
         );
       }
 

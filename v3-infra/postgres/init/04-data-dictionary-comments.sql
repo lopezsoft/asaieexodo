@@ -68,68 +68,31 @@ COMMENT ON COLUMN academic_grade_audit_logs.changed_by_user_id IS 'Identificador
 COMMENT ON COLUMN academic_grade_audit_logs.change_reason IS 'Justificación o motivo registrado para la modificación de la calificación.';
 COMMENT ON COLUMN academic_grade_audit_logs.created_at IS 'Fecha y hora exacta (TIMESTAMPTZ) de creación del registro en la base de datos.';
 
--- Tabla: academic_grade_items (Dominio 7: Calificaciones Periódicas, Nivelaciones, Puestos y Asistencia (Particionado))
-COMMENT ON TABLE academic_grade_items IS 'Tabla maestra particionada en 3NF que almacena cada nota parcial individual de una calificación periódica (reemplaza las 30 columnas repetitivas n1..n30).';
-COMMENT ON COLUMN academic_grade_items.id IS 'Identificador único del registro en la tabla (clave primaria o parte de la clave primaria compuesta).';
-COMMENT ON COLUMN academic_grade_items.school_id IS 'Identificador de la Institución Educativa propietaria del registro (clave de particionamiento lógico y aislamiento Row-Level Security RLS).';
-COMMENT ON COLUMN academic_grade_items.academic_year IS 'Año lectivo escolar de cuatro dígitos al cual pertenece el registro (ej. 2025, 2026, 2027).';
-COMMENT ON COLUMN academic_grade_items.academic_grade_id IS 'Identificador del registro padre de calificación periódica (referencia a academic_grades).';
-COMMENT ON COLUMN academic_grade_items.dimension_id IS 'Identificador de la dimensión o componente evaluativo institucional (referencia a evaluation_dimensions).';
-COMMENT ON COLUMN academic_grade_items.gradebook_column_id IS 'Identificador de la columna de actividad en la planilla docente (referencia a teacher_gradebook_columns).';
-COMMENT ON COLUMN academic_grade_items.item_number IS 'Número secuencial del ítem o casilla de nota parcial dentro del periodo (1..30).';
-COMMENT ON COLUMN academic_grade_items.score IS 'Valor numérico de la calificación obtenida.';
-COMMENT ON COLUMN academic_grade_items.created_at IS 'Fecha y hora exacta (TIMESTAMPTZ) de creación del registro en la base de datos.';
-
--- Tabla: academic_grade_items_2025 (Dominio 7: Calificaciones Periódicas, Nivelaciones, Puestos y Asistencia (Particionado))
-COMMENT ON TABLE academic_grade_items_2025 IS 'Partición física de notas parciales individuales correspondiente al año lectivo 2025.';
-COMMENT ON COLUMN academic_grade_items_2025.id IS 'Identificador único del registro en la tabla (clave primaria o parte de la clave primaria compuesta).';
-COMMENT ON COLUMN academic_grade_items_2025.school_id IS 'Identificador de la Institución Educativa propietaria del registro (clave de particionamiento lógico y aislamiento Row-Level Security RLS).';
-COMMENT ON COLUMN academic_grade_items_2025.academic_year IS 'Año lectivo escolar de cuatro dígitos al cual pertenece el registro (ej. 2025, 2026, 2027).';
-COMMENT ON COLUMN academic_grade_items_2025.academic_grade_id IS 'Identificador del registro padre de calificación periódica (referencia a academic_grades).';
-COMMENT ON COLUMN academic_grade_items_2025.dimension_id IS 'Identificador de la dimensión o componente evaluativo institucional (referencia a evaluation_dimensions).';
-COMMENT ON COLUMN academic_grade_items_2025.gradebook_column_id IS 'Identificador de la columna de actividad en la planilla docente (referencia a teacher_gradebook_columns).';
-COMMENT ON COLUMN academic_grade_items_2025.item_number IS 'Número secuencial del ítem o casilla de nota parcial dentro del periodo (1..30).';
-COMMENT ON COLUMN academic_grade_items_2025.score IS 'Valor numérico de la calificación obtenida.';
-COMMENT ON COLUMN academic_grade_items_2025.created_at IS 'Fecha y hora exacta (TIMESTAMPTZ) de creación del registro en la base de datos.';
-
--- Tabla: academic_grade_items_2026 (Dominio 7: Calificaciones Periódicas, Nivelaciones, Puestos y Asistencia (Particionado))
-COMMENT ON TABLE academic_grade_items_2026 IS 'Partición física de notas parciales individuales correspondiente al año lectivo 2026.';
-COMMENT ON COLUMN academic_grade_items_2026.id IS 'Identificador único del registro en la tabla (clave primaria o parte de la clave primaria compuesta).';
-COMMENT ON COLUMN academic_grade_items_2026.school_id IS 'Identificador de la Institución Educativa propietaria del registro (clave de particionamiento lógico y aislamiento Row-Level Security RLS).';
-COMMENT ON COLUMN academic_grade_items_2026.academic_year IS 'Año lectivo escolar de cuatro dígitos al cual pertenece el registro (ej. 2025, 2026, 2027).';
-COMMENT ON COLUMN academic_grade_items_2026.academic_grade_id IS 'Identificador del registro padre de calificación periódica (referencia a academic_grades).';
-COMMENT ON COLUMN academic_grade_items_2026.dimension_id IS 'Identificador de la dimensión o componente evaluativo institucional (referencia a evaluation_dimensions).';
-COMMENT ON COLUMN academic_grade_items_2026.gradebook_column_id IS 'Identificador de la columna de actividad en la planilla docente (referencia a teacher_gradebook_columns).';
-COMMENT ON COLUMN academic_grade_items_2026.item_number IS 'Número secuencial del ítem o casilla de nota parcial dentro del periodo (1..30).';
-COMMENT ON COLUMN academic_grade_items_2026.score IS 'Valor numérico de la calificación obtenida.';
-COMMENT ON COLUMN academic_grade_items_2026.created_at IS 'Fecha y hora exacta (TIMESTAMPTZ) de creación del registro en la base de datos.';
-
--- Tabla: academic_grade_items_2027 (Dominio 7: Calificaciones Periódicas, Nivelaciones, Puestos y Asistencia (Particionado))
-COMMENT ON TABLE academic_grade_items_2027 IS 'Partición física de notas parciales individuales correspondiente al año lectivo 2027.';
-COMMENT ON COLUMN academic_grade_items_2027.id IS 'Identificador único del registro en la tabla (clave primaria o parte de la clave primaria compuesta).';
-COMMENT ON COLUMN academic_grade_items_2027.school_id IS 'Identificador de la Institución Educativa propietaria del registro (clave de particionamiento lógico y aislamiento Row-Level Security RLS).';
-COMMENT ON COLUMN academic_grade_items_2027.academic_year IS 'Año lectivo escolar de cuatro dígitos al cual pertenece el registro (ej. 2025, 2026, 2027).';
-COMMENT ON COLUMN academic_grade_items_2027.academic_grade_id IS 'Identificador del registro padre de calificación periódica (referencia a academic_grades).';
-COMMENT ON COLUMN academic_grade_items_2027.dimension_id IS 'Identificador de la dimensión o componente evaluativo institucional (referencia a evaluation_dimensions).';
-COMMENT ON COLUMN academic_grade_items_2027.gradebook_column_id IS 'Identificador de la columna de actividad en la planilla docente (referencia a teacher_gradebook_columns).';
-COMMENT ON COLUMN academic_grade_items_2027.item_number IS 'Número secuencial del ítem o casilla de nota parcial dentro del periodo (1..30).';
-COMMENT ON COLUMN academic_grade_items_2027.score IS 'Valor numérico de la calificación obtenida.';
-COMMENT ON COLUMN academic_grade_items_2027.created_at IS 'Fecha y hora exacta (TIMESTAMPTZ) de creación del registro en la base de datos.';
-
--- Tabla: academic_grade_items_historic (Dominio 7: Calificaciones Periódicas, Nivelaciones, Puestos y Asistencia (Particionado))
-COMMENT ON TABLE academic_grade_items_historic IS 'Partición por defecto para notas parciales individuales de años lectivos históricos.';
-COMMENT ON COLUMN academic_grade_items_historic.id IS 'Identificador único del registro en la tabla (clave primaria o parte de la clave primaria compuesta).';
-COMMENT ON COLUMN academic_grade_items_historic.school_id IS 'Identificador de la Institución Educativa propietaria del registro (clave de particionamiento lógico y aislamiento Row-Level Security RLS).';
-COMMENT ON COLUMN academic_grade_items_historic.academic_year IS 'Año lectivo escolar de cuatro dígitos al cual pertenece el registro (ej. 2025, 2026, 2027).';
-COMMENT ON COLUMN academic_grade_items_historic.academic_grade_id IS 'Identificador del registro padre de calificación periódica (referencia a academic_grades).';
-COMMENT ON COLUMN academic_grade_items_historic.dimension_id IS 'Identificador de la dimensión o componente evaluativo institucional (referencia a evaluation_dimensions).';
-COMMENT ON COLUMN academic_grade_items_historic.gradebook_column_id IS 'Identificador de la columna de actividad en la planilla docente (referencia a teacher_gradebook_columns).';
-COMMENT ON COLUMN academic_grade_items_historic.item_number IS 'Número secuencial del ítem o casilla de nota parcial dentro del periodo (1..30).';
-COMMENT ON COLUMN academic_grade_items_historic.score IS 'Valor numérico de la calificación obtenida.';
-COMMENT ON COLUMN academic_grade_items_historic.created_at IS 'Fecha y hora exacta (TIMESTAMPTZ) de creación del registro en la base de datos.';
-
 -- Tabla: academic_grades (Dominio 7: Calificaciones Periódicas, Nivelaciones, Puestos y Asistencia (Particionado))
-COMMENT ON TABLE academic_grades IS 'Tabla maestra particionada por año lectivo que consolida las calificaciones periódicas por matrícula, carga académica y periodo (unifica nscp00..003 eliminando columnas repetitivas).';
+COMMENT ON TABLE academic_grades IS 'Tabla maestra particionada por año lectivo que consolida las calificaciones periódicas por matrícula, carga académica y periodo (unifica nscp00..003 conservando n1..n30 inline NUMERIC(5,2) NULL para óptimo almacenamiento y rendimiento O(1)).';
+DO $$
+DECLARE
+  tbl TEXT;
+  idx INT;
+BEGIN
+  FOREACH tbl IN ARRAY ARRAY[
+    'academic_grades',
+    'academic_grades_historic',
+    'academic_grades_2025',
+    'academic_grades_2026',
+    'academic_grades_2027',
+    'academic_grades_default'
+  ] LOOP
+    FOR idx IN 1..30 LOOP
+      EXECUTE format(
+        'COMMENT ON COLUMN %I.n%s IS %L',
+        tbl,
+        idx,
+        'Calificación parcial de la casilla ' || idx || ' del periodo (NUMERIC(5,2), NULL si no diligenciada para ocupar 0 bytes en heap PostgreSQL).'
+      );
+    END LOOP;
+  END LOOP;
+END $$;
 COMMENT ON COLUMN academic_grades.id IS 'Identificador único del registro en la tabla (clave primaria o parte de la clave primaria compuesta).';
 COMMENT ON COLUMN academic_grades.school_id IS 'Identificador de la Institución Educativa propietaria del registro (clave de particionamiento lógico y aislamiento Row-Level Security RLS).';
 COMMENT ON COLUMN academic_grades.academic_year IS 'Año lectivo escolar de cuatro dígitos al cual pertenece el registro (ej. 2025, 2026, 2027).';
@@ -1618,17 +1581,5 @@ COMMENT ON COLUMN academic_grades_default.is_locked IS 'Indica si la calificaci�
 COMMENT ON COLUMN academic_grades_default.updated_by_user_id IS 'Identificador del usuario que realizó la última modificación del registro.';
 COMMENT ON COLUMN academic_grades_default.created_at IS 'Fecha y hora exacta (TIMESTAMPTZ) de creación del registro en la base de datos.';
 COMMENT ON COLUMN academic_grades_default.updated_at IS 'Fecha y hora exacta (TIMESTAMPTZ) de la última actualización del registro.';
-
--- Partición DEFAULT: academic_grade_items_default
-COMMENT ON TABLE academic_grade_items_default IS 'Partición física por defecto (DEFAULT) de notas parciales individuales para años lectivos fuera del rango 1990..2034.';
-COMMENT ON COLUMN academic_grade_items_default.id IS 'Identificador único del registro en la tabla (clave primaria compuesta).';
-COMMENT ON COLUMN academic_grade_items_default.school_id IS 'Identificador de la Institución Educativa propietaria del registro (clave de aislamiento Row-Level Security RLS).';
-COMMENT ON COLUMN academic_grade_items_default.academic_year IS 'Año lectivo escolar de cuatro dígitos al cual pertenece el registro.';
-COMMENT ON COLUMN academic_grade_items_default.academic_grade_id IS 'Identificador del registro padre de calificación periódica (referencia a academic_grades).';
-COMMENT ON COLUMN academic_grade_items_default.dimension_id IS 'Identificador de la dimensión o componente evaluativo institucional (referencia a evaluation_dimensions).';
-COMMENT ON COLUMN academic_grade_items_default.gradebook_column_id IS 'Identificador de la columna de actividad en la planilla docente (referencia a teacher_gradebook_columns).';
-COMMENT ON COLUMN academic_grade_items_default.item_number IS 'Número secuencial del ítem o casilla de nota parcial dentro del periodo (1..30).';
-COMMENT ON COLUMN academic_grade_items_default.score IS 'Valor numérico de la calificación obtenida.';
-COMMENT ON COLUMN academic_grade_items_default.created_at IS 'Fecha y hora exacta (TIMESTAMPTZ) de creación del registro en la base de datos.';
 
 COMMIT;

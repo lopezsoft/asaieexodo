@@ -182,7 +182,7 @@ describe('PostgreSQL 17 Single-DB Multi-Tenant RLS, Security Guards, pgvector CR
     expect(openApiDoc.paths['/api/v1/auth/change-password']).toBeDefined();
   });
 
-  it('verifies PostgreSQL 17 RLS, 139 tables/partitions, 0 uncommented cols, cleaned geo seeds, CRM & S3 when DB is online', async () => {
+  it('verifies PostgreSQL 17 RLS, 133 tables/partitions, 0 uncommented cols, cleaned geo seeds, CRM & S3 when DB is online', async () => {
     if (!postgresAvailable) {
       return;
     }
@@ -255,9 +255,9 @@ describe('PostgreSQL 17 Single-DB Multi-Tenant RLS, Security Guards, pgvector CR
       },
     );
 
-    expect(Number(verification.total_pg_relations)).toBe(139);
-    // Las 10 particiones hijas tienen REVOKE ALL para asaie_app_runtime (139 - 10 = 129 accesibles)
-    expect(Number(verification.runtime_accessible_tables)).toBe(129);
+    expect(Number(verification.total_pg_relations)).toBe(133);
+    // Las 5 particiones hijas de academic_grades tienen REVOKE ALL para asaie_app_runtime (133 - 5 = 128 accesibles)
+    expect(Number(verification.runtime_accessible_tables)).toBe(128);
     expect(Number(verification.unprotected_partitions)).toBe(0);
     expect(Number(verification.non_english_cols)).toBe(0);
     expect(Number(verification.tables_without_comment)).toBe(0);

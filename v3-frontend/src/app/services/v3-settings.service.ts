@@ -25,13 +25,23 @@ export interface GradingRuleRecord {
   readonly decimalsCount: number;
   readonly minPassingScore: number;
   readonly maxRecoveryScore: number;
+  readonly roundingThresholdScore: number;
+  readonly roundingTargetScore: number;
+  readonly minAreaAverage: number;
   readonly failedAreasLimit: number;
   readonly failsAfterRecovery: boolean;
+  readonly failsAfterRecoveryMode: number;
+  readonly failsAreaIfAnySubjectFails: boolean;
+  readonly failsYearByMandatoryArea: boolean;
   readonly promotionMode: number;
+  readonly academicYearMode: number;
   readonly usesWeightedAreas: boolean;
+  readonly ranksByAreaAverage: boolean;
+  readonly enforcesRecoveryDates: boolean;
   readonly absenceFailPercentage: number;
   readonly roundsPeriodScore: boolean;
   readonly roundsFinalScore: boolean;
+  readonly studentsPerBook: number;
   readonly promotionDate: string | null;
 }
 
@@ -108,6 +118,8 @@ export interface GradingScaleRecord {
   readonly minScore: number;
   readonly maxScore: number;
   readonly rankOrder: string | null;
+  readonly isFailing: boolean;
+  readonly isGradable: boolean;
 }
 
 export interface DimensionColumnRecord {

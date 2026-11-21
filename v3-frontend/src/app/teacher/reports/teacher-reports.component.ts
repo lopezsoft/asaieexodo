@@ -48,7 +48,7 @@ interface QueuedReportItem {
       <div class="breadcrumb-card mb-25 d-md-flex align-items-center justify-content-between">
         <div>
           <h5 class="mb-0 fw-bold">Informes y Boletines del Docente</h5>
-          <small class="text-muted">Año lectivo {{ academicYear() }} · Generación oficial JasperReports + AWS S3</small>
+          <small class="text-muted">Año lectivo {{ academicYear() }} · Motor Nativo PDF (Gotenberg 8) / ExcelJS + S3</small>
         </div>
         <ol class="breadcrumb list-unstyled mt-0 mb-0 p-0">
           <li class="breadcrumb-item d-inline-block position-relative">
@@ -97,15 +97,25 @@ interface QueuedReportItem {
               <option value="CARTA">Carta</option>
             </select>
           </div>
-          <div class="col-md-2 d-grid">
+          <div class="col-md-2 d-flex gap-1">
             <button
               type="button"
-              class="btn btn-sm btn-primary"
+              class="btn btn-sm btn-primary flex-grow-1"
+              [disabled]="!bulletinForm.groupId || (bulletinForm.singleStudentOnly && !bulletinForm.selectedEnrollmentId)"
+              (click)="downloadBulletinDirect()"
+              [appCustomTooltip]="'Descargar boletín en PDF inmediatamente'"
+            >
+              <i class="material-symbols-outlined fs-6 align-middle me-1">download</i>
+              PDF
+            </button>
+            <button
+              type="button"
+              class="btn btn-sm btn-outline-secondary"
               [disabled]="!bulletinForm.groupId || (bulletinForm.singleStudentOnly && !bulletinForm.selectedEnrollmentId)"
               (click)="enqueueBulletin()"
+              [appCustomTooltip]="'Encolar generación en segundo plano (BullMQ + S3)'"
             >
-              <i class="material-symbols-outlined fs-6 align-middle me-1">print</i>
-              Imprimir
+              <i class="material-symbols-outlined fs-6 align-middle">cloud_queue</i>
             </button>
           </div>
         </div>
@@ -142,6 +152,7 @@ interface QueuedReportItem {
           <select class="form-select form-select-sm w-auto" [(ngModel)]="outputFormat">
             <option value="pdf">PDF</option>
             <option value="xlsx">Excel (.xlsx)</option>
+            <option value="csv">CSV (.csv)</option>
             <option value="docx">Word (.docx)</option>
           </select>
         </div>
@@ -160,16 +171,27 @@ interface QueuedReportItem {
                   <p class="small text-muted mb-0">{{ rep.description }}</p>
                 </div>
               </div>
-              <div class="mt-3 pt-2 border-top d-flex justify-content-between align-items-center">
-                <code class="small text-muted">{{ rep.templateName }}</code>
-                <button
-                  type="button"
-                  class="btn btn-sm btn-outline-primary"
-                  (click)="enqueueTeacherReport(rep)"
-                  [appCustomTooltip]="'Encolar ' + rep.title"
-                >
-                  Generar
-                </button>
+              <div class="mt-3 pt-2 border-top d-flex justify-content-between align-items-center gap-2">
+                <code class="small text-muted text-truncate">{{ rep.templateName }}</code>
+                <div class="d-flex gap-1 flex-shrink-0">
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-primary"
+                    (click)="downloadTeacherReportDirect(rep)"
+                    [appCustomTooltip]="'Descargar inmediatamente ' + rep.title + ' (' + outputFormat.toUpperCase() + ')'"
+                  >
+                    <i class="material-symbols-outlined fs-6 align-middle me-1">download</i>
+                    Descargar
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-secondary"
+                    (click)="enqueueTeacherReport(rep)"
+                    [appCustomTooltip]="'Encolar ' + rep.title + ' en BullMQ + S3'"
+                  >
+                    <i class="material-symbols-outlined fs-6 align-middle">cloud_queue</i>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -248,7 +270,7 @@ export class TeacherReportsComponent implements OnInit {
   readonly groupStudents = signal<EnrollmentRecord[]>([]);
   readonly queuedJobs = signal<QueuedReportItem[]>([]);
 
-  outputFormat: 'pdf' | 'xlsx' | 'docx' = 'pdf';
+  outputFormat: 'pdf' | 'xlsx' | 'csv' | 'docx' = 'pdf';
   bulletinForm = {
     groupId: 0,
     periodNumber: 1,
@@ -319,7 +341,7 @@ export class TeacherReportsComponent implements OnInit {
       .subscribe((list) => this.groupStudents.set(list));
   }
 
-  enqueueBulletin(): void {
+  private buildBulletinParams(): Record<string, string | number | boolean> {
     const params: Record<string, string | number | boolean> = {
       P_YEAR: this.academicYear(),
       P_PERIOD: Number(this.bulletinForm.periodNumber),
@@ -330,26 +352,68 @@ export class TeacherReportsComponent implements OnInit {
     if (this.bulletinForm.singleStudentOnly && this.bulletinForm.selectedEnrollmentId) {
       params['P_ENROLLMENT_ID'] = Number(this.bulletinForm.selectedEnrollmentId);
     }
+    return params;
+  }
+
+  downloadBulletinDirect(): void {
+    this.downloadDirect(
+      this.bulletinForm.bulletinType,
+      `Boletín (${this.bulletinForm.paperSize})`,
+      'pdf',
+      this.buildBulletinParams(),
+    );
+  }
+
+  enqueueBulletin(): void {
     this.enqueueReport(
       this.bulletinForm.bulletinType,
       `Boletín (${this.bulletinForm.paperSize})`,
       'pdf',
-      params,
+      this.buildBulletinParams(),
     );
+  }
+
+  downloadTeacherReportDirect(rep: TeacherReportDef): void {
+    this.downloadDirect(rep.templateName, rep.title, this.outputFormat, {
+      P_YEAR: this.academicYear(),
+      P_PERIOD: Number(this.bulletinForm.periodNumber),
+      ...(this.bulletinForm.groupId ? { P_GROUP_ID: Number(this.bulletinForm.groupId) } : {}),
+    });
   }
 
   enqueueTeacherReport(rep: TeacherReportDef): void {
     this.enqueueReport(rep.templateName, rep.title, this.outputFormat, {
       P_YEAR: this.academicYear(),
       P_PERIOD: Number(this.bulletinForm.periodNumber),
-      P_GROUP_ID: Number(this.bulletinForm.groupId),
+      ...(this.bulletinForm.groupId ? { P_GROUP_ID: Number(this.bulletinForm.groupId) } : {}),
     });
+  }
+
+  private downloadDirect(
+    templateName: string,
+    title: string,
+    format: 'pdf' | 'xlsx' | 'csv' | 'docx',
+    parameters: Record<string, string | number | boolean>,
+  ): void {
+    this.loadMask.show(`Generando ${title}...`);
+    this.academicService
+      .downloadDirectReport({ templateName, outputFormat: format, parameters })
+      .pipe(finalize(() => this.loadMask.hide()))
+      .subscribe({
+        next: (response) => {
+          this.academicService.triggerBrowserBlobDownload(
+            response,
+            `${templateName}_${this.academicYear()}.${format}`,
+          );
+          this.messages.showSuccess(`Reporte "${title}" descargado correctamente.`);
+        },
+      });
   }
 
   private enqueueReport(
     templateName: string,
     title: string,
-    format: 'pdf' | 'xlsx' | 'docx',
+    format: 'pdf' | 'xlsx' | 'csv' | 'docx',
     parameters: Record<string, string | number | boolean>,
   ): void {
     this.academicService

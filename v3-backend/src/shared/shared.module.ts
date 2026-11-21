@@ -6,7 +6,11 @@ import { ReportGeneratorPort } from './application/ports/report-generator.port';
 import { PostgresRlsService } from './infrastructure/database/postgres-rls.service';
 import { SmartLoggerService } from './infrastructure/logging/smart-logger.service';
 import { NodemailerSmtpMailAdapter } from './infrastructure/mail/nodemailer-smtp.adapter';
+import { ExcelReportBuilder } from './infrastructure/reporting/excel-report.builder';
+import { HtmlReportTemplateBuilder } from './infrastructure/reporting/html-report-template.builder';
+import { InstitutionalReportDataService } from './infrastructure/reporting/institutional-report-data.service';
 import { JasperReportAdapter } from './infrastructure/reporting/jasper-report.adapter';
+import { NativeDocumentReportAdapter } from './infrastructure/reporting/native-document-report.adapter';
 import { AwsS3StorageAdapter } from './infrastructure/storage/aws-s3-storage.adapter';
 
 @Global()
@@ -15,9 +19,14 @@ import { AwsS3StorageAdapter } from './infrastructure/storage/aws-s3-storage.ada
     SmartLoggerService,
     TenantContextService,
     PostgresRlsService,
+    InstitutionalReportDataService,
+    HtmlReportTemplateBuilder,
+    ExcelReportBuilder,
+    JasperReportAdapter,
+    NativeDocumentReportAdapter,
     {
       provide: ReportGeneratorPort,
-      useClass: JasperReportAdapter,
+      useExisting: NativeDocumentReportAdapter,
     },
     {
       provide: MailSenderPort,
@@ -32,6 +41,10 @@ import { AwsS3StorageAdapter } from './infrastructure/storage/aws-s3-storage.ada
     SmartLoggerService,
     TenantContextService,
     PostgresRlsService,
+    InstitutionalReportDataService,
+    HtmlReportTemplateBuilder,
+    ExcelReportBuilder,
+    NativeDocumentReportAdapter,
     ReportGeneratorPort,
     MailSenderPort,
     CloudStoragePort,

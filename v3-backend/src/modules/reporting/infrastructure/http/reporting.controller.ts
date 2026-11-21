@@ -1,5 +1,13 @@
 import { InjectQueue } from '@nestjs/bullmq';
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Res,
+  StreamableFile,
+} from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -19,13 +27,18 @@ import {
   MaxLength,
 } from 'class-validator';
 import { Queue } from 'bullmq';
+import { FastifyReply } from 'fastify';
 import { ActiveTenantContext } from '../../../../shared/application/context/tenant-context.service';
-import { ReportOutputFormat } from '../../../../shared/application/ports/report-generator.port';
+import {
+  ReportGeneratorPort,
+  ReportOutputFormat,
+} from '../../../../shared/application/ports/report-generator.port';
 import { ResourceNotFoundException } from '../../../../shared/domain/exceptions/resource-not-found.exception';
 import {
   CurrentUser,
   Roles,
 } from '../../../../shared/infrastructure/http/decorators/security.decorators';
+import { INSTITUTIONAL_REPORT_CATALOG } from '../../../../shared/infrastructure/reporting/report-catalog.constants';
 import { CommunityRole } from '../../../iam/domain/enums/community-role.enum';
 import { ManageCloudFilesUseCase } from '../../../storage/application/use-cases/manage-cloud-files.use-case';
 import {
@@ -42,10 +55,20 @@ const ALLOWED_REPORT_FORMATS: ReportOutputFormat[] = [
   'html',
 ];
 
+const REPORT_STAFF_ROLES: CommunityRole[] = [
+  CommunityRole.SUPER_ADMIN,
+  CommunityRole.SCHOOL_ADMIN,
+  CommunityRole.RECTOR,
+  CommunityRole.COORDINATOR,
+  CommunityRole.SECRETARY,
+  CommunityRole.TEACHER,
+];
+
 export class EnqueueJasperReportRequestDto {
   @ApiProperty({
     example: 'boletin_carta_areas',
-    description: 'Nombre de la plantilla Jasper compilada (solo alfanumérico, guiones y guion bajo)',
+    description:
+      'Nombre de la plantilla institucional del catálogo (solo alfanumérico, guiones y guion bajo)',
   })
   @IsString()
   @IsNotEmpty()
@@ -63,14 +86,15 @@ export class EnqueueJasperReportRequestDto {
 
   @ApiPropertyOptional({
     example: { P_YEAR: 2026, P_PERIOD: 1 },
-    description: 'Parámetros tipados del reporte (parámetros reservados como P_SCHOOL_ID o SQL_PARAM están bloqueados)',
+    description:
+      'Parámetros tipados del reporte (parámetros reservados como P_SCHOOL_ID o SQL_PARAM están bloqueados)',
   })
   @IsOptional()
   @IsObject()
   parameters?: Record<string, string | number | boolean>;
 }
 
-@ApiTags('JasperReports Engine')
+@ApiTags('Institutional Reports Engine')
 @ApiBearerAuth('jwt-auth')
 @Controller('reports')
 export class ReportingController {
@@ -80,20 +104,69 @@ export class ReportingController {
       JasperReportJobPayload,
       JasperReportJobResult
     >,
+    private readonly reportGenerator: ReportGeneratorPort,
     private readonly manageCloudFilesUseCase: ManageCloudFilesUseCase,
   ) {}
 
-  @Post('enqueue')
-  @Roles(
-    CommunityRole.SUPER_ADMIN,
-    CommunityRole.SCHOOL_ADMIN,
-    CommunityRole.RECTOR,
-    CommunityRole.COORDINATOR,
-    CommunityRole.SECRETARY,
-    CommunityRole.TEACHER,
-  )
+  @Get('catalog')
+  @Roles(...REPORT_STAFF_ROLES)
   @ApiOperation({
-    summary: 'Encolar generación asíncrona de reporte JasperReports (.jasper -> S3)',
+    summary: 'Listar catálogo completo de reportes institucionales nativos (PDF/Excel/CSV)',
+    description:
+      'Retorna las 31 plantillas institucionales disponibles en el motor cloud-native (Gotenberg 8 HTML->PDF + ExcelJS).',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Catálogo institucional de reportes retornado exitosamente.',
+  })
+  getCatalog(): Record<string, unknown> {
+    return {
+      success: true,
+      total: INSTITUTIONAL_REPORT_CATALOG.length,
+      data: INSTITUTIONAL_REPORT_CATALOG,
+    };
+  }
+
+  @Post('generate-direct')
+  @Roles(...REPORT_STAFF_ROLES)
+  @ApiOperation({
+    summary: 'Generar y descargar de inmediato un reporte oficial (PDF, XLSX, CSV, HTML, DOCX)',
+    description:
+      'Ejecuta el motor nativo cloud (Gotenberg 8 + ExcelJS) bajo RLS estricto del `schoolId` del JWT y retorna el flujo binario listo para descarga.',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Archivo binario del reporte generado exitosamente.',
+  })
+  async generateDirect(
+    @CurrentUser() principal: ActiveTenantContext,
+    @Body() dto: EnqueueJasperReportRequestDto,
+    @Res({ passthrough: true }) reply: FastifyReply,
+  ): Promise<StreamableFile> {
+    const generated = await this.reportGenerator.generateFromTemplate({
+      schoolId: principal.schoolId,
+      requestedByUserId: principal.userId,
+      requestedByFullName: principal.fullName,
+      templateName: dto.templateName,
+      outputFormat: dto.outputFormat,
+      parameters: dto.parameters ?? {},
+    });
+
+    const safeFileName = generated.fileName.replace(/[^a-zA-Z0-9._-]/g, '_');
+    reply.header('Content-Type', generated.mimeType);
+    reply.header(
+      'Content-Disposition',
+      `attachment; filename="${safeFileName}"`,
+    );
+    reply.header('Cache-Control', 'no-store');
+
+    return new StreamableFile(generated.buffer);
+  }
+
+  @Post('enqueue')
+  @Roles(...REPORT_STAFF_ROLES)
+  @ApiOperation({
+    summary: 'Encolar generación asíncrona de reporte institucional (BullMQ -> S3)',
     description:
       'Encola en BullMQ la generación del reporte institucional derivando `schoolId` y `requestedByUserId` exclusivamente desde el JWT verificado.',
   })
@@ -130,7 +203,7 @@ export class ReportingController {
 
   @Get('jobs/:jobId')
   @ApiOperation({
-    summary: 'Consultar estado de reporte Jasper en BullMQ y obtener URL prefirmada S3',
+    summary: 'Consultar estado de reporte en BullMQ y obtener URL prefirmada S3',
     description:
       'Valida estrictamente que el job pertenezca al `schoolId` del JWT autenticado. Cuando el estado es `completed`, genera una URL temporal prefirmada (GET) de descarga desde AWS S3.',
   })

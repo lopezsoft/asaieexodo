@@ -83,6 +83,35 @@ services:
     networks:
       - asaie_v3_net
 
+  gotenberg:
+    image: gotenberg/gotenberg:8
+    container_name: asaie-v3-gotenberg
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      - "127.0.0.1:${GOTENBERG_PORT:-3010}:3000"
+    environment:
+      TZ: America/Bogota
+    command:
+      - "gotenberg"
+      - "--chromium-disable-javascript=true"
+      - "--chromium-allow-list=^file:///tmp/.*"
+      - "--api-timeout=60s"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:3000/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - asaie_v3_net
+
 networks:
   asaie_v3_net:
     name: asaie_v3_net

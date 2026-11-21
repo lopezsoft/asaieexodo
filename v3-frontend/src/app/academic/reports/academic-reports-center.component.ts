@@ -5,7 +5,10 @@ import { RouterLink } from '@angular/router';
 import { finalize, forkJoin } from 'rxjs';
 import { LoadMaskService } from '../../services/common/load-mask.service';
 import { MessagesService } from '../../services/messages.service';
-import { V3AcademicService } from '../../services/v3-academic.service';
+import {
+  ConsolidatedReportView,
+  V3AcademicService,
+} from '../../services/v3-academic.service';
 import {
   GroupManagerRecord,
   V3AdministrationService,
@@ -15,6 +18,7 @@ import {
   V3CatalogsService,
 } from '../../services/v3-catalogs.service';
 import { V3UnifiedAuthService } from '../../services/v3-unified-auth.service';
+import { V3ModalDialogComponent } from '../../shared/components/v3-modal-dialog/v3-modal-dialog.component';
 import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.directive';
 
 interface ReportTemplateDefinition {
@@ -36,19 +40,25 @@ interface QueuedReportItem {
 }
 
 /**
- * Centro unificado de reportes institucionales (consolida los 17 reportes JasperReports
- * heredados de ExtJS general/ y academico/ sobre la cola BullMQ + AWS S3).
+ * Centro unificado de reportes institucionales (motor cloud-native Gotenberg 8 PDF + ExcelJS + BullMQ/S3
+ * con visor interactivo de Consolidado SIEE y materialización de promedios por área).
  */
 @Component({
   selector: 'app-academic-reports-center',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, CustomTooltipDirective],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterLink,
+    CustomTooltipDirective,
+    V3ModalDialogComponent,
+  ],
   template: `
     <div class="container-fluid py-3">
       <div class="breadcrumb-card mb-25 d-md-flex align-items-center justify-content-between">
         <div>
-          <h5 class="mb-0 fw-bold">Centro de Reportes Oficiales (JasperReports + S3)</h5>
-          <small class="text-muted">Año lectivo {{ academicYear() }} · Generación asíncrona auditada</small>
+          <h5 class="mb-0 fw-bold">Centro de Reportes Oficiales (Motor Nativo PDF / Excel + S3)</h5>
+          <small class="text-muted">Año lectivo {{ academicYear() }} · Descarga inmediata Gotenberg 8 / ExcelJS o cola asíncrona S3</small>
         </div>
         <ol class="breadcrumb list-unstyled mt-0 mb-0 p-0">
           <li class="breadcrumb-item d-inline-block position-relative">
@@ -59,7 +69,38 @@ interface QueuedReportItem {
       </div>
 
       <div class="trezo-card bg-white border-radius p-4 shadow-sm mb-4">
-        <h6 class="fw-semibold mb-3">Parámetros de Generación</h6>
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+          <h6 class="fw-semibold mb-0">Parámetros de Generación</h6>
+          <div class="d-flex flex-wrap gap-2">
+            <button
+              type="button"
+              class="btn btn-sm btn-outline-info"
+              (click)="openConsolidatedPreview('subjects')"
+              [appCustomTooltip]="'Consultar sábana consolidada por asignaturas en pantalla'"
+            >
+              <i class="material-symbols-outlined fs-6 align-middle me-1">grid_on</i>
+              Ver Consolidado Asignaturas
+            </button>
+            <button
+              type="button"
+              class="btn btn-sm btn-outline-primary"
+              (click)="openConsolidatedPreview('areas')"
+              [appCustomTooltip]="'Consultar sábana consolidada ponderada por áreas SIEE en pantalla'"
+            >
+              <i class="material-symbols-outlined fs-6 align-middle me-1">table_chart</i>
+              Ver Consolidado Áreas
+            </button>
+            <button
+              type="button"
+              class="btn btn-sm btn-outline-warning"
+              (click)="materializeAreaResults()"
+              [appCustomTooltip]="'Recalcular y materializar promedios ponderados de áreas para el periodo seleccionado'"
+            >
+              <i class="material-symbols-outlined fs-6 align-middle me-1">sync</i>
+              Materializar Áreas P{{ params.periodNumber }}
+            </button>
+          </div>
+        </div>
         <div class="row g-3">
           <div class="col-md-3">
             <label class="form-label small fw-semibold">Sede</label>
@@ -92,6 +133,7 @@ interface QueuedReportItem {
             <select class="form-select form-select-sm" [(ngModel)]="params.outputFormat">
               <option value="pdf">PDF (Oficial)</option>
               <option value="xlsx">Excel (.xlsx)</option>
+              <option value="csv">CSV (.csv)</option>
               <option value="docx">Word (.docx)</option>
             </select>
           </div>
@@ -121,22 +163,115 @@ interface QueuedReportItem {
                   <p class="small text-muted mb-0">{{ tpl.description }}</p>
                 </div>
               </div>
-              <div class="mt-3 pt-2 border-top d-flex justify-content-between align-items-center">
-                <code class="small text-muted">{{ tpl.templateName }}</code>
-                <button
-                  type="button"
-                  class="btn btn-sm btn-primary"
-                  (click)="generateReport(tpl)"
-                  [appCustomTooltip]="'Encolar generación de ' + tpl.title"
-                >
-                  <i class="material-symbols-outlined fs-6 align-middle me-1">print</i>
-                  Generar
-                </button>
+              <div class="mt-3 pt-2 border-top d-flex justify-content-between align-items-center gap-2">
+                <code class="small text-muted text-truncate">{{ tpl.templateName }}</code>
+                <div class="d-flex gap-1 flex-shrink-0">
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-primary"
+                    (click)="downloadDirect(tpl)"
+                    [appCustomTooltip]="'Descargar inmediatamente ' + tpl.title + ' (' + params.outputFormat.toUpperCase() + ')'"
+                  >
+                    <i class="material-symbols-outlined fs-6 align-middle me-1">download</i>
+                    Descargar
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-secondary"
+                    (click)="generateReport(tpl)"
+                    [appCustomTooltip]="'Encolar generación en segundo plano (BullMQ + S3)'"
+                  >
+                    <i class="material-symbols-outlined fs-6 align-middle">cloud_queue</i>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         }
       </div>
+
+      <!-- Modal Consolidado Interactivo SIEE -->
+      <app-v3-modal-dialog
+        [open]="consolidatedModalOpen()"
+        [heading]="'Consolidado SIEE (' + (consolidatedMode() === 'areas' ? 'Áreas' : 'Asignaturas') + ') · P' + params.periodNumber"
+        icon="table_chart"
+        size="xl"
+        (closed)="consolidatedModalOpen.set(false)"
+      >
+        @if (consolidatedReport(); as rep) {
+          <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+            <div class="d-flex flex-wrap gap-2 small">
+              <span class="badge text-bg-primary">Estudiantes: {{ rep.summary.totalStudents }}</span>
+              <span class="badge text-bg-success">Sin reprobaciones: {{ rep.summary.studentsWithZeroFailures }}</span>
+              <span class="badge text-bg-danger">Con reprobaciones: {{ rep.summary.studentsWithFailures }}</span>
+            </div>
+            <div class="d-flex gap-2">
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-success"
+                (click)="downloadTemplateDirect(consolidatedMode() === 'areas' ? 'consolidado_areas' : 'consolidado_asignaturas', 'xlsx')"
+              >
+                Descargar Excel (.xlsx)
+              </button>
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-danger"
+                (click)="downloadTemplateDirect(consolidatedMode() === 'areas' ? 'consolidado_areas' : 'consolidado_asignaturas', 'pdf')"
+              >
+                Descargar PDF
+              </button>
+            </div>
+          </div>
+          <div class="table-responsive" style="max-height: 62vh;">
+            <table class="table table-sm table-bordered align-middle mb-0 small">
+              <thead class="table-dark sticky-top">
+                <tr>
+                  <th class="text-center">#</th>
+                  <th>Estudiante</th>
+                  <th class="text-center">Grupo</th>
+                  @for (col of rep.columns; track col.key) {
+                    <th class="text-center" [appCustomTooltip]="col.name">
+                      {{ col.abbreviation || col.name.slice(0, 6) }}
+                    </th>
+                  }
+                  <th class="text-center">Prom.</th>
+                  <th class="text-center">Rep.</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of rep.rows; track row.enrollmentId; let idx = $index) {
+                  <tr>
+                    <td class="text-center">{{ idx + 1 }}</td>
+                    <td class="fw-semibold text-nowrap">{{ row.studentFullName }}</td>
+                    <td class="text-center">{{ row.gradeName }}-{{ row.groupCode }}</td>
+                    @for (col of rep.columns; track col.key) {
+                      @let cell = row.cells[col.key];
+                      <td
+                        class="text-center"
+                        [ngClass]="cell?.isFailed ? 'table-danger fw-bold text-danger' : ''"
+                      >
+                        {{ cell ? cell.score : '—' }}
+                      </td>
+                    }
+                    <td class="text-center fw-bold text-primary">{{ row.averageScore }}</td>
+                    <td class="text-center">
+                      <span class="badge" [ngClass]="row.failedCount > 0 ? 'text-bg-danger' : 'text-bg-success'">
+                        {{ row.failedCount }}
+                      </span>
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td [attr.colspan]="rep.columns.length + 5" class="text-center text-muted py-4">
+                      Sin calificaciones registradas para los filtros seleccionados.
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </app-v3-modal-dialog>
 
       @if (queuedJobs().length > 0) {
         <div class="trezo-card bg-white border-radius p-4 shadow-sm">
@@ -214,13 +349,16 @@ export class AcademicReportsCenterComponent implements OnInit {
   readonly context = signal<SchoolAcademicContextCatalogs | null>(null);
   readonly groups = signal<GroupManagerRecord[]>([]);
   readonly queuedJobs = signal<QueuedReportItem[]>([]);
+  readonly consolidatedModalOpen = signal(false);
+  readonly consolidatedMode = signal<'subjects' | 'areas'>('subjects');
+  readonly consolidatedReport = signal<ConsolidatedReportView | null>(null);
 
   selectedCategory = 'all';
   params = {
     campusId: 0,
     groupId: 0,
     periodNumber: 1,
-    outputFormat: 'pdf' as 'pdf' | 'xlsx' | 'docx',
+    outputFormat: 'pdf' as 'pdf' | 'xlsx' | 'csv' | 'docx',
   };
 
   readonly templates: ReportTemplateDefinition[] = [
@@ -265,6 +403,72 @@ export class AcademicReportsCenterComponent implements OnInit {
       });
   }
 
+  openConsolidatedPreview(mode: 'subjects' | 'areas'): void {
+    this.consolidatedMode.set(mode);
+    this.loadMask.show('Calculando consolidado SIEE...');
+    this.academicService
+      .getConsolidatedReport({
+        academicYear: this.academicYear(),
+        mode,
+        academicGroupId: this.params.groupId || undefined,
+        periodNumber: this.params.periodNumber,
+      })
+      .pipe(finalize(() => this.loadMask.hide()))
+      .subscribe({
+        next: (report) => {
+          this.consolidatedReport.set(report);
+          this.consolidatedModalOpen.set(true);
+        },
+      });
+  }
+
+  materializeAreaResults(): void {
+    this.loadMask.show('Materializando resultados ponderados de áreas SIEE...');
+    this.academicService
+      .materializeAreaPeriodResults(this.academicYear(), this.params.periodNumber)
+      .pipe(finalize(() => this.loadMask.hide()))
+      .subscribe({
+        next: (res) => {
+          this.messages.showSuccess(
+            `Materialización completada: ${res.materializedCount} registro(s) de área actualizados para Periodo ${this.params.periodNumber}.`,
+          );
+        },
+      });
+  }
+
+  downloadDirect(tpl: ReportTemplateDefinition): void {
+    this.downloadTemplateDirect(tpl.templateName, this.params.outputFormat, tpl.title);
+  }
+
+  downloadTemplateDirect(
+    templateName: string,
+    outputFormat: 'pdf' | 'xlsx' | 'csv' | 'docx',
+    title?: string,
+  ): void {
+    this.loadMask.show(`Generando ${title || templateName}...`);
+    this.academicService
+      .downloadDirectReport({
+        templateName,
+        outputFormat,
+        parameters: {
+          P_YEAR: this.academicYear(),
+          P_PERIOD: this.params.periodNumber,
+          ...(this.params.campusId ? { P_CAMPUS_ID: this.params.campusId } : {}),
+          ...(this.params.groupId ? { P_GROUP_ID: this.params.groupId } : {}),
+        },
+      })
+      .pipe(finalize(() => this.loadMask.hide()))
+      .subscribe({
+        next: (response) => {
+          this.academicService.triggerBrowserBlobDownload(
+            response,
+            `${templateName}_${this.academicYear()}.${outputFormat}`,
+          );
+          this.messages.showSuccess(`Reporte "${title || templateName}" descargado correctamente.`);
+        },
+      });
+  }
+
   generateReport(tpl: ReportTemplateDefinition): void {
     this.academicService
       .enqueueJasperReport({
@@ -273,8 +477,8 @@ export class AcademicReportsCenterComponent implements OnInit {
         parameters: {
           P_YEAR: this.academicYear(),
           P_PERIOD: this.params.periodNumber,
-          P_CAMPUS_ID: this.params.campusId,
-          P_GROUP_ID: this.params.groupId,
+          ...(this.params.campusId ? { P_CAMPUS_ID: this.params.campusId } : {}),
+          ...(this.params.groupId ? { P_GROUP_ID: this.params.groupId } : {}),
         },
       })
       .subscribe({

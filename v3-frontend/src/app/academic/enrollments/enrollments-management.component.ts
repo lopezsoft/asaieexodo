@@ -255,6 +255,19 @@ type EnrollmentTab = 'students' | 'enrollments' | 'families' | 'move';
               <div class="col-md-2 d-grid">
                 <button type="button" class="btn btn-sm btn-outline-primary" (click)="loadEnrollments()">Filtrar</button>
               </div>
+              @if (canWrite()) {
+                <div class="col-md-2 d-grid">
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-secondary"
+                    (click)="renumberFolios()"
+                    [appCustomTooltip]="'Renumerar secuencialmente No. Registro, Libro y Folio según configuración SIEE (students_per_book)'"
+                  >
+                    <i class="material-symbols-outlined fs-6 align-middle me-1">format_list_numbered</i>
+                    Renumerar Folios
+                  </button>
+                </div>
+              }
             </div>
 
             @if (canWrite()) {
@@ -322,7 +335,12 @@ type EnrollmentTab = 'students' | 'enrollments' | 'families' | 'move';
                       <td>
                         <span class="badge text-bg-light border text-dark">{{ enr.gradeName }} - {{ enr.groupCode }}</span>
                       </td>
-                      <td class="small">{{ enr.registrationNumber || '—' }}</td>
+                      <td class="small">
+                        <div>{{ enr.registrationNumber || '—' }}</div>
+                        @if (enr.bookNumber || enr.folioNumber) {
+                          <small class="text-muted">L:{{ enr.bookNumber || '1' }} · F:{{ enr.folioNumber || '—' }}</small>
+                        }
+                      </td>
                       <td class="text-center">
                         <span class="badge text-bg-success">{{ enr.enrollmentStatusName }}</span>
                       </td>
@@ -940,5 +958,28 @@ export class EnrollmentsManagementComponent implements OnInit {
   openDocsModal(heading: string): void {
     this.docsModalHeading.set(heading);
     this.docsModalOpen.set(true);
+  }
+
+  renumberFolios(): void {
+    void this.messages
+      .showConfirm({
+        title: 'Renumerar Libros y Folios',
+        message: `¿Desea renumerar secuencialmente No. Registro, Libro y Folio de todas las matrículas activas del año ${this.academicYear()}?`,
+      })
+      .then((res) => {
+        if (!res.isConfirmed) return;
+        this.loadMask.show('Renumerando libros y folios de matrícula...');
+        this.academicService
+          .renumberEnrollmentFolios(this.academicYear(), true)
+          .pipe(finalize(() => this.loadMask.hide()))
+          .subscribe({
+            next: (result) => {
+              this.messages.showSuccess(
+                `Foliación actualizada: ${result.updatedCount} matrícula(s) en ${result.totalBooks} libro(s) (${result.studentsPerBook} por libro).`,
+              );
+              this.loadEnrollments();
+            },
+          });
+      });
   }
 }

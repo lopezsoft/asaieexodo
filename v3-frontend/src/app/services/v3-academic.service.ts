@@ -1,4 +1,4 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
@@ -126,6 +126,7 @@ export interface EnrollmentRecord {
   readonly enrollmentStatusName: string;
   readonly academicYear: number;
   readonly registrationNumber: string | null;
+  readonly bookNumber?: string | null;
   readonly folioNumber: string | null;
   readonly enrollmentDate: string;
   readonly withdrawalDate: string | null;
@@ -218,6 +219,57 @@ export interface ReportJobStatusResponse {
   readonly state: string;
   readonly result: Record<string, unknown> | null;
   readonly downloadUrl: string | null;
+}
+
+export interface InstitutionalReportCatalogItem {
+  readonly templateName: string;
+  readonly category: 'boletines' | 'consolidados' | 'matriculas' | 'certificados' | 'docentes';
+  readonly title: string;
+  readonly description: string;
+  readonly defaultFormat: 'pdf' | 'xlsx' | 'docx' | 'csv' | 'html';
+  readonly paperSize: 'LETTER' | 'LEGAL';
+  readonly orientation: 'portrait' | 'landscape';
+}
+
+export interface ConsolidatedColumn {
+  readonly key: string;
+  readonly entityId: number;
+  readonly name: string;
+  readonly abbreviation: string | null;
+  readonly areaName?: string;
+}
+
+export interface ConsolidatedStudentRow {
+  readonly enrollmentId: number;
+  readonly studentDocumentNumber: string;
+  readonly studentFullName: string;
+  readonly gradeName: string;
+  readonly groupCode: string;
+  readonly averageScore: number;
+  readonly failedCount: number;
+  readonly cells: Record<
+    string,
+    {
+      readonly score: number;
+      readonly isFailed: boolean;
+      readonly periodScores?: Record<number, number>;
+    }
+  >;
+}
+
+export interface ConsolidatedReportView {
+  readonly academicYear: number;
+  readonly mode: 'subjects' | 'areas' | 'teacher';
+  readonly periodNumber: number | null;
+  readonly allPeriods: boolean;
+  readonly columns: ConsolidatedColumn[];
+  readonly rows: ConsolidatedStudentRow[];
+  readonly failedTotalsByColumn: Record<string, number>;
+  readonly summary: {
+    readonly totalStudents: number;
+    readonly studentsWithZeroFailures: number;
+    readonly studentsWithFailures: number;
+  };
 }
 
 /**
@@ -638,7 +690,107 @@ export class V3AcademicService {
       .pipe(map((r) => r.data));
   }
 
-  // Motor de reportes JasperReports (BullMQ + S3)
+  getConsolidatedReport(params: {
+    academicYear: number;
+    mode: 'subjects' | 'areas' | 'teacher';
+    academicGroupId?: number;
+    teacherProfileId?: number;
+    periodNumber?: number;
+    allPeriods?: boolean;
+  }): Observable<ConsolidatedReportView> {
+    let httpParams = new HttpParams()
+      .set('academicYear', String(params.academicYear))
+      .set('mode', params.mode);
+    if (params.academicGroupId) {
+      httpParams = httpParams.set('academicGroupId', String(params.academicGroupId));
+    }
+    if (params.teacherProfileId) {
+      httpParams = httpParams.set('teacherProfileId', String(params.teacherProfileId));
+    }
+    if (params.periodNumber) {
+      httpParams = httpParams.set('periodNumber', String(params.periodNumber));
+    }
+    if (params.allPeriods) {
+      httpParams = httpParams.set('allPeriods', 'true');
+    }
+    return this.http
+      .get<ApiEnvelope<ConsolidatedReportView>>(`${this.baseUrl}/consolidated`, {
+        params: httpParams,
+      })
+      .pipe(map((r) => r.data));
+  }
+
+  materializeAreaPeriodResults(
+    academicYear: number,
+    periodNumber: number,
+  ): Observable<{ materializedCount: number }> {
+    return this.http
+      .post<ApiEnvelope<{ materializedCount: number }>>(
+        `${this.baseUrl}/consolidated/materialize-areas`,
+        { academicYear, periodNumber },
+      )
+      .pipe(map((r) => r.data));
+  }
+
+  renumberEnrollmentFolios(
+    academicYear: number,
+    onlyActive = true,
+  ): Observable<{ updatedCount: number; studentsPerBook: number; totalBooks: number }> {
+    return this.http
+      .post<
+        ApiEnvelope<{
+          updatedCount: number;
+          studentsPerBook: number;
+          totalBooks: number;
+        }>
+      >(`${this.baseUrl}/enrollments/renumber-folios`, {
+        academicYear,
+        onlyActive,
+      })
+      .pipe(map((r) => r.data));
+  }
+
+  // Motor cloud-native de reportes (Gotenberg 8 PDF + ExcelJS + BullMQ/S3)
+  listReportCatalog(): Observable<InstitutionalReportCatalogItem[]> {
+    return this.http
+      .get<ApiEnvelope<InstitutionalReportCatalogItem[]>>(
+        `${this.reportsUrl}/catalog`,
+      )
+      .pipe(map((r) => r.data));
+  }
+
+  downloadDirectReport(payload: {
+    templateName: string;
+    outputFormat: 'pdf' | 'xlsx' | 'docx' | 'csv' | 'html';
+    parameters?: Record<string, string | number | boolean>;
+  }): Observable<HttpResponse<Blob>> {
+    return this.http.post(`${this.reportsUrl}/generate-direct`, payload, {
+      observe: 'response',
+      responseType: 'blob',
+    });
+  }
+
+  triggerBrowserBlobDownload(
+    response: HttpResponse<Blob>,
+    fallbackFileName: string,
+  ): void {
+    const blob = response.body;
+    if (!blob) {
+      return;
+    }
+    const disposition = response.headers.get('Content-Disposition') ?? '';
+    const match = /filename="?([^";]+)"?/i.exec(disposition);
+    const fileName = match?.[1] ?? fallbackFileName;
+    const objectUrl = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = objectUrl;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+  }
+
   enqueueJasperReport(payload: {
     templateName: string;
     outputFormat: 'pdf' | 'xlsx' | 'docx' | 'csv' | 'html';

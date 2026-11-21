@@ -95,17 +95,86 @@ type EvaluationTab = 'rules' | 'periods' | 'scales' | 'dimensions';
                   <label class="form-label small fw-semibold">Máx. nivelación</label>
                   <input type="number" step="0.1" class="form-control form-control-sm" [(ngModel)]="newRule.maxRecoveryScore" />
                 </div>
+                <div class="col-md-2">
+                  <label class="form-label small fw-semibold">Mín. prom. área</label>
+                  <input type="number" step="0.1" class="form-control form-control-sm" [(ngModel)]="newRule.minAreaAverage" />
+                </div>
                 <div class="col-md-1">
-                  <label class="form-label small fw-semibold">Decimales</label>
+                  <label class="form-label small fw-semibold">Decim.</label>
                   <input type="number" min="0" max="4" class="form-control form-control-sm" [(ngModel)]="newRule.decimalsCount" />
                 </div>
                 <div class="col-md-2">
                   <label class="form-label small fw-semibold">Áreas reprueba</label>
                   <input type="number" min="1" class="form-control form-control-sm" [(ngModel)]="newRule.failedAreasLimit" />
                 </div>
-                <div class="col-md-2 d-grid">
+
+                <div class="col-md-2">
+                  <label class="form-label small fw-semibold">Umbral gracia</label>
+                  <input type="number" step="0.01" class="form-control form-control-sm" [(ngModel)]="newRule.roundingThresholdScore" />
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label small fw-semibold">Nota gracia</label>
+                  <input type="number" step="0.01" class="form-control form-control-sm" [(ngModel)]="newRule.roundingTargetScore" />
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label small fw-semibold">% Inasist. falla</label>
+                  <input type="number" min="0" max="100" class="form-control form-control-sm" [(ngModel)]="newRule.absenceFailPercentage" />
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label small fw-semibold">Est. por libro</label>
+                  <input type="number" min="1" class="form-control form-control-sm" [(ngModel)]="newRule.studentsPerBook" />
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label small fw-semibold">Repr. tras recup.</label>
+                  <select class="form-select form-select-sm" [(ngModel)]="newRule.failsAfterRecoveryMode">
+                    <option [ngValue]="0">0 · No reprueba</option>
+                    <option [ngValue]="1">1 · Pierde 1+ área</option>
+                    <option [ngValue]="2">2 · Pierde 2+ áreas</option>
+                    <option [ngValue]="3">3 · No aprueba todas</option>
+                  </select>
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label small fw-semibold">Modalidad año</label>
+                  <select class="form-select form-select-sm" [(ngModel)]="newRule.academicYearMode">
+                    <option [ngValue]="0">Anual estándar</option>
+                    <option [ngValue]="1">Ciclos / Semestral</option>
+                  </select>
+                </div>
+
+                <div class="col-12 d-flex flex-wrap gap-3 pt-1">
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="swWeightedAreas" [(ngModel)]="newRule.usesWeightedAreas" />
+                    <label class="form-check-label small" for="swWeightedAreas">Áreas ponderadas</label>
+                  </div>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="swFailAreaAny" [(ngModel)]="newRule.failsAreaIfAnySubjectFails" />
+                    <label class="form-check-label small" for="swFailAreaAny">Pierde área si falla 1 asig.</label>
+                  </div>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="swFailMandatory" [(ngModel)]="newRule.failsYearByMandatoryArea" />
+                    <label class="form-check-label small" for="swFailMandatory">Pierde año por área oblig.</label>
+                  </div>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="swRoundPeriod" [(ngModel)]="newRule.roundsPeriodScore" />
+                    <label class="form-check-label small" for="swRoundPeriod">Redondeo periodo</label>
+                  </div>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="swRoundFinal" [(ngModel)]="newRule.roundsFinalScore" />
+                    <label class="form-check-label small" for="swRoundFinal">Redondeo final</label>
+                  </div>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="swRankArea" [(ngModel)]="newRule.ranksByAreaAverage" />
+                    <label class="form-check-label small" for="swRankArea">Puestos por áreas</label>
+                  </div>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="swEnforceDates" [(ngModel)]="newRule.enforcesRecoveryDates" />
+                    <label class="form-check-label small" for="swEnforceDates">Control fechas recup.</label>
+                  </div>
+                </div>
+
+                <div class="col-12 text-end pt-1">
                   <button type="button" class="btn btn-sm btn-primary" [disabled]="!newRule.gradeGroupId" (click)="saveRule()">
-                    Guardar regla
+                    Guardar regla SIEE
                   </button>
                 </div>
               </div>
@@ -115,25 +184,53 @@ type EvaluationTab = 'rules' | 'periods' | 'scales' | 'dimensions';
                 <thead>
                   <tr>
                     <th>Grupo de Grados</th>
-                    <th class="text-center">Nota Mín.</th>
-                    <th class="text-center">Máx. Recup.</th>
-                    <th class="text-center">Decimales</th>
+                    <th class="text-center">Nota / Recup.</th>
+                    <th class="text-center">Gracia SIEE</th>
                     <th class="text-center">Áreas Pierde</th>
-                    <th class="text-center">% Inasist.</th>
+                    <th class="text-center">Reglas Decreto 1290</th>
+                    <th class="text-center">Libro / Inasist.</th>
                     <th class="text-end">Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
                   @for (rule of rules(); track rule.id) {
                     <tr>
-                      <td class="fw-medium">{{ rule.gradeGroupName }}</td>
-                      <td class="text-center">{{ rule.minPassingScore }}</td>
-                      <td class="text-center">{{ rule.maxRecoveryScore }}</td>
-                      <td class="text-center">{{ rule.decimalsCount }}</td>
-                      <td class="text-center">{{ rule.failedAreasLimit }}</td>
-                      <td class="text-center">{{ rule.absenceFailPercentage }}%</td>
-                      <td class="text-end">
+                      <td class="fw-medium">
+                        <div>{{ rule.gradeGroupName }}</div>
+                        <small class="text-muted">{{ rule.decimalsCount }} decimales · {{ rule.academicYearMode === 1 ? 'Ciclos' : 'Anual' }}</small>
+                      </td>
+                      <td class="text-center small">
+                        <span class="fw-semibold">{{ rule.minPassingScore }}</span> / {{ rule.maxRecoveryScore }}
+                        <div class="text-muted">Área ≥ {{ rule.minAreaAverage }}</div>
+                      </td>
+                      <td class="text-center small">
+                        @if (rule.roundingThresholdScore > 0) {
+                          <span class="badge text-bg-info">{{ rule.roundingThresholdScore }} → {{ rule.roundingTargetScore }}</span>
+                        } @else {
+                          <span class="text-muted">Inactivo</span>
+                        }
+                      </td>
+                      <td class="text-center">
+                        <span class="badge text-bg-dark">{{ rule.failedAreasLimit }}</span>
+                        <div class="small text-muted">Recup. modo {{ rule.failsAfterRecoveryMode }}</div>
+                      </td>
+                      <td class="text-center small">
+                        <div class="d-flex flex-wrap justify-content-center gap-1">
+                          @if (rule.usesWeightedAreas) { <span class="badge text-bg-light border text-dark">Ponderada</span> }
+                          @if (rule.failsAreaIfAnySubjectFails) { <span class="badge text-bg-warning">Pierde x Asig.</span> }
+                          @if (rule.failsYearByMandatoryArea) { <span class="badge text-bg-danger">Área Oblig.</span> }
+                          @if (rule.ranksByAreaAverage) { <span class="badge text-bg-primary">Puesto Área</span> }
+                        </div>
+                      </td>
+                      <td class="text-center small">
+                        <div>{{ rule.studentsPerBook }} / libro</div>
+                        <div class="text-muted">{{ rule.absenceFailPercentage }}% inasist.</div>
+                      </td>
+                      <td class="text-end text-nowrap">
                         @if (canAdmin()) {
+                          <button type="button" class="btn btn-sm btn-outline-primary me-1" (click)="editRule(rule)" [appCustomTooltip]="'Cargar regla SIEE para editar'">
+                            <i class="material-symbols-outlined fs-6">edit</i>
+                          </button>
                           <button type="button" class="btn btn-sm btn-outline-danger" (click)="deleteRule(rule)" [appCustomTooltip]="'Eliminar regla'">
                             <i class="material-symbols-outlined fs-6">delete</i>
                           </button>
@@ -241,10 +338,10 @@ type EvaluationTab = 'rules' | 'periods' | 'scales' | 'dimensions';
                     }
                   </select>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                   <label class="form-label small fw-semibold">Grupo de grados</label>
                   <select class="form-select form-select-sm" [(ngModel)]="newScale.gradeGroupId">
-                    <option [ngValue]="null">Todos los grados</option>
+                    <option [ngValue]="null">Todos</option>
                     @for (gg of gradeGroups(); track gg.id) {
                       <option [ngValue]="gg.id">{{ gg.name }}</option>
                     }
@@ -258,7 +355,17 @@ type EvaluationTab = 'rules' | 'periods' | 'scales' | 'dimensions';
                   <label class="form-label small fw-semibold">Hasta *</label>
                   <input type="number" step="0.01" class="form-control form-control-sm" [(ngModel)]="newScale.maxScore" />
                 </div>
-                <div class="col-md-2 d-grid">
+                <div class="col-md-3 d-flex flex-column gap-1">
+                  <div class="d-flex gap-3">
+                    <div class="form-check form-switch mb-0">
+                      <input class="form-check-input" type="checkbox" id="swScaleFail" [(ngModel)]="newScale.isFailing" />
+                      <label class="form-check-label small" for="swScaleFail">Reprobatorio</label>
+                    </div>
+                    <div class="form-check form-switch mb-0">
+                      <input class="form-check-input" type="checkbox" id="swScaleGrad" [(ngModel)]="newScale.isGradable" />
+                      <label class="form-check-label small" for="swScaleGrad">Calificable</label>
+                    </div>
+                  </div>
                   <button type="button" class="btn btn-sm btn-primary" [disabled]="!newScale.nationalScaleId" (click)="saveScale()">
                     Guardar rango
                   </button>
@@ -273,6 +380,7 @@ type EvaluationTab = 'rules' | 'periods' | 'scales' | 'dimensions';
                     <th>Grupo de Grados</th>
                     <th class="text-center">Desde</th>
                     <th class="text-center">Hasta</th>
+                    <th class="text-center">Banderas SIEE</th>
                     <th class="text-end">Acciones</th>
                   </tr>
                 </thead>
@@ -283,6 +391,14 @@ type EvaluationTab = 'rules' | 'periods' | 'scales' | 'dimensions';
                       <td>{{ s.gradeGroupName || 'General' }}</td>
                       <td class="text-center">{{ s.minScore }}</td>
                       <td class="text-center">{{ s.maxScore }}</td>
+                      <td class="text-center">
+                        <span class="badge me-1" [ngClass]="s.isFailing ? 'text-bg-danger' : 'text-bg-success'">
+                          {{ s.isFailing ? 'Reprobatorio' : 'Aprobatorio' }}
+                        </span>
+                        @if (!s.isGradable) {
+                          <span class="badge text-bg-secondary">Solo cualitativo</span>
+                        }
+                      </td>
                       <td class="text-end">
                         @if (canAdmin()) {
                           <button type="button" class="btn btn-sm btn-outline-danger" (click)="deleteScale(s)" [appCustomTooltip]="'Eliminar rango de escala'">
@@ -395,19 +511,42 @@ export class EvaluationSettingsComponent implements OnInit {
     () => this.canAdmin() || this.v3Auth.activeRole() === 'COORDINATOR',
   );
 
-  newRule: { gradeGroupId: number | null; minPassingScore: number; maxRecoveryScore: number; decimalsCount: number; failedAreasLimit: number } = {
-    gradeGroupId: null,
+  newRule = {
+    gradeGroupId: null as number | null,
     minPassingScore: 3.0,
     maxRecoveryScore: 3.0,
+    roundingThresholdScore: 2.95,
+    roundingTargetScore: 3.0,
+    minAreaAverage: 3.0,
     decimalsCount: 2,
     failedAreasLimit: 3,
+    failsAfterRecoveryMode: 1,
+    failsAreaIfAnySubjectFails: false,
+    failsYearByMandatoryArea: false,
+    academicYearMode: 0,
+    usesWeightedAreas: true,
+    ranksByAreaAverage: false,
+    enforcesRecoveryDates: true,
+    absenceFailPercentage: 25,
+    roundsPeriodScore: false,
+    roundsFinalScore: true,
+    studentsPerBook: 500,
   };
   newPeriod = { periodNumber: 1, name: '', weightPercentage: 25, startDate: '', endDate: '' };
-  newScale: { nationalScaleId: number | null; gradeGroupId: number | null; minScore: number; maxScore: number } = {
+  newScale: {
+    nationalScaleId: number | null;
+    gradeGroupId: number | null;
+    minScore: number;
+    maxScore: number;
+    isFailing: boolean;
+    isGradable: boolean;
+  } = {
     nationalScaleId: null,
     gradeGroupId: null,
     minScore: 1.0,
     maxScore: 2.99,
+    isFailing: false,
+    isGradable: true,
   };
   newDim = { dimensionCode: 1, name: '', abbreviation: '', weightPercentage: 30 };
 
@@ -446,6 +585,30 @@ export class EvaluationSettingsComponent implements OnInit {
     return draft;
   }
 
+  editRule(rule: GradingRuleRecord): void {
+    this.newRule = {
+      gradeGroupId: rule.gradeGroupId,
+      minPassingScore: rule.minPassingScore,
+      maxRecoveryScore: rule.maxRecoveryScore,
+      roundingThresholdScore: rule.roundingThresholdScore,
+      roundingTargetScore: rule.roundingTargetScore,
+      minAreaAverage: rule.minAreaAverage,
+      decimalsCount: rule.decimalsCount,
+      failedAreasLimit: rule.failedAreasLimit,
+      failsAfterRecoveryMode: rule.failsAfterRecoveryMode,
+      failsAreaIfAnySubjectFails: rule.failsAreaIfAnySubjectFails,
+      failsYearByMandatoryArea: rule.failsYearByMandatoryArea,
+      academicYearMode: rule.academicYearMode,
+      usesWeightedAreas: rule.usesWeightedAreas,
+      ranksByAreaAverage: rule.ranksByAreaAverage,
+      enforcesRecoveryDates: rule.enforcesRecoveryDates,
+      absenceFailPercentage: rule.absenceFailPercentage,
+      roundsPeriodScore: rule.roundsPeriodScore,
+      roundsFinalScore: rule.roundsFinalScore,
+      studentsPerBook: rule.studentsPerBook,
+    };
+  }
+
   saveRule(): void {
     if (!this.newRule.gradeGroupId) {
       return;
@@ -457,12 +620,27 @@ export class EvaluationSettingsComponent implements OnInit {
         gradeGroupId: Number(this.newRule.gradeGroupId),
         minPassingScore: Number(this.newRule.minPassingScore),
         maxRecoveryScore: Number(this.newRule.maxRecoveryScore),
+        roundingThresholdScore: Number(this.newRule.roundingThresholdScore),
+        roundingTargetScore: Number(this.newRule.roundingTargetScore),
+        minAreaAverage: Number(this.newRule.minAreaAverage),
         decimalsCount: Number(this.newRule.decimalsCount),
         failedAreasLimit: Number(this.newRule.failedAreasLimit),
+        failsAfterRecovery: Number(this.newRule.failsAfterRecoveryMode) > 0,
+        failsAfterRecoveryMode: Number(this.newRule.failsAfterRecoveryMode),
+        failsAreaIfAnySubjectFails: Boolean(this.newRule.failsAreaIfAnySubjectFails),
+        failsYearByMandatoryArea: Boolean(this.newRule.failsYearByMandatoryArea),
+        academicYearMode: Number(this.newRule.academicYearMode),
+        usesWeightedAreas: Boolean(this.newRule.usesWeightedAreas),
+        ranksByAreaAverage: Boolean(this.newRule.ranksByAreaAverage),
+        enforcesRecoveryDates: Boolean(this.newRule.enforcesRecoveryDates),
+        absenceFailPercentage: Number(this.newRule.absenceFailPercentage),
+        roundsPeriodScore: Boolean(this.newRule.roundsPeriodScore),
+        roundsFinalScore: Boolean(this.newRule.roundsFinalScore),
+        studentsPerBook: Number(this.newRule.studentsPerBook),
       })
       .pipe(finalize(() => this.maskService.hide()))
       .subscribe(() => {
-        this.messages.showSuccess('Regla de promoción guardada.');
+        this.messages.showSuccess('Regla SIEE de promoción guardada.');
         this.reloadYearScoped();
       });
   }
@@ -544,6 +722,8 @@ export class EvaluationSettingsComponent implements OnInit {
         gradeGroupId: this.newScale.gradeGroupId ? Number(this.newScale.gradeGroupId) : null,
         minScore: Number(this.newScale.minScore),
         maxScore: Number(this.newScale.maxScore),
+        isFailing: Boolean(this.newScale.isFailing),
+        isGradable: Boolean(this.newScale.isGradable),
       })
       .pipe(finalize(() => this.maskService.hide()))
       .subscribe(() => {

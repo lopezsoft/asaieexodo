@@ -98,6 +98,44 @@ export class PostgresRlsService implements OnModuleDestroy {
   }
 
   /**
+   * Ejecuta una operacion global atomica dentro de una transaccion PostgreSQL.
+   * Ideal para flujos de onboarding donde se crean registros globales (schools, users)
+   * y posteriormente se activa SET LOCAL ROLE + app.current_school_id dentro de la misma transaccion.
+   */
+  async withGlobalTransaction<T>(
+    operation: (client: PoolClient) => Promise<T>,
+  ): Promise<T> {
+    const client = await this.pool.connect();
+    let releaseError: Error | undefined;
+
+    try {
+      await client.query('BEGIN');
+      const result = await operation(client);
+      await client.query('COMMIT');
+      return result;
+    } catch (error) {
+      try {
+        await client.query('ROLLBACK');
+      } catch (rollbackErr) {
+        releaseError =
+          rollbackErr instanceof Error
+            ? rollbackErr
+            : new Error('ROLLBACK_FAILED');
+        this.logger.error('Fallo ejecutando ROLLBACK en transaccion global', {
+          errorMessage: releaseError.message,
+        });
+      }
+
+      this.logger.error('Transaccion global revertida por error', {
+        errorMessage: error instanceof Error ? error.message : 'Unknown error',
+      });
+      throw error;
+    } finally {
+      client.release(releaseError);
+    }
+  }
+
+  /**
    * Ejecuta una consulta global en tablas compartidas (ej. schools, users, catalogos DANE).
    */
   async queryGlobal<TRow extends QueryResultRow = QueryResultRow>(

@@ -1,0 +1,347 @@
+// =============================================================================
+// ASAIE EXODO V3 - Combo desplegable reutilizable con buscador integrado
+// Usa exclusivamente variables SCSS globales/auth y CSS custom properties.
+// =============================================================================
+
+.v3-select {
+  --v3-select-bg: var(--auth-input-bg, #{$auth-input-bg-light});
+  --v3-select-surface: var(--auth-card-bg, #{$auth-card-bg-light});
+  --v3-select-border: var(--auth-border, #{$auth-border-light});
+  --v3-select-text: var(--auth-text, #{$auth-text-primary-light});
+  --v3-select-muted: var(--auth-muted, #{$auth-text-muted-light});
+  --v3-select-soft: var(--auth-soft-accent, #{$auth-light-surface-soft});
+  --v3-select-shadow: 0 18px 40px -12px #{rgba($auth-hero-bg-start, 0.24)},
+    0 2px 10px -4px #{rgba($auth-hero-bg-start, 0.1)};
+
+  position: relative;
+  width: 100%;
+
+  &.is-open {
+    z-index: 40;
+  }
+}
+
+.dark-theme .v3-select {
+  --v3-select-bg: var(--auth-input-bg, #{$auth-input-bg-dark});
+  --v3-select-surface: var(--auth-card-bg, #{$auth-card-bg-dark});
+  --v3-select-border: var(--auth-border, #{$auth-border-dark});
+  --v3-select-text: var(--auth-text, #{$auth-text-primary-dark});
+  --v3-select-muted: var(--auth-muted, #{$auth-text-muted-dark});
+  --v3-select-soft: var(--auth-soft-accent, #{rgba($auth-orb-cyan, 0.14)});
+  --v3-select-shadow: 0 20px 44px -12px #{rgba($auth-hero-dark-start, 0.85)},
+    0 0 0 1px #{rgba($auth-orb-cyan, 0.12)};
+}
+
+.v3-select-trigger {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  min-height: 40px;
+  padding: 0.42rem 0.65rem 0.42rem 0.72rem;
+  border-radius: 11px;
+  border: 1.5px solid var(--v3-select-border);
+  background-color: var(--v3-select-bg);
+  color: var(--v3-select-text);
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-align: left;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease,
+    background-color 0.2s ease;
+
+  &:hover:not(:disabled) {
+    border-color: #{rgba($auth-orb-cyan, 0.65)};
+  }
+
+  &:focus-visible {
+    outline: none;
+    border-color: var(--secondaryColor);
+    background-color: var(--v3-select-surface);
+    box-shadow: 0 0 0 4px #{rgba($auth-orb-cyan, 0.16)};
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.v3-select.is-open .v3-select-trigger {
+  border-color: var(--secondaryColor);
+  background-color: var(--v3-select-surface);
+  box-shadow: 0 0 0 4px #{rgba($auth-orb-cyan, 0.16)};
+
+  .v3-select-leading {
+    color: var(--secondaryColor);
+  }
+
+  .v3-select-chevron {
+    transform: rotate(180deg);
+    color: var(--secondaryColor);
+  }
+}
+
+.v3-select.is-invalid .v3-select-trigger {
+  border-color: var(--dangerColor);
+}
+
+.v3-select.is-valid .v3-select-trigger {
+  border-color: #{$auth-strength-strong};
+}
+
+.v3-select-leading {
+  font-size: 18px;
+  color: var(--v3-select-muted);
+  flex-shrink: 0;
+  transition: color 0.2s ease;
+}
+
+.v3-select-value {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex: 1 1 auto;
+  min-width: 0;
+
+  &.is-placeholder .v3-select-label {
+    color: var(--v3-select-muted);
+    font-weight: 400;
+  }
+}
+
+.v3-select-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.1rem 0.4rem;
+  border-radius: 6px;
+  background-color: var(--v3-select-soft);
+  color: var(--secondaryColor);
+  font-size: 0.72rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.v3-select-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.v3-select-clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  color: var(--v3-select-muted);
+  flex-shrink: 0;
+
+  .material-symbols-outlined {
+    font-size: 15px;
+  }
+
+  &:hover {
+    background-color: var(--v3-select-soft);
+    color: var(--dangerColor);
+  }
+}
+
+.v3-select-chevron {
+  font-size: 19px;
+  color: var(--v3-select-muted);
+  flex-shrink: 0;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.v3-select-panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  min-width: 210px;
+  z-index: 1060;
+  border-radius: 14px;
+  border: 1px solid var(--v3-select-border);
+  background-color: var(--v3-select-surface);
+  box-shadow: var(--v3-select-shadow);
+  overflow: hidden;
+  animation: v3SelectReveal 0.16s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.v3-select.open-upward .v3-select-panel {
+  top: auto;
+  bottom: calc(100% + 6px);
+}
+
+.v3-select-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 0.6rem;
+  border-bottom: 1px solid var(--v3-select-border);
+  background-color: var(--v3-select-bg);
+
+  .v3-select-search-icon {
+    position: absolute;
+    left: 1rem;
+    font-size: 17px;
+    color: var(--v3-select-muted);
+    pointer-events: none;
+  }
+
+  .v3-select-search-input {
+    width: 100%;
+    height: 34px;
+    padding: 0.25rem 1.9rem 0.25rem 2rem;
+    border-radius: 9px;
+    border: 1px solid var(--v3-select-border);
+    background-color: var(--v3-select-surface);
+    color: var(--v3-select-text);
+    font-size: 0.82rem;
+    outline: none;
+    transition: border-color 0.2s ease;
+
+    &::placeholder {
+      color: var(--v3-select-muted);
+    }
+
+    &:focus {
+      border-color: var(--secondaryColor);
+    }
+  }
+
+  .v3-select-search-clear {
+    position: absolute;
+    right: 0.9rem;
+    width: 24px;
+    height: 24px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--v3-select-muted);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    .material-symbols-outlined {
+      font-size: 15px;
+    }
+
+    &:hover {
+      color: var(--v3-select-text);
+      background-color: var(--v3-select-soft);
+    }
+  }
+}
+
+.v3-select-options {
+  list-style: none;
+  margin: 0;
+  padding: 0.35rem;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.v3-select-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.55rem;
+  padding: 0.5rem 0.65rem;
+  border-radius: 9px;
+  cursor: pointer;
+  color: var(--v3-select-text);
+  font-size: 0.85rem;
+  transition: background-color 0.14s ease, color 0.14s ease;
+
+  &.is-highlighted {
+    background-color: var(--v3-select-soft);
+  }
+
+  &.is-selected {
+    background-color: var(--v3-select-soft);
+    color: var(--secondaryColor);
+    font-weight: 600;
+  }
+
+  &.is-disabled {
+    opacity: 0.48;
+    cursor: not-allowed;
+  }
+
+  .v3-select-option-main {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+    flex: 1;
+  }
+
+  .v3-select-option-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.12rem 0.42rem;
+    border-radius: 6px;
+    background-color: var(--v3-select-bg);
+    border: 1px solid var(--v3-select-border);
+    color: var(--secondaryColor);
+    font-size: 0.72rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .v3-select-option-copy {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .v3-select-option-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .v3-select-option-subtitle {
+    font-size: 0.74rem;
+    color: var(--v3-select-muted);
+  }
+
+  .v3-select-check {
+    font-size: 17px;
+    color: var(--secondaryColor);
+    flex-shrink: 0;
+  }
+}
+
+.v3-select-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 1rem 0.75rem;
+  color: var(--v3-select-muted);
+  font-size: 0.82rem;
+
+  .material-symbols-outlined {
+    font-size: 18px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .v3-select-panel {
+    animation: none !important;
+  }
+}
+
+@keyframes v3SelectReveal {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, -4px, 0) scale(0.985);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}

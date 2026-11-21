@@ -31,3 +31,38 @@ $tooltip-font-size: 0.75rem !default;
 $tooltip-max-width: 260px !default;
 $tooltip-shadow: 0 4px 12px rgba(15, 23, 42, 0.24) !default;
 $tooltip-z-index: 9999 !default;
+
+// Authentication Shell & Animated Onboarding Tokens
+$auth-hero-bg-start: #032344 !default;
+$auth-hero-bg-mid: #053f74 !default;
+$auth-hero-bg-end: #0277bd !default;
+$auth-hero-dark-start: #050b16 !default;
+$auth-hero-dark-mid: #081e3a !default;
+$auth-hero-dark-end: #0a365f !default;
+
+$auth-orb-cyan: #02aeec !default;
+$auth-orb-sky: #38bdf8 !default;
+$auth-orb-indigo: #3b82f6 !default;
+$auth-orb-teal: #14b8a6 !default;
+
+$auth-panel-bg-light: #f8fafc !default;
+$auth-panel-bg-dark: #070b14 !default;
+$auth-card-bg-light: #ffffff !default;
+$auth-card-bg-dark: #0e1628 !default;
+$auth-input-bg-light: #f8fafc !default;
+$auth-input-bg-dark: #131d33 !default;
+$auth-border-light: #e2e8f0 !default;
+$auth-border-dark: #1e2d4a !default;
+$auth-text-primary-light: #0f172a !default;
+$auth-text-primary-dark: #f8fafc !default;
+$auth-text-muted-light: #64748b !default;
+$auth-text-muted-dark: #94a3b8 !default;
+$auth-hero-text: #ffffff !default;
+$auth-hero-subtext: #dbeafe !default;
+$auth-dark-surface-overlay: #0c1427 !default;
+$auth-light-surface-soft: #eef6ff !default;
+
+$auth-strength-weak: #ef4444 !default;
+$auth-strength-fair: #f59e0b !default;
+$auth-strength-good: #0399de !default;
+$auth-strength-strong: #10b981 !default;

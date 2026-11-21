@@ -1,1 +1,177 @@
-<router-outlet />
+<div
+  class="auth-shell"
+  [class.dark-theme]="themeService.isDark()"
+  [class.is-wide-form]="isSignUpRoute()"
+>
+  <!-- Panel izquierdo: Hero institucional animado -->
+  <aside
+    class="auth-hero d-none d-lg-flex"
+    (pointermove)="onHeroPointerMove($event)"
+    (pointerleave)="onHeroPointerLeave()"
+  >
+    <div class="auth-hero-orb orb-cyan" aria-hidden="true"></div>
+    <div class="auth-hero-orb orb-indigo" aria-hidden="true"></div>
+    <div class="auth-hero-orb orb-teal" aria-hidden="true"></div>
+    <div class="auth-hero-ring" aria-hidden="true"></div>
+
+    <div class="auth-hero-top">
+      <a routerLink="/auth" class="auth-logo-plaque">
+        <img src="assets/images/logo/logotipo.svg" alt="ASAIE ÉXODO" />
+      </a>
+      <span class="auth-cloud-pill">
+        <span class="auth-pulse-dot" aria-hidden="true"></span>
+        <span>{{ 'authShell.badge' | transloco }}</span>
+      </span>
+    </div>
+
+    <div
+      class="auth-hero-parallax"
+      [style.--mx]="parallaxX()"
+      [style.--my]="parallaxY()"
+    >
+      <div
+        class="auth-hero-stage"
+        (mouseenter)="setCarouselPaused(true)"
+        (mouseleave)="setCarouselPaused(false)"
+        (focusin)="setCarouselPaused(true)"
+        (focusout)="setCarouselPaused(false)"
+      >
+        <section
+          class="auth-carousel-card"
+          [attr.aria-label]="'authShell.carouselLabel' | transloco"
+        >
+          @for (slide of [activeSlide()]; track slide.id) {
+            <div class="auth-slide-content">
+              <div class="auth-slide-badge">
+                <span class="material-symbols-outlined">{{ slide.icon }}</span>
+                <span>{{ slide.badge }}</span>
+              </div>
+
+              <h2 class="auth-slide-title">{{ slide.title }}</h2>
+              <p class="auth-slide-desc">{{ slide.description }}</p>
+
+              <div class="auth-slide-metrics">
+                @for (metric of slide.metrics; track metric.label) {
+                  <div class="auth-metric-tile">
+                    <span class="metric-value">{{ metric.value }}</span>
+                    <span class="metric-label">{{ metric.label }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+          <div class="auth-carousel-controls">
+            <div class="auth-carousel-dots" role="tablist">
+              @for (slide of slides(); track slide.id; let idx = $index) {
+                <button
+                  type="button"
+                  role="tab"
+                  class="auth-carousel-dot"
+                  [class.is-active]="idx === activeSlideIndex()"
+                  [class.is-paused]="isCarouselPaused()"
+                  [attr.aria-selected]="idx === activeSlideIndex()"
+                  [attr.aria-label]="slide.badge"
+                  [appCustomTooltip]="slide.badge"
+                  (click)="selectSlide(idx)"
+                ></button>
+              }
+            </div>
+
+            <div class="auth-carousel-arrows">
+              <button
+                type="button"
+                class="auth-circle-btn"
+                aria-label="Anterior"
+                [appCustomTooltip]="'Anterior'"
+                (click)="prevSlide()"
+              >
+                <span class="material-symbols-outlined">chevron_left</span>
+              </button>
+              <button
+                type="button"
+                class="auth-circle-btn"
+                aria-label="Siguiente"
+                [appCustomTooltip]="'Siguiente'"
+                (click)="nextSlide()"
+              >
+                <span class="material-symbols-outlined">chevron_right</span>
+              </button>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <div class="auth-hero-footer">
+      <span>© {{ currentYear }} {{ 'authShell.copyright' | transloco }}</span>
+      <span class="auth-version-tag">v{{ appVersion }}</span>
+    </div>
+  </aside>
+
+  <!-- Panel derecho: Barra superior + stage animado de rutas /auth/* -->
+  <main class="auth-main">
+    <header class="auth-topbar">
+      <a routerLink="/auth" class="auth-logo-plaque plaque-compact d-lg-none">
+        <img src="assets/images/logo/logotipo.svg" alt="ASAIE ÉXODO" />
+      </a>
+
+      <div class="auth-topbar-actions">
+        @if (showAuthModeTabs()) {
+          <nav class="auth-mode-tabs" aria-label="Modo de acceso">
+            <a
+              routerLink="/auth"
+              class="auth-mode-tab"
+              [class.is-active]="isSignInRoute()"
+            >
+              <span class="material-symbols-outlined">login</span>
+              <span>{{ 'authShell.signInTab' | transloco }}</span>
+            </a>
+            <a
+              routerLink="/auth/sign-up"
+              class="auth-mode-tab"
+              [class.is-active]="isSignUpRoute()"
+            >
+              <span class="material-symbols-outlined">domain_add</span>
+              <span>{{ 'authShell.signUpTab' | transloco }}</span>
+            </a>
+          </nav>
+        }
+
+        <button
+          type="button"
+          class="auth-icon-toggle"
+          [appCustomTooltip]="'authShell.toggleLangTooltip' | transloco"
+          tooltipPosition="bottom"
+          (click)="toggleLanguage()"
+        >
+          <span class="material-symbols-outlined">translate</span>
+          <span>{{ languageService.activeLang().toUpperCase() }}</span>
+        </button>
+
+        <button
+          type="button"
+          class="auth-icon-toggle"
+          [appCustomTooltip]="
+            (themeService.isDark()
+              ? 'authShell.toggleThemeLight'
+              : 'authShell.toggleThemeDark'
+            ) | transloco
+          "
+          tooltipPosition="bottom"
+          (click)="themeService.toggleTheme()"
+        >
+          <span class="material-symbols-outlined">
+            {{ themeService.isDark() ? 'light_mode' : 'dark_mode' }}
+          </span>
+        </button>
+      </div>
+    </header>
+
+    <div class="auth-stage-wrapper">
+      <div class="auth-stage" [class.auth-stage-wide]="isSignUpRoute()">
+        <router-outlet />
+      </div>
+    </div>
+  </main>
+</div>

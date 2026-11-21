@@ -37,6 +37,7 @@ import {
   RateLimit,
 } from '../../../../shared/infrastructure/http/decorators/security.decorators';
 import { AuthenticateCommunityUserUseCase } from '../../application/use-cases/authenticate-community-user.use-case';
+import { RegisterSchoolUseCase } from '../../application/use-cases/register-school.use-case';
 import { CommunityRole } from '../../domain/enums/community-role.enum';
 
 export class LoginCredentialsRequestDto {
@@ -219,12 +220,222 @@ export class ChangeUsernameRequestDto {
   newUsername!: string;
 }
 
+export class RegisterSchoolRequestDto {
+  @ApiProperty({
+    example: 'INSTITUCIÓN EDUCATIVA NUEVO HORIZONTE',
+    description: 'Nombre oficial de la Institución Educativa',
+  })
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(3)
+  @MaxLength(250)
+  schoolName!: string;
+
+  @ApiPropertyOptional({ example: 'IE NUEVO HORIZONTE', description: 'Nombre corto o siglas' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(80)
+  shortName?: string;
+
+  @ApiPropertyOptional({ example: '323580006675', description: 'Código DANE oficial' })
+  @IsOptional()
+  @IsString()
+  @Matches(/^[A-Za-z0-9-]{4,30}$/, {
+    message: 'El código DANE debe tener entre 4 y 30 caracteres alfanuméricos o guiones.',
+  })
+  daneCode?: string;
+
+  @ApiPropertyOptional({ example: '900123456-7', description: 'NIT institucional' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(30)
+  taxId?: string;
+
+  @ApiPropertyOptional({ example: 1, description: 'ID del calendario académico' })
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(10)
+  calendarId?: number;
+
+  @ApiPropertyOptional({ example: 1, description: 'ID del sector educativo (Oficial / No Oficial)' })
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(10)
+  sectorId?: number;
+
+  @ApiPropertyOptional({ example: 1, description: 'ID del tipo de establecimiento (Institución / Centro)' })
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(10)
+  institutionTypeId?: number;
+
+  @ApiPropertyOptional({ example: 'contacto@colegio.edu.co', description: 'Correo institucional' })
+  @IsOptional()
+  @IsEmail()
+  @MaxLength(180)
+  schoolEmail?: string;
+
+  @ApiPropertyOptional({ example: '3001234567', description: 'Teléfono de la institución' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(150)
+  schoolPhone?: string;
+
+  @ApiPropertyOptional({ example: 'Calle 10 # 20-30', description: 'Dirección física principal' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(200)
+  schoolAddress?: string;
+
+  @ApiProperty({ example: 1, description: 'ID del tipo de documento del administrador' })
+  @IsInt()
+  @Min(1)
+  @Max(99)
+  adminDocumentTypeId!: number;
+
+  @ApiProperty({ example: '1000234567', description: 'Número de documento del administrador' })
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(4)
+  @MaxLength(30)
+  @Matches(/^[a-zA-Z0-9.-]+$/, {
+    message: 'El número de documento solo admite letras, números, puntos y guiones.',
+  })
+  adminDocumentNumber!: string;
+
+  @ApiProperty({ example: 'Carlos', description: 'Primer nombre del administrador' })
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  @MaxLength(80)
+  adminFirstName!: string;
+
+  @ApiPropertyOptional({ example: 'Andrés', description: 'Segundo nombre del administrador' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(80)
+  adminMiddleName?: string;
+
+  @ApiProperty({ example: 'López', description: 'Primer apellido del administrador' })
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  @MaxLength(80)
+  adminLastName!: string;
+
+  @ApiPropertyOptional({ example: 'Martínez', description: 'Segundo apellido del administrador' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(80)
+  adminSecondLastName?: string;
+
+  @ApiProperty({ example: 'rectoria@colegio.edu.co', description: 'Correo electrónico del administrador' })
+  @IsEmail()
+  @MaxLength(255)
+  adminEmail!: string;
+
+  @ApiPropertyOptional({ example: '3009876543', description: 'Teléfono del administrador' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(40)
+  adminPhone?: string;
+
+  @ApiProperty({ example: 'rector.horizonte', description: 'Nombre de usuario único de acceso' })
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(4)
+  @MaxLength(100)
+  @Matches(/^[a-zA-Z0-9._@-]+$/, {
+    message: 'El nombre de usuario solo permite letras, números y los símbolos . _ @ -',
+  })
+  username!: string;
+
+  @ApiProperty({ example: 'Asaie2026*', description: 'Contraseña segura (mínimo 8 caracteres, mayúscula, minúscula y número)' })
+  @IsString()
+  @MinLength(8)
+  @MaxLength(128)
+  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/, {
+    message: 'La contraseña debe incluir al menos una mayúscula, una minúscula y un número.',
+  })
+  password!: string;
+}
+
 @ApiTags('IAM & Community Auth')
 @Controller('auth')
 export class IamController {
   constructor(
     private readonly authUseCase: AuthenticateCommunityUserUseCase,
+    private readonly registerSchoolUseCase: RegisterSchoolUseCase,
   ) {}
+
+  @Public()
+  @RateLimit(30, 60)
+  @Get('registration-catalogs')
+  @ApiOperation({
+    summary: 'Consultar catálogos públicos para auto-registro de nuevas Instituciones Educativas',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Catálogos públicos de tipos de documento, calendarios, sectores y tipos de institución.',
+  })
+  async getPublicRegistrationCatalogs(): Promise<Record<string, unknown>> {
+    const catalogs =
+      await this.registerSchoolUseCase.getPublicRegistrationCatalogs();
+    return {
+      success: true,
+      data: catalogs,
+    };
+  }
+
+  @Public()
+  @RateLimit(5, 300)
+  @Post('register-school')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({
+    summary: 'Auto-registrar una nueva Institución Educativa (IE) con aprovisionamiento inicial inmediato',
+    description:
+      'Crea la institución con periodo de prueba gratuito, su usuario SCHOOL_ADMIN, sede principal, año lectivo, jornadas, niveles MEN y módulos activos en una transacción RLS atómica, iniciando sesión automáticamente.',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Institución educativa registrada, aprovisionada y autenticada exitosamente.',
+  })
+  async registerSchool(
+    @Body() body: RegisterSchoolRequestDto,
+    @Req() request: FastifyRequest,
+  ): Promise<Record<string, unknown>> {
+    const session = await this.registerSchoolUseCase.registerSchool({
+      schoolName: body.schoolName,
+      shortName: body.shortName,
+      daneCode: body.daneCode,
+      taxId: body.taxId,
+      calendarId: body.calendarId,
+      sectorId: body.sectorId,
+      institutionTypeId: body.institutionTypeId,
+      schoolEmail: body.schoolEmail,
+      schoolPhone: body.schoolPhone,
+      schoolAddress: body.schoolAddress,
+      adminDocumentTypeId: body.adminDocumentTypeId,
+      adminDocumentNumber: body.adminDocumentNumber,
+      adminFirstName: body.adminFirstName,
+      adminMiddleName: body.adminMiddleName,
+      adminLastName: body.adminLastName,
+      adminSecondLastName: body.adminSecondLastName,
+      adminEmail: body.adminEmail,
+      adminPhone: body.adminPhone,
+      username: body.username,
+      password: body.password,
+      ipAddress: request.ip,
+      userAgent: String(request.headers['user-agent'] ?? ''),
+    });
+    return {
+      success: true,
+      data: session,
+    };
+  }
 
   @Public()
   @RateLimit(10, 60)

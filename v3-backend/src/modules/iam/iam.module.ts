@@ -2,10 +2,13 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthenticateCommunityUserUseCase } from './application/use-cases/authenticate-community-user.use-case';
+import { RegisterSchoolUseCase } from './application/use-cases/register-school.use-case';
 import { CommunityUserRepositoryPort } from './domain/ports/community-user.repository.port';
 import { PasswordHasherPort } from './domain/ports/password-hasher.port';
+import { SchoolOnboardingRepositoryPort } from './domain/ports/school-onboarding.repository.port';
 import { IamController } from './infrastructure/http/iam.controller';
 import { PostgresCommunityUserRepository } from './infrastructure/persistence/postgres-community-user.repository';
+import { PostgresSchoolOnboardingRepository } from './infrastructure/persistence/postgres-school-onboarding.repository';
 import { CryptoPasswordHasherAdapter } from './infrastructure/security/crypto-password-hasher.adapter';
 
 @Module({
@@ -27,9 +30,14 @@ import { CryptoPasswordHasherAdapter } from './infrastructure/security/crypto-pa
   controllers: [IamController],
   providers: [
     AuthenticateCommunityUserUseCase,
+    RegisterSchoolUseCase,
     {
       provide: CommunityUserRepositoryPort,
       useClass: PostgresCommunityUserRepository,
+    },
+    {
+      provide: SchoolOnboardingRepositoryPort,
+      useClass: PostgresSchoolOnboardingRepository,
     },
     {
       provide: PasswordHasherPort,
@@ -39,7 +47,9 @@ import { CryptoPasswordHasherAdapter } from './infrastructure/security/crypto-pa
   exports: [
     JwtModule,
     AuthenticateCommunityUserUseCase,
+    RegisterSchoolUseCase,
     CommunityUserRepositoryPort,
+    SchoolOnboardingRepositoryPort,
     PasswordHasherPort,
   ],
 })

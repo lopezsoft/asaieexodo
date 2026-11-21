@@ -14,6 +14,8 @@ const PUBLIC_AUTH_ENDPOINTS = [
   '/auth/forgot-password',
   '/auth/reset-password',
   '/auth/confirm-email',
+  '/auth/register-school',
+  '/auth/registration-catalogs',
 ];
 
 export function errorInterceptor(

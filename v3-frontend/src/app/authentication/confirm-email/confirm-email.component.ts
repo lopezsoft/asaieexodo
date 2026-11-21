@@ -1,12 +1,12 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { CustomizerSettingsService } from '../../customizer-settings/customizer-settings.service';
+import { TranslocoModule } from '@jsverse/transloco';
 import { V3UnifiedAuthService } from '../../services/v3-unified-auth.service';
 
 @Component({
   selector: 'app-confirm-email',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, TranslocoModule],
   templateUrl: './confirm-email.component.html',
   styleUrl: './confirm-email.component.scss',
 })
@@ -18,8 +18,6 @@ export class ConfirmEmailComponent implements OnInit {
   readonly statusMessage = signal<string>(
     'Verificando tu enlace de confirmación de correo electrónico...',
   );
-
-  constructor(public themeService: CustomizerSettingsService) {}
 
   ngOnInit(): void {
     const token = (this.route.snapshot.queryParamMap.get('token') ?? '').trim();

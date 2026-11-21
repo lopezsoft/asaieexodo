@@ -85,6 +85,59 @@ export interface ApiEnvelope<TData> {
   readonly data: TData;
 }
 
+export interface PublicCatalogOption {
+  readonly id: number;
+  readonly name: string;
+  readonly code?: string;
+}
+
+export interface PublicRegistrationCatalogs {
+  readonly documentTypes: PublicCatalogOption[];
+  readonly academicCalendars: PublicCatalogOption[];
+  readonly schoolSectors: PublicCatalogOption[];
+  readonly institutionTypes: PublicCatalogOption[];
+}
+
+export interface RegisterSchoolPayload {
+  readonly schoolName: string;
+  readonly shortName?: string;
+  readonly daneCode?: string;
+  readonly taxId?: string;
+  readonly calendarId?: number;
+  readonly sectorId?: number;
+  readonly institutionTypeId?: number;
+  readonly schoolEmail?: string;
+  readonly schoolPhone?: string;
+  readonly schoolAddress?: string;
+  readonly adminDocumentTypeId: number;
+  readonly adminDocumentNumber: string;
+  readonly adminFirstName: string;
+  readonly adminMiddleName?: string;
+  readonly adminLastName: string;
+  readonly adminSecondLastName?: string;
+  readonly adminEmail: string;
+  readonly adminPhone?: string;
+  readonly username: string;
+  readonly password: string;
+}
+
+export interface RegisteredSchoolOnboardingSummary {
+  readonly trialDays: number;
+  readonly subscriptionLockDate: string;
+  readonly emailConfirmationSent: boolean;
+  readonly provisioned: {
+    readonly mainCampusCreated: boolean;
+    readonly academicYear: number;
+    readonly shiftsCount: number;
+    readonly educationLevelsCount: number;
+    readonly enabledModulesCount: number;
+  };
+}
+
+export interface RegisteredSchoolSession extends UnifiedAuthenticatedSession {
+  readonly onboarding: RegisteredSchoolOnboardingSummary;
+}
+
 const STORAGE_SESSION_KEY = environment.APIJWT;
 
 /**
@@ -172,6 +225,38 @@ export class V3UnifiedAuthService {
             {
               activeSchoolId: response.data.activeSchoolId,
               activeRole: response.data.activeRole,
+            },
+          );
+        }),
+      );
+  }
+
+  getPublicRegistrationCatalogs(): Observable<
+    ApiEnvelope<PublicRegistrationCatalogs>
+  > {
+    return this.http.get<ApiEnvelope<PublicRegistrationCatalogs>>(
+      `${environment.APIURL}/auth/registration-catalogs`,
+    );
+  }
+
+  registerSchool(
+    payload: RegisterSchoolPayload,
+  ): Observable<ApiEnvelope<RegisteredSchoolSession>> {
+    return this.http
+      .post<ApiEnvelope<RegisteredSchoolSession>>(
+        `${environment.APIURL}/auth/register-school`,
+        payload,
+      )
+      .pipe(
+        tap((response) => {
+          this.persistSession(response.data);
+          this.debugService.info(
+            'V3UnifiedAuthService.registerSchool',
+            'Nueva institución educativa registrada y sesión iniciada',
+            {
+              activeSchoolId: response.data.activeSchoolId,
+              activeRole: response.data.activeRole,
+              trialDays: response.data.onboarding?.trialDays,
             },
           );
         }),

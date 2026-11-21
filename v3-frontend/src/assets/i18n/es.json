@@ -181,6 +181,14 @@
       "candidates" : "Candidatos y Tarjetón",
       "results"    : "Escrutinio en Vivo"
     },
+    "teacher": {
+      "title"            : "Portal Docente",
+      "hub"              : "Panel Docente",
+      "gradebook"        : "Planilla de Notas",
+      "planning"         : "Logros y Parcelador",
+      "observer"         : "Observador (M1–M5)",
+      "virtualClassroom" : "Aula Virtual LMS"
+    },
     "student"   : {
       "academicNote"      : "Notas Académicas",
       "academicReport"    : "Informes Académicos",

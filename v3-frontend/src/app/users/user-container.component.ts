@@ -1,13 +1,15 @@
-import {Component, inject} from '@angular/core';
-import {UserActionsService} from "../services/common/user-actions.service";
-import {UsersService} from "../services/users/users.service";
+import { CommonModule } from '@angular/common';
+import { Component, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { V3UnifiedAuthService } from '../services/v3-unified-auth.service';
+import { CustomTooltipDirective } from '../shared/directives/custom-tooltip.directive';
 
 @Component({
   selector: 'app-user-container',
-  imports: [],
-  templateUrl: './user-container.component.html'
+  standalone: true,
+  imports: [CommonModule, RouterLink, CustomTooltipDirective],
+  templateUrl: './user-container.component.html',
 })
 export class UserContainerComponent {
-  protected uActionsService = inject(UserActionsService);
-  protected user = inject(UsersService);
+  protected readonly v3Auth = inject(V3UnifiedAuthService);
 }

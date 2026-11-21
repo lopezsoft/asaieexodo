@@ -62,6 +62,13 @@ export const routes: Routes = [
       import('./elections/elections.routes').then((m) => m.electionsRoutes),
   },
   {
+    path: 'teacher',
+    component: DashboardComponent,
+    canActivate: [authGuard],
+    loadChildren: () =>
+      import('./teacher/teacher.routes').then((m) => m.teacherRoutes),
+  },
+  {
     path: 'profile',
     component: DashboardComponent,
     canActivate: [authGuard],

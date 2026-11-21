@@ -180,6 +180,14 @@
       "candidates": "Candidates & Ballot",
       "results": "Live Tally"
     },
+    "teacher": {
+      "title": "Teacher Portal",
+      "hub": "Teacher Hub",
+      "gradebook": "Gradebook",
+      "planning": "Achievements & Plans",
+      "observer": "Student Observer",
+      "virtualClassroom": "Virtual Classroom"
+    },
     "student": {
       "academicNote": "Academic Grades",
       "academicReport": "Academic Reports",

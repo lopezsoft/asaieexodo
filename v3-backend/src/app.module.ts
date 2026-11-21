@@ -10,6 +10,7 @@ import { ElectionsModule } from './modules/elections/elections.module';
 import { GradingModule } from './modules/grading/grading.module';
 import { IamModule } from './modules/iam/iam.module';
 import { MigrationModule } from './modules/migration/migration.module';
+import { PortalModule } from './modules/portal/portal.module';
 import { PromotionModule } from './modules/promotion/promotion.module';
 import { ReportingModule } from './modules/reporting/reporting.module';
 import { SettingsModule } from './modules/settings/settings.module';
@@ -53,6 +54,7 @@ import { SharedModule } from './shared/shared.module';
     AcademicModule,
     PromotionModule,
     ElectionsModule,
+    PortalModule,
     TenantModule,
     IamModule,
     GradingModule,

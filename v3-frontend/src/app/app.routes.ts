@@ -41,6 +41,13 @@ export const routes: Routes = [
       import('./settings/settings.routes').then((m) => m.settingsRoutes),
   },
   {
+    path: 'academic',
+    component: DashboardComponent,
+    canActivate: [authGuard],
+    loadChildren: () =>
+      import('./academic/academic.routes').then((m) => m.academicRoutes),
+  },
+  {
     path: 'profile',
     component: DashboardComponent,
     canActivate: [authGuard],

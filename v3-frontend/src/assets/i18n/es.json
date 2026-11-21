@@ -157,6 +157,14 @@
       "observer"   : "Observador",
       "branding"   : "Firmas y Boletines"
     },
+    "academic": {
+      "title"         : "Académico",
+      "hub"           : "Panel Académico",
+      "curriculum"    : "Currículo y Carga",
+      "enrollments"   : "Inscripciones y Matrículas",
+      "gradesControl" : "Control de Notas",
+      "reports"       : "Centro de Reportes"
+    },
     "student"   : {
       "academicNote"      : "Notas Académicas",
       "academicReport"    : "Informes Académicos",

@@ -156,6 +156,14 @@
       "observer": "Student Observer",
       "branding": "Signatures & Bulletins"
     },
+    "academic": {
+      "title": "Academic",
+      "hub": "Academic Hub",
+      "curriculum": "Curriculum & Load",
+      "enrollments": "Enrollments",
+      "gradesControl": "Grades Control",
+      "reports": "Reports Center"
+    },
     "student": {
       "academicNote": "Academic Grades",
       "academicReport": "Academic Reports",

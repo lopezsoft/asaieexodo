@@ -358,6 +358,11 @@ export class V3UnifiedAuthService {
     this.storage.removeItem(STORAGE_SESSION_KEY);
   }
 
+  hasAnyRole(roles: readonly CommunityRole[]): boolean {
+    const active = this.activeRole();
+    return Boolean(active && roles.includes(active));
+  }
+
   private persistSession(session: UnifiedAuthenticatedSession): void {
     this.sessionSignal.set(session);
     this.storage.setItem(STORAGE_SESSION_KEY, session);

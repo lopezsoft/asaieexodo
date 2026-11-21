@@ -2,6 +2,7 @@ import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { AcademicModule } from './modules/academic/academic.module';
 import { AdministrationModule } from './modules/administration/administration.module';
 import { CatalogsModule } from './modules/catalogs/catalogs.module';
 import { CrmModule } from './modules/crm/crm.module';
@@ -47,6 +48,7 @@ import { SharedModule } from './shared/shared.module';
     CatalogsModule,
     AdministrationModule,
     SettingsModule,
+    AcademicModule,
     TenantModule,
     IamModule,
     GradingModule,

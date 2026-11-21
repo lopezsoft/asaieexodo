@@ -3,6 +3,11 @@
 Todos los cambios notables de **v3-frontend** (Angular 20+ para toda la Comunidad Educativa) se documentan en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [3.3.0] - 2026-11-20
+
+### Añadido
+- **Módulo Configuraciones Institucionales (Sprint 3, `/settings/*`):** Migración completa de `configuraciones/` desde ExtJS hacia Angular 20 Standalone + Signals (`V3SettingsService`, Hub de Configuraciones, Estructura Académica, Evaluación y SIEE con bloqueo de periodos y limpieza de notas en cero, Observador jerárquico, y Firmas/Boletines/Carnés/Marcas de Agua S3/Módulos Extra).
+
 ## [3.2.0] - 2026-11-20
 
 ### Añadido

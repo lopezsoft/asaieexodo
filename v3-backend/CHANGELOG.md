@@ -3,6 +3,12 @@
 Todos los cambios notables de **v3-backend** (NestJS 11 + Fastify 5 + PostgreSQL 17 Unificado con RLS) se documentan en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [3.8.0] - 2026-11-20
+
+### Añadido
+- **Módulo Hexagonal `SettingsModule` (`/api/v1/settings/*` — Sprint 3):** Gestión completa bajo RLS de años lectivos (`academic_years`), reglas de evaluación y promoción (`academic_grading_rules`), jornadas (`school_shifts`), niveles educativos (`education_levels`), grupos de grados (`grade_groups`), grados académicos (`grades`), periodos académicos con bloqueo (`academic_periods`), escalas de desempeño (`grading_scales` + `national_grading_scales`), competencias y columnas `#1..#30` (`evaluation_dimensions`/`evaluation_dimension_columns`), plantillas/aspectos/criterios del observador (`observer_*`), firmas/encabezados/carnés (`branding`), módulos extras (`school_modules`) y limpieza segura de notas en cero (`/cleanup-zero-grades`).
+- **Suite de integración en vivo `settings.spec.ts`:** Verificación de seguridad 401 y CRUD completo sobre PostgreSQL 17 RLS.
+
 ## [3.7.0] - 2026-11-20
 
 ### Añadido

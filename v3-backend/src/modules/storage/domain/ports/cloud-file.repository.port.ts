@@ -13,6 +13,7 @@ export interface CreateCloudFileRecordInput {
   readonly mimeType: string;
   readonly sizeBytes: number;
   readonly isWatermark?: boolean;
+  readonly status?: number;
   readonly metadata?: Record<string, unknown>;
 }
 
@@ -31,6 +32,7 @@ export interface CloudFileRecord {
   readonly mimeType: string;
   readonly sizeBytes: number;
   readonly isWatermark: boolean;
+  readonly status: number;
   readonly metadata: Record<string, unknown>;
   readonly createdAt: string;
 }
@@ -40,11 +42,25 @@ export interface ICloudFileRepositoryPort {
 
   saveCloudFile(input: CreateCloudFileRecordInput): Promise<CloudFileRecord>;
 
-  findById(schoolId: bigint, fileId: bigint): Promise<CloudFileRecord | null>;
+  findById(
+    schoolId: bigint,
+    fileId: bigint,
+    includePending?: boolean,
+  ): Promise<CloudFileRecord | null>;
+
+  confirmCloudFileUpload(params: {
+    schoolId: bigint;
+    fileId: bigint;
+    sizeBytes: number;
+    mimeType?: string | null;
+    eTag?: string | null;
+  }): Promise<CloudFileRecord | null>;
 
   listSchoolFiles(
     schoolId: bigint,
     ownerEntityType?: string,
+    limit?: number,
+    offset?: number,
   ): Promise<CloudFileRecord[]>;
 
   deleteCloudFile(schoolId: bigint, fileId: bigint): Promise<void>;

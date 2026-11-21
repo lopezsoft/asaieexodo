@@ -19,7 +19,7 @@ interface SchoolRow {
   phones: string | null;
   email: string | null;
   storage_folder: string;
-  subscription_lock_date: Date;
+  subscription_lock_date: Date | string | null;
   is_active: boolean;
   legacy_db_name: string | null;
 }
@@ -87,6 +87,13 @@ export class PostgresSchoolRepository implements SchoolRepositoryPort {
   }
 
   private mapRowToEntity(row: SchoolRow): School {
+    const defaultLockDate = new Date();
+    defaultLockDate.setFullYear(defaultLockDate.getFullYear() + 1);
+
+    const parsedLockDate = row.subscription_lock_date
+      ? new Date(row.subscription_lock_date)
+      : defaultLockDate;
+
     return School.reconstitute(BigInt(row.id), {
       publicUuid: row.public_uuid,
       daneCode: row.dane_code,
@@ -99,7 +106,9 @@ export class PostgresSchoolRepository implements SchoolRepositoryPort {
       phones: row.phones,
       email: row.email,
       storageFolder: row.storage_folder,
-      subscriptionLockDate: new Date(row.subscription_lock_date),
+      subscriptionLockDate: Number.isNaN(parsedLockDate.getTime())
+        ? defaultLockDate
+        : parsedLockDate,
       isActive: row.is_active,
       legacyDbName: row.legacy_db_name,
     });

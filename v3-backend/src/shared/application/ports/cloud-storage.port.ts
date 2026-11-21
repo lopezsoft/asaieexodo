@@ -34,7 +34,20 @@ export interface PresignedUrlResult {
   readonly method: 'GET' | 'PUT';
 }
 
+export interface HeadCloudObjectResult {
+  readonly exists: boolean;
+  readonly contentLength: number;
+  readonly contentType: string | null;
+  readonly eTag: string | null;
+}
+
 export abstract class CloudStoragePort {
+  abstract validateFileMetadata(params: {
+    originalFileName: string;
+    mimeType: string;
+    sizeBytes: number;
+  }): void;
+
   abstract buildSchoolObjectKey(params: {
     storageFolder: string;
     category: UploadCloudObjectInput['category'];
@@ -50,13 +63,17 @@ export abstract class CloudStoragePort {
   abstract generatePresignedDownloadUrl(
     storageKey: string,
     expiresInSeconds?: number,
+    downloadFileName?: string,
   ): Promise<PresignedUrlResult>;
 
   abstract generatePresignedUploadUrl(params: {
     storageKey: string;
     mimeType: string;
+    sizeBytes?: number;
     expiresInSeconds?: number;
   }): Promise<PresignedUrlResult>;
+
+  abstract headObject(storageKey: string): Promise<HeadCloudObjectResult>;
 
   abstract deleteObject(storageKey: string): Promise<{ deleted: boolean }>;
 }

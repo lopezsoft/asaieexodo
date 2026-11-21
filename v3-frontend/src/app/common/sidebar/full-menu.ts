@@ -1,14 +1,87 @@
-import {Menu} from "../../interfaces/menu";
-import {Role} from "../../enums/profiel-enum";
+import { Menu } from '../../interfaces/menu';
+import { CommunityRole } from '../../services/v3-unified-auth.service';
+
+const ADMIN_PANEL_ROLES: CommunityRole[] = [
+  'SUPER_ADMIN',
+  'SCHOOL_ADMIN',
+  'RECTOR',
+  'COORDINATOR',
+  'SECRETARY',
+];
 
 export const fullMenu: Menu[] = [
   {
     id: 1,
     name: 'Dashboard',
-    translatedName: 'menu.dashboard', // Clave para Transloco
+    translatedName: 'menu.dashboard',
     icon: 'dashboard',
     link: '/dashboard',
     active: true,
+  },
+  {
+    id: 10,
+    name: 'Administrativo',
+    translatedName: 'menu.admin.title',
+    icon: 'apartment',
+    link: '/admin',
+    active: true,
+    roles: ADMIN_PANEL_ROLES,
+    subItems: [
+      {
+        id: 101,
+        name: 'Panel Administrativo',
+        translatedName: 'menu.admin.hub',
+        icon: 'grid_view',
+        link: '/admin',
+        active: true,
+        roles: ADMIN_PANEL_ROLES,
+      },
+      {
+        id: 102,
+        name: 'Datos del plantel',
+        translatedName: 'menu.admin.school',
+        icon: 'domain',
+        link: '/admin/school',
+        active: true,
+        roles: ADMIN_PANEL_ROLES,
+      },
+      {
+        id: 103,
+        name: 'Sedes educativas',
+        translatedName: 'menu.admin.campuses',
+        icon: 'location_city',
+        link: '/admin/campuses',
+        active: true,
+        roles: ADMIN_PANEL_ROLES,
+      },
+      {
+        id: 104,
+        name: 'Personal docente',
+        translatedName: 'menu.admin.teachers',
+        icon: 'school',
+        link: '/admin/teachers',
+        active: true,
+        roles: ADMIN_PANEL_ROLES,
+      },
+      {
+        id: 105,
+        name: 'Personal administrativo',
+        translatedName: 'menu.admin.staff',
+        icon: 'badge',
+        link: '/admin/staff',
+        active: true,
+        roles: ADMIN_PANEL_ROLES,
+      },
+      {
+        id: 106,
+        name: 'Directores de grupo',
+        translatedName: 'menu.admin.groupManagers',
+        icon: 'groups',
+        link: '/admin/group-managers',
+        active: true,
+        roles: ADMIN_PANEL_ROLES,
+      },
+    ],
   },
   {
     id: 2,
@@ -16,18 +89,16 @@ export const fullMenu: Menu[] = [
     translatedName: 'menu.user.profile',
     icon: 'account_circle',
     link: '/profile',
-    active: true
-  }
-  // Student Menu
-  ,{
+    active: true,
+  },
+  {
     id: 3,
     name: 'Notas Académicas',
     translatedName: 'menu.student.academicNote',
     icon: 'school',
     link: '/student/academic-notes',
-    isExternal: true,
     active: true,
-    roles: [Role.Student],
+    roles: ['STUDENT', 'FAMILY'],
   },
   {
     id: 4,
@@ -36,7 +107,7 @@ export const fullMenu: Menu[] = [
     icon: 'assignment',
     link: '/student/academic-reports',
     active: true,
-    roles: [Role.Student],
+    roles: ['STUDENT', 'FAMILY'],
   },
   {
     id: 5,
@@ -45,7 +116,7 @@ export const fullMenu: Menu[] = [
     icon: 'assignment_turned_in',
     link: '/student/academic-activities',
     active: true,
-    roles: [Role.Student],
+    roles: ['STUDENT', 'TEACHER'],
   },
   {
     id: 6,
@@ -54,7 +125,6 @@ export const fullMenu: Menu[] = [
     icon: 'how_to_vote',
     link: '/student/school-elections',
     active: true,
-    roles: [Role.Student],
+    roles: ['STUDENT', 'RECTOR', 'COORDINATOR', 'SUPER_ADMIN'],
   },
-
 ];

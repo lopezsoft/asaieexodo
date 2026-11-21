@@ -15,38 +15,60 @@
                 class="burger-menu transition position-relative lh-1"
                 [ngClass]="{'active': isSidebarToggled}"
                 (click)="toggle()"
+                [appCustomTooltip]="'Mostrar u ocultar menú lateral'"
             >
-                <i class="material-symbols-outlined">
-                    menu
-                </i>
+                <i class="material-symbols-outlined">menu</i>
             </div>
             <a routerLink="/dashboard" class="logo">
-                <img src="assets/images/logo/logo.svg" alt="logo">
+                <img src="assets/images/logo/logo.svg" alt="ASAIE ÉXODO">
             </a>
             <a routerLink="/dashboard" class="logo white-logo">
-                <img src="assets/images/logo/logo.svg" alt="logo">
+                <img src="assets/images/logo/logo.svg" alt="ASAIE ÉXODO">
             </a>
+            @if (v3Auth.activeSchoolName()) {
+              <span
+                class="v3-school-pill d-none d-lg-inline-block ms-3"
+                [appCustomTooltip]="'Institución educativa activa: ' + v3Auth.activeSchoolName()"
+              >
+                {{ v3Auth.activeSchoolName() }}
+              </span>
+            }
+            @if (v3Auth.isAuthenticated()) {
+              <div class="d-flex align-items-center ms-3 gap-1">
+                <label class="small text-muted d-none d-xl-inline mb-0" for="v3-global-year">Año:</label>
+                <select
+                  id="v3-global-year"
+                  class="form-select form-select-sm v3-year-selector"
+                  [ngModel]="v3Auth.academicYear()"
+                  (ngModelChange)="onAcademicYearChange($event)"
+                  [appCustomTooltip]="'Cambiar año lectivo de trabajo'"
+                >
+                  @for (yr of availableAcademicYears(); track yr) {
+                    <option [ngValue]="yr">{{ yr }}</option>
+                  }
+                </select>
+              </div>
+            }
         </div>
         <ul class="header-right-side d-flex align-items-center m-0 p-0 list-unstyled">
             <li class="position-relative">
                 <button
+                    type="button"
                     (click)="toggleTheme()"
+                    [appCustomTooltip]="themeService.isDark() ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'"
                     class="dark-swtich-btn bg-transparent d-inline-block p-0 border-0 lh-1 position-relative"
                 >
-                    <i class="material-symbols-outlined">
-                        light_mode
-                    </i>
+                    <i class="material-symbols-outlined">light_mode</i>
                 </button>
             </li>
             <li class="position-relative language-menu">
                 <button
                     type="button"
                     (click)="toggleLanguageDropdown()"
+                    [appCustomTooltip]="'Cambiar idioma'"
                     class="language-menu-btn lh-1 transition bg-transparent border-0 d-inline-block position-relative"
                 >
-                    <i class="material-symbols-outlined">
-                        translate
-                    </i>
+                    <i class="material-symbols-outlined">translate</i>
                 </button>
                 @if(isLanguageDropdownOpen) {
                 <div class="language-menu-dropdown bg-white border-radius">
@@ -56,20 +78,22 @@
                     <ul class="menu-body p-0 mb-0 mt-0 list-unstyled">
                         <li>
                             <button
+                                type="button"
                                 (click)="changeLanguage('es')"
-                              class="d-block w-100 bg-transparent fw-medium border-0 text-start">
+                                class="d-block w-100 bg-transparent fw-medium border-0 text-start">
                                 <div class="d-flex align-items-center">
-                                    <img src="assets/images/flags/spain.svg" alt="spain">
+                                    <img src="assets/images/flags/spain.svg" alt="Español">
                                     {{ 'languages.es' | transloco }}
                                 </div>
                             </button>
                         </li>
                         <li>
                             <button
+                                type="button"
                                 (click)="changeLanguage('en')"
-                              class="d-block w-100 bg-transparent fw-medium border-0 text-start">
+                                class="d-block w-100 bg-transparent fw-medium border-0 text-start">
                                 <div class="d-flex align-items-center">
-                                    <img src="assets/images/flags/usa.svg" alt="usa">
+                                    <img src="assets/images/flags/usa.svg" alt="English">
                                     {{ 'languages.en' | transloco }}
                                 </div>
                             </button>
@@ -80,7 +104,9 @@
             </li>
             <li class="position-relative">
                 <button
+                    type="button"
                     (click)="toggleFullscreen()"
+                    [appCustomTooltip]="isFullscreen ? 'Salir de pantalla completa' : 'Pantalla completa'"
                     class="fullscreen-btn bg-transparent transition p-0 border-0 d-inline-block position-relative lh-1"
                 >
                     <i class="material-symbols-outlined">
@@ -97,58 +123,46 @@
                     <img [ngSrc]="getCurrentUserAvatar()" class="rounded-circle"
                          width="40" height="40"
                          (error)="image.src = fallbackAvatarUrl" #image
-                         alt="user-image">
+                         alt="Avatar de usuario">
                     <span class="fw-semibold text-black">
-                        {{ uActionsService.getCurrentUser()?.firstName || 'User' }}
+                        {{ v3Auth.user()?.firstName || 'Usuario' }}
                     </span>
                 </button>
                 <div class="profile-menu-dropdown bg-white border-radius" *ngIf="isProfileDropdownOpen">
                     <div class="admin d-flex align-items-center">
                         <img [ngSrc]="getCurrentUserAvatar()"
                               width="40" height="40"
-                             (error)="image.src = fallbackAvatarUrl" #image
-                             class="rounded-circle" alt="admin-image">
+                             (error)="adminImage.src = fallbackAvatarUrl" #adminImage
+                             class="rounded-circle" alt="Avatar">
                         <div>
                             <span class="d-block text-black fw-medium">
-                                {{ uActionsService.getCurrentUser()?.firstName || 'User' }} {{ uActionsService.getCurrentUser()?.lastName || '' }}
+                                {{ v3Auth.user()?.fullName || 'Usuario' }}
                             </span>
-                            <span class="d-block">
-                                {{ authService.getToken()?.profile?.profile_name || '' }}
+                            <span class="d-block small">
+                                {{ v3Auth.activeRoleLabel() }}
                             </span>
                         </div>
                     </div>
                     <ul class="list p-0 mt-0 mb-0 list-unstyled">
                         <li>
-                            <a routerLink="/dashboard/profile/user" class="d-block position-relative">
-                                <i class="material-symbols-outlined">
-                                    account_circle
-                                </i>
-                               {{ 'menu.user.profile' | transloco }}
+                            <a routerLink="/profile/user" class="d-block position-relative">
+                                <i class="material-symbols-outlined">account_circle</i>
+                                {{ 'menu.user.profile' | transloco }}
+                            </a>
+                        </li>
+                        <li>
+                            <a routerLink="/dashboard" class="d-block position-relative">
+                                <i class="material-symbols-outlined">swap_horiz</i>
+                                {{ 'menu.user.returnToAccessPanel' | transloco }}
                             </a>
                         </li>
                     </ul>
-                    @if (authService.hasCurrentProfile()) {
-                      <div class="border-top"></div>
-                      <ul class="list p-0 mt-0 mb-0 list-unstyled">
-                          <li>
-                              <a (click)="authService.clearCurrentProfile()"
-                                class="d-block position-relative cursor-pointer">
-                                  <i class="material-symbols-outlined">
-                                    exit_to_app
-                                  </i>
-                                  {{ 'menu.user.returnToAccessPanel' | transloco }}
-                              </a>
-                          </li>
-                      </ul>
-                    }
                     <div class="border-top"></div>
                     <ul class="list p-0 mt-0 mb-0 list-unstyled">
                         <li>
-                            <a (click)="authService.confirmLogout()"
+                            <a (click)="logout()"
                               class="d-block position-relative cursor-pointer">
-                                <i class="material-symbols-outlined">
-                                    logout
-                                </i>
+                                <i class="material-symbols-outlined">logout</i>
                                 {{ 'menu.user.logout' | transloco }}
                             </a>
                         </li>
@@ -157,5 +171,4 @@
             </li>
         </ul>
     </div>
-    <app-navbar />
 </div>

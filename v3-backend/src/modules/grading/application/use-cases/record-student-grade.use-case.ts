@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { DomainException } from '../../../../shared/domain/exceptions/domain.exception';
 import { AcademicGrade } from '../../domain/entities/academic-grade.entity';
 import {
   AcademicGradeRepositoryPort,
@@ -16,14 +17,16 @@ export interface RecordStudentGradeCommand {
   readonly academicYear: number;
   readonly enrollmentId: bigint;
   readonly courseAssignmentId: bigint;
-  readonly academicPeriodId: bigint;
+  readonly periodId: bigint;
   readonly evaluationMode: 'WEIGHTED_COMPETENCIES' | 'ARITHMETIC_AVERAGE';
   readonly competencyScores: CompetencyScoreInput[];
-  readonly remedialScore?: number;
+  readonly recoveryScore?: number;
+  readonly levelingScore?: number;
   readonly justifiedAbsences?: number;
   readonly unjustifiedAbsences?: number;
-  readonly tardies?: number;
-  readonly preReportObservation?: string;
+  readonly lateArrivals?: number;
+  readonly teacherObservations?: string;
+  readonly changeReason?: string;
   readonly updatedByUserId: bigint;
 }
 
@@ -37,6 +40,12 @@ export class RecordStudentGradeUseCase {
   ) {}
 
   async execute(command: RecordStudentGradeCommand): Promise<AcademicGrade> {
+    const rules = await this.gradeRepository.resolveInstitutionalGradingRules(
+      command.schoolId,
+      command.academicYear,
+      command.enrollmentId,
+    );
+
     const strategy =
       command.evaluationMode === 'WEIGHTED_COMPETENCIES'
         ? this.weightedStrategy
@@ -44,26 +53,65 @@ export class RecordStudentGradeUseCase {
 
     const calculatedFinal = strategy.calculatePeriodFinalScore(
       command.competencyScores,
+      rules.decimalsCount,
     );
 
-    const validatedFinalScore = GradingScore.create(calculatedFinal, 1.0, 5.0);
-    const validatedRemedialScore = command.remedialScore
-      ? GradingScore.create(command.remedialScore, 1.0, 5.0)
-      : GradingScore.create(1.0, 1.0, 5.0);
+    const validatedFinalScore = GradingScore.create(
+      calculatedFinal,
+      rules.minScaleScore,
+      rules.maxScaleScore,
+      rules.decimalsCount,
+    );
+
+    let validatedRecovery = 0;
+    if (command.recoveryScore !== undefined && command.recoveryScore > 0) {
+      const recoveryVo = GradingScore.create(
+        command.recoveryScore,
+        rules.minScaleScore,
+        rules.maxScaleScore,
+        rules.decimalsCount,
+      );
+      if (recoveryVo.value > rules.maxRecoveryScore) {
+        throw new DomainException(
+          'RECOVERY_SCORE_EXCEEDS_INSTITUTIONAL_CAP',
+          `La calificación de recuperación (${recoveryVo.value}) supera el tope institucional configurado (${rules.maxRecoveryScore}).`,
+        );
+      }
+      validatedRecovery = recoveryVo.value;
+    }
+
+    let validatedLeveling = 0;
+    if (command.levelingScore !== undefined && command.levelingScore > 0) {
+      const levelingVo = GradingScore.create(
+        command.levelingScore,
+        rules.minScaleScore,
+        rules.maxScaleScore,
+        rules.decimalsCount,
+      );
+      validatedLeveling = levelingVo.value;
+    }
+
+    const effective = Math.max(
+      validatedFinalScore.value,
+      validatedRecovery,
+      validatedLeveling,
+    );
 
     return this.gradeRepository.upsertGrade({
       schoolId: command.schoolId,
       academicYear: command.academicYear,
       enrollmentId: command.enrollmentId,
       courseAssignmentId: command.courseAssignmentId,
-      academicPeriodId: command.academicPeriodId,
+      periodId: command.periodId,
       finalScore: validatedFinalScore.value,
-      remedialScore: command.remedialScore ? validatedRemedialScore.value : 0,
+      recoveryScore: validatedRecovery,
+      levelingScore: validatedLeveling,
       justifiedAbsences: command.justifiedAbsences ?? 0,
       unjustifiedAbsences: command.unjustifiedAbsences ?? 0,
-      tardies: command.tardies ?? 0,
-      preReportObservation: command.preReportObservation ?? null,
-      hasPreReportAlert: validatedFinalScore.value < 3.0,
+      lateArrivals: command.lateArrivals ?? 0,
+      teacherObservations: command.teacherObservations ?? null,
+      hasPreReportAlert: effective < rules.minPassingScore,
+      changeReason: command.changeReason ?? null,
       updatedByUserId: command.updatedByUserId,
     });
   }
@@ -72,13 +120,13 @@ export class RecordStudentGradeUseCase {
     schoolId: bigint,
     academicYear: number,
     enrollmentId: bigint,
-    academicPeriodId: bigint,
+    periodId: bigint,
   ): Promise<StudentBulletinGradeSummary[]> {
     return this.gradeRepository.findStudentPeriodBulletin(
       schoolId,
       academicYear,
       enrollmentId,
-      academicPeriodId,
+      periodId,
     );
   }
 }

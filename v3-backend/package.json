@@ -12,7 +12,7 @@
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "migration:bootstrap": "node dist/bootstrap-nine-schools.cli.js",
-    "db:seed": "ts-node -e \"import { StaticCatalogsSeedCli } from './src/modules/migration/infrastructure/cli/static-catalogs-seed.cli'; new StaticCatalogsSeedCli().runSchemaAndSeeds();\"",
+    "db:seed": "ts-node -e \"import { StaticCatalogsSeedCli } from './src/modules/migration/infrastructure/cli/static-catalogs-seed.cli'; new StaticCatalogsSeedCli().runSchemaAndSeeds().catch((err) => { process.stderr.write(String(err) + '\\n'); process.exit(1); });\"",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage"

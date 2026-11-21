@@ -1,37 +1,46 @@
-import {computed, inject, Injectable} from '@angular/core';
-import {fullMenu} from "../common/sidebar/full-menu";
-import {AuthService} from "./auth.service"; // Asegúrate que la ruta a tu enum sea correcta
+import { computed, inject, Injectable } from '@angular/core';
+import { fullMenu } from '../common/sidebar/full-menu';
+import { Menu } from '../interfaces/menu';
+import { CommunityRole, V3UnifiedAuthService } from './v3-unified-auth.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class MenuService {
-  protected authService = inject(AuthService);
-  public filteredMenu = computed(() => {
-    const userRole = this.authService.currentUserRole();
-    // La nueva lógica de filtrado va aquí
-    return fullMenu.filter(menuItem => {
-      // Regla #1: El ítem debe estar activo para ser considerado.
-      if (!menuItem.active) {
-        return false;
-      }
+  private readonly v3Auth = inject(V3UnifiedAuthService);
 
-      // Regla #2: Si un ítem no tiene roles, es "público"
-      // y debe mostrarse siempre (con o sin rol seleccionado).
-      const esPublico = !menuItem.roles || menuItem.roles.length === 0;
-      if (esPublico) {
-        return true;
-      }
-
-      // Regla #3: Si el ítem SÍ requiere un rol, pero el usuario
-      // aún no ha seleccionado uno, entonces no se muestra.
-      if (!userRole) {
-        return false;
-      }
-
-      // Regla #4: Si llegamos aquí, el ítem requiere rol y el usuario tiene uno.
-      // Comprobamos si el rol del usuario está en la lista de roles permitidos.
-      return menuItem.roles.includes(userRole);
-    });
+  public readonly filteredMenu = computed(() => {
+    const activeRole = this.v3Auth.activeRole();
+    return this.filterItems(fullMenu, activeRole);
   });
+
+  private filterItems(items: Menu[], activeRole: CommunityRole | null): Menu[] {
+    const result: Menu[] = [];
+
+    for (const item of items) {
+      if (!item.active) {
+        continue;
+      }
+
+      const isAllowed =
+        !item.roles ||
+        item.roles.length === 0 ||
+        (activeRole !== null && item.roles.includes(activeRole));
+
+      if (!isAllowed) {
+        continue;
+      }
+
+      if (item.subItems && item.subItems.length > 0) {
+        const visibleChildren = this.filterItems(item.subItems, activeRole);
+        if (visibleChildren.length > 0) {
+          result.push({ ...item, subItems: visibleChildren });
+        }
+      } else {
+        result.push(item);
+      }
+    }
+
+    return result;
+  }
 }

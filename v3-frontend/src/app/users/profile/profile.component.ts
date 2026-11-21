@@ -1,116 +1,159 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { CommonModule, UpperCasePipe } from '@angular/common';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { finalize } from 'rxjs';
-import {isControlInvalid, markAllAsTouched} from '../../utils/form-validators';
+import { FooterFormComponent } from '../../common/components/footer-form/footer-form.component';
+import { LoadMaskService } from '../../services/common/load-mask.service';
+import { MessagesService } from '../../services/messages.service';
+import { V3AdministrationService } from '../../services/v3-administration.service';
+import { V3UnifiedAuthService } from '../../services/v3-unified-auth.service';
 import { SHARED_IMPORTS } from '../../shared/shared-imports';
-import {ImageUploaderComponent} from "../../common/components/image-uploader/image-uploader.component";
-import {UsersService} from "../../services/users/users.service";
-import {AuthService} from "../../services/auth.service";
-import {LoadMaskService} from "../../services/common/load-mask.service";
-import {MessagesService} from "../../services/messages.service";
-import {NgOptimizedImage, UpperCasePipe} from "@angular/common";
-import {fallbackAvatarUrl} from "../../utils/utils";
-import {FooterFormComponent} from "../../common/components/footer-form/footer-form.component";
-import {UserActionsService} from "../../services/common/user-actions.service";
+import { isControlInvalid, markAllAsTouched } from '../../utils/form-validators';
+import { fallbackAvatarUrl } from '../../utils/utils';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [
-    ...SHARED_IMPORTS,
-    ImageUploaderComponent,
-    NgOptimizedImage,
-    UpperCasePipe,
-    FooterFormComponent,
-  ],
+  imports: [CommonModule, ...SHARED_IMPORTS, UpperCasePipe, FooterFormComponent],
   templateUrl: './profile.component.html',
 })
 export class ProfileComponent implements OnInit {
   protected readonly fallbackAvatarUrl = fallbackAvatarUrl;
   protected readonly isControlInvalid = isControlInvalid;
-  private fb = inject(FormBuilder);
-  private usersService = inject(UsersService);
-  private authService = inject(AuthService);
-  private maskService = inject(LoadMaskService);
-  private msgService = inject(MessagesService);
-  private userActionsService = inject(UserActionsService);
 
-  profileForm: FormGroup;
-  imgData: string | null = null;
-  currentUser = this.authService.currentUser;
+  private readonly fb = inject(FormBuilder);
+  private readonly router = inject(Router);
+  private readonly v3Auth = inject(V3UnifiedAuthService);
+  private readonly adminService = inject(V3AdministrationService);
+  private readonly maskService = inject(LoadMaskService);
+  private readonly msgService = inject(MessagesService);
+
+  readonly profileForm: FormGroup;
+  readonly passwordForm: FormGroup;
+  readonly avatarPreview = signal<string>(fallbackAvatarUrl());
+  readonly uploadingAvatar = signal(false);
 
   constructor() {
     this.profileForm = this.fb.group({
-      first_name: ['', [Validators.required, Validators.minLength(3)]],
-      last_name: ['', [Validators.required, Validators.minLength(3)]],
-      email: [''],
-      imgdata: [''], // Campo para la imagen en base64
-      imgname: ['']
+      firstName: ['', [Validators.required, Validators.minLength(2)]],
+      middleName: [''],
+      lastName: ['', [Validators.required, Validators.minLength(2)]],
+      secondLastName: [''],
+      email: ['', [Validators.email]],
+      phone: [''],
+      avatarUrl: [''],
+    });
+
+    this.passwordForm = this.fb.group({
+      currentPassword: ['', [Validators.required]],
+      newPassword: ['', [Validators.required, Validators.minLength(8)]],
+      confirmPassword: ['', [Validators.required]],
     });
   }
 
   ngOnInit(): void {
-    const user = this.currentUser();
-    if (user) {
-      this.profileForm.setValue({
-        first_name  : user.firstName,
-        last_name   : user.lastName,
-        email       : user.email,
-        imgdata     : user.avatar || '', // Asignar avatar si existe
-        imgname     : user.avatar ? user.avatar.split('/').pop() || '' : '' // Extraer el nombre del archivo
-      });
-      this.imgData = user.avatar;
-    }
-    this.usersService.getProfile()
-      .pipe(finalize(() => this.maskService.hide()))
-      .subscribe(userData => {
-        const resp = userData[0];
-        this.profileForm.setValue({
-          first_name  : resp.first_name,
-          last_name   : resp.last_name,
-          email       : resp.email,
-          imgdata     : resp.avatar || '', // Asignar avatar si existe
-          imgname     : resp.avatar ? resp.avatar.split('/').pop() || '' : '' // Extraer el nombre del archivo
-        });
-        this.imgData = resp.avatar;
-      });
+    this.patchFromCurrentUser();
+    this.v3Auth.fetchAuthenticatedProfile().subscribe({
+      next: () => this.patchFromCurrentUser(),
+    });
   }
 
-  onImageSelected(imageData: { base64: string, name: string }): void {
-    this.imgData = imageData.base64;
-    this.profileForm.patchValue({
-      imgdata: imageData.base64,
-      imgname: imageData.name
-    });
-    this.profileForm.markAsDirty(); // Marca el formulario como modificado
+  onAvatarFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement | null;
+    const file = input?.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    this.uploadingAvatar.set(true);
+    this.adminService
+      .uploadSchoolFileMultipart(file, 'USER_AVATARS', 'Foto de perfil de usuario')
+      .pipe(finalize(() => this.uploadingAvatar.set(false)))
+      .subscribe({
+        next: (uploaded) => {
+          const avatarUrl = uploaded.publicUrl || uploaded.storageKey;
+          this.profileForm.patchValue({ avatarUrl });
+          this.avatarPreview.set(uploaded.publicUrl || fallbackAvatarUrl());
+          this.profileForm.markAsDirty();
+          this.msgService.showSuccess(
+            'Foto subida a AWS S3. Guarda el perfil para confirmar el cambio.',
+          );
+        },
+      });
   }
 
   saveProfile(): void {
-    if (this.profileForm.invalid || !this.currentUser()) {
+    if (this.profileForm.invalid) {
       markAllAsTouched(this.profileForm);
       return;
     }
 
     this.maskService.show('messages.saving');
-    const userId = this.currentUser()!.id;
-
-    this.usersService.updateProfile(userId, this.profileForm.value).pipe(
-      finalize(() => this.maskService.hide())
-    ).subscribe(() => {
-      this.msgService.showSuccess('Perfil actualizado con éxito.');
-      this.profileForm.markAsPristine(); // Resetea el estado "dirty"
-    });
+    const raw = this.profileForm.getRawValue();
+    this.v3Auth
+      .updateOwnProfile({
+        firstName: raw.firstName,
+        middleName: raw.middleName || null,
+        lastName: raw.lastName,
+        secondLastName: raw.secondLastName || null,
+        email: raw.email || null,
+        phone: raw.phone || null,
+        avatarUrl: raw.avatarUrl || undefined,
+      })
+      .pipe(finalize(() => this.maskService.hide()))
+      .subscribe({
+        next: () => {
+          this.msgService.showSuccess('Perfil actualizado correctamente.');
+          this.profileForm.markAsPristine();
+        },
+      });
   }
 
-  protected onCancel() {
-    // Aquí puedes implementar la lógica para cancelar la edición del perfil
-    // Por ejemplo, podrías recargar los datos del usuario actual
-    this.profileForm.reset();
-    const user = this.currentUser();
-    if (user) {
-      this.profileForm.patchValue(user);
-      this.imgData = user.avatar;
-      this.userActionsService.goRoute('profile');
+  changePassword(): void {
+    if (this.passwordForm.invalid) {
+      markAllAsTouched(this.passwordForm);
+      return;
     }
+
+    const { currentPassword, newPassword, confirmPassword } =
+      this.passwordForm.getRawValue();
+    if (newPassword !== confirmPassword) {
+      this.msgService.showError('La confirmación de la nueva contraseña no coincide.');
+      return;
+    }
+
+    this.maskService.show('messages.updatingPassword');
+    this.v3Auth
+      .changePassword(currentPassword, newPassword)
+      .pipe(finalize(() => this.maskService.hide()))
+      .subscribe({
+        next: () => {
+          this.msgService.showSuccess('Contraseña actualizada correctamente.');
+          this.passwordForm.reset();
+        },
+      });
+  }
+
+  protected onCancel(): void {
+    this.patchFromCurrentUser();
+    void this.router.navigate(['/dashboard']);
+  }
+
+  private patchFromCurrentUser(): void {
+    const user = this.v3Auth.user();
+    if (!user) {
+      return;
+    }
+    this.profileForm.patchValue({
+      firstName: user.firstName,
+      middleName: user.middleName ?? '',
+      lastName: user.lastName,
+      secondLastName: user.secondLastName ?? '',
+      email: user.email ?? '',
+      phone: '',
+      avatarUrl: user.avatarUrl ?? '',
+    });
+    this.avatarPreview.set(user.avatarUrl || fallbackAvatarUrl());
   }
 }

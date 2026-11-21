@@ -8,5 +8,5 @@ export const environment = {
   APPURL: 'http://localhost:3100',
   SOCKET_URL: 'http://localhost:3100',
   APIJWT: 'asaie-v3-unified-jwt',
-  VERSION: '3.0.0',
+  VERSION: '3.2.0',
 };

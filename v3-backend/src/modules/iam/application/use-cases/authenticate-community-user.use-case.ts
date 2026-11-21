@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import * as crypto from 'node:crypto';
 import {
   MailDeliveryResult,
   MailSenderPort,
@@ -20,23 +21,31 @@ export interface LoginCredentialsInput {
   readonly password: string;
   readonly preferredSchoolId?: number;
   readonly preferredRole?: CommunityRole;
+  readonly ipAddress?: string;
+  readonly userAgent?: string;
 }
 
 export interface SwitchContextInput {
   readonly userId: bigint;
+  readonly currentSchoolId?: bigint;
+  readonly currentSessionId?: string;
   readonly schoolId: bigint;
   readonly role: CommunityRole;
   readonly academicYear?: number;
+  readonly ipAddress?: string;
+  readonly userAgent?: string;
 }
 
 export interface ChangePasswordInput {
   readonly userId: bigint;
+  readonly currentSessionId?: string;
   readonly currentPassword: string;
   readonly newPassword: string;
 }
 
 export interface ForgotPasswordInput {
   readonly identifier: string;
+  readonly requestedIp?: string;
 }
 
 export interface ResetPasswordInput {
@@ -46,12 +55,15 @@ export interface ResetPasswordInput {
 
 export interface AuthenticatedSessionOutput {
   readonly accessToken: string;
+  readonly sessionId: string;
   readonly activeSchoolId: number;
   readonly activeSchoolName: string;
   readonly activeRole: CommunityRole;
   readonly academicYear: number;
   readonly user: Record<string, unknown>;
 }
+
+const SESSION_DURATION_MS = 8 * 60 * 60 * 1000; // 8h default
 
 @Injectable()
 export class AuthenticateCommunityUserUseCase {
@@ -71,6 +83,8 @@ export class AuthenticateCommunityUserUseCase {
     );
 
     if (!user || !user.isActive) {
+      // Mitigacion de timing side-channel cuando el usuario no existe
+      await this.passwordHasher.verifyDummy(input.password);
       throw new UnauthorizedException(
         'Credenciales de acceso inválidas o usuario inactivo.',
       );
@@ -85,6 +99,12 @@ export class AuthenticateCommunityUserUseCase {
       throw new UnauthorizedException(
         'Credenciales de acceso inválidas o usuario inactivo.',
       );
+    }
+
+    // Rehash transparente automatico de bcrypt legado (Laravel) hacia scrypt moderno
+    if (this.passwordHasher.needsRehash(user.passwordHash)) {
+      const upgradedHash = await this.passwordHasher.hash(input.password);
+      await this.userRepository.updatePasswordHash(user.id, upgradedHash);
     }
 
     if (user.memberships.length === 0) {
@@ -102,17 +122,31 @@ export class AuthenticateCommunityUserUseCase {
         : user.memberships[0];
 
     const currentYear = new Date().getFullYear();
+    const session = await this.userRepository.createAuthSession({
+      schoolId: targetMembership.schoolId,
+      userId: user.id,
+      ipAddress: input.ipAddress ?? null,
+      userAgent: input.userAgent ?? null,
+      expiresAt: new Date(Date.now() + SESSION_DURATION_MS),
+    });
+
+    await this.userRepository.updateLastLoginAt(user.id);
 
     const accessToken = await this.jwtService.signAsync({
       sub: Number(user.id),
       username: user.username,
+      fullName: user.fullName,
       schoolId: Number(targetMembership.schoolId),
       activeRole: targetMembership.role,
       academicYear: currentYear,
+      sid: session.id,
+      jti: session.tokenJti,
+      tokenType: 'ACCESS',
     });
 
     return {
       accessToken,
+      sessionId: session.id,
       activeSchoolId: Number(targetMembership.schoolId),
       activeSchoolName: targetMembership.schoolName,
       activeRole: targetMembership.role,
@@ -122,13 +156,14 @@ export class AuthenticateCommunityUserUseCase {
   }
 
   /**
-   * Cambio de colegio o rol verificado y firmado en el servidor (reemplaza la manipulacion insegura de localStorage).
+   * Cambio de colegio o rol verificado y firmado en el servidor (reemplaza manipulacion de cliente)
+   * con rotacion de sesion en `auth_sessions`.
    */
   async switchSchoolContext(
     input: SwitchContextInput,
   ): Promise<AuthenticatedSessionOutput> {
     const user = await this.userRepository.findById(input.userId);
-    if (!user) {
+    if (!user || !user.isActive) {
       throw new ResourceNotFoundException('CommunityUser', input.userId);
     }
 
@@ -139,16 +174,37 @@ export class AuthenticateCommunityUserUseCase {
 
     const academicYear = input.academicYear ?? new Date().getFullYear();
 
+    if (input.currentSchoolId && input.currentSessionId) {
+      await this.userRepository.revokeAuthSession(
+        input.currentSchoolId,
+        input.currentSessionId,
+        'CONTEXT_SWITCHED',
+      );
+    }
+
+    const session = await this.userRepository.createAuthSession({
+      schoolId: verifiedMembership.schoolId,
+      userId: user.id,
+      ipAddress: input.ipAddress ?? null,
+      userAgent: input.userAgent ?? null,
+      expiresAt: new Date(Date.now() + SESSION_DURATION_MS),
+    });
+
     const accessToken = await this.jwtService.signAsync({
       sub: Number(user.id),
       username: user.username,
+      fullName: user.fullName,
       schoolId: Number(verifiedMembership.schoolId),
       activeRole: verifiedMembership.role,
       academicYear,
+      sid: session.id,
+      jti: session.tokenJti,
+      tokenType: 'ACCESS',
     });
 
     return {
       accessToken,
+      sessionId: session.id,
       activeSchoolId: Number(verifiedMembership.schoolId),
       activeSchoolName: verifiedMembership.schoolName,
       activeRole: verifiedMembership.role,
@@ -157,10 +213,60 @@ export class AuthenticateCommunityUserUseCase {
     };
   }
 
+  async getAuthenticatedProfile(params: {
+    userId: bigint;
+    activeSchoolId: bigint;
+    activeRole: CommunityRole;
+    academicYear: number;
+    sessionId: string;
+  }): Promise<Record<string, unknown>> {
+    const user = await this.userRepository.findById(params.userId);
+    if (!user || !user.isActive) {
+      throw new ResourceNotFoundException('CommunityUser', params.userId);
+    }
+
+    const activeMembership = user.memberships.find(
+      (m) =>
+        m.schoolId === params.activeSchoolId && m.role === params.activeRole,
+    );
+
+    return {
+      sessionId: params.sessionId,
+      activeSchoolId: Number(params.activeSchoolId),
+      activeSchoolName: activeMembership?.schoolName ?? '',
+      activeRole: params.activeRole,
+      academicYear: params.academicYear,
+      user: user.toPublicProfile(),
+    };
+  }
+
+  async logoutSession(params: {
+    schoolId: bigint;
+    sessionId: string;
+  }): Promise<{ revoked: boolean }> {
+    if (params.sessionId) {
+      await this.userRepository.revokeAuthSession(
+        params.schoolId,
+        params.sessionId,
+        'USER_LOGOUT',
+      );
+    }
+    return { revoked: true };
+  }
+
+  async logoutAllSessions(userId: bigint): Promise<{ revokedAll: boolean }> {
+    await this.userRepository.revokeAllUserSessions(userId, 'USER_LOGOUT_ALL');
+    return { revokedAll: true };
+  }
+
   /**
-   * Envia correo de confirmacion de cuenta mediante Nodemailer con un token firmado.
+   * Emite un token criptografico de un solo uso (hash SHA-256 en user_security_tokens)
+   * y envia el correo de confirmacion mediante Nodemailer.
    */
-  async requestEmailConfirmation(userId: bigint): Promise<{
+  async requestEmailConfirmation(
+    userId: bigint,
+    requestedIp?: string,
+  ): Promise<{
     confirmationToken: string;
     mailDelivery: MailDeliveryResult;
   }> {
@@ -169,141 +275,171 @@ export class AuthenticateCommunityUserUseCase {
       throw new ResourceNotFoundException('CommunityUser (Email)', userId);
     }
 
-    const confirmationToken = await this.jwtService.signAsync(
-      {
-        sub: Number(user.id),
-        purpose: 'EMAIL_CONFIRMATION',
-        email: user.email,
-      },
-      { expiresIn: '24h' },
+    await this.userRepository.revokePendingSecurityTokens(
+      user.id,
+      'EMAIL_VERIFICATION',
     );
 
-    const frontendBaseUrl = this.configService.get<string>(
-      'FRONTEND_URL',
-      'http://localhost:7200',
-    );
-    const confirmationUrl = `${frontendBaseUrl}/auth/confirm-email?token=${encodeURIComponent(confirmationToken)}`;
+    const rawToken = crypto.randomBytes(32).toString('base64url');
+    const tokenHash = this.hashSecurityToken(rawToken);
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+    await this.userRepository.createSecurityToken({
+      userId: user.id,
+      tokenType: 'EMAIL_VERIFICATION',
+      tokenHash,
+      targetEmail: user.email,
+      requestedIp: requestedIp ?? null,
+      expiresAt,
+    });
+
+    const frontendBaseUrl = this.resolveFrontendBaseUrl();
+    const confirmationUrl = `${frontendBaseUrl}/auth/confirm-email?token=${encodeURIComponent(rawToken)}`;
 
     const mailDelivery = await this.mailSender.sendEmailConfirmation({
       recipientEmail: user.email,
       recipientFullName: user.fullName,
       schoolName: user.memberships[0]?.schoolName ?? 'ASAIE ÉXODO',
-      confirmationToken,
+      confirmationToken: rawToken,
       confirmationUrl,
     });
 
     return {
-      confirmationToken,
+      confirmationToken: rawToken,
       mailDelivery,
     };
   }
 
   /**
-   * Valida el token de confirmacion de correo y marca email_verified_at en la tabla users.
+   * Consume atomicamente el token de confirmacion de un solo uso y marca email_verified_at.
    */
   async confirmEmailToken(token: string): Promise<{
     verified: boolean;
     userId: number;
   }> {
-    try {
-      const payload = await this.jwtService.verifyAsync<{
-        sub: number;
-        purpose: string;
-      }>(token);
+    const tokenHash = this.hashSecurityToken(token.trim());
+    const consumed = await this.userRepository.consumeSecurityToken(
+      tokenHash,
+      'EMAIL_VERIFICATION',
+    );
 
-      if (payload.purpose !== 'EMAIL_CONFIRMATION') {
-        throw new BadRequestException('Token de verificación inválido.');
-      }
-
-      await this.userRepository.markEmailVerified(BigInt(payload.sub));
-      return {
-        verified: true,
-        userId: payload.sub,
-      };
-    } catch {
+    if (!consumed) {
       throw new BadRequestException(
-        'El token de confirmación es inválido o ha expirado.',
+        'El token de confirmación es inválido, ya fue utilizado o ha expirado.',
       );
     }
+
+    const user = await this.userRepository.findById(consumed.userId);
+    if (
+      !user ||
+      !user.isActive ||
+      (consumed.targetEmail && user.email !== consumed.targetEmail)
+    ) {
+      throw new BadRequestException(
+        'El correo electrónico de la cuenta ya no coincide con el token de verificación.',
+      );
+    }
+
+    await this.userRepository.markEmailVerified(consumed.userId);
+    return {
+      verified: true,
+      userId: Number(consumed.userId),
+    };
   }
 
   /**
-   * Genera un token temporal de recuperacion de contrasena (30 minutos) y lo envia por correo mediante Nodemailer.
+   * Emite un token temporal de un solo uso (30 min) en user_security_tokens y envia correo.
+   * Protegido contra enumeracion de usuarios: jamas revela si la cuenta existe ni su correo real.
    */
   async requestPasswordReset(input: ForgotPasswordInput): Promise<{
-    resetToken: string;
+    accepted: boolean;
     expiresInMinutes: number;
-    mailDelivery: MailDeliveryResult;
+    resetToken?: string;
+    mailDelivery?: MailDeliveryResult;
   }> {
+    const expiresInMinutes = 30;
     const user = await this.userRepository.findByUsernameOrDocument(
       input.identifier.trim(),
     );
 
-    if (!user || !user.email) {
-      throw new ResourceNotFoundException('CommunityUser', input.identifier);
+    if (!user || !user.isActive || !user.email) {
+      // Mitigacion de timing / enumeracion de usuarios
+      await this.passwordHasher.verifyDummy(input.identifier);
+      return {
+        accepted: true,
+        expiresInMinutes,
+      };
     }
 
-    const expiresInMinutes = 30;
-    const resetToken = await this.jwtService.signAsync(
-      {
-        sub: Number(user.id),
-        purpose: 'PASSWORD_RESET',
-      },
-      { expiresIn: `${expiresInMinutes}m` },
+    await this.userRepository.revokePendingSecurityTokens(
+      user.id,
+      'PASSWORD_RESET',
     );
 
-    const frontendBaseUrl = this.configService.get<string>(
-      'FRONTEND_URL',
-      'http://localhost:7200',
-    );
-    const resetUrl = `${frontendBaseUrl}/auth/reset-password?token=${encodeURIComponent(resetToken)}`;
+    const rawToken = crypto.randomBytes(32).toString('base64url');
+    const tokenHash = this.hashSecurityToken(rawToken);
+    const expiresAt = new Date(Date.now() + expiresInMinutes * 60 * 1000);
+
+    await this.userRepository.createSecurityToken({
+      userId: user.id,
+      tokenType: 'PASSWORD_RESET',
+      tokenHash,
+      targetEmail: user.email,
+      requestedIp: input.requestedIp ?? null,
+      expiresAt,
+    });
+
+    const frontendBaseUrl = this.resolveFrontendBaseUrl();
+    const resetUrl = `${frontendBaseUrl}/auth/reset-password?token=${encodeURIComponent(rawToken)}`;
 
     const mailDelivery = await this.mailSender.sendPasswordResetEmail({
       recipientEmail: user.email,
       recipientFullName: user.fullName,
-      resetToken,
+      resetToken: rawToken,
       resetUrl,
       expiresInMinutes,
     });
 
     return {
-      resetToken,
+      accepted: true,
       expiresInMinutes,
+      resetToken: rawToken,
       mailDelivery,
     };
   }
 
   /**
-   * Restablece la contrasena usando el token temporal y envia alerta de seguridad por correo.
+   * Restablece la contrasena consumiendo el token de un solo uso, revoca TODAS las sesiones activas
+   * y envia alerta de seguridad por correo.
    */
   async resetPasswordWithToken(input: ResetPasswordInput): Promise<{
     updated: boolean;
     userId: number;
     mailDelivery: MailDeliveryResult | null;
   }> {
-    let payload: { sub: number; purpose: string };
-    try {
-      payload = await this.jwtService.verifyAsync<{
-        sub: number;
-        purpose: string;
-      }>(input.resetToken);
-    } catch {
+    const tokenHash = this.hashSecurityToken(input.resetToken.trim());
+    const consumed = await this.userRepository.consumeSecurityToken(
+      tokenHash,
+      'PASSWORD_RESET',
+    );
+
+    if (!consumed) {
       throw new BadRequestException(
-        'El enlace de recuperación es inválido o ha expirado.',
+        'El enlace de recuperación es inválido, ya fue utilizado o ha expirado.',
       );
     }
 
-    if (payload.purpose !== 'PASSWORD_RESET') {
-      throw new BadRequestException('Token de recuperación no válido.');
-    }
-
-    const user = await this.userRepository.findById(BigInt(payload.sub));
-    if (!user) {
-      throw new ResourceNotFoundException('CommunityUser', payload.sub);
+    const user = await this.userRepository.findById(consumed.userId);
+    if (!user || !user.isActive) {
+      throw new ResourceNotFoundException('CommunityUser', consumed.userId);
     }
 
     const newHash = await this.passwordHasher.hash(input.newPassword);
     await this.userRepository.updatePasswordHash(user.id, newHash);
+    await this.userRepository.revokeAllUserSessions(
+      user.id,
+      'PASSWORD_RESET_COMPLETED',
+    );
 
     let mailDelivery: MailDeliveryResult | null = null;
     if (user.email) {
@@ -322,14 +458,15 @@ export class AuthenticateCommunityUserUseCase {
   }
 
   /**
-   * Cambia la contrasena verificando la clave actual y dispara alerta de seguridad por correo (Nodemailer).
+   * Cambia la contrasena del usuario autenticado verificando su clave actual,
+   * impidiendo reutilizar la misma clave, revocando otras sesiones y disparando alerta por correo.
    */
   async changePassword(input: ChangePasswordInput): Promise<{
     updated: boolean;
     mailDelivery: MailDeliveryResult | null;
   }> {
     const user = await this.userRepository.findById(input.userId);
-    if (!user) {
+    if (!user || !user.isActive) {
       throw new ResourceNotFoundException('CommunityUser', input.userId);
     }
 
@@ -341,8 +478,19 @@ export class AuthenticateCommunityUserUseCase {
       throw new UnauthorizedException('La contraseña actual es incorrecta.');
     }
 
+    if (input.currentPassword === input.newPassword) {
+      throw new BadRequestException(
+        'La nueva contraseña debe ser diferente a la contraseña actual.',
+      );
+    }
+
     const newHash = await this.passwordHasher.hash(input.newPassword);
     await this.userRepository.updatePasswordHash(user.id, newHash);
+    await this.userRepository.revokeAllUserSessions(
+      user.id,
+      'PASSWORD_CHANGED',
+      input.currentSessionId,
+    );
 
     let mailDelivery: MailDeliveryResult | null = null;
     if (user.email) {
@@ -357,5 +505,81 @@ export class AuthenticateCommunityUserUseCase {
       updated: true,
       mailDelivery,
     };
+  }
+
+  /**
+   * Actualiza los datos basicos del perfil del usuario autenticado (derivado del JWT).
+   */
+  async updateOwnProfile(input: {
+    userId: bigint;
+    firstName: string;
+    middleName?: string | null;
+    lastName: string;
+    secondLastName?: string | null;
+    email?: string | null;
+    phone?: string | null;
+    avatarUrl?: string | null;
+  }): Promise<Record<string, unknown>> {
+    const existing = await this.userRepository.findById(input.userId);
+    if (!existing || !existing.isActive) {
+      throw new ResourceNotFoundException('CommunityUser', input.userId);
+    }
+
+    const updated = await this.userRepository.updateOwnProfile(input.userId, {
+      firstName: input.firstName,
+      middleName: input.middleName,
+      lastName: input.lastName,
+      secondLastName: input.secondLastName,
+      email: input.email,
+      phone: input.phone,
+      avatarUrl: input.avatarUrl,
+    });
+
+    return updated.toPublicProfile();
+  }
+
+  /**
+   * Actualiza el nombre de usuario (username) validando la contrasena actual y unicidad.
+   */
+  async changeOwnUsername(input: {
+    userId: bigint;
+    currentPassword: string;
+    newUsername: string;
+  }): Promise<Record<string, unknown>> {
+    const existing = await this.userRepository.findById(input.userId);
+    if (!existing || !existing.isActive) {
+      throw new ResourceNotFoundException('CommunityUser', input.userId);
+    }
+
+    const validPassword = await this.passwordHasher.verify(
+      input.currentPassword,
+      existing.passwordHash,
+    );
+    if (!validPassword) {
+      throw new UnauthorizedException('La contraseña actual es incorrecta.');
+    }
+
+    const normalizedUsername = input.newUsername.trim().toLowerCase();
+    if (normalizedUsername === existing.username.toLowerCase()) {
+      throw new BadRequestException(
+        'El nuevo nombre de usuario debe ser diferente al actual.',
+      );
+    }
+
+    const updated = await this.userRepository.updateUsername(
+      input.userId,
+      normalizedUsername,
+    );
+    return updated.toPublicProfile();
+  }
+
+  private hashSecurityToken(rawToken: string): string {
+    return crypto.createHash('sha256').update(rawToken).digest('hex');
+  }
+
+  private resolveFrontendBaseUrl(): string {
+    return this.configService
+      .get<string>('FRONTEND_URL', 'http://localhost:7200')
+      .replace(/\/+$/, '');
   }
 }

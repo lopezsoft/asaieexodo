@@ -8,7 +8,6 @@ $custom-control-border-color: #e9ecef !default;
 // Toastr Dark Layout
 $content-padding : 1.5rem !default;
 
-
 // custom form
 $custom-file-height : 2.5rem !default;
 $chevron-down: #6c757d !default;
@@ -17,3 +16,18 @@ $custom-control-indicator-checked-bg: #007bff !default;
 $form-group-margin-bottom: 1rem !default;
 $switch-bg-color: #007bff !default;
 $switch-indicator-color: #fff !default;
+$btn-disabled-bg: #a0a0a0 !default;
+
+// Institutional Custom Tooltip ([appCustomTooltip])
+$tooltip-bg: #0f172a !default;
+$tooltip-color: #ffffff !default;
+$tooltip-border-color: rgba(255, 255, 255, 0.12) !default;
+$tooltip-dark-bg: #1e293b !default;
+$tooltip-dark-color: $theme-dark-body-color !default;
+$tooltip-radius: 6px !default;
+$tooltip-padding-y: 0.375rem !default;
+$tooltip-padding-x: 0.625rem !default;
+$tooltip-font-size: 0.75rem !default;
+$tooltip-max-width: 260px !default;
+$tooltip-shadow: 0 4px 12px rgba(15, 23, 42, 0.24) !default;
+$tooltip-z-index: 9999 !default;

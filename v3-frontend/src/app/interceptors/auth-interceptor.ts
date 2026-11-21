@@ -1,32 +1,35 @@
-// path: src/app/interceptors/auth.interceptor.ts
-// Nota: Es buena práctica nombrar el archivo en minúsculas.
-
 import { HttpHandlerFn, HttpRequest } from '@angular/common/http';
 import { inject } from '@angular/core';
-import {AuthService} from "../services/auth.service"; // Asegúrate de que la ruta sea correcta
+import { environment } from '../../environments/environment';
+import { V3UnifiedAuthService } from '../services/v3-unified-auth.service';
 
-// No se necesita @Injectable() ni implementar una interfaz.
-// Es solo una función exportada.
-export function authInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn) {
+/**
+ * Interceptor HTTP funcional V3:
+ * - Solo adjunta Authorization Bearer a peticiones dirigidas a environment.APIURL (evita fugas a /assets/i18n/ o terceros).
+ * - Elimina los headers CORS de respuesta que no deben enviarse en peticiones de navegador.
+ * - Preserva automaticamente multipart/form-data cuando req.body es FormData.
+ */
+export function authInterceptor(
+  req: HttpRequest<unknown>,
+  next: HttpHandlerFn,
+) {
+  const isApiRequest = req.url.startsWith(environment.APIURL);
+  if (!isApiRequest) {
+    return next(req);
+  }
 
-    // 1. Usa inject() para obtener tu servicio, en lugar del constructor.
-    const auth = inject(AuthService);
-    const token = auth.getToken();
+  const v3Auth = inject(V3UnifiedAuthService);
+  const accessToken = v3Auth.accessToken();
 
-    if (!token) {
-        return next(req);
-    }
+  let headers = req.headers.set('Accept', 'application/json');
 
-    // 2. La lógica interna para clonar y añadir el header es idéntica.
-    const stringToken = `${token.token_type} ${token.access_token}`;
-    const req1 = req.clone({
-        headers: req.headers.set('Authorization', stringToken)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
-            .set('Access-Control-Allow-Origin', '*')
-            .set('Access-Control-Allow-Credentials', 'true')
-            .set('Access-Control-Allow-Methods', 'GET, POST, DELETE, PUT')
-    });
+  if (!(req.body instanceof FormData) && !headers.has('Content-Type')) {
+    headers = headers.set('Content-Type', 'application/json');
+  }
 
-    return next(req1);
+  if (accessToken) {
+    headers = headers.set('Authorization', `Bearer ${accessToken}`);
+  }
+
+  return next(req.clone({ headers }));
 }

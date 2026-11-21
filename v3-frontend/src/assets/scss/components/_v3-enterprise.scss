@@ -1,0 +1,176 @@
+// Estilos empresariales compartidos V3 (DataGrid, Modales, KPI Cards, Submenus)
+// Sin colores hardcodeados: utiliza exclusivamente tokens CSS globales y variables SCSS.
+
+.v3-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(15, 23, 42, 0.55);
+  z-index: 1050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.v3-modal-dialog {
+  width: 100%;
+  max-width: 680px;
+  max-height: 90vh;
+  background-color: var(--whiteColor);
+  border: 1px solid var(--borderColor);
+  border-radius: 12px;
+  box-shadow: $theme-dark-box-shadow;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  &.v3-modal-lg {
+    max-width: 900px;
+  }
+
+  &.v3-modal-xl {
+    max-width: 1120px;
+  }
+}
+
+.v3-modal-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--borderColor);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+
+  h5 {
+    margin: 0;
+    color: var(--blackColor);
+    font-weight: 600;
+  }
+}
+
+.v3-modal-body {
+  padding: 1.25rem;
+  overflow-y: auto;
+  flex: 1 1 auto;
+}
+
+.v3-modal-footer {
+  padding: 0.875rem 1.25rem;
+  border-top: 1px solid var(--borderColor);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.v3-kpi-card {
+  border: 1px solid var(--borderColor);
+  border-radius: 12px;
+  background-color: var(--whiteColor);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $theme-dark-box-shadow;
+  }
+
+  .v3-kpi-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--whiteColor);
+
+    &.kpi-primary {
+      background-color: var(--primaryColor);
+    }
+
+    &.kpi-secondary {
+      background-color: var(--secondaryColor);
+    }
+
+    &.kpi-success {
+      background-color: var(--successColor);
+    }
+
+    &.kpi-danger {
+      background-color: var(--dangerColor);
+    }
+
+    &.kpi-warning {
+      background-color: var(--warningColor);
+      color: var(--darkColor);
+    }
+
+    &.kpi-purple {
+      background-color: var(--purpleColor);
+    }
+  }
+}
+
+.v3-hub-card {
+  border: 1px solid var(--borderColor);
+  border-radius: 12px;
+  background-color: var(--whiteColor);
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+
+  &:hover {
+    transform: translateY(-3px);
+    border-color: var(--primaryColor);
+    box-shadow: $theme-dark-box-shadow;
+  }
+}
+
+.v3-grid-table {
+  th {
+    white-space: nowrap;
+    font-size: 0.8125rem;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: var(--blackColor);
+    background-color: var(--lightColor);
+    border-bottom: 1px solid var(--borderColor);
+  }
+
+  td {
+    vertical-align: middle;
+    color: var(--blackColor);
+    border-color: var(--borderColor);
+  }
+}
+
+.v3-year-selector {
+  min-width: 96px;
+  border-color: var(--borderColor);
+  color: var(--blackColor);
+  font-weight: 600;
+}
+
+.v3-school-pill {
+  background-color: var(--lightColor);
+  border: 1px solid var(--borderColor);
+  color: var(--primaryColor);
+  border-radius: 999px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  max-width: 280px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.v3-sidebar-sublist {
+  padding-left: 1.25rem;
+  margin-top: 0.25rem;
+
+  .sidebar-menu-link {
+    font-size: 0.875rem;
+    padding-top: 0.45rem;
+    padding-bottom: 0.45rem;
+  }
+}

@@ -1,15 +1,12 @@
-<!-- Breadcrumb -->
 <div class="breadcrumb-card mb-25 d-md-flex align-items-center justify-content-between">
   <h5 class="mb-0">
     {{ 'profile.title' | transloco }}
   </h5>
   <ol class="breadcrumb list-unstyled mt-0 mb-0 p-0">
     <li class="breadcrumb-item d-inline-block position-relative">
-      <a routerLink="/dashboard/profile" class="d-inline-block position-relative">
-        <i class="material-symbols-outlined">
-          account_circle
-        </i>
-        {{ 'menu.user.profile' | transloco }}
+      <a routerLink="/dashboard" class="d-inline-block position-relative">
+        <i class="material-symbols-outlined">home</i>
+        {{ 'menu.dashboard' | transloco }}
       </a>
     </li>
     <li class="breadcrumb-item d-inline-block position-relative">
@@ -17,70 +14,106 @@
     </li>
   </ol>
 </div>
-<section class="users-edit">
-  <div class="row">
-    <div class="col-12">
-      <div class="card">
-        <div class="card-content">
-          <div class="card-header">
-            <h4><strong>{{ 'profile.title' | transloco | uppercase }}</strong></h4>
-          </div>
-          <div class="card-body">
-            <form [formGroup]="profileForm" (ngSubmit)="saveProfile()">
-              <div class="mt-2" id="account">
-                <div class="media">
-                  <img [ngSrc]="imgData"
-                       (error)="image.src = fallbackAvatarUrl()"
-                       #image
-                       alt="User avatar"
-                       class="users-avatar-shadow avatar mr-3 rounded-circle" height="64" width="64">
-                  <div class="media-body">
-                    <h4>Avatar</h4>
-                    <app-image-uploader (imageUploaded)="onImageSelected($event)"></app-image-uploader>
-                  </div>
-                </div>
-                <div class="row mt-4">
-                  <div class="col-md-6">
-                    <div class="form-group">
-                      <label>{{ 'profile.firstName' | transloco }}</label>
-                      <input class="form-control" type="text" formControlName="first_name" autofocus>
-                      @if (isControlInvalid(profileForm, 'first_name')) {
-                        <small class="text-danger">{{ 'validation.required' | transloco }}</small>
-                      }
-                    </div>
-                  </div>
-                  <div class="col-md-6">
-                    <div class="form-group">
-                      <label>{{ 'profile.lastName' | transloco }}</label>
-                      <input class="form-control" type="text" formControlName="last_name">
-                      @if (isControlInvalid(profileForm, 'last_name')) {
-                        <small class="text-danger">{{ 'validation.required' | transloco }}</small>
-                      }
-                    </div>
-                  </div>
-                  <div class="col-md-12">
-                    <div class="form-group">
-                      <label>{{ 'profile.email' | transloco }}</label>
-                      <input class="form-control" type="email" formControlName="email"
-                             readonly [disabled] = "true">
-                      @if (isControlInvalid(profileForm, 'email')) {
-                        <small class="text-danger">{{ 'validation.invalidEmail' | transloco }}</small>
-                      }
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <app-footer-form
-                [disabled]="profileForm.invalid"
-                [showSaveAndCreate]="false"
-                (saveAndCloseEvent)="saveProfile()"
-                (cancelEvent)="onCancel()">
-              </app-footer-form>
 
-            </form>
-          </div>
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="trezo-card bg-white border-radius p-4 shadow-sm">
+      <h5 class="mb-3 fw-semibold">{{ 'profile.title' | transloco | uppercase }}</h5>
+
+      <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom">
+        <img
+          [src]="avatarPreview()"
+          (error)="avatarPreview.set(fallbackAvatarUrl())"
+          alt="Avatar de usuario"
+          class="rounded-circle border"
+          width="72"
+          height="72"
+        />
+        <div>
+          <label class="form-label small fw-semibold d-block mb-1">Foto de perfil (AWS S3)</label>
+          <input
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            class="form-control form-control-sm"
+            [disabled]="uploadingAvatar()"
+            (change)="onAvatarFileSelected($event)"
+          />
         </div>
       </div>
+
+      <form [formGroup]="profileForm" (ngSubmit)="saveProfile()">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Primer nombre *</label>
+            <input class="form-control" type="text" formControlName="firstName" />
+            @if (isControlInvalid(profileForm, 'firstName')) {
+              <small class="text-danger">{{ 'validation.required' | transloco }}</small>
+            }
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Segundo nombre</label>
+            <input class="form-control" type="text" formControlName="middleName" />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Primer apellido *</label>
+            <input class="form-control" type="text" formControlName="lastName" />
+            @if (isControlInvalid(profileForm, 'lastName')) {
+              <small class="text-danger">{{ 'validation.required' | transloco }}</small>
+            }
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Segundo apellido</label>
+            <input class="form-control" type="text" formControlName="secondLastName" />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">{{ 'profile.email' | transloco }}</label>
+            <input class="form-control" type="email" formControlName="email" />
+            @if (isControlInvalid(profileForm, 'email')) {
+              <small class="text-danger">{{ 'validation.invalidEmail' | transloco }}</small>
+            }
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Teléfono</label>
+            <input class="form-control" type="text" formControlName="phone" />
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <app-footer-form
+            [disabled]="profileForm.invalid"
+            [showSaveAndCreate]="false"
+            (saveAndCloseEvent)="saveProfile()"
+            (cancelEvent)="onCancel()"
+          />
+        </div>
+      </form>
     </div>
   </div>
-</section>
+
+  <div class="col-lg-4">
+    <div class="trezo-card bg-white border-radius p-4 shadow-sm">
+      <h5 class="mb-3 fw-semibold">Cambiar contraseña</h5>
+      <form [formGroup]="passwordForm" (ngSubmit)="changePassword()">
+        <div class="mb-3">
+          <label class="form-label">Contraseña actual *</label>
+          <input class="form-control" type="password" formControlName="currentPassword" />
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Nueva contraseña (mín. 8 caracteres) *</label>
+          <input class="form-control" type="password" formControlName="newPassword" />
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Confirmar nueva contraseña *</label>
+          <input class="form-control" type="password" formControlName="confirmPassword" />
+        </div>
+        <button
+          type="submit"
+          class="btn btn-primary w-100"
+          [disabled]="passwordForm.invalid"
+        >
+          Actualizar contraseña
+        </button>
+      </form>
+    </div>
+  </div>
+</div>

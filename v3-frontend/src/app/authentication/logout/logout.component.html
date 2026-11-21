@@ -1,48 +1,24 @@
 <div
-    class="logout-area"
+    class="auth-wrapper auth-v2"
     [class.dark-theme]="themeService.isDark()"
 >
-    <div
-        class="trezo-form mx-auto"
-        [class.component-dark-theme]="themeService.isDark()"
-        [class.component-rtl-enabled]="themeService.isRTLEnabled()"
-    >
-        <div class="row align-items-center">
-            <div class="col-lg-6 col-md-12 order-2 order-lg-1">
-                <div class="form-image">
-                    <img src="images/logout.jpg" alt="logout-image">
-                </div>
-            </div>
-            <div class="col-lg-6 col-md-12 order-1 order-lg-2">
-                <div class="form-content">
-                    <div class="logo">
-                        <img src="images/logo-big.svg" alt="logo">
-                        <img src="images/white-logo-big.svg" class="d-none" alt="logo">
-                    </div>
-                    <div class="title">
-                        <h1 class="fw-semibold">
-                            Welcome back to Trezo!
-                        </h1>
-                        <p class="fw-medium">
-                            You Are Logged out
-                        </p>
-                    </div>
-                    <div class="admin d-flex align-items-center">
-                        <img src="images/admin.png" class="rounded-circle" alt="admin-image">
-                        <span class="d-block fw-semibold text-black">
-                            Olivia John
-                        </span>
-                    </div>
-                    <a routerLink="/authentication" class="btn-box d-block w-100 border-0 transition fw-medium border-radius">
-                        <span class="d-flex align-items-center justify-content-center">
-                            <i class="material-symbols-outlined">
-                                autorenew
-                            </i>
-                            Sign In
-                        </span>
-                    </a>
-                </div>
-            </div>
+  <div class="auth-inner row m-0">
+    <div class="d-flex col-12 align-items-center justify-content-center p-5 min-vh-100">
+      <div class="auth-form text-center" style="max-width: 460px;">
+        <div class="logo mb-4">
+          <img src="assets/images/logo/logotipo.svg" alt="ASAIE ÉXODO">
         </div>
+        <div class="mb-3 text-primary">
+          <i class="material-symbols-outlined" style="font-size: 56px;">logout</i>
+        </div>
+        <h2 class="fw-semibold mb-2">Sesión cerrada de forma segura</h2>
+        <p class="mb-4">
+          Tu sesión en ASAIE ÉXODO ha sido revocada correctamente. Puedes volver a ingresar en cualquier momento.
+        </p>
+        <a routerLink="/auth" class="btn-box d-inline-block px-4 py-2 border-0 border-radius text-decoration-none">
+          Iniciar sesión nuevamente
+        </a>
+      </div>
     </div>
+  </div>
 </div>

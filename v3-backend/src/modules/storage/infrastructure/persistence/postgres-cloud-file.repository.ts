@@ -22,13 +22,14 @@ interface CloudFileRow {
   mime_type: string;
   size_bytes: string;
   is_watermark: boolean;
+  status: number;
   metadata: Record<string, unknown>;
   created_at: Date;
 }
 
 /**
  * Adaptador de infraestructura PostgreSQL 17 para la tabla `cloud_files`.
- * Garantiza aislamiento Multi-Tenant (Row-Level Security) por `school_id`.
+ * Garantiza aislamiento Multi-Tenant (Row-Level Security) por `school_id` y ciclo de vida PENDING (0) -> ACTIVE (1).
  */
 @Injectable()
 export class PostgresCloudFileRepository implements ICloudFileRepositoryPort {
@@ -66,12 +67,12 @@ export class PostgresCloudFileRepository implements ICloudFileRepositoryPort {
         `INSERT INTO cloud_files (
            school_id, uploaded_by_user_id, owner_entity_type, owner_entity_id,
            file_name, description, storage_path, public_url,
-           extension, mime_type, size_bytes, is_watermark, metadata
+           extension, mime_type, size_bytes, is_watermark, status, metadata
          )
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13::jsonb)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14::jsonb)
          RETURNING id, school_id, file_uuid, uploaded_by_user_id, owner_entity_type,
                    owner_entity_id, file_name, description, storage_path, public_url,
-                   extension, mime_type, size_bytes, is_watermark, metadata, created_at`,
+                   extension, mime_type, size_bytes, is_watermark, status, metadata, created_at`,
         [
           String(input.schoolId),
           input.uploadedByUserId ? String(input.uploadedByUserId) : null,
@@ -85,6 +86,7 @@ export class PostgresCloudFileRepository implements ICloudFileRepositoryPort {
           input.mimeType,
           input.sizeBytes,
           input.isWatermark ?? false,
+          input.status ?? 1,
           JSON.stringify(input.metadata ?? {}),
         ],
       );
@@ -96,14 +98,16 @@ export class PostgresCloudFileRepository implements ICloudFileRepositoryPort {
   public async findById(
     schoolId: bigint,
     fileId: bigint,
+    includePending = false,
   ): Promise<CloudFileRecord | null> {
     return this.db.withTenantTransaction(schoolId, async (client) => {
+      const statusClause = includePending ? '' : 'AND status = 1';
       const res = await client.query<CloudFileRow>(
         `SELECT id, school_id, file_uuid, uploaded_by_user_id, owner_entity_type,
                 owner_entity_id, file_name, description, storage_path, public_url,
-                extension, mime_type, size_bytes, is_watermark, metadata, created_at
+                extension, mime_type, size_bytes, is_watermark, status, metadata, created_at
          FROM cloud_files
-         WHERE school_id = $1 AND id = $2
+         WHERE school_id = $1 AND id = $2 ${statusClause}
          LIMIT 1`,
         [String(schoolId), String(fileId)],
       );
@@ -116,27 +120,69 @@ export class PostgresCloudFileRepository implements ICloudFileRepositoryPort {
     });
   }
 
+  public async confirmCloudFileUpload(params: {
+    schoolId: bigint;
+    fileId: bigint;
+    sizeBytes: number;
+    mimeType?: string | null;
+    eTag?: string | null;
+  }): Promise<CloudFileRecord | null> {
+    return this.db.withTenantTransaction(params.schoolId, async (client) => {
+      const res = await client.query<CloudFileRow>(
+        `UPDATE cloud_files
+         SET status = 1,
+             size_bytes = $3,
+             mime_type = COALESCE($4, mime_type),
+             metadata = metadata || jsonb_build_object('uploadStatus', 'CONFIRMED', 's3ETag', $5::text),
+             updated_at = NOW()
+         WHERE school_id = $1 AND id = $2
+         RETURNING id, school_id, file_uuid, uploaded_by_user_id, owner_entity_type,
+                   owner_entity_id, file_name, description, storage_path, public_url,
+                   extension, mime_type, size_bytes, is_watermark, status, metadata, created_at`,
+        [
+          String(params.schoolId),
+          String(params.fileId),
+          params.sizeBytes,
+          params.mimeType ?? null,
+          params.eTag ?? null,
+        ],
+      );
+
+      if (res.rowCount === 0) {
+        return null;
+      }
+      return this.mapRow(res.rows[0]);
+    });
+  }
+
   public async listSchoolFiles(
     schoolId: bigint,
     ownerEntityType?: string,
+    limit = 50,
+    offset = 0,
   ): Promise<CloudFileRecord[]> {
+    const safeLimit = Math.min(Math.max(1, limit), 100);
+    const safeOffset = Math.max(0, offset);
+
     return this.db.withTenantTransaction(schoolId, async (client) => {
       const params: unknown[] = [String(schoolId)];
       let filterSql = '';
       if (ownerEntityType) {
         params.push(ownerEntityType);
-        filterSql = `AND owner_entity_type = $2`;
+        filterSql = `AND owner_entity_type = $${params.length}`;
       }
+      params.push(safeLimit, safeOffset);
 
       const res = await client.query<CloudFileRow>(
         `SELECT id, school_id, file_uuid, uploaded_by_user_id, owner_entity_type,
                 owner_entity_id, file_name, description, storage_path, public_url,
-                extension, mime_type, size_bytes, is_watermark, metadata, created_at
+                extension, mime_type, size_bytes, is_watermark, status, metadata, created_at
          FROM cloud_files
          WHERE school_id = $1
+           AND status = 1
            ${filterSql}
          ORDER BY created_at DESC
-         LIMIT 100`,
+         LIMIT $${params.length - 1} OFFSET $${params.length}`,
         params,
       );
 
@@ -172,6 +218,7 @@ export class PostgresCloudFileRepository implements ICloudFileRepositoryPort {
       mimeType: row.mime_type,
       sizeBytes: Number(row.size_bytes ?? 0),
       isWatermark: row.is_watermark,
+      status: row.status,
       metadata: row.metadata ?? {},
       createdAt: new Date(row.created_at).toISOString(),
     };

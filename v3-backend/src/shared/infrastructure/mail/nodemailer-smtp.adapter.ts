@@ -11,6 +11,7 @@ import {
   PasswordResetEmailPayload,
   SendTransactionalEmailInput,
 } from '../../application/ports/mail-sender.port';
+import { DomainException } from '../../domain/exceptions/domain.exception';
 import { SmartLoggerService } from '../logging/smart-logger.service';
 
 /**
@@ -18,7 +19,11 @@ import { SmartLoggerService } from '../logging/smart-logger.service';
  * correos transaccionales (confirmaciones de cuenta, recuperacion y cambio
  * de contrasena, y notificaciones omnicanal del CRM Escolar).
  *
- * Cumple Seguridad por Diseno: jamas registra tokens ni credenciales en logs.
+ * Cumple Seguridad por Diseno:
+ * - Escapa todo contenido interpolado en HTML (prevencion XSS/HTML Injection).
+ * - Sanitiza encabezados contra inyeccion CRLF.
+ * - Valida URLs CTA (solo http/https) y exige TLS en puerto 587.
+ * - Jamas registra tokens ni credenciales en logs.
  */
 @Injectable()
 export class NodemailerSmtpMailAdapter implements MailSenderPort {
@@ -26,6 +31,7 @@ export class NodemailerSmtpMailAdapter implements MailSenderPort {
   private readonly fromAddress: string;
   private readonly fromName: string;
   private readonly isTestEnvironment: boolean;
+  private readonly isProduction: boolean;
 
   constructor(
     private readonly configService: ConfigService,
@@ -33,38 +39,65 @@ export class NodemailerSmtpMailAdapter implements MailSenderPort {
   ) {
     const nodeEnv = this.configService.get<string>('NODE_ENV', 'development');
     this.isTestEnvironment = nodeEnv === 'test';
+    this.isProduction = nodeEnv === 'production';
 
     const host = this.configService.get<string>(
       'MAIL_HOST',
-      'mail.asaie.co',
+      'email-smtp.us-west-2.amazonaws.com',
     );
-    const port = Number(this.configService.get<string>('MAIL_PORT', '465'));
+    const port = Number(this.configService.get<string>('MAIL_PORT', '587'));
     const encryption = this.configService
-      .get<string>('MAIL_ENCRYPTION', 'ssl')
+      .get<string>('MAIL_ENCRYPTION', 'tls')
       .toLowerCase();
-    const user = this.configService.get<string>('MAIL_USERNAME', '');
-    const pass = this.configService.get<string>('MAIL_PASSWORD', '');
+    const user = this.configService.get<string>('MAIL_USERNAME', '').trim();
+    const pass = this.configService.get<string>('MAIL_PASSWORD', '').trim();
 
-    this.fromAddress = this.configService.get<string>(
-      'MAIL_FROM_ADDRESS',
-      user || 'notificaciones@asaie.co',
+    if (
+      this.isProduction &&
+      (!user ||
+        !pass ||
+        user.startsWith('YOUR_') ||
+        pass.startsWith('YOUR_'))
+    ) {
+      throw new Error(
+        'Credenciales SMTP (MAIL_USERNAME / MAIL_PASSWORD) invalidas o faltantes en produccion.',
+      );
+    }
+
+    this.fromAddress = this.sanitizeHeader(
+      this.configService.get<string>(
+        'MAIL_FROM_ADDRESS',
+        'no-reply@asaie.co',
+      ),
     );
-    this.fromName = this.configService.get<string>(
-      'MAIL_FROM_NAME',
-      'ASAIE ÉXODO - Comunidad Educativa',
+    this.fromName = this.sanitizeHeader(
+      this.configService.get<string>(
+        'MAIL_FROM_NAME',
+        'ASAIE EXODO - Comunidad Educativa',
+      ),
     );
 
     if (this.isTestEnvironment) {
-      // En entorno de pruebas automatizadas Jest se utiliza jsonTransport de Nodemailer
-      // para validar plantillas y entrega sin disparar trafico SMTP externo.
       this.transporter = nodemailer.createTransport({
         jsonTransport: true,
       });
     } else {
+      const isDirectSsl = encryption === 'ssl' || port === 465;
+      const requireStartTls =
+        !isDirectSsl && (encryption === 'tls' || encryption === 'starttls');
+
       this.transporter = nodemailer.createTransport({
         host,
         port,
-        secure: encryption === 'ssl' || port === 465,
+        secure: isDirectSsl,
+        requireTLS: requireStartTls,
+        connectionTimeout: 10000,
+        greetingTimeout: 10000,
+        socketTimeout: 20000,
+        tls: {
+          minVersion: 'TLSv1.2',
+          rejectUnauthorized: this.isProduction,
+        },
         auth: user && pass ? { user, pass } : undefined,
       });
     }
@@ -74,11 +107,14 @@ export class NodemailerSmtpMailAdapter implements MailSenderPort {
     input: SendTransactionalEmailInput,
     templateType: MailDeliveryResult['templateType'] = 'CUSTOM',
   ): Promise<MailDeliveryResult> {
+    const safeTo = this.sanitizeHeader(input.to);
+    const safeSubject = this.sanitizeHeader(input.subject);
+
     try {
       const info = await this.transporter.sendMail({
         from: `"${this.fromName}" <${this.fromAddress}>`,
-        to: input.to,
-        subject: input.subject,
+        to: safeTo,
+        subject: safeSubject,
         html: input.html,
         text: input.text,
       });
@@ -97,22 +133,32 @@ export class NodemailerSmtpMailAdapter implements MailSenderPort {
         provider: this.isTestEnvironment
           ? 'NODEMAILER_JSON_TEST'
           : 'NODEMAILER_SMTP',
-        recipientEmail: input.to,
+        recipientEmail: safeTo,
         templateType,
       };
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : 'Error SMTP desconocido';
+      const smtpError = error as {
+        message?: string;
+        code?: string;
+        responseCode?: number;
+        command?: string;
+      };
       this.logger.error(
-        `Fallo al enviar correo transaccional (${templateType}): ${errorMessage}`,
-        undefined,
+        `Fallo al enviar correo transaccional (${templateType})`,
+        {
+          templateType,
+          errorMessage: smtpError?.message ?? 'Error SMTP desconocido',
+          code: smtpError?.code,
+          responseCode: smtpError?.responseCode,
+          command: smtpError?.command,
+        },
         NodemailerSmtpMailAdapter.name,
       );
       return {
         delivered: false,
         messageId: `failed-${Date.now()}`,
         provider: 'NODEMAILER_SMTP',
-        recipientEmail: input.to,
+        recipientEmail: safeTo,
         templateType,
       };
     }
@@ -121,24 +167,35 @@ export class NodemailerSmtpMailAdapter implements MailSenderPort {
   public async sendEmailConfirmation(
     payload: EmailConfirmationPayload,
   ): Promise<MailDeliveryResult> {
+    const safeName = this.escapeHtml(payload.recipientFullName);
+    const safeSchool = this.escapeHtml(payload.schoolName ?? 'ASAIE ÉXODO');
+    const safeUrl = this.validateSafeHttpUrl(payload.confirmationUrl);
+
     const html = this.buildInstitutionalLayout({
       badge: 'VERIFICACIÓN DE CUENTA',
-      title: `Hola, ${payload.recipientFullName}`,
+      title: `Hola, ${safeName}`,
       bodyHtml: `
-        <p>Bienvenido(a) al portal unificado de la comunidad educativa <strong>${payload.schoolName ?? 'ASAIE ÉXODO'}</strong>.</p>
+        <p>Bienvenido(a) al portal unificado de la comunidad educativa <strong>${safeSchool}</strong>.</p>
         <p>Para confirmar tu dirección de correo electrónico y activar las notificaciones académicas y del CRM Escolar, haz clic en el siguiente botón:</p>
       `,
       ctaLabel: 'Confirmar Correo Electrónico',
-      ctaUrl: payload.confirmationUrl,
+      ctaUrl: safeUrl,
       footerNote:
         'Si no solicitaste esta verificación, puedes ignorar este mensaje de forma segura.',
     });
+
+    const text = [
+      `Hola, ${payload.recipientFullName}.`,
+      `Confirma tu correo electrónico en ${payload.schoolName ?? 'ASAIE ÉXODO'} abriendo el siguiente enlace:`,
+      safeUrl,
+    ].join('\n\n');
 
     return this.sendTransactionalEmail(
       {
         to: payload.recipientEmail,
         subject: 'Confirmación de correo electrónico — ASAIE ÉXODO',
         html,
+        text,
       },
       'EMAIL_CONFIRMATION',
     );
@@ -147,24 +204,35 @@ export class NodemailerSmtpMailAdapter implements MailSenderPort {
   public async sendPasswordResetEmail(
     payload: PasswordResetEmailPayload,
   ): Promise<MailDeliveryResult> {
+    const safeName = this.escapeHtml(payload.recipientFullName);
+    const safeUrl = this.validateSafeHttpUrl(payload.resetUrl);
+    const safeMinutes = Math.max(1, Math.floor(payload.expiresInMinutes));
+
     const html = this.buildInstitutionalLayout({
       badge: 'RECUPERACIÓN DE CONTRASEÑA',
-      title: `Solicitud de restablecimiento para ${payload.recipientFullName}`,
+      title: `Solicitud de restablecimiento para ${safeName}`,
       bodyHtml: `
         <p>Hemos recibido una solicitud para restablecer la contraseña de tu cuenta en <strong>ASAIE ÉXODO</strong>.</p>
-        <p>Este enlace es válido únicamente durante los próximos <strong>${payload.expiresInMinutes} minutos</strong>:</p>
+        <p>Este enlace es de un solo uso y es válido únicamente durante los próximos <strong>${safeMinutes} minutos</strong>:</p>
       `,
       ctaLabel: 'Restablecer Mi Contraseña',
-      ctaUrl: payload.resetUrl,
+      ctaUrl: safeUrl,
       footerNote:
         'Si tú no realizaste esta solicitud, tu contraseña actual permanece protegida y no necesitas realizar ninguna acción.',
     });
+
+    const text = [
+      `Hola, ${payload.recipientFullName}.`,
+      `Recibimos una solicitud para restablecer tu contraseña en ASAIE ÉXODO (enlace de un solo uso válido por ${safeMinutes} minutos):`,
+      safeUrl,
+    ].join('\n\n');
 
     return this.sendTransactionalEmail(
       {
         to: payload.recipientEmail,
         subject: 'Recuperación de contraseña — ASAIE ÉXODO',
         html,
+        text,
       },
       'PASSWORD_RESET',
     );
@@ -173,23 +241,29 @@ export class NodemailerSmtpMailAdapter implements MailSenderPort {
   public async sendPasswordChangedAlert(
     payload: PasswordChangedAlertPayload,
   ): Promise<MailDeliveryResult> {
+    const safeName = this.escapeHtml(payload.recipientFullName);
+    const safeChangedAt = this.escapeHtml(payload.changedAtIso);
+
     const html = this.buildInstitutionalLayout({
       badge: 'ALERTA DE SEGURIDAD',
-      title: `Contraseña actualizada exitosamente`,
+      title: 'Contraseña actualizada exitosamente',
       bodyHtml: `
-        <p>Hola <strong>${payload.recipientFullName}</strong>,</p>
-        <p>Te confirmamos que la contraseña de tu cuenta en <strong>ASAIE ÉXODO</strong> fue actualizada el <strong>${payload.changedAtIso}</strong>.</p>
+        <p>Hola <strong>${safeName}</strong>,</p>
+        <p>Te confirmamos que la contraseña de tu cuenta en <strong>ASAIE ÉXODO</strong> fue actualizada el <strong>${safeChangedAt}</strong> y tus sesiones anteriores fueron cerradas por seguridad.</p>
         <p>Si reconoces esta actividad, no necesitas hacer nada más. En caso contrario, comunícate de inmediato con la coordinación o soporte técnico de tu institución educativa.</p>
       `,
       footerNote:
         'Notificación automática de seguridad del Sistema de Identidad y Acceso (IAM) de ASAIE ÉXODO.',
     });
 
+    const text = `Hola ${payload.recipientFullName}. Tu contraseña en ASAIE ÉXODO fue actualizada el ${payload.changedAtIso}. Si no reconoces este cambio, contacta de inmediato a soporte institucional.`;
+
     return this.sendTransactionalEmail(
       {
         to: payload.recipientEmail,
         subject: 'Alerta de seguridad: Cambio de contraseña — ASAIE ÉXODO',
         html,
+        text,
       },
       'PASSWORD_CHANGED_ALERT',
     );
@@ -198,26 +272,77 @@ export class NodemailerSmtpMailAdapter implements MailSenderPort {
   public async sendCrmOmnichannelNotification(
     payload: CrmEmailNotificationPayload,
   ): Promise<MailDeliveryResult> {
+    const safeSchool = this.escapeHtml(payload.schoolName);
+    const safeSubject = this.escapeHtml(payload.subject);
+    const safeName = this.escapeHtml(payload.recipientFullName);
+    const safeBodyHtml = this.escapeHtml(payload.messageBody).replace(
+      /\r?\n/g,
+      '<br />',
+    );
+
     const html = this.buildInstitutionalLayout({
-      badge: `CRM ESCOLAR — ${payload.schoolName}`,
-      title: payload.subject,
+      badge: `CRM ESCOLAR — ${safeSchool}`,
+      title: safeSubject,
       bodyHtml: `
-        <p>Estimado(a) <strong>${payload.recipientFullName}</strong>,</p>
+        <p>Estimado(a) <strong>${safeName}</strong>,</p>
         <div style="padding:16px; background:#f8fafc; border-left:4px solid #1e40af; border-radius:4px; margin:16px 0;">
-          ${payload.messageBody}
+          ${safeBodyHtml}
         </div>
       `,
-      footerNote: `Mensaje enviado a través del CRM Escolar Omnicanal de ${payload.schoolName}.`,
+      footerNote: `Mensaje enviado a través del CRM Escolar Omnicanal de ${safeSchool}.`,
     });
+
+    const text = `Estimado(a) ${payload.recipientFullName},\n\n${payload.messageBody}\n\n— CRM Escolar de ${payload.schoolName}`;
 
     return this.sendTransactionalEmail(
       {
         to: payload.recipientEmail,
-        subject: `[${payload.schoolName}] ${payload.subject}`,
+        subject: `[${this.sanitizeHeader(payload.schoolName)}] ${this.sanitizeHeader(payload.subject)}`,
         html,
+        text,
       },
       'CRM_OMNICHANNEL',
     );
+  }
+
+  private escapeHtml(value: string): string {
+    return String(value ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  private sanitizeHeader(value: string): string {
+    return String(value ?? '')
+      .replace(/[\r\n\0]+/g, ' ')
+      .trim();
+  }
+
+  private validateSafeHttpUrl(rawUrl: string): string {
+    let parsed: URL;
+    try {
+      parsed = new URL(rawUrl);
+    } catch {
+      throw new DomainException(
+        'INVALID_EMAIL_CTA_URL',
+        'El enlace de acción generado para el correo no es una URL válida.',
+      );
+    }
+
+    const isAllowedProtocol =
+      parsed.protocol === 'https:' ||
+      (!this.isProduction && parsed.protocol === 'http:');
+
+    if (!isAllowedProtocol) {
+      throw new DomainException(
+        'UNSAFE_EMAIL_CTA_URL',
+        'El protocolo de la URL del correo no cumple las políticas de seguridad.',
+      );
+    }
+
+    return parsed.toString();
   }
 
   private buildInstitutionalLayout(params: {
@@ -231,8 +356,8 @@ export class NodemailerSmtpMailAdapter implements MailSenderPort {
     const ctaBlock =
       params.ctaLabel && params.ctaUrl
         ? `<div style="margin:28px 0; text-align:center;">
-             <a href="${params.ctaUrl}" style="background:#1e40af; color:#ffffff; text-decoration:none; padding:12px 24px; border-radius:6px; font-weight:600; display:inline-block;">
-               ${params.ctaLabel}
+             <a href="${this.escapeHtml(params.ctaUrl)}" style="background:#1e40af; color:#ffffff; text-decoration:none; padding:12px 24px; border-radius:6px; font-weight:600; display:inline-block;">
+               ${this.escapeHtml(params.ctaLabel)}
              </a>
            </div>`
         : '';

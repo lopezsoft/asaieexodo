@@ -1,13 +1,15 @@
 {
-  "name": "campus",
-  "version": "3.1.0",
+  "name": "asaie-v3-frontend",
+  "version": "3.2.0",
   "scripts": {
     "ng": "ng",
     "start": "ng serve -o --port 7200",
+    "prebuild": "npm run check:native-title",
     "build": "ng build --configuration production",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "serve:ssr:trezo": "node dist/trezo/server/server.mjs"
+    "typecheck": "tsc --noEmit -p tsconfig.app.json",
+    "check:native-title": "node scripts/check-native-title.js"
   },
   "private": true,
   "dependencies": {

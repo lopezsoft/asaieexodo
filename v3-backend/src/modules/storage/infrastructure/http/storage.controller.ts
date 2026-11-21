@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -6,10 +7,11 @@ import {
   Param,
   Post,
   Query,
+  Req,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
-  ApiHeader,
+  ApiConsumes,
   ApiOperation,
   ApiParam,
   ApiProperty,
@@ -18,6 +20,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import {
   IsBoolean,
   IsIn,
@@ -26,8 +29,23 @@ import {
   IsObject,
   IsOptional,
   IsString,
+  Max,
+  MaxLength,
+  Min,
 } from 'class-validator';
+import { FastifyRequest } from 'fastify';
+import { ActiveTenantContext } from '../../../../shared/application/context/tenant-context.service';
 import { UploadCloudObjectInput } from '../../../../shared/application/ports/cloud-storage.port';
+import {
+  CurrentUser,
+  Roles,
+} from '../../../../shared/infrastructure/http/decorators/security.decorators';
+import { PositiveBigIntPipe } from '../../../../shared/infrastructure/http/pipes/positive-bigint.pipe';
+import {
+  ALLOWED_MIME_TO_EXTENSIONS,
+  MAX_CLOUD_FILE_SIZE_BYTES,
+} from '../../../../shared/infrastructure/storage/aws-s3-storage.adapter';
+import { CommunityRole } from '../../../iam/domain/enums/community-role.enum';
 import { ManageCloudFilesUseCase } from '../../application/use-cases/manage-cloud-files.use-case';
 
 const ALLOWED_STORAGE_CATEGORIES: UploadCloudObjectInput['category'][] = [
@@ -40,76 +58,55 @@ const ALLOWED_STORAGE_CATEGORIES: UploadCloudObjectInput['category'][] = [
   'GENERAL',
 ];
 
+const ALLOWED_MIME_LIST = Array.from(ALLOWED_MIME_TO_EXTENSIONS.keys());
+const MAX_BASE64_LENGTH = Math.ceil((MAX_CLOUD_FILE_SIZE_BYTES * 4) / 3) + 128;
+
 export class UploadSchoolFileRequestDto {
-  @ApiProperty({
-    example: 1,
-    description: 'ID de la Institución Educativa activa (Tenant RLS)',
-  })
-  @IsInt()
-  schoolId!: number;
-
-  @ApiPropertyOptional({
-    example: 1,
-    description: 'ID del usuario de la comunidad educativa que sube el archivo',
-  })
-  @IsOptional()
-  @IsInt()
-  uploadedByUserId?: number;
-
   @ApiProperty({
     example: 'STUDENT_DOCUMENTS',
     enum: ALLOWED_STORAGE_CATEGORIES,
-    description:
-      'Categoría funcional del archivo para organizar el prefijo en el bucket AWS S3',
   })
   @IsString()
   @IsIn(ALLOWED_STORAGE_CATEGORIES)
   category!: UploadCloudObjectInput['category'];
 
-  @ApiProperty({
-    example: 'registro-civil-estudiante.pdf',
-    description: 'Nombre original del archivo',
-  })
+  @ApiProperty({ example: 'registro-civil-estudiante.pdf' })
   @IsString()
   @IsNotEmpty()
+  @MaxLength(255)
   originalFileName!: string;
 
   @ApiPropertyOptional({
     example: 'Documento de identidad digitalizado para matrícula SIMAT 2026',
-    description: 'Descripción opcional del archivo',
   })
   @IsOptional()
   @IsString()
+  @MaxLength(255)
   description?: string;
 
   @ApiProperty({
     example: 'application/pdf',
-    description: 'Tipo MIME del archivo',
+    enum: ALLOWED_MIME_LIST,
   })
   @IsString()
-  @IsNotEmpty()
+  @IsIn(ALLOWED_MIME_LIST)
   mimeType!: string;
 
   @ApiProperty({
     example: 'JVBERi0xLjQKMSAwIG9iago8PC9UeXBlL0NhdGFsb2c+PgplbmRvYmoK',
-    description: 'Contenido binario del archivo codificado en Base64',
+    description: 'Contenido binario del archivo codificado en Base64 (máx 10 MB)',
   })
   @IsString()
   @IsNotEmpty()
+  @MaxLength(MAX_BASE64_LENGTH)
   base64Content!: string;
 
-  @ApiPropertyOptional({
-    example: false,
-    description: 'Indica si el archivo corresponde a marca de agua o escudo institucional',
-  })
+  @ApiPropertyOptional({ example: false })
   @IsOptional()
   @IsBoolean()
   isWatermark?: boolean;
 
-  @ApiPropertyOptional({
-    example: { enrollmentId: 1024 },
-    description: 'Metadatos adicionales almacenados en JSONB',
-  })
+  @ApiPropertyOptional({ example: { enrollmentId: 1024 } })
   @IsOptional()
   @IsObject()
   metadata?: Record<string, unknown>;
@@ -117,68 +114,64 @@ export class UploadSchoolFileRequestDto {
 
 export class CreatePresignedUploadTicketRequestDto {
   @ApiProperty({
-    example: 1,
-    description: 'ID de la Institución Educativa activa (Tenant RLS)',
-  })
-  @IsInt()
-  schoolId!: number;
-
-  @ApiPropertyOptional({
-    example: 1,
-    description: 'ID del usuario que solicita la carga directa a AWS S3',
-  })
-  @IsOptional()
-  @IsInt()
-  uploadedByUserId?: number;
-
-  @ApiProperty({
     example: 'VIRTUAL_ACTIVITIES',
     enum: ALLOWED_STORAGE_CATEGORIES,
-    description: 'Categoría funcional del archivo en S3',
   })
   @IsString()
   @IsIn(ALLOWED_STORAGE_CATEGORIES)
   category!: UploadCloudObjectInput['category'];
 
-  @ApiProperty({
-    example: 'guia-matematicas-periodo-1.pdf',
-    description: 'Nombre original del archivo a cargar',
-  })
+  @ApiProperty({ example: 'guia-matematicas-periodo-1.pdf' })
   @IsString()
   @IsNotEmpty()
+  @MaxLength(255)
   originalFileName!: string;
 
-  @ApiProperty({
-    example: 'application/pdf',
-    description: 'Tipo MIME del archivo',
-  })
+  @ApiProperty({ example: 'application/pdf', enum: ALLOWED_MIME_LIST })
   @IsString()
-  @IsNotEmpty()
+  @IsIn(ALLOWED_MIME_LIST)
   mimeType!: string;
 
-  @ApiPropertyOptional({
+  @ApiProperty({
     example: 245760,
-    description: 'Tamaño estimado en bytes',
+    description: 'Tamaño exacto en bytes (1 byte .. 10 MB) firmado en S3 ContentLength',
   })
-  @IsOptional()
   @IsInt()
-  sizeBytes?: number;
+  @Min(1)
+  @Max(MAX_CLOUD_FILE_SIZE_BYTES)
+  sizeBytes!: number;
 
-  @ApiPropertyOptional({
-    example: 'Guía pedagógica de aula virtual',
-  })
+  @ApiPropertyOptional({ example: 'Guía pedagógica de aula virtual' })
   @IsOptional()
   @IsString()
+  @MaxLength(255)
   description?: string;
+}
+
+export class ListSchoolFilesQueryDto {
+  @ApiPropertyOptional({ enum: ALLOWED_STORAGE_CATEGORIES })
+  @IsOptional()
+  @IsIn(ALLOWED_STORAGE_CATEGORIES)
+  category?: string;
+
+  @ApiPropertyOptional({ example: 50 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(100)
+  limit?: number;
+
+  @ApiPropertyOptional({ example: 0 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
+  offset?: number;
 }
 
 @ApiTags('Cloud Storage & AWS S3 Files')
 @ApiBearerAuth('jwt-auth')
-@ApiHeader({
-  name: 'x-school-id',
-  description: 'Identificador numérico del Colegio activo para Row-Level Security (RLS)',
-  required: false,
-})
 @Controller('storage/files')
 export class StorageController {
   constructor(
@@ -187,60 +180,107 @@ export class StorageController {
 
   @Post('upload')
   @ApiOperation({
-    summary: 'Subir archivo institucional a AWS S3 y registrar en cloud_files (RLS)',
-    description:
-      'Resuelve automáticamente la carpeta institucional (`schools.storage_folder`, ej. `pto_beato`), sube el archivo a AWS S3 mediante `@aws-sdk/client-s3` y guarda su registro en `cloud_files` aislado por `school_id`.',
+    summary: 'Subir archivo institucional (Base64) a AWS S3 y registrar en cloud_files (RLS JWT)',
   })
-  @ApiResponse({
-    status: 201,
-    description: 'Archivo almacenado en AWS S3 y registrado en PostgreSQL 17.',
-  })
+  @ApiResponse({ status: 201, description: 'Archivo almacenado en AWS S3.' })
   public async uploadFile(
+    @CurrentUser() principal: ActiveTenantContext,
     @Body() dto: UploadSchoolFileRequestDto,
   ): Promise<Record<string, unknown>> {
-    const cleanBase64 = dto.base64Content.includes(',')
-      ? dto.base64Content.split(',')[1]
-      : dto.base64Content;
+    const cleanBase64 = (
+      dto.base64Content.includes(',')
+        ? dto.base64Content.split(',')[1]
+        : dto.base64Content
+    ).replace(/\s+/g, '');
+
+    if (
+      cleanBase64.length === 0 ||
+      !/^[A-Za-z0-9+/]+=*$/.test(cleanBase64) ||
+      cleanBase64.length % 4 !== 0
+    ) {
+      throw new BadRequestException(
+        'El contenido Base64 suministrado no tiene un formato válido.',
+      );
+    }
+
+    const contentBuffer = Buffer.from(cleanBase64, 'base64');
 
     const record = await this.manageCloudFilesUseCase.uploadSchoolFile({
-      schoolId: BigInt(dto.schoolId),
-      uploadedByUserId: dto.uploadedByUserId
-        ? BigInt(dto.uploadedByUserId)
-        : null,
+      schoolId: principal.schoolId,
+      uploadedByUserId: principal.userId,
       category: dto.category,
       originalFileName: dto.originalFileName,
       description: dto.description ?? null,
       mimeType: dto.mimeType,
-      contentBuffer: Buffer.from(cleanBase64, 'base64'),
+      contentBuffer,
       isWatermark: dto.isWatermark,
       metadata: dto.metadata,
     });
 
-    return {
-      success: true,
-      data: record,
+    return { success: true, data: record };
+  }
+
+  @Post('upload-multipart')
+  @ApiConsumes('multipart/form-data')
+  @ApiOperation({
+    summary: 'Subir archivo binario mediante multipart/form-data a AWS S3 (Fastify Multipart)',
+  })
+  @ApiQuery({ name: 'category', enum: ALLOWED_STORAGE_CATEGORIES, required: false })
+  public async uploadMultipartFile(
+    @CurrentUser() principal: ActiveTenantContext,
+    @Req() request: FastifyRequest,
+    @Query('category') categoryQuery?: UploadCloudObjectInput['category'],
+  ): Promise<Record<string, unknown>> {
+    const multipartReq = request as FastifyRequest & {
+      file?: () => Promise<{
+        filename: string;
+        mimetype: string;
+        toBuffer: () => Promise<Buffer>;
+      }>;
     };
+
+    if (typeof multipartReq.file !== 'function') {
+      throw new BadRequestException(
+        'El servidor no recibió una petición multipart/form-data válida.',
+      );
+    }
+
+    const uploadedPart = await multipartReq.file();
+    if (!uploadedPart) {
+      throw new BadRequestException('No se adjuntó ningún archivo en la petición.');
+    }
+
+    const category: UploadCloudObjectInput['category'] =
+      categoryQuery && ALLOWED_STORAGE_CATEGORIES.includes(categoryQuery)
+        ? categoryQuery
+        : 'GENERAL';
+
+    const buffer = await uploadedPart.toBuffer();
+
+    const record = await this.manageCloudFilesUseCase.uploadSchoolFile({
+      schoolId: principal.schoolId,
+      uploadedByUserId: principal.userId,
+      category,
+      originalFileName: uploadedPart.filename,
+      mimeType: uploadedPart.mimetype,
+      contentBuffer: buffer,
+    });
+
+    return { success: true, data: record };
   }
 
   @Post('presigned-upload')
   @ApiOperation({
-    summary: 'Generar URL prefirmada (PUT) de AWS S3 para carga directa desde el navegador',
-    description:
-      'Utiliza `@aws-sdk/s3-request-presigner` para emitir una URL temporal firmada (`PUT`) hacia la carpeta del colegio en S3 y registra el metadato en `cloud_files`.',
-  })
-  @ApiResponse({
-    status: 201,
-    description: 'Ticket de carga prefirmada S3 generado exitosamente.',
+    summary: 'Generar URL prefirmada (PUT) de AWS S3 y registrar ticket PENDING en cloud_files',
   })
   public async createPresignedUpload(
+    @CurrentUser() principal: ActiveTenantContext,
     @Body() dto: CreatePresignedUploadTicketRequestDto,
   ): Promise<Record<string, unknown>> {
     const result =
       await this.manageCloudFilesUseCase.createPresignedUploadTicket({
-        schoolId: BigInt(dto.schoolId),
-        uploadedByUserId: dto.uploadedByUserId
-          ? BigInt(dto.uploadedByUserId)
-          : null,
+        schoolId: principal.schoolId,
+        uploadedByUserId: principal.userId,
         category: dto.category,
         originalFileName: dto.originalFileName,
         mimeType: dto.mimeType,
@@ -248,90 +288,79 @@ export class StorageController {
         description: dto.description,
       });
 
-    return {
-      success: true,
-      data: result,
-    };
+    return { success: true, data: result };
   }
 
-  @Get(':schoolId')
+  @Post(':fileId/confirm-upload')
   @ApiOperation({
-    summary: 'Listar archivos en la nube (AWS S3) pertenecientes a una Institución Educativa',
-    description:
-      'Consulta la tabla `cloud_files` aplicando la política RLS `tenant_isolation_cloud_files`.',
+    summary: 'Confirmar carga prefirmada verificando el objeto en S3 (HeadObject -> ACTIVE)',
   })
-  @ApiParam({ name: 'schoolId', example: 1 })
-  @ApiQuery({
-    name: 'category',
-    required: false,
-    description: 'Filtro opcional por categoría de entidad propietaria',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Listado de archivos de la institución educativa.',
+  @ApiParam({ name: 'fileId', example: 1 })
+  public async confirmPresignedUpload(
+    @CurrentUser() principal: ActiveTenantContext,
+    @Param('fileId', PositiveBigIntPipe) fileId: bigint,
+  ): Promise<Record<string, unknown>> {
+    const confirmed = await this.manageCloudFilesUseCase.confirmPresignedUpload(
+      principal.schoolId,
+      fileId,
+    );
+    return { success: true, data: confirmed };
+  }
+
+  @Get()
+  @ApiOperation({
+    summary: 'Listar archivos activos en la nube (AWS S3) de la institución del JWT',
   })
   public async listSchoolFiles(
-    @Param('schoolId') schoolId: string,
-    @Query('category') category?: string,
+    @CurrentUser() principal: ActiveTenantContext,
+    @Query() query: ListSchoolFilesQueryDto,
   ): Promise<Record<string, unknown>> {
     const files = await this.manageCloudFilesUseCase.listSchoolFiles(
-      BigInt(schoolId),
-      category,
+      principal.schoolId,
+      query.category,
+      query.limit,
+      query.offset,
     );
-    return {
-      success: true,
-      total: files.length,
-      data: files,
-    };
+    return { success: true, total: files.length, data: files };
   }
 
-  @Get(':schoolId/:fileId/presigned-url')
+  @Get(':fileId/presigned-url')
   @ApiOperation({
-    summary: 'Obtener URL prefirmada temporal (GET) para descargar un archivo privado de AWS S3',
-    description:
-      'Verifica mediante RLS que el archivo pertenezca al colegio solicitado y genera una URL firmada temporal con `@aws-sdk/s3-request-presigner`.',
+    summary: 'Obtener URL prefirmada temporal (GET) para descargar archivo privado de AWS S3',
   })
-  @ApiParam({ name: 'schoolId', example: 1 })
   @ApiParam({ name: 'fileId', example: 1 })
-  @ApiResponse({
-    status: 200,
-    description: 'URL firmada de descarga generada exitosamente.',
-  })
   public async getPresignedDownloadUrl(
-    @Param('schoolId') schoolId: string,
-    @Param('fileId') fileId: string,
+    @CurrentUser() principal: ActiveTenantContext,
+    @Param('fileId', PositiveBigIntPipe) fileId: bigint,
   ): Promise<Record<string, unknown>> {
     const result = await this.manageCloudFilesUseCase.getPresignedDownloadUrl(
-      BigInt(schoolId),
-      BigInt(fileId),
+      principal.schoolId,
+      fileId,
     );
-    return {
-      success: true,
-      data: result,
-    };
+    return { success: true, data: result };
   }
 
-  @Delete(':schoolId/:fileId')
+  @Delete(':fileId')
+  @Roles(
+    CommunityRole.SUPER_ADMIN,
+    CommunityRole.SCHOOL_ADMIN,
+    CommunityRole.RECTOR,
+    CommunityRole.COORDINATOR,
+    CommunityRole.SECRETARY,
+    CommunityRole.TEACHER,
+  )
   @ApiOperation({
-    summary: 'Eliminar archivo de AWS S3 y de la tabla cloud_files bajo RLS',
+    summary: 'Eliminar archivo de cloud_files y AWS S3 bajo RLS del JWT',
   })
-  @ApiParam({ name: 'schoolId', example: 1 })
   @ApiParam({ name: 'fileId', example: 1 })
-  @ApiResponse({
-    status: 200,
-    description: 'Archivo eliminado de S3 y de PostgreSQL 17.',
-  })
   public async deleteFile(
-    @Param('schoolId') schoolId: string,
-    @Param('fileId') fileId: string,
+    @CurrentUser() principal: ActiveTenantContext,
+    @Param('fileId', PositiveBigIntPipe) fileId: bigint,
   ): Promise<Record<string, unknown>> {
     const result = await this.manageCloudFilesUseCase.deleteSchoolFile(
-      BigInt(schoolId),
-      BigInt(fileId),
+      principal.schoolId,
+      fileId,
     );
-    return {
-      success: true,
-      data: result,
-    };
+    return { success: true, data: result };
   }
 }

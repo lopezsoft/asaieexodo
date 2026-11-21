@@ -1,53 +1,63 @@
-// path: src/app/services/storage.service.ts
-
+import { isPlatformBrowser } from '@angular/common';
 import { Injectable, PLATFORM_ID, inject } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common'; // 👈 Importa la función
+import { DebugService } from './common/debug.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class StorageService {
-  // 👇 Inyecta el token PLATFORM_ID para identificar el entorno
-  private platformId = inject(PLATFORM_ID);
-
-  // Una propiedad privada para saber si estamos en el navegador
+  private readonly platformId = inject(PLATFORM_ID);
+  private readonly debugService = inject(DebugService);
   private readonly isBrowser: boolean;
 
   constructor() {
-    // 👇 Determina si el código se está ejecutando en el navegador
     this.isBrowser = isPlatformBrowser(this.platformId);
   }
 
   setItem<T>(key: string, value: T): void {
-    // Solo ejecuta si estamos en el navegador
-    if (this.isBrowser) {
-      try {
-        localStorage.setItem(key, JSON.stringify(value));
-      } catch (e) {
-        console.error('Error saving to localStorage', e);
-      }
+    if (!this.isBrowser) {
+      return;
+    }
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+    } catch (error) {
+      this.debugService.error(
+        'StorageService.setItem',
+        'No fue posible persistir el valor en almacenamiento local',
+        error,
+      );
     }
   }
 
   getItem<T>(key: string): T | null {
-    // Solo ejecuta si estamos en el navegador
-    if (this.isBrowser) {
-      try {
-        const item = localStorage.getItem(key);
-        return item ? JSON.parse(item) : null;
-      } catch (e) {
-        console.error('Error reading from localStorage', e);
-        return null;
-      }
+    if (!this.isBrowser) {
+      return null;
     }
-    // Si estamos en el servidor, retorna null inmediatamente
-    return null;
+    try {
+      const item = localStorage.getItem(key);
+      return item ? (JSON.parse(item) as T) : null;
+    } catch (error) {
+      this.debugService.error(
+        'StorageService.getItem',
+        'No fue posible leer el valor del almacenamiento local',
+        error,
+      );
+      return null;
+    }
   }
 
   removeItem(key: string): void {
-    // Solo ejecuta si estamos en el navegador
-    if (this.isBrowser) {
+    if (!this.isBrowser) {
+      return;
+    }
+    try {
       localStorage.removeItem(key);
+    } catch (error) {
+      this.debugService.error(
+        'StorageService.removeItem',
+        'No fue posible eliminar la clave del almacenamiento local',
+        error,
+      );
     }
   }
 }

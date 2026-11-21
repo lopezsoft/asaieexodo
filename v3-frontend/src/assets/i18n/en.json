@@ -131,11 +131,40 @@
   "Second Level Child": "Second Level Child",
   "Third Level 1.1": "Third Level 1.1",
   "Third Level 1.2": "Third Level 1.2",
+  "menu": {
+    "dashboard": "Dashboard",
+    "user": {
+      "profile": "My Profile",
+      "logout": "Sign Out",
+      "returnToAccessPanel": "Access Panel",
+      "changeModule": "Switch Module"
+    },
+    "admin": {
+      "title": "Administration",
+      "hub": "Admin Hub",
+      "school": "School Profile",
+      "campuses": "Campuses",
+      "teachers": "Teaching Staff",
+      "staff": "Administrative Staff",
+      "groupManagers": "Homeroom Teachers"
+    },
+    "student": {
+      "academicNote": "Academic Grades",
+      "academicReport": "Academic Reports",
+      "academicActivities": "Academic Activities",
+      "schoolElections": "School Elections"
+    }
+  },
+  "languages": {
+    "title": "Change Language",
+    "es": "Spanish",
+    "en": "English"
+  },
   "signIn": {
-    "welcome": "Welcome back to Trezo!",
-    "instructions": "Sign In with social account or enter your details",
-    "emailLabel": "Email Address",
-    "emailPlaceholder": "example@trezo.com",
+    "welcome": "Welcome back to ASAIE ÉXODO!",
+    "instructions": "Enter your educational community credentials to sign in",
+    "emailLabel": "Username or Document",
+    "emailPlaceholder": "Enter your username or ID number",
     "passwordLabel": "Password",
     "passwordPlaceholder": "Type password",
     "forgotPassword": "Forgot Password?",

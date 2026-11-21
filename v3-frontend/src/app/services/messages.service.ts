@@ -1,6 +1,6 @@
 // src/app/services/messages.service.ts
 
-import {inject, Inject, Injectable} from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import Swal, { SweetAlertOptions } from 'sweetalert2';
 import {TranslocoService} from "@jsverse/transloco";
 
@@ -54,11 +54,18 @@ export class MessagesService {
   showConfirm(param: { title?: string, message?: string } = {}) {
     return Swal.fire({
       title: param.title || "Confirmación",
-      text: param. message || "¿Estás seguro?",
+      text: param.message || "¿Estás seguro?",
       icon: 'warning',
       showCancelButton: true,
       confirmButtonText: this.translocoService.translate('buttons.yes') ,
       cancelButtonText: this.translocoService.translate('buttons.no'),
+    });
+  }
+
+  confirmDelete(message: string) {
+    return this.showConfirm({
+      title: 'Confirmar eliminación',
+      message,
     });
   }
 }

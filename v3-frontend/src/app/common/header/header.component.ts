@@ -1,169 +1,159 @@
-import {Component, HostListener, inject, Inject, PLATFORM_ID} from '@angular/core';
-import { RouterLink, NavigationEnd, Router } from '@angular/router';
-import {NgClass, NgIf, isPlatformBrowser, NgOptimizedImage} from '@angular/common';
+import { isPlatformBrowser, NgClass, NgIf, NgOptimizedImage } from '@angular/common';
+import {
+  Component,
+  computed,
+  HostListener,
+  Inject,
+  inject,
+  PLATFORM_ID,
+} from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { NavigationEnd, Router, RouterLink } from '@angular/router';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { filter } from 'rxjs/operators';
-import { NavbarComponent } from './navbar/navbar.component';
-import {TranslocoPipe} from "@jsverse/transloco";
-import { ToggleService } from './toggle.service';
 import { CustomizerSettingsService } from '../../customizer-settings/customizer-settings.service';
-import {LanguageService} from "../../services/common/language.service";
-import {UserActionsService} from "../../services/common/user-actions.service";
-import {AuthService} from "../../services/auth.service";
-import {fallbackAvatarUrl} from "../../utils/utils";
+import { LanguageService } from '../../services/common/language.service';
+import { V3UnifiedAuthService } from '../../services/v3-unified-auth.service';
+import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.directive';
+import { fallbackAvatarUrl } from '../../utils/utils';
+import { ToggleService } from './toggle.service';
 
 @Component({
-    selector: 'app-header',
-  imports: [RouterLink, NgClass, NgIf, NavbarComponent, TranslocoPipe, NgOptimizedImage],
-    templateUrl: './header.component.html',
-    styleUrl: './header.component.scss'
+  selector: 'app-header',
+  imports: [
+    RouterLink,
+    NgClass,
+    NgIf,
+    FormsModule,
+    TranslocoPipe,
+    NgOptimizedImage,
+    CustomTooltipDirective,
+  ],
+  templateUrl: './header.component.html',
+  styleUrl: './header.component.scss',
 })
 export class HeaderComponent {
-    public langService = inject(LanguageService);
-    public uActionsService = inject(UserActionsService);
-    public authService = inject(AuthService);
-    // isSidebarToggled
-    isSidebarToggled = false;
+  public readonly langService = inject(LanguageService);
+  public readonly v3Auth = inject(V3UnifiedAuthService);
 
-    // isToggled
-    isToggled = false;
+  isSidebarToggled = false;
+  isToggled = false;
+  isSticky = false;
+  isLanguageDropdownOpen = false;
+  isProfileDropdownOpen = false;
+  isFullscreen = false;
 
-    protected fallbackAvatarUrl = fallbackAvatarUrl();
-
-    constructor(
-        private toggleService: ToggleService,
-        public themeService: CustomizerSettingsService,
-        @Inject(PLATFORM_ID) private platformId: Object,
-        private router: Router
-    ) {
-        this.toggleService.isSidebarToggled$.subscribe(isSidebarToggled => {
-            this.isSidebarToggled = isSidebarToggled;
-        });
-        this.themeService.isToggled$.subscribe(isToggled => {
-            this.isToggled = isToggled;
-        });
-        // Subscribe to router events to toggle the sidebar on navigation
-        this.router.events.pipe(
-            filter(event => event instanceof NavigationEnd)
-        ).subscribe(() => {
-            // Check if the sidebar is currently toggled and if so, toggle it
-            if (this.isSidebarToggled) {
-                this.toggleService.toggle(); // Close the sidebar if it's open
-            }
-        });
+  protected readonly fallbackAvatarUrl = fallbackAvatarUrl();
+  protected readonly availableAcademicYears = computed(() => {
+    const current = new Date().getFullYear();
+    const active = this.v3Auth.academicYear();
+    const minYear = Math.min(current - 5, active);
+    const maxYear = Math.max(current + 1, active);
+    const years: number[] = [];
+    for (let y = maxYear; y >= minYear; y--) {
+      years.push(y);
     }
+    return years;
+  });
 
-    // Burger Menu Toggle
-    toggle() {
-        this.toggleService.toggle();
-    }
-
-    // Dark Mode
-    toggleTheme() {
-        this.themeService.toggleTheme();
-    }
-
-    // Header Sticky
-    isSticky: boolean = false;
-    @HostListener('window:scroll', ['$event'])
-    checkScroll() {
-        const scrollPosition = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0;
-        this.isSticky = scrollPosition >= 50;
-    }
-
-    // Dropdown Menu
-    isConnectedAppsDropdownOpen = false;
-    isLanguageDropdownOpen = false;
-    isNotificationsDropdownOpen = false;
-    isProfileDropdownOpen = false;
-    toggleLanguageDropdown() {
-        this.isLanguageDropdownOpen = !this.isLanguageDropdownOpen;
-    }
-    toggleProfileDropdown() {
-        this.isProfileDropdownOpen = !this.isProfileDropdownOpen;
-    }
-    @HostListener('document:click', ['$event'])
-    handleClickOutside(event: Event) {
-        const target = event.target as HTMLElement;
-        if (!target.closest('.connected-apps-menu')) {
-            this.isConnectedAppsDropdownOpen = false;
+  constructor(
+    private readonly toggleService: ToggleService,
+    public readonly themeService: CustomizerSettingsService,
+    @Inject(PLATFORM_ID) private readonly platformId: object,
+    private readonly router: Router,
+  ) {
+    this.toggleService.isSidebarToggled$.subscribe((toggled) => {
+      this.isSidebarToggled = toggled;
+    });
+    this.themeService.isToggled$.subscribe((toggled) => {
+      this.isToggled = toggled;
+    });
+    this.router.events
+      .pipe(filter((event) => event instanceof NavigationEnd))
+      .subscribe(() => {
+        if (this.isSidebarToggled) {
+          this.toggleService.toggle();
         }
-        if (!target.closest('.language-menu')) {
-            this.isLanguageDropdownOpen = false;
-        }
-        if (!target.closest('.notifications-menu')) {
-            this.isNotificationsDropdownOpen = false;
-        }
-        if (!target.closest('.profile-menu')) {
-            this.isProfileDropdownOpen = false;
-        }
-    }
-
-    // Fullscreen
-    isFullscreen: boolean = false;
-    toggleFullscreen() {
-        if (this.isFullscreen) {
-            this.closeFullscreen();
-        } else {
-            this.openFullscreen();
-        }
-    }
-    openFullscreen() {
-        if (isPlatformBrowser(this.platformId)) {
-            const element = document.documentElement as HTMLElement & {
-                mozRequestFullScreen?: () => Promise<void>;
-                webkitRequestFullscreen?: () => Promise<void>;
-                msRequestFullscreen?: () => Promise<void>;
-            };
-            if (element.requestFullscreen) {
-                element.requestFullscreen();
-            } else if (element.mozRequestFullScreen) { // Firefox
-                element.mozRequestFullScreen();
-            } else if (element.webkitRequestFullscreen) { // Chrome, Safari, and Opera
-                element.webkitRequestFullscreen();
-            } else if (element.msRequestFullscreen) { // IE/Edge
-                element.msRequestFullscreen();
-            }
-        }
-    }
-    closeFullscreen() {
-        if (isPlatformBrowser(this.platformId)) {
-            const doc = document as Document & {
-                mozCancelFullScreen?: () => Promise<void>;
-                webkitExitFullscreen?: () => Promise<void>;
-                msExitFullscreen?: () => Promise<void>;
-            };
-            if (document.exitFullscreen) {
-                document.exitFullscreen();
-            } else if (doc.mozCancelFullScreen) { // Firefox
-                doc.mozCancelFullScreen();
-            } else if (doc.webkitExitFullscreen) { // Chrome, Safari, and Opera
-                doc.webkitExitFullscreen();
-            } else if (doc.msExitFullscreen) { // IE/Edge
-                doc.msExitFullscreen();
-            }
-        }
-    }
-    onFullscreenChange() {
-        if (isPlatformBrowser(this.platformId)) {
-            const doc = document as Document & {
-                webkitFullscreenElement?: Element;
-                mozFullScreenElement?: Element;
-                msFullscreenElement?: Element;
-            };
-            this.isFullscreen = !!(document.fullscreenElement || doc.webkitFullscreenElement || doc.mozFullScreenElement || doc.msFullscreenElement);
-        }
-    }
-
-  changeLanguage(en: string) {
-    this.langService.changeLanguage(en);
+      });
   }
 
-  getCurrentUserAvatar() {
-    const user = this.uActionsService.getCurrentUser();
-    return user.avatar ? user.avatar : 'assets/images/avatars/unknown.png'; // Default avatar if none is set
+  toggle(): void {
+    this.toggleService.toggle();
   }
 
-  logout() {
+  toggleTheme(): void {
+    this.themeService.toggleTheme();
+  }
 
+  @HostListener('window:scroll')
+  checkScroll(): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+    const scrollPosition =
+      window.scrollY ||
+      document.documentElement.scrollTop ||
+      document.body.scrollTop ||
+      0;
+    this.isSticky = scrollPosition >= 50;
+  }
+
+  toggleLanguageDropdown(): void {
+    this.isLanguageDropdownOpen = !this.isLanguageDropdownOpen;
+  }
+
+  toggleProfileDropdown(): void {
+    this.isProfileDropdownOpen = !this.isProfileDropdownOpen;
+  }
+
+  @HostListener('document:click', ['$event'])
+  handleClickOutside(event: Event): void {
+    const target = event.target as HTMLElement | null;
+    if (!target) {
+      return;
+    }
+    if (!target.closest('.language-menu')) {
+      this.isLanguageDropdownOpen = false;
+    }
+    if (!target.closest('.profile-menu')) {
+      this.isProfileDropdownOpen = false;
+    }
+  }
+
+  toggleFullscreen(): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+    if (this.isFullscreen) {
+      void document.exitFullscreen?.();
+      this.isFullscreen = false;
+    } else {
+      void document.documentElement.requestFullscreen?.();
+      this.isFullscreen = true;
+    }
+  }
+
+  changeLanguage(lang: string): void {
+    this.langService.changeLanguage(lang);
+    this.isLanguageDropdownOpen = false;
+  }
+
+  onAcademicYearChange(yearValue: string | number): void {
+    const parsedYear = Number(yearValue);
+    if (!Number.isNaN(parsedYear)) {
+      this.v3Auth.setWorkingAcademicYear(parsedYear);
+    }
+  }
+
+  getCurrentUserAvatar(): string {
+    const avatarUrl = this.v3Auth.user()?.avatarUrl;
+    return avatarUrl && avatarUrl.trim().length > 0
+      ? avatarUrl
+      : 'assets/images/avatars/unknown.png';
+  }
+
+  logout(): void {
+    this.isProfileDropdownOpen = false;
+    this.v3Auth.logout(true);
   }
 }

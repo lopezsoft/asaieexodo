@@ -1,6 +1,7 @@
 import { Injectable, OnModuleDestroy } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Pool, PoolClient, QueryResult, QueryResultRow } from 'pg';
+import { TenantAccessDeniedException } from '../../domain/exceptions/tenant-access-denied.exception';
 import { SmartLoggerService } from '../logging/smart-logger.service';
 
 /**
@@ -16,17 +17,32 @@ export class PostgresRlsService implements OnModuleDestroy {
     private readonly configService: ConfigService,
     private readonly logger: SmartLoggerService,
   ) {
+    const nodeEnv = this.configService.get<string>('NODE_ENV', 'development');
+    const isProduction = nodeEnv === 'production';
+    const useSsl =
+      this.configService.get<string>('DB_SSL', isProduction ? 'true' : 'false') ===
+      'true';
+
     this.pool = new Pool({
       host: this.configService.get<string>('DB_HOST', '127.0.0.1'),
       port: Number(this.configService.get<string>('DB_PORT', '5434')),
       user: this.configService.get<string>('DB_USER', 'asaie_admin'),
       password: this.configService.get<string>(
         'DB_PASSWORD',
-        'asaie_local_secret_2026',
+        isProduction ? '' : 'asaie_local_secret_2026',
       ),
       database: this.configService.get<string>('DB_NAME', 'asaie_v3_unified'),
-      max: 25,
+      max: Number(this.configService.get<string>('DB_POOL_MAX', '25')),
       idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 5000,
+      statement_timeout: 15000,
+      ...(useSsl ? { ssl: { rejectUnauthorized: isProduction } } : {}),
+    });
+
+    this.pool.on('error', (err: Error) => {
+      this.logger.error('Error inesperado en cliente inactivo del pool PostgreSQL', {
+        errorMessage: err.message,
+      });
     });
   }
 
@@ -38,7 +54,15 @@ export class PostgresRlsService implements OnModuleDestroy {
     schoolId: bigint,
     operation: (client: PoolClient) => Promise<T>,
   ): Promise<T> {
+    if (schoolId <= 0n) {
+      throw new TenantAccessDeniedException(
+        'Identificador de institucion educativa invalido para transaccion RLS.',
+      );
+    }
+
     const client = await this.pool.connect();
+    let releaseError: Error | undefined;
+
     try {
       await client.query('BEGIN');
       await client.query('SET LOCAL ROLE asaie_app_runtime');
@@ -50,14 +74,26 @@ export class PostgresRlsService implements OnModuleDestroy {
       await client.query('COMMIT');
       return result;
     } catch (error) {
-      await client.query('ROLLBACK');
+      try {
+        await client.query('ROLLBACK');
+      } catch (rollbackErr) {
+        releaseError =
+          rollbackErr instanceof Error
+            ? rollbackErr
+            : new Error('ROLLBACK_FAILED');
+        this.logger.error('Fallo ejecutando ROLLBACK en transaccion RLS', {
+          schoolId: String(schoolId),
+          errorMessage: releaseError.message,
+        });
+      }
+
       this.logger.error('Transaccion RLS revertida por error', {
         schoolId: String(schoolId),
         errorMessage: error instanceof Error ? error.message : 'Unknown error',
       });
       throw error;
     } finally {
-      client.release();
+      client.release(releaseError);
     }
   }
 

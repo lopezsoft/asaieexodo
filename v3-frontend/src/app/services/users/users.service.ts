@@ -10,6 +10,7 @@ import {SchoolContract, SchoolModuleContract, Schools} from "../../models/school
 import {StorageService} from "../storage.service";
 import {Profile, Users} from "../../models/users-model";
 import {AuthService} from "../auth.service";
+import {DebugService} from "../common/debug.service";
 
 @Injectable({
   providedIn: 'root'
@@ -22,6 +23,7 @@ export class UsersService {
   private msg = inject(MessagesService);
   private storage = inject(StorageService);
   private authService = inject(AuthService);
+  private debugService = inject(DebugService);
 
   // --- Fuentes de Estado Reactivo (State) ---
   private schoolsSource = new BehaviorSubject<Schools[]>([]);
@@ -79,9 +81,8 @@ export class UsersService {
       }),
       tap(schools => this.schoolsSource.next(schools)),
       catchError(err => {
-        // El interceptor ya muestra el error. Aquí solo prevenimos que el error rompa el flujo.
-        console.error('Error fetching user schools:', err);
-        return of([]); // Devuelve un array vacío para que la app no se rompa.
+        this.debugService.error('UsersService.fetchUserSchools', 'Error consultando instituciones del usuario', err);
+        return of([]);
       })
     );
   }
@@ -101,7 +102,7 @@ export class UsersService {
         this.storage.setItem('schoolModules', modules);
       }),
       catchError(err => {
-        console.error('Error fetching school modules:', err);
+        this.debugService.error('UsersService.fetchSchoolModules', 'Error consultando módulos de la institución', err);
         return of([]);
       })
     );

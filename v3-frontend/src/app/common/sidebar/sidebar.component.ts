@@ -1,87 +1,62 @@
-import {Component, inject} from '@angular/core';
-import { NgScrollbarModule } from 'ngx-scrollbar';
-import { RouterLink, RouterLinkActive } from '@angular/router';
 import { NgClass } from '@angular/common';
-import { ToggleService } from '../header/toggle.service';
+import { Component, inject, signal } from '@angular/core';
+import { RouterLink, RouterLinkActive } from '@angular/router';
+import { TranslocoPipe } from '@jsverse/transloco';
+import { NgScrollbarModule } from 'ngx-scrollbar';
 import { CustomizerSettingsService } from '../../customizer-settings/customizer-settings.service';
-import {TranslocoPipe} from "@jsverse/transloco";
-import {AuthService} from "../../services/auth.service";
-import {MenuService} from "../../services/menu.service";
-
-interface MenuItem {
-    title: string;
-    subItems?: MenuItem[];
-}
+import { MenuService } from '../../services/menu.service';
+import { V3UnifiedAuthService } from '../../services/v3-unified-auth.service';
+import { ToggleService } from '../header/toggle.service';
 
 @Component({
-    selector: 'app-sidebar',
-  imports: [NgScrollbarModule, RouterLinkActive, RouterLink, NgClass, TranslocoPipe],
-    templateUrl: './sidebar.component.html',
-    styleUrl: './sidebar.component.scss'
+  selector: 'app-sidebar',
+  imports: [
+    NgScrollbarModule,
+    RouterLinkActive,
+    RouterLink,
+    NgClass,
+    TranslocoPipe,
+  ],
+  templateUrl: './sidebar.component.html',
+  styleUrl: './sidebar.component.scss',
 })
 export class SidebarComponent {
+  protected readonly v3Auth = inject(V3UnifiedAuthService);
+  protected readonly menuService = inject(MenuService);
 
-    protected authService = inject(AuthService);
-    protected menuService = inject(MenuService);
+  public menuItems = this.menuService.filteredMenu;
+  public readonly expandedMenus = signal<Record<number, boolean>>({ 10: true });
+  isSidebarToggled = false;
+  isToggled = false;
 
-    // menuItems
-    public menuItems = this.menuService.filteredMenu;
-    // isSidebarToggled
-    isSidebarToggled = false;
+  constructor(
+    private readonly toggleService: ToggleService,
+    public readonly themeService: CustomizerSettingsService,
+  ) {
+    this.toggleService.isSidebarToggled$.subscribe((isSidebarToggled) => {
+      this.isSidebarToggled = isSidebarToggled;
+    });
+    this.themeService.isToggled$.subscribe((isToggled) => {
+      this.isToggled = isToggled;
+    });
+  }
 
-    // isToggled
-    isToggled = false;
+  toggle(): void {
+    this.toggleService.toggle();
+  }
 
-    constructor(
-        private toggleService: ToggleService,
-        public themeService: CustomizerSettingsService
-    ) {
-        this.toggleService.isSidebarToggled$.subscribe(isSidebarToggled => {
-            this.isSidebarToggled = isSidebarToggled;
-        });
-        this.themeService.isToggled$.subscribe(isToggled => {
-            this.isToggled = isToggled;
-        });
-    }
+  toggleSubmenu(menuId: number): void {
+    this.expandedMenus.update((state) => ({
+      ...state,
+      [menuId]: !state[menuId],
+    }));
+  }
 
-    // Burger Menu Toggle
-    toggle() {
-        this.toggleService.toggle();
-    }
+  isSubmenuExpanded(menuId: number): boolean {
+    return Boolean(this.expandedMenus()[menuId]);
+  }
 
-    // Accordion
-    openSectionIndex: number = -1;
-    openSectionIndex2: number = -1;
-    openSectionIndex3: number = -1;
-    toggleSection(index: number): void {
-        if (this.openSectionIndex === index) {
-            this.openSectionIndex = -1;
-        } else {
-            this.openSectionIndex = index;
-        }
-    }
-    toggleSection2(index: number): void {
-        if (this.openSectionIndex2 === index) {
-            this.openSectionIndex2 = -1;
-        } else {
-            this.openSectionIndex2 = index;
-        }
-    }
-    toggleSection3(index: number): void {
-        if (this.openSectionIndex3 === index) {
-            this.openSectionIndex3 = -1;
-        } else {
-            this.openSectionIndex3 = index;
-        }
-    }
-    isSectionOpen(index: number): boolean {
-        return this.openSectionIndex === index;
-    }
-    isSectionOpen2(index: number): boolean {
-        return this.openSectionIndex2 === index;
-    }
-    isSectionOpen3(index: number): boolean {
-        return this.openSectionIndex3 === index;
-    }
-
+  logout(): void {
+    this.v3Auth.logout(true);
+  }
 }

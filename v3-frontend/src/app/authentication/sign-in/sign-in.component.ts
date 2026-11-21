@@ -1,80 +1,82 @@
-import {Component, inject} from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+import { finalize } from 'rxjs';
 import { CustomizerSettingsService } from '../../customizer-settings/customizer-settings.service';
-import {SHARED_IMPORTS} from "../../shared/shared-imports";
-import {FormBuilder, FormGroup, Validators} from "@angular/forms";
-import {AuthService} from "../../services/auth.service";
-import {UiStateService} from "../../services/common/ui-state.service";
-import {Router} from "@angular/router";
-import {markAllAsTouched} from "../../utils/form-validators";
-import {finalize} from "rxjs";
-import {LoadMaskService} from "../../services/common/load-mask.service";
+import { LoadMaskService } from '../../services/common/load-mask.service';
+import { UiStateService } from '../../services/common/ui-state.service';
+import { MessagesService } from '../../services/messages.service';
+import { V3UnifiedAuthService } from '../../services/v3-unified-auth.service';
+import { SHARED_IMPORTS } from '../../shared/shared-imports';
+import { markAllAsTouched } from '../../utils/form-validators';
 
 @Component({
-    selector: 'app-sign-in',
-    imports: [
-      ...SHARED_IMPORTS
-    ],
-    templateUrl: './sign-in.component.html',
-    styleUrl: './sign-in.component.scss'
+  selector: 'app-sign-in',
+  imports: [...SHARED_IMPORTS],
+  templateUrl: './sign-in.component.html',
+  styleUrl: './sign-in.component.scss',
 })
-export class SignInComponent {
-  private fb = inject(FormBuilder);
-  private authService = inject(AuthService);
-  private uiState = inject(UiStateService);
-  private router = inject(Router);
-  private maskService = inject(LoadMaskService);
+export class SignInComponent implements OnInit {
+  private readonly fb = inject(FormBuilder);
+  private readonly v3Auth = inject(V3UnifiedAuthService);
+  private readonly uiState = inject(UiStateService);
+  private readonly router = inject(Router);
+  private readonly maskService = inject(LoadMaskService);
+  private readonly messagesService = inject(MessagesService);
 
   loginForm: FormGroup;
-  // Password Show/Hide
-  password: string = '';
-  isPasswordVisible: boolean = false;
-  constructor(
-      public themeService: CustomizerSettingsService
-  ) {
+  isPasswordVisible = false;
+
+  constructor(public themeService: CustomizerSettingsService) {
     this.loginForm = this.fb.group({
-      email: ['', [Validators.required, Validators.minLength(3)]],
+      username: ['', [Validators.required, Validators.minLength(3)]],
       password: ['', [Validators.required, Validators.minLength(5)]],
-      remember_me: [false]
     });
   }
 
   ngOnInit(): void {
-    // Si el usuario ya está autenticado, lo redirige
-    if (this.authService.isAuthenticated()) {
-      this.router.navigate(['/dashboard']);
+    if (this.v3Auth.isAuthenticated()) {
+      void this.router.navigate(['/dashboard']);
     }
   }
 
-  // Getter simple para acceder a los controles en la plantilla
   get f() {
     return this.loginForm.controls;
   }
 
-  // 2. onSubmit es ahora simple y declarativo
   onSubmit(): void {
     if (this.loginForm.invalid) {
-      markAllAsTouched(this.loginForm); // Usa la función de utilidad
+      markAllAsTouched(this.loginForm);
       return;
     }
+
+    const { username, password } = this.loginForm.value as {
+      username: string;
+      password: string;
+    };
+
     this.maskService.show('messages.authenticating');
+    this.uiState.showLoader();
 
-    this.uiState.showLoader(); // Muestra el loader desde el servicio de UI
-
-    this.authService.login(this.loginForm.value).pipe(
-      // finalize se asegura que el loader se oculte siempre, en éxito o error
-      finalize(() => {
-        this.uiState.hideLoader();
-        this.maskService.hide(); // Oculta el loader de la máscara
-      })
-    ).subscribe(); // La suscripción está casi vacía, toda la lógica está en el servicio
+    this.v3Auth
+      .login(username, password)
+      .pipe(
+        finalize(() => {
+          this.uiState.hideLoader();
+          this.maskService.hide();
+        }),
+      )
+      .subscribe({
+        next: (response) => {
+          this.messagesService.showSuccess(
+            `Bienvenido(a), ${response.data.user.fullName}`,
+          );
+          void this.router.navigate(['/dashboard']);
+        },
+      });
   }
 
   togglePasswordVisibility(): void {
-      this.isPasswordVisible = !this.isPasswordVisible;
+    this.isPasswordVisible = !this.isPasswordVisible;
   }
-  onPasswordInput(event: Event): void {
-      const inputElement = event.target as HTMLInputElement;
-      this.password = inputElement.value;
-  }
-
 }

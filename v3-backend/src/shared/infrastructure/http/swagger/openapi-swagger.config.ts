@@ -1,18 +1,38 @@
 import { INestApplication } from '@nestjs/common';
 import { DocumentBuilder, OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
+import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
+
+interface CachedSwaggerAsset {
+  readonly buffer: Buffer;
+  readonly contentType: string;
+  readonly etag: string;
+}
+
+function readPackageVersion(): string {
+  try {
+    const pkgPath = path.resolve(process.cwd(), 'package.json');
+    const raw = JSON.parse(fs.readFileSync(pkgPath, 'utf8')) as {
+      version?: string;
+    };
+    return raw.version ?? '3.6.0';
+  } catch {
+    return '3.6.0';
+  }
+}
 
 /**
  * Configura y expone la documentacion interactiva OpenAPI 3.0 / Swagger
  * para el Backend SaaS Multi-Tenant de ASAIE EXODO V3 sobre Fastify 5.
  *
- * Rutas expuestas:
+ * Rutas expuestas (habilitadas en desarrollo/pruebas o cuando SWAGGER_ENABLED=true):
  * - GET /api/docs       -> Interfaz interactiva Swagger UI
  * - GET /api/docs-json  -> Especificacion OpenAPI 3.0 en formato JSON
  * - GET /api/docs-yaml  -> Especificacion OpenAPI 3.0 en formato YAML
  */
 export function buildOpenApiDocument(app: INestApplication): OpenAPIObject {
+  const apiVersion = readPackageVersion();
   const swaggerConfig = new DocumentBuilder()
     .setTitle('ASAIE ÉXODO V3 — Multi-Tenant Educational SaaS & School CRM API')
     .setDescription(
@@ -20,13 +40,13 @@ export function buildOpenApiDocument(app: INestApplication): OpenAPIObject {
         'API RESTful empresarial de **ASAIE ÉXODO V3** construida con **NestJS 11 + Fastify 5 + Arquitectura Hexagonal (Ports & Adapters)**.',
         '',
         '### Características Principales de Arquitectura:',
-        '- **Single-DB Multi-Tenant con PostgreSQL 17 RLS (`Row-Level Security`):** Aislamiento estricto por `school_id` (`app.current_school_id`).',
-        '- **Esquema 100% Normalizado (1NF, 2NF, 3NF/BCNF) en Inglés:** 135 tablas y particiones normalizadas + 55 catálogos oficiales MEN/DANE/SIMAT.',
-        '- **CRM Escolar Omnicanal + Búsqueda Semántica (`pgvector 0.8.1`):** Comunicación unificada entre Directivos, Administrativos, Docentes, Estudiantes y Padres/Acudientes, con índice vectorial HNSW (`vector(768)`) para consulta semántica de PEI, SIEE y Manual de Convivencia.',
-        '- **Continuidad 100% JasperReports (`.jrxml` / `.jasper`):** Procesamiento asíncrono sobre colas BullMQ + Redis 7.4.',
+        '- **Single-DB Multi-Tenant con PostgreSQL 17 RLS (`Row-Level Security`):** Aislamiento estricto por `school_id` (`app.current_school_id`) derivado exclusivamente del JWT verificado en servidor.',
+        '- **Esquema 100% Normalizado (1NF, 2NF, 3NF/BCNF) en Inglés:** 139 tablas y particiones normalizadas + 55 catálogos oficiales MEN/DANE/SIMAT.',
+        '- **CRM Escolar Omnicanal + Búsqueda Semántica (`pgvector 0.8.1`):** Comunicación unificada entre Directivos, Administrativos, Docentes, Estudiantes y Padres/Acudientes, con índice vectorial HNSW (`vector(768)`).',
+        '- **Continuidad JasperReports (`.jrxml` / `.jasper`):** Procesamiento asíncrono sobre colas BullMQ + Redis 7.4 con almacenamiento en AWS S3 y URLs prefirmadas.',
       ].join('\n'),
     )
-    .setVersion('3.2.0')
+    .setVersion(apiVersion)
     .setContact(
       'Equipo de Arquitectura ASAIE ÉXODO - LOPEZSOFT',
       'https://asaie.co',
@@ -38,19 +58,9 @@ export function buildOpenApiDocument(app: INestApplication): OpenAPIObject {
         scheme: 'bearer',
         bearerFormat: 'JWT',
         description:
-          'Token JWT emitido por /api/v3/auth/login o /api/v3/auth/switch-context con el contexto institucional activo.',
+          'Token JWT emitido por /api/v1/auth/login o /api/v1/auth/switch-context con el contexto institucional y sesión activa.',
       },
       'jwt-auth',
-    )
-    .addApiKey(
-      {
-        type: 'apiKey',
-        in: 'header',
-        name: 'x-school-id',
-        description:
-          'Identificador numérico de la Institución Educativa activa (Tenant RLS en PostgreSQL 17).',
-      },
-      'tenant-school-header',
     )
     .addTag(
       'Tenants & Schools',
@@ -58,23 +68,23 @@ export function buildOpenApiDocument(app: INestApplication): OpenAPIObject {
     )
     .addTag(
       'IAM & Community Auth',
-      'Autenticación unificada y cambio de contexto multi-colegio / multi-rol (Directivo, Administrativo, Docente, Estudiante, Acudiente)',
+      'Autenticación unificada, gestión de sesiones y cambio de contexto multi-colegio / multi-rol',
     )
     .addTag(
       'Academic Grading & Bulletins',
-      'Calificaciones periódicas, cálculo ponderado de definitivas y boletines académicos',
+      'Calificaciones periódicas, cálculo ponderado de definitivas, preinformes y boletines académicos',
     )
     .addTag(
       'School CRM & Vector AI (pgvector)',
-      'CRM Escolar Omnicanal (Conversaciones, Circulares, PQRSD) y Búsqueda Semántica Vectorial con pgvector (PEI, SIEE, Convivencia)',
+      'CRM Escolar Omnicanal (Conversaciones, Mensajes, Circulares, PQRSD) y Búsqueda Semántica Vectorial con pgvector',
     )
     .addTag(
       'Cloud Storage & AWS S3 Files',
-      'Almacenamiento en AWS S3 por carpeta institucional (schools.storage_folder), URLs prefirmadas y gestión de cloud_files bajo RLS',
+      'Almacenamiento en AWS S3 por carpeta institucional (schools.storage_folder), carga multipart, URLs prefirmadas y cloud_files bajo RLS',
     )
     .addTag(
       'JasperReports Engine',
-      'Generación asíncrona de reportes oficiales (.jrxml / .jasper) mediante BullMQ y Redis 7.4',
+      'Generación asíncrona de reportes oficiales (.jrxml / .jasper) mediante BullMQ, Redis 7.4 y AWS S3',
     )
     .build();
 
@@ -84,7 +94,6 @@ export function buildOpenApiDocument(app: INestApplication): OpenAPIObject {
 export function setupOpenApiSwagger(app: INestApplication): OpenAPIObject {
   const document = buildOpenApiDocument(app);
 
-  // Registra /api/docs-json y /api/docs-yaml nativamente en @nestjs/swagger
   SwaggerModule.setup('api/docs', app, document, {
     ui: false,
     raw: ['json', 'yaml'],
@@ -97,16 +106,26 @@ export function setupOpenApiSwagger(app: INestApplication): OpenAPIObject {
     require.resolve('swagger-ui-dist/package.json'),
   );
 
-  const allowedAssets: Record<string, string> = {
-    'swagger-ui.css': 'text/css; charset=utf-8',
-    'swagger-ui-bundle.js': 'application/javascript; charset=utf-8',
-    'swagger-ui-standalone-preset.js': 'application/javascript; charset=utf-8',
-    'favicon-32x32.png': 'image/png',
-    'favicon-16x16.png': 'image/png',
-  };
+  // Precargar los 5 assets permitidos en un Map en memoria (evita I/O sincrono por request y prototype pollution)
+  const assetDefinitions: ReadonlyArray<[string, string]> = [
+    ['swagger-ui.css', 'text/css; charset=utf-8'],
+    ['swagger-ui-bundle.js', 'application/javascript; charset=utf-8'],
+    ['swagger-ui-standalone-preset.js', 'application/javascript; charset=utf-8'],
+    ['favicon-32x32.png', 'image/png'],
+    ['favicon-16x16.png', 'image/png'],
+  ];
 
-  httpAdapter.get('/api/docs', (_req: unknown, reply: any) => {
-    const html = `<!DOCTYPE html>
+  const cachedAssets = new Map<string, CachedSwaggerAsset>();
+  for (const [fileName, contentType] of assetDefinitions) {
+    const assetPath = path.join(swaggerDistDir, fileName);
+    if (fs.existsSync(assetPath)) {
+      const buffer = fs.readFileSync(assetPath);
+      const etag = `"${crypto.createHash('sha256').update(buffer).digest('hex').slice(0, 16)}"`;
+      cachedAssets.set(fileName, { buffer, contentType, etag });
+    }
+  }
+
+  const swaggerHtml = `<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
@@ -138,23 +157,29 @@ export function setupOpenApiSwagger(app: INestApplication): OpenAPIObject {
   </script>
 </body>
 </html>`;
-    reply.header('Content-Type', 'text/html; charset=utf-8').send(html);
+
+  httpAdapter.get('/api/docs', (_req: unknown, reply: any) => {
+    reply.header('Content-Type', 'text/html; charset=utf-8').send(swaggerHtml);
   });
 
   httpAdapter.get('/api/docs/assets/:file', (req: any, reply: any) => {
     const requestedFile = String(req.params?.file ?? '');
-    const contentType = allowedAssets[requestedFile];
-    if (!contentType) {
+    const asset = cachedAssets.get(requestedFile);
+    if (!asset) {
       reply.code(404).send({ statusCode: 404, message: 'Asset no encontrado' });
       return;
     }
-    const assetPath = path.join(swaggerDistDir, requestedFile);
-    if (!fs.existsSync(assetPath)) {
-      reply.code(404).send({ statusCode: 404, message: 'Asset no existe' });
+
+    if (req.headers?.['if-none-match'] === asset.etag) {
+      reply.code(304).send();
       return;
     }
-    const content = fs.readFileSync(assetPath);
-    reply.header('Content-Type', contentType).send(content);
+
+    reply
+      .header('Content-Type', asset.contentType)
+      .header('ETag', asset.etag)
+      .header('Cache-Control', 'public, max-age=86400, immutable')
+      .send(asset.buffer);
   });
 
   return document;

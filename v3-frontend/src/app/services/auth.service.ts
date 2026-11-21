@@ -211,7 +211,7 @@ export class AuthService {
         if (response.success) {
           this.messagesService.showInfo(response.message);
           setTimeout(() => {
-            this.router.navigate(['/auth/sign-in']);
+            this.router.navigate(['/auth']);
           }, 2000);
         } else {
           this.messagesService.showAlertError('Error', response.message);

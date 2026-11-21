@@ -140,6 +140,15 @@
       "returnToAccessPanel" : "Ir al panel de acceso",
       "changeModule"        : "Cambiar de módulo"
     },
+    "admin": {
+      "title"         : "Administrativo",
+      "hub"           : "Panel Administrativo",
+      "school"        : "Datos del Plantel",
+      "campuses"      : "Sedes Educativas",
+      "teachers"      : "Personal Docente",
+      "staff"         : "Personal Administrativo",
+      "groupManagers" : "Directores de Grupo"
+    },
     "student"   : {
       "academicNote"      : "Notas Académicas",
       "academicReport"    : "Informes Académicos",

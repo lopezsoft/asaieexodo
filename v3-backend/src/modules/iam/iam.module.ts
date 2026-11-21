@@ -19,7 +19,7 @@ import { CryptoPasswordHasherAdapter } from './infrastructure/security/crypto-pa
           'asaie-v3-super-secret-development-key-change-in-production',
         ),
         signOptions: {
-          expiresIn: '8h',
+          expiresIn: config.get<string>('JWT_EXPIRES_IN', '8h') as any,
         },
       }),
     }),
@@ -37,6 +37,7 @@ import { CryptoPasswordHasherAdapter } from './infrastructure/security/crypto-pa
     },
   ],
   exports: [
+    JwtModule,
     AuthenticateCommunityUserUseCase,
     CommunityUserRepositoryPort,
     PasswordHasherPort,

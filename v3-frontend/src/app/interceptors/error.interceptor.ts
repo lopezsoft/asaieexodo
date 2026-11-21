@@ -1,55 +1,79 @@
-// src/app/interceptors/error.interceptor.ts
-
-import { HttpErrorResponse, HttpHandlerFn, HttpRequest } from '@angular/common/http';
+import {
+  HttpErrorResponse,
+  HttpHandlerFn,
+  HttpRequest,
+} from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 import { MessagesService } from '../services/messages.service';
-import { AuthService } from '../services/auth.service';
+import { V3UnifiedAuthService } from '../services/v3-unified-auth.service';
 
-export function errorInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn) {
-  // Inyecta los servicios necesarios
+const PUBLIC_AUTH_ENDPOINTS = [
+  '/auth/login',
+  '/auth/forgot-password',
+  '/auth/reset-password',
+  '/auth/confirm-email',
+];
+
+export function errorInterceptor(
+  req: HttpRequest<unknown>,
+  next: HttpHandlerFn,
+) {
   const messagesService = inject(MessagesService);
-  const authService = inject(AuthService);
+  const v3Auth = inject(V3UnifiedAuthService);
   const router = inject(Router);
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
-      // Caso especial: Ignorar errores de un endpoint específico como un health check
       if (error.url?.includes('/health')) {
         return throwError(() => error);
       }
 
-      // Manejo de errores de autenticación y autorización
-      switch (error.status) {
-        case 401: // No autorizado (token inválido, expirado o no existe)
-          messagesService.showError('Tu sesión ha expirado o no es válida.');
-          authService.logout(); // El servicio de auth se encarga de limpiar y redirigir
-          break;
+      const isPublicAuthRequest = PUBLIC_AUTH_ENDPOINTS.some((endpoint) =>
+        req.url.includes(endpoint),
+      );
 
-        case 403: // Prohibido (autenticado pero sin permisos)
-          messagesService.showError('No tienes permiso para acceder a este recurso.');
-          router.navigate(['/auth/not-authorized']); // O a una página de "acceso denegado"
-          break;
+      if (error.status === 401 && !isPublicAuthRequest) {
+        messagesService.showError(
+          'Tu sesión ha expirado o no es válida. Inicia sesión nuevamente.',
+        );
+        v3Auth.clearLocalSession();
+        void router.navigate(['/auth']);
+        return throwError(() => error);
       }
 
-      // Para todos los demás errores (404, 500, etc.), muestra un mensaje genérico.
-      let errorMessage = 'Ocurrió un error inesperado.';
-
-      // Usa la lógica de parseo mejorada que discutimos
-      if (error.error?.errors && typeof error.error.errors === 'object') {
-        const fieldErrors = Object.values(error.error.errors);
-        if (fieldErrors.length > 0) {
-          const firstErrorArray = fieldErrors[0] as string[];
-          errorMessage = firstErrorArray.length > 0 ? firstErrorArray[0] : errorMessage;
-        }
-      } else if (error.error?.message && typeof error.error.message === 'string') {
-        errorMessage = error.error.message;
+      if (error.status === 403) {
+        messagesService.showError(
+          'No tienes permisos suficientes para acceder a este recurso.',
+        );
+        void router.navigate(['/auth/not-authorized']);
+        return throwError(() => error);
       }
 
+      const errorMessage = extractErrorMessage(error);
       messagesService.showError(errorMessage);
-      // Relanza el error para que los suscriptores puedan reaccionar si es necesario
       return throwError(() => error);
-    })
+    }),
   );
+}
+
+function extractErrorMessage(error: HttpErrorResponse): string {
+  const rawMessage = error.error?.message;
+  if (Array.isArray(rawMessage) && rawMessage.length > 0) {
+    return String(rawMessage[0]);
+  }
+  if (typeof rawMessage === 'string' && rawMessage.trim().length > 0) {
+    return rawMessage;
+  }
+  if (error.error?.errors && typeof error.error.errors === 'object') {
+    const fieldErrors = Object.values(
+      error.error.errors as Record<string, unknown>,
+    );
+    const first = fieldErrors[0];
+    if (Array.isArray(first) && first.length > 0) {
+      return String(first[0]);
+    }
+  }
+  return 'Ocurrió un error inesperado al comunicarse con el servidor.';
 }

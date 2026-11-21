@@ -1,35 +1,116 @@
-import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Patch,
+  Post,
+  Req,
+} from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOperation,
   ApiProperty,
+  ApiPropertyOptional,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { IsInt, IsNotEmpty, IsString, MinLength } from 'class-validator';
 import {
-  AuthenticateCommunityUserUseCase,
-  LoginCredentialsInput,
-} from '../../application/use-cases/authenticate-community-user.use-case';
+  IsEmail,
+  IsEnum,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Matches,
+  Max,
+  MaxLength,
+  Min,
+  MinLength,
+} from 'class-validator';
+import { FastifyRequest } from 'fastify';
+import { ActiveTenantContext } from '../../../../shared/application/context/tenant-context.service';
+import {
+  CurrentUser,
+  Public,
+  RateLimit,
+} from '../../../../shared/infrastructure/http/decorators/security.decorators';
+import { AuthenticateCommunityUserUseCase } from '../../application/use-cases/authenticate-community-user.use-case';
 import { CommunityRole } from '../../domain/enums/community-role.enum';
 
-interface SwitchContextDto {
-  readonly userId: number;
-  readonly schoolId: number;
-  readonly role: CommunityRole;
-  readonly academicYear?: number;
+export class LoginCredentialsRequestDto {
+  @ApiProperty({
+    example: 'admin.comunidad',
+    description: 'Nombre de usuario o número de documento de identidad',
+  })
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(100)
+  username!: string;
+
+  @ApiProperty({
+    example: 'Asaie2026*',
+    description: 'Contraseña de acceso',
+  })
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(128)
+  password!: string;
+
+  @ApiPropertyOptional({
+    example: 1,
+    description: 'ID opcional de la institución educativa inicial',
+  })
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  preferredSchoolId?: number;
+
+  @ApiPropertyOptional({
+    enum: CommunityRole,
+    description: 'Rol institucional inicial deseado',
+  })
+  @IsOptional()
+  @IsEnum(CommunityRole)
+  preferredRole?: CommunityRole;
 }
 
-export class RequestEmailConfirmationDto {
-  @ApiProperty({ example: 1, description: 'ID del usuario que solicita confirmar su correo' })
+export class SwitchContextRequestDto {
+  @ApiProperty({
+    example: 7,
+    description: 'ID del colegio destino al cual pertenece el usuario autenticado',
+  })
   @IsInt()
-  userId!: number;
+  @Min(1)
+  schoolId!: number;
+
+  @ApiProperty({
+    enum: CommunityRole,
+    example: CommunityRole.FAMILY,
+    description: 'Rol destino autorizado para el usuario autenticado en el colegio',
+  })
+  @IsEnum(CommunityRole)
+  role!: CommunityRole;
+
+  @ApiPropertyOptional({
+    example: 2026,
+    description: 'Año lectivo de trabajo (opcional)',
+  })
+  @IsOptional()
+  @IsInt()
+  @Min(1990)
+  @Max(2100)
+  academicYear?: number;
 }
 
 export class ConfirmEmailTokenDto {
-  @ApiProperty({ description: 'Token JWT de confirmación enviado al correo mediante Nodemailer' })
+  @ApiProperty({
+    description: 'Token criptográfico de un solo uso enviado al correo mediante Nodemailer',
+  })
   @IsString()
   @IsNotEmpty()
+  @MaxLength(512)
   token!: string;
 }
 
@@ -40,35 +121,102 @@ export class ForgotPasswordRequestDto {
   })
   @IsString()
   @IsNotEmpty()
+  @MaxLength(100)
   identifier!: string;
 }
 
 export class ResetPasswordRequestDto {
-  @ApiProperty({ description: 'Token temporal de recuperación recibido por correo (30 min)' })
+  @ApiProperty({
+    description: 'Token temporal de un solo uso recibido por correo (30 min)',
+  })
   @IsString()
   @IsNotEmpty()
+  @MaxLength(512)
   resetToken!: string;
 
-  @ApiProperty({ example: 'Asaie2026*', description: 'Nueva contraseña segura' })
+  @ApiProperty({ example: 'Asaie2026*', description: 'Nueva contraseña segura (8-128 caracteres)' })
   @IsString()
   @MinLength(8)
+  @MaxLength(128)
   newPassword!: string;
 }
 
 export class ChangePasswordRequestDto {
-  @ApiProperty({ example: 1, description: 'ID del usuario autenticado' })
-  @IsInt()
-  userId!: number;
-
   @ApiProperty({ example: 'Asaie2026*', description: 'Contraseña actual' })
   @IsString()
   @IsNotEmpty()
+  @MaxLength(128)
   currentPassword!: string;
 
-  @ApiProperty({ example: 'Asaie2026*', description: 'Nueva contraseña' })
+  @ApiProperty({ example: 'Asaie2026#Nueva', description: 'Nueva contraseña (8-128 caracteres)' })
   @IsString()
   @MinLength(8)
+  @MaxLength(128)
   newPassword!: string;
+}
+
+export class UpdateOwnProfileRequestDto {
+  @ApiProperty({ example: 'Carlos', description: 'Primer nombre' })
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  @MaxLength(80)
+  firstName!: string;
+
+  @ApiPropertyOptional({ example: 'Andrés', description: 'Segundo nombre' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(80)
+  middleName?: string | null;
+
+  @ApiProperty({ example: 'López', description: 'Primer apellido' })
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  @MaxLength(80)
+  lastName!: string;
+
+  @ApiPropertyOptional({ example: 'Martínez', description: 'Segundo apellido' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(80)
+  secondLastName?: string | null;
+
+  @ApiPropertyOptional({ example: 'usuario@colegio.edu.co', description: 'Correo electrónico' })
+  @IsOptional()
+  @IsEmail()
+  @MaxLength(255)
+  email?: string | null;
+
+  @ApiPropertyOptional({ example: '3001234567', description: 'Teléfono de contacto' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(40)
+  phone?: string | null;
+
+  @ApiPropertyOptional({ description: 'URL pública o clave S3 del avatar' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(1024)
+  avatarUrl?: string | null;
+}
+
+export class ChangeUsernameRequestDto {
+  @ApiProperty({ example: 'Asaie2026*', description: 'Contraseña actual para confirmar el cambio' })
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(128)
+  currentPassword!: string;
+
+  @ApiProperty({ example: 'rector.principal', description: 'Nuevo nombre de usuario (3-100 caracteres)' })
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(3)
+  @MaxLength(100)
+  @Matches(/^[a-zA-Z0-9._@-]+$/, {
+    message: 'El nombre de usuario solo permite letras, números y los símbolos . _ @ -',
+  })
+  newUsername!: string;
 }
 
 @ApiTags('IAM & Community Auth')
@@ -78,47 +226,30 @@ export class IamController {
     private readonly authUseCase: AuthenticateCommunityUserUseCase,
   ) {}
 
+  @Public()
+  @RateLimit(10, 60)
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Iniciar sesión unificada para toda la Comunidad Educativa',
     description:
-      'Autentica a Directivos, Administrativos, Docentes, Estudiantes y Padres/Acudientes retornando su sesión activa y todas sus membresías (`user_school_memberships`) en múltiples colegios.',
+      'Autentica a Directivos, Administrativos, Docentes, Estudiantes y Padres/Acudientes retornando su sesión activa persistida en `auth_sessions`, token JWT firmado y membresías en múltiples colegios.',
   })
   @ApiResponse({
     status: 200,
     description: 'Autenticación exitosa con token JWT y membresías multi-colegio.',
   })
   async login(
-    @Body() body: LoginCredentialsInput,
+    @Body() body: LoginCredentialsRequestDto,
+    @Req() request: FastifyRequest,
   ): Promise<Record<string, unknown>> {
-    const session = await this.authUseCase.login(body);
-    return {
-      success: true,
-      data: session,
-    };
-  }
-
-  @Post('switch-context')
-  @HttpCode(HttpStatus.OK)
-  @ApiBearerAuth('jwt-auth')
-  @ApiOperation({
-    summary: 'Cambiar de Colegio o Rol sin cerrar sesión (Context Switcher)',
-    description:
-      'Permite que un usuario que pertenece a múltiples colegios (ej. Docente en Colegio A y Acudiente en Colegio B) cambie su contexto activo (`school_id`, `role`, `academic_year`) emitiendo un nuevo JWT para RLS.',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Contexto institucional y rol actualizados exitosamente.',
-  })
-  async switchSchoolContext(
-    @Body() body: SwitchContextDto,
-  ): Promise<Record<string, unknown>> {
-    const session = await this.authUseCase.switchSchoolContext({
-      userId: BigInt(body.userId),
-      schoolId: BigInt(body.schoolId),
-      role: body.role,
-      academicYear: body.academicYear,
+    const session = await this.authUseCase.login({
+      username: body.username,
+      password: body.password,
+      preferredSchoolId: body.preferredSchoolId,
+      preferredRole: body.preferredRole,
+      ipAddress: request.ip,
+      userAgent: String(request.headers['user-agent'] ?? ''),
     });
     return {
       success: true,
@@ -126,38 +257,137 @@ export class IamController {
     };
   }
 
+  @Get('me')
+  @ApiBearerAuth('jwt-auth')
+  @ApiOperation({
+    summary: 'Consultar perfil y contexto institucional activo del usuario autenticado',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Perfil y membresías vigentes del usuario autenticado.',
+  })
+  async getAuthenticatedProfile(
+    @CurrentUser() principal: ActiveTenantContext,
+  ): Promise<Record<string, unknown>> {
+    const profile = await this.authUseCase.getAuthenticatedProfile({
+      userId: principal.userId,
+      activeSchoolId: principal.schoolId,
+      activeRole: principal.activeRole,
+      academicYear: principal.academicYear,
+      sessionId: principal.sessionId,
+    });
+    return {
+      success: true,
+      data: profile,
+    };
+  }
+
+  @Post('switch-context')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth('jwt-auth')
+  @ApiOperation({
+    summary: 'Cambiar de Colegio o Rol sin cerrar sesión (Context Switcher seguro)',
+    description:
+      'Exige JWT válido y deriva `userId` exclusivamente del token autenticado. Verifica membresía en BD, rota `auth_sessions` y emite un nuevo JWT para RLS.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Contexto institucional y rol actualizados exitosamente.',
+  })
+  async switchSchoolContext(
+    @CurrentUser() principal: ActiveTenantContext,
+    @Body() body: SwitchContextRequestDto,
+    @Req() request: FastifyRequest,
+  ): Promise<Record<string, unknown>> {
+    const session = await this.authUseCase.switchSchoolContext({
+      userId: principal.userId,
+      currentSchoolId: principal.schoolId,
+      currentSessionId: principal.sessionId,
+      schoolId: BigInt(body.schoolId),
+      role: body.role,
+      academicYear: body.academicYear,
+      ipAddress: request.ip,
+      userAgent: String(request.headers['user-agent'] ?? ''),
+    });
+    return {
+      success: true,
+      data: session,
+    };
+  }
+
+  @Post('logout')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth('jwt-auth')
+  @ApiOperation({
+    summary: 'Cerrar la sesión activa revocándola inmediatamente en auth_sessions',
+  })
+  @ApiResponse({ status: 200, description: 'Sesión revocada exitosamente.' })
+  async logout(
+    @CurrentUser() principal: ActiveTenantContext,
+  ): Promise<Record<string, unknown>> {
+    const result = await this.authUseCase.logoutSession({
+      schoolId: principal.schoolId,
+      sessionId: principal.sessionId,
+    });
+    return {
+      success: true,
+      data: result,
+    };
+  }
+
+  @Post('logout-all')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth('jwt-auth')
+  @ApiOperation({
+    summary: 'Cerrar todas las sesiones activas del usuario en todos los colegios',
+  })
+  @ApiResponse({ status: 200, description: 'Todas las sesiones fueron revocadas.' })
+  async logoutAll(
+    @CurrentUser() principal: ActiveTenantContext,
+  ): Promise<Record<string, unknown>> {
+    const result = await this.authUseCase.logoutAllSessions(principal.userId);
+    return {
+      success: true,
+      data: result,
+    };
+  }
+
+  @RateLimit(3, 300)
   @Post('request-email-confirmation')
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth('jwt-auth')
   @ApiOperation({
-    summary: 'Enviar correo de confirmación de cuenta mediante Nodemailer SMTP',
+    summary: 'Enviar correo de confirmación de cuenta del usuario autenticado (Nodemailer)',
     description:
-      'Genera un token firmado por 24 horas y envía la plantilla institucional de verificación de correo a través de `NodemailerSmtpMailAdapter`.',
+      'Emite un token de un solo uso (24h) para el usuario autenticado en el JWT y lo envía mediante `NodemailerSmtpMailAdapter`.',
   })
   @ApiResponse({
     status: 200,
-    description: 'Correo de confirmación enviado exitosamente.',
+    description: 'Correo de confirmación procesado exitosamente.',
   })
   async requestEmailConfirmation(
-    @Body() dto: RequestEmailConfirmationDto,
+    @CurrentUser() principal: ActiveTenantContext,
+    @Req() request: FastifyRequest,
   ): Promise<Record<string, unknown>> {
     const result = await this.authUseCase.requestEmailConfirmation(
-      BigInt(dto.userId),
+      principal.userId,
+      request.ip,
     );
     return {
       success: true,
       data: {
-        mailDelivery: result.mailDelivery,
+        delivered: result.mailDelivery.delivered,
+        templateType: result.mailDelivery.templateType,
       },
     };
   }
 
+  @Public()
+  @RateLimit(10, 60)
   @Post('confirm-email')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary: 'Confirmar dirección de correo electrónico mediante token',
-    description:
-      'Verifica el token firmado enviado por correo y registra `email_verified_at` en la tabla `users`.',
+    summary: 'Confirmar dirección de correo electrónico mediante token de un solo uso',
   })
   @ApiResponse({
     status: 200,
@@ -173,42 +403,48 @@ export class IamController {
     };
   }
 
+  @Public()
+  @RateLimit(5, 300)
   @Post('forgot-password')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary: 'Solicitar recuperación de contraseña por correo (Nodemailer SMTP)',
+    summary: 'Solicitar recuperación de contraseña por correo (anti-enumeración)',
     description:
-      'Genera un enlace temporal válido por 30 minutos y lo envía al correo registrado del miembro de la comunidad educativa mediante `NodemailerSmtpMailAdapter`.',
+      'Si la cuenta existe y posee correo registrado, envía un enlace de un solo uso válido por 30 minutos. Siempre retorna respuesta genérica para evitar enumeración de cuentas.',
   })
   @ApiResponse({
     status: 200,
-    description: 'Enlace de recuperación enviado al correo registrado.',
+    description: 'Solicitud de recuperación procesada.',
   })
   async forgotPassword(
     @Body() dto: ForgotPasswordRequestDto,
+    @Req() request: FastifyRequest,
   ): Promise<Record<string, unknown>> {
     const result = await this.authUseCase.requestPasswordReset({
       identifier: dto.identifier,
+      requestedIp: request.ip,
     });
     return {
       success: true,
       data: {
+        accepted: result.accepted,
         expiresInMinutes: result.expiresInMinutes,
-        mailDelivery: result.mailDelivery,
+        message:
+          'Si la cuenta existe y cuenta con un correo registrado, recibirás las instrucciones de recuperación en los próximos minutos.',
       },
     };
   }
 
+  @Public()
+  @RateLimit(5, 300)
   @Post('reset-password')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary: 'Restablecer contraseña con token temporal y enviar alerta por correo',
-    description:
-      'Valida el token temporal de recuperación, actualiza el hash `scrypt` en `users` y envía una alerta de seguridad por correo mediante `NodemailerSmtpMailAdapter`.',
+    summary: 'Restablecer contraseña con token temporal de un solo uso y revocar sesiones',
   })
   @ApiResponse({
     status: 200,
-    description: 'Contraseña restablecida y alerta enviada por correo.',
+    description: 'Contraseña restablecida, sesiones revocadas y alerta enviada por correo.',
   })
   async resetPassword(
     @Body() dto: ResetPasswordRequestDto,
@@ -219,7 +455,11 @@ export class IamController {
     });
     return {
       success: true,
-      data: result,
+      data: {
+        updated: result.updated,
+        userId: result.userId,
+        alertDelivered: result.mailDelivery?.delivered ?? false,
+      },
     };
   }
 
@@ -227,25 +467,76 @@ export class IamController {
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth('jwt-auth')
   @ApiOperation({
-    summary: 'Cambiar contraseña autenticada y notificar alerta por correo (Nodemailer)',
-    description:
-      'Verifica la contraseña actual del usuario, actualiza su clave y dispara una notificación automática de seguridad al correo institucional.',
+    summary: 'Cambiar contraseña del usuario autenticado y notificar alerta por correo',
   })
   @ApiResponse({
     status: 200,
-    description: 'Contraseña actualizada y notificación de seguridad enviada.',
+    description: 'Contraseña actualizada y sesiones secundarias revocadas.',
   })
   async changePassword(
+    @CurrentUser() principal: ActiveTenantContext,
     @Body() dto: ChangePasswordRequestDto,
   ): Promise<Record<string, unknown>> {
     const result = await this.authUseCase.changePassword({
-      userId: BigInt(dto.userId),
+      userId: principal.userId,
+      currentSessionId: principal.sessionId,
       currentPassword: dto.currentPassword,
       newPassword: dto.newPassword,
     });
     return {
       success: true,
-      data: result,
+      data: {
+        updated: result.updated,
+        alertDelivered: result.mailDelivery?.delivered ?? false,
+      },
+    };
+  }
+
+  @Patch('me')
+  @ApiBearerAuth('jwt-auth')
+  @ApiOperation({
+    summary: 'Actualizar datos básicos y avatar del perfil del usuario autenticado',
+  })
+  @ApiResponse({ status: 200, description: 'Perfil actualizado exitosamente.' })
+  async updateOwnProfile(
+    @CurrentUser() principal: ActiveTenantContext,
+    @Body() dto: UpdateOwnProfileRequestDto,
+  ): Promise<Record<string, unknown>> {
+    const profile = await this.authUseCase.updateOwnProfile({
+      userId: principal.userId,
+      firstName: dto.firstName,
+      middleName: dto.middleName,
+      lastName: dto.lastName,
+      secondLastName: dto.secondLastName,
+      email: dto.email,
+      phone: dto.phone,
+      avatarUrl: dto.avatarUrl,
+    });
+    return {
+      success: true,
+      data: profile,
+    };
+  }
+
+  @Patch('username')
+  @RateLimit(5, 300)
+  @ApiBearerAuth('jwt-auth')
+  @ApiOperation({
+    summary: 'Cambiar nombre de usuario verificando la contraseña actual',
+  })
+  @ApiResponse({ status: 200, description: 'Nombre de usuario actualizado.' })
+  async changeUsername(
+    @CurrentUser() principal: ActiveTenantContext,
+    @Body() dto: ChangeUsernameRequestDto,
+  ): Promise<Record<string, unknown>> {
+    const profile = await this.authUseCase.changeOwnUsername({
+      userId: principal.userId,
+      currentPassword: dto.currentPassword,
+      newUsername: dto.newUsername,
+    });
+    return {
+      success: true,
+      data: profile,
     };
   }
 }

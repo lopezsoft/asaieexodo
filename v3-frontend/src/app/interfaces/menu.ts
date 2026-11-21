@@ -1,4 +1,4 @@
-import {Role} from "../enums/profiel-enum";
+import { CommunityRole } from '../services/v3-unified-auth.service';
 
 export interface Menu {
   id: number;
@@ -9,6 +9,6 @@ export interface Menu {
   isExternal?: boolean;
   order?: number;
   active: boolean;
-  roles?: Role[];
+  roles?: CommunityRole[];
   subItems?: Menu[];
 }

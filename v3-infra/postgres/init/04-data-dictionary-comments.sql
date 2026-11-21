@@ -354,7 +354,7 @@ COMMENT ON COLUMN achievement_standards.national_scale_id IS 'Identificador del 
 COMMENT ON COLUMN achievement_standards.academic_year IS 'Año lectivo escolar de cuatro dígitos al cual pertenece el registro (ej. 2025, 2026, 2027).';
 COMMENT ON COLUMN achievement_standards.period_number IS 'Número secuencial del periodo académico dentro del año lectivo (1, 2, 3, 4).';
 COMMENT ON COLUMN achievement_standards.code IS 'Código alfanumérico corto estandarizado del registro.';
-COMMENT ON COLUMN achievement_standards.indicator_type IS 'Tipo de indicador pedagógico (LOGRO, FORTALEZA, DIFICULTAD, RECOMENDACION, COMPETENCIA).';
+COMMENT ON COLUMN achievement_standards.indicator_type IS 'Tipo de indicador pedagógico normalizado en inglés (ACHIEVEMENT, STRENGTH, DIFFICULTY, RECOMMENDATION, COMPETENCY).';
 COMMENT ON COLUMN achievement_standards.description IS 'Descripción detallada del registro o elemento.';
 COMMENT ON COLUMN achievement_standards.is_active IS 'Indica si el registro se encuentra activo y habilitado para operaciones (TRUE/FALSE).';
 COMMENT ON COLUMN achievement_standards.created_at IS 'Fecha y hora exacta (TIMESTAMPTZ) de creación del registro en la base de datos.';
@@ -1225,7 +1225,7 @@ COMMENT ON COLUMN staff_categories.name IS 'Nombre descriptivo oficial del regis
 -- Tabla: staff_positions (Dominio 1: Catálogos Estáticos y Configuración Oficial (MEN / DANE / SIMAT))
 COMMENT ON TABLE staff_positions IS 'Catálogo de cargos institucionales (Rector, Coordinador, Docente de Aula, Orientador, Secretario, Bibliotecario).';
 COMMENT ON COLUMN staff_positions.id IS 'Identificador único del registro en la tabla (clave primaria o parte de la clave primaria compuesta).';
-COMMENT ON COLUMN staff_positions.category_id IS 'Identificador de la categoría del ticket o cargo (referencia al catálogo respectivo).';
+COMMENT ON COLUMN staff_positions.category_id IS 'Identificador de la categoría de personal a la que pertenece el cargo (referencia a staff_categories).';
 COMMENT ON COLUMN staff_positions.name IS 'Nombre descriptivo oficial del registro.';
 
 -- Tabla: staff_ranks (Dominio 1: Catálogos Estáticos y Configuración Oficial (MEN / DANE / SIMAT))
@@ -1465,11 +1465,11 @@ COMMENT ON COLUMN user_profiles_catalog.icon_class IS 'Clase de icono visual aso
 COMMENT ON COLUMN user_profiles_catalog.is_active IS 'Indica si el registro se encuentra activo y habilitado para operaciones (TRUE/FALSE).';
 
 -- Tabla: user_school_memberships (Dominio 2: Multi-Tenancy (Colegios), IAM, Sesiones, Almacenamiento S3 y Auditoría)
-COMMENT ON TABLE user_school_memberships IS 'Membresías multi-colegio y multi-rol que vinculan a un usuario global (users) con uno o varios colegios (schools) y roles específicos (RECTOR, COORDINATOR, TEACHER, STUDENT, FAMILY, STAFF).';
+COMMENT ON TABLE user_school_memberships IS 'Membresías multi-colegio y multi-rol que vinculan a un usuario global (users) con uno o varios colegios (schools) y roles específicos (SUPER_ADMIN, SCHOOL_ADMIN, RECTOR, COORDINATOR, SECRETARY, TEACHER, STUDENT, FAMILY, MONITOR).';
 COMMENT ON COLUMN user_school_memberships.id IS 'Identificador único del registro en la tabla (clave primaria o parte de la clave primaria compuesta).';
 COMMENT ON COLUMN user_school_memberships.school_id IS 'Identificador de la Institución Educativa propietaria del registro (clave de particionamiento lógico y aislamiento Row-Level Security RLS).';
 COMMENT ON COLUMN user_school_memberships.user_id IS 'Identificador del usuario global de la comunidad educativa en la tabla users.';
-COMMENT ON COLUMN user_school_memberships.role IS 'Rol institucional asignado al usuario en el colegio (RECTOR, COORDINATOR, TEACHER, STUDENT, FAMILY, STAFF).';
+COMMENT ON COLUMN user_school_memberships.role IS 'Rol institucional asignado al usuario dentro del colegio (SUPER_ADMIN, SCHOOL_ADMIN, RECTOR, COORDINATOR, SECRETARY, TEACHER, STUDENT, FAMILY, MONITOR).';
 COMMENT ON COLUMN user_school_memberships.profile_id IS 'Referencia opcional al catálogo de perfiles visuales (user_profiles_catalog).';
 COMMENT ON COLUMN user_school_memberships.is_default_school IS 'Indica si esta institución educativa es el colegio predeterminado al iniciar sesión.';
 COMMENT ON COLUMN user_school_memberships.status IS 'Estado operativo actual del registro dentro de su flujo de ciclo de vida.';
@@ -1538,5 +1538,97 @@ COMMENT ON COLUMN work_time_allocations.name IS 'Nombre descriptivo oficial del 
 COMMENT ON TABLE workplace_locations IS 'Catálogo de ubicaciones laborales del personal dentro de la estructura escolar.';
 COMMENT ON COLUMN workplace_locations.id IS 'Identificador único del registro en la tabla (clave primaria o parte de la clave primaria compuesta).';
 COMMENT ON COLUMN workplace_locations.name IS 'Nombre descriptivo oficial del registro.';
+
+
+-- =============================================================================
+-- ACTUALIZACIONES DE DICCIONARIO DE DATOS (AUDITORIA V3.7: NUEVAS TABLAS, PARTICIONES Y COLUMNAS)
+-- =============================================================================
+
+-- Tabla: user_security_tokens (Dominio 2: Multi-Tenancy (Colegios), IAM, Sesiones, Almacenamiento S3 y Auditoría)
+COMMENT ON TABLE user_security_tokens IS 'Tokens criptográficos de un solo uso con hash SHA-256 para verificación de correo electrónico, restablecimiento de contraseña, desafíos MFA e invitaciones de comunidad educativa.';
+COMMENT ON COLUMN user_security_tokens.id IS 'Identificador UUID único del registro de token de seguridad.';
+COMMENT ON COLUMN user_security_tokens.user_id IS 'Identificador global del usuario propietario del token de seguridad (referencia a users).';
+COMMENT ON COLUMN user_security_tokens.token_type IS 'Propósito del token de un solo uso (EMAIL_VERIFICATION, PASSWORD_RESET, MFA_CHALLENGE, INVITATION).';
+COMMENT ON COLUMN user_security_tokens.token_hash IS 'Resumen criptográfico SHA-256 del token emitido para validación segura sin almacenar el secreto en texto plano.';
+COMMENT ON COLUMN user_security_tokens.target_email IS 'Dirección de correo electrónico objetivo asociada al momento de emitir el token.';
+COMMENT ON COLUMN user_security_tokens.requested_ip IS 'Dirección IP desde la cual se solicitó la emisión del token de seguridad.';
+COMMENT ON COLUMN user_security_tokens.expires_at IS 'Fecha y hora exacta de expiración del token de seguridad.';
+COMMENT ON COLUMN user_security_tokens.consumed_at IS 'Fecha y hora exacta en que el token fue consumido exitosamente (garantiza uso único).';
+COMMENT ON COLUMN user_security_tokens.revoked_at IS 'Fecha y hora exacta en que el token fue revocado antes de su consumo o expiración.';
+COMMENT ON COLUMN user_security_tokens.created_at IS 'Fecha y hora exacta (TIMESTAMPTZ) de creación del token de seguridad.';
+
+-- Tabla: migration_id_mappings (Dominio 2: Multi-Tenancy (Colegios), IAM, Sesiones, Almacenamiento S3 y Auditoría)
+COMMENT ON TABLE migration_id_mappings IS 'Tabla de trazabilidad e idempotencia ETL que mapea identificadores legados de MySQL hacia los nuevos identificadores 3NF en PostgreSQL 17 bajo aislamiento RLS.';
+COMMENT ON COLUMN migration_id_mappings.id IS 'Identificador único del registro en la tabla (clave primaria compuesta con school_id).';
+COMMENT ON COLUMN migration_id_mappings.school_id IS 'Identificador de la Institución Educativa propietaria del mapeo ETL (clave de aislamiento Row-Level Security RLS).';
+COMMENT ON COLUMN migration_id_mappings.entity_name IS 'Nombre lógico de la entidad o tabla migrada (ej. schools, students, enrollments, grades).';
+COMMENT ON COLUMN migration_id_mappings.legacy_id IS 'Identificador original proveniente de la base de datos legada MySQL.';
+COMMENT ON COLUMN migration_id_mappings.new_id IS 'Nuevo identificador asignado en el esquema unificado 3NF de PostgreSQL 17.';
+COMMENT ON COLUMN migration_id_mappings.legacy_source_db IS 'Nombre de la base de datos MySQL legada de origen (ej. pto_beato, mom_franjocal).';
+COMMENT ON COLUMN migration_id_mappings.migrated_at IS 'Fecha y hora exacta (TIMESTAMPTZ) en la que se ejecutó o actualizó el mapeo ETL.';
+
+-- Nuevas columnas en auth_sessions
+COMMENT ON COLUMN auth_sessions.token_jti IS 'Identificador único (JWT ID) de la sesión activa para validación y revocación inmediata.';
+COMMENT ON COLUMN auth_sessions.refresh_token_hash IS 'Hash SHA-256 opcional del token de refresco asociado a la sesión.';
+COMMENT ON COLUMN auth_sessions.last_activity_at IS 'Fecha y hora de la última actividad autenticada registrada para esta sesión.';
+COMMENT ON COLUMN auth_sessions.revoked_at IS 'Fecha y hora exacta en la que la sesión fue revocada por cierre de sesión o cambio de contraseña.';
+COMMENT ON COLUMN auth_sessions.revocation_reason IS 'Motivo técnico o de seguridad de la revocación de la sesión (ej. USER_LOGOUT, PASSWORD_CHANGED, CONTEXT_SWITCHED).';
+
+-- Nuevas columnas en academic_years y education_levels
+COMMENT ON COLUMN academic_years.created_at IS 'Fecha y hora exacta (TIMESTAMPTZ) de creación del año lectivo institucional.';
+COMMENT ON COLUMN academic_years.updated_at IS 'Fecha y hora exacta (TIMESTAMPTZ) de la última actualización del año lectivo institucional.';
+COMMENT ON COLUMN education_levels.display_order IS 'Orden numérico ascendente de presentación del nivel educativo en listados y reportes.';
+
+-- Nuevas columnas en academic_grades y sus particiones existentes
+COMMENT ON COLUMN academic_grades.effective_score IS 'Calificación efectiva consolidada calculada automáticamente como GREATEST(final_score, recovery_score, leveling_score).';
+COMMENT ON COLUMN academic_grades.has_pre_report_alert IS 'Bandera booleana que indica si el estudiante activó alerta temprana de desempeño bajo en el periodo.';
+COMMENT ON COLUMN academic_grades_historic.effective_score IS 'Calificación efectiva consolidada calculada automáticamente como GREATEST(final_score, recovery_score, leveling_score).';
+COMMENT ON COLUMN academic_grades_historic.has_pre_report_alert IS 'Bandera booleana que indica si el estudiante activó alerta temprana de desempeño bajo en el periodo.';
+COMMENT ON COLUMN academic_grades_2025.effective_score IS 'Calificación efectiva consolidada calculada automáticamente como GREATEST(final_score, recovery_score, leveling_score).';
+COMMENT ON COLUMN academic_grades_2025.has_pre_report_alert IS 'Bandera booleana que indica si el estudiante activó alerta temprana de desempeño bajo en el periodo.';
+COMMENT ON COLUMN academic_grades_2026.effective_score IS 'Calificación efectiva consolidada calculada automáticamente como GREATEST(final_score, recovery_score, leveling_score).';
+COMMENT ON COLUMN academic_grades_2026.has_pre_report_alert IS 'Bandera booleana que indica si el estudiante activó alerta temprana de desempeño bajo en el periodo.';
+COMMENT ON COLUMN academic_grades_2027.effective_score IS 'Calificación efectiva consolidada calculada automáticamente como GREATEST(final_score, recovery_score, leveling_score).';
+COMMENT ON COLUMN academic_grades_2027.has_pre_report_alert IS 'Bandera booleana que indica si el estudiante activó alerta temprana de desempeño bajo en el periodo.';
+
+-- Partición DEFAULT: academic_grades_default
+COMMENT ON TABLE academic_grades_default IS 'Partición física por defecto (DEFAULT) de calificaciones periódicas para años lectivos fuera del rango 1990..2034.';
+COMMENT ON COLUMN academic_grades_default.id IS 'Identificador único del registro en la tabla (clave primaria compuesta).';
+COMMENT ON COLUMN academic_grades_default.school_id IS 'Identificador de la Institución Educativa propietaria del registro (clave de aislamiento Row-Level Security RLS).';
+COMMENT ON COLUMN academic_grades_default.academic_year IS 'Año lectivo escolar de cuatro dígitos al cual pertenece el registro.';
+COMMENT ON COLUMN academic_grades_default.enrollment_id IS 'Identificador de la matrícula académica anual del estudiante (referencia a student_enrollments).';
+COMMENT ON COLUMN academic_grades_default.course_assignment_id IS 'Identificador de la carga académica docente que vincula asignatura, grupo y profesor (referencia a course_assignments).';
+COMMENT ON COLUMN academic_grades_default.period_id IS 'Identificador del periodo académico institucional (referencia a academic_periods).';
+COMMENT ON COLUMN academic_grades_default.period_number IS 'Número secuencial del periodo académico evaluado dentro del año lectivo (1..6).';
+COMMENT ON COLUMN academic_grades_default.conceptual_score IS 'Subnota consolidada correspondiente a la dimensión conceptual o cognitiva (Saber).';
+COMMENT ON COLUMN academic_grades_default.procedural_score IS 'Subnota consolidada correspondiente a la dimensión procedimental o práctica (Hacer).';
+COMMENT ON COLUMN academic_grades_default.attitudinal_score IS 'Subnota consolidada correspondiente a la dimensión actitudinal o axiológica (Ser).';
+COMMENT ON COLUMN academic_grades_default.evaluation_exam_score IS 'Calificación obtenida en la evaluación acumulativa o examen de periodo.';
+COMMENT ON COLUMN academic_grades_default.final_score IS 'Calificación definitiva numérica calculada para la asignatura en el periodo.';
+COMMENT ON COLUMN academic_grades_default.recovery_score IS 'Calificación obtenida en el proceso de recuperación o superación académica del periodo.';
+COMMENT ON COLUMN academic_grades_default.leveling_score IS 'Calificación obtenida en actividades de nivelación o habilitación extraordinaria.';
+COMMENT ON COLUMN academic_grades_default.effective_score IS 'Calificación efectiva consolidada calculada automáticamente como GREATEST(final_score, recovery_score, leveling_score).';
+COMMENT ON COLUMN academic_grades_default.national_scale_id IS 'Identificador del desempeño en la Escala de Valoración Nacional Decreto 1290 (1=Bajo, 2=Básico, 3=Alto, 4=Superior).';
+COMMENT ON COLUMN academic_grades_default.justified_absences IS 'Cantidad de inasistencias con excusa justificada registradas en el periodo.';
+COMMENT ON COLUMN academic_grades_default.unjustified_absences IS 'Cantidad de inasistencias sin excusa justificada registradas en el periodo.';
+COMMENT ON COLUMN academic_grades_default.late_arrivals IS 'Cantidad de llegadas tarde o retardos registrados en el periodo.';
+COMMENT ON COLUMN academic_grades_default.teacher_observations IS 'Observaciones pedagógicas redactadas por el docente titular en el boletín del periodo.';
+COMMENT ON COLUMN academic_grades_default.has_pre_report_alert IS 'Bandera booleana que indica si el estudiante activó alerta temprana de desempeño bajo en el periodo.';
+COMMENT ON COLUMN academic_grades_default.is_locked IS 'Indica si la calificación se encuentra bloqueada por cierre de periodo académico.';
+COMMENT ON COLUMN academic_grades_default.updated_by_user_id IS 'Identificador del usuario que realizó la última modificación del registro.';
+COMMENT ON COLUMN academic_grades_default.created_at IS 'Fecha y hora exacta (TIMESTAMPTZ) de creación del registro en la base de datos.';
+COMMENT ON COLUMN academic_grades_default.updated_at IS 'Fecha y hora exacta (TIMESTAMPTZ) de la última actualización del registro.';
+
+-- Partición DEFAULT: academic_grade_items_default
+COMMENT ON TABLE academic_grade_items_default IS 'Partición física por defecto (DEFAULT) de notas parciales individuales para años lectivos fuera del rango 1990..2034.';
+COMMENT ON COLUMN academic_grade_items_default.id IS 'Identificador único del registro en la tabla (clave primaria compuesta).';
+COMMENT ON COLUMN academic_grade_items_default.school_id IS 'Identificador de la Institución Educativa propietaria del registro (clave de aislamiento Row-Level Security RLS).';
+COMMENT ON COLUMN academic_grade_items_default.academic_year IS 'Año lectivo escolar de cuatro dígitos al cual pertenece el registro.';
+COMMENT ON COLUMN academic_grade_items_default.academic_grade_id IS 'Identificador del registro padre de calificación periódica (referencia a academic_grades).';
+COMMENT ON COLUMN academic_grade_items_default.dimension_id IS 'Identificador de la dimensión o componente evaluativo institucional (referencia a evaluation_dimensions).';
+COMMENT ON COLUMN academic_grade_items_default.gradebook_column_id IS 'Identificador de la columna de actividad en la planilla docente (referencia a teacher_gradebook_columns).';
+COMMENT ON COLUMN academic_grade_items_default.item_number IS 'Número secuencial del ítem o casilla de nota parcial dentro del periodo (1..30).';
+COMMENT ON COLUMN academic_grade_items_default.score IS 'Valor numérico de la calificación obtenida.';
+COMMENT ON COLUMN academic_grade_items_default.created_at IS 'Fecha y hora exacta (TIMESTAMPTZ) de creación del registro en la base de datos.';
 
 COMMIT;

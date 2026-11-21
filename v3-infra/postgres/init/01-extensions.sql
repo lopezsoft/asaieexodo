@@ -23,22 +23,17 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA public
     GRANT USAGE, SELECT ON SEQUENCES TO asaie_app_runtime;
 
 -- Funcion auxiliar inmutable en transaccion para leer el school_id activo (RLS)
+-- Search path bloqueado para prevenir secuestro de resolucion de nombres
 CREATE OR REPLACE FUNCTION current_tenant_school_id()
 RETURNS BIGINT
 LANGUAGE sql
 STABLE
+SET search_path = pg_catalog, public
 AS $$
     SELECT NULLIF(current_setting('app.current_school_id', true), '')::BIGINT;
 $$;
 
--- Funcion auxiliar para verificar si el contexto actual es de administracion global o migracion ETL
-CREATE OR REPLACE FUNCTION is_tenant_bypass_enabled()
-RETURNS BOOLEAN
-LANGUAGE sql
-STABLE
-AS $$
-    SELECT COALESCE(current_setting('app.bypass_rls', true) = 'on', false);
-$$;
+-- Eliminar cualquier funcion huerfana/insegura de bypass RLS en bases existentes
+DROP FUNCTION IF EXISTS is_tenant_bypass_enabled();
 
 GRANT EXECUTE ON FUNCTION current_tenant_school_id() TO asaie_app_runtime;
-GRANT EXECUTE ON FUNCTION is_tenant_bypass_enabled() TO asaie_app_runtime;

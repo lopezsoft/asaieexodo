@@ -3,6 +3,32 @@
 Todos los cambios notables de **v3-backend** (NestJS 11 + Fastify 5 + PostgreSQL 17 Unificado con RLS) se documentan en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [3.17.0] - 2026-11-21
+
+### Añadido
+- **Motor SIEE Decreto 1290 en PostgreSQL 17 (`02-core-schema-rls.sql`, `04-data-dictionary-comments.sql`):**
+  - Columna `academic_grading_rules.fails_after_recovery_mode SMALLINT CHECK (IN (0,1,2,3))` preservando los 3 modos reales de `config001.pierde_luego_rec` (backfill ejecutado en vivo desde MariaDB + ETL actualizado).
+  - Dos funciones puras PG17 (`fn_siee_apply_grace_rounding`, `fn_siee_resolve_scale` con `SECURITY INVOKER`) y tres vistas unificadas RLS-safe `WITH (security_invoker = true)` (`v_siee_subject_period_scores`, `v_siee_area_period_scores`, `v_siee_subject_annual_scores`) que reemplazan las 16 vistas legacy `nscp00*_view_*`.
+  - Trigger antifraude inmutable `trg_audit_academic_scores_changes` sobre `academic_scores` (`AFTER UPDATE OR DELETE`) con inmutabilidad `REVOKE UPDATE, DELETE, TRUNCATE` en `academic_score_audit_logs`, bypass GUC `app.skip_score_audit_trigger = 'on'` (0% overhead en ETL) y propagación automática de `app.current_user_id` y `app.current_change_reason` desde `PostgresRlsService.withTenantTransaction`.
+- **Motor Puro de Evaluación, Promoción, Consolidados y Cierre Anual (`GradingModule`, `PromotionModule`, `AcademicModule`, `SettingsModule`):**
+  - Helpers matemáticos `siee-decimal.helper.ts` (`roundHalfAwayFromZero`, `computeEffectiveScore`, `applyGraceRounding`) y estrategia `TwoLevelGradebookCalculationStrategy` (ponderación en 2 niveles: columnas `n1..n30` → dimensiones → definitiva, sin descartar jamás casillas con peso 0).
+  - Servicio puro `PromotionEvaluationEngineService` con paridad 1:1 de `sp_promocion_estudiantes` y `config001` (áreas ponderadas/simples, `fail_subject_of_the_area`, `pierde_area`, conteo de TODAS las áreas reprobadas, `promotion_mode` 1..4, `academic_year_mode` ciclos, `FINAL_RECOVERY` con modos `0/1/2/3`, mensajes `promotion_messages` JSONB y desempate determinístico).
+  - Nuevos endpoints: `POST /api/v1/promotion/final-recoveries/generate`, `GET /api/v1/promotion/final-sabana`, `GET /api/v1/academic/consolidated` (`subjects` | `areas` | `teacher`, `allPeriods`, `failedTotalsByColumn`), `POST /api/v1/academic/consolidated/materialize-areas` y `POST /api/v1/academic/enrollments/renumber-folios`.
+  - Paridad completa `sp_close_year` en `POST /api/v1/promotion/close-year` (`cloneToNextYear = true` por defecto): crea `academic_years (Y+1)` y clona idempotentemente las 7 tablas maestras (`grading_scales`, `evaluation_dimensions` + `evaluation_dimension_columns` remapeando IDs, `academic_grading_rules`, `curriculum_study_plans`, `subject_area_assignments`, `teacher_academic_years`) + `academic_periods` desplazados +1 año.
+  - Exposición en `SettingsModule` de los 10 parámetros SIEE faltantes de `academic_grading_rules` y `isFailing`/`isGradable` de `grading_scales`.
+- **Fase 2 — Auto-Aprovisionamiento IAM, Folios Legales, Control de Acceso y Blindaje Electoral:**
+  - `IamCommunityProvisioningService` (`scrypt`, multi-colegio, sin SHA1) integrado en creación de docentes (`createTeacher` + registro en `teacher_academic_years`), administrativos (`createAdministrativeStaff`) y estudiantes (`saveStudent`).
+  - `EnrollmentNumberingService` con `pg_advisory_xact_lock` calculando automáticamente `(registration_number, book_number, folio_number)` según `students_per_book` e inicializando `student_enrollment_access_controls` en `saveEnrollment`, `enrollReturningStudents` y `applyAdvancePromotion`, más enforcement en portal estudiantil (`getStudentGrades`, `listStudentActivities`, `listStudentEvaluations`, `listStudentLiveClasses`).
+  - Promoción anticipada en 3NF real (`applyAdvancePromotion` conserva la matrícula anterior en estado `3`, crea la nueva con folio legal, registra `advance_promotions` + `advance_promotion_subject_details` y clona P1 al grupo destino).
+  - Blindaje de `castVote` en `ElectionsModule` validando ventana fecha/hora (`election_date`, `start_time`, `end_time`), matrícula activa (`enrollment_status_id = 2`), mesa activa y membresía del grado en `allowed_grades`.
+- **Pruebas:** Nueva suite unitaria `siee-calculation-engine.spec.ts` (+11 tests Decreto 1290) — **12/12 suites (49/49 tests) PASS en vivo** + smoke test live en `school_id = 7` validando vistas RLS y trigger antifraude.
+
+### Corregido
+- Eliminado bug P0 en `generateFinalBook` que ignoraba áreas reprobadas cuando `fails_school_year = FALSE`, carecía de filtro `enrollment_status_id = 2`, ignoraba `grade_group_id` y ejecutaba 3 queries N+1 por estudiante; añadida protección de `is_commission_promoted = TRUE`.
+- Estandarizada fórmula de nota efectiva `GREATEST(COALESCE(recovery_score, 0), final_score)` y recálculo de `national_scale_id` vía `fn_siee_resolve_scale` en todos los puntos de escritura (`grading`, `portal`, `teacher-extended`, `academic`).
+- Unificadas recuperaciones periódicas y finales (`savePeriodRecovery` y `saveLevelingsBatch`) con validación SIEE, ventana de fechas (`enforces_recovery_dates`), upsert idempotente y sin corromper `academic_scores` en `FINAL_RECOVERY`.
+- Reescrito `calculateAndListHonorRoll` eliminando umbral `< 3.00` hardcodeado, respetando `ranks_by_area_average`, excluyendo electivas, desempatando por `max_score DESC`, soportando 5 alcances de cuadro de honor + modo `ANNUAL` y poblando las 6 columnas faltantes de `student_period_rankings`.
+
 ## [3.16.0] - 2026-11-21
 
 ### Añadido

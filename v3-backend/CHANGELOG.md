@@ -3,6 +3,15 @@
 Todos los cambios notables de **v3-backend** (NestJS 11 + Fastify 5 + PostgreSQL 17 Unificado con RLS) se documentan en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [3.14.0] - 2026-11-21
+
+### Añadido
+- **Auto-Registro SaaS Multi-Tenant de Nuevas Instituciones Educativas (`IamModule` / `RegisterSchoolUseCase`):**
+  - `GET /api/v1/auth/registration-catalogs` (`@Public()`): expone de forma segura los catálogos públicos de tipos de documento, calendarios académicos, sectores educativos y tipos de establecimiento.
+  - `POST /api/v1/auth/register-school` (`@Public()`, `@RateLimit(5, 300)`): crea la institución con periodo de prueba configurable (`SCHOOL_TRIAL_DAYS=30`), el usuario administrador con rol `SCHOOL_ADMIN` y contraseña hasheada con `scrypt`, y aprovisiona atómicamente bajo Row-Level Security (`SET LOCAL ROLE asaie_app_runtime` + `app.current_school_id`) la Sede Principal, Año Lectivo actual, Jornadas base, Niveles educativos MEN, Módulos activos, sesión inicial (`auth_sessions`) y registro en `audit_logs` sin PII, enviando el correo de verificación de forma no bloqueante y retornando token JWT listo para operar.
+  - Método `withGlobalTransaction` en `PostgresRlsService` para transacciones globales atómicas de onboarding que activan el contexto RLS tras generar `schools.id`.
+  - Pruebas unitarias en `register-school.use-case.spec.ts` verificando generación de slug S3, emisión de JWT `SCHOOL_ADMIN`, manejo de conflictos de unicidad y tolerancia a fallos SMTP (**11/11 suites, 38/38 tests aprobados**).
+
 ## [3.13.0] - 2026-11-20
 
 ### Añadido

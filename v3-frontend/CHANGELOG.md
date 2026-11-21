@@ -3,6 +3,16 @@
 Todos los cambios notables de **v3-frontend** (Angular 20+ para toda la Comunidad Educativa) se documentan en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [3.10.0] - 2026-11-21
+
+### Añadido
+- **Rediseño Moderno y Animado del Flujo `/auth/*` (`AuthenticationComponent`):**
+  - Nuevo shell dividido y responsivo con fondo hero animado (orbes flotantes, cuadrícula, anillo orbital sutil, *parallax* con puntero y soporte `prefers-reduced-motion`), carrusel interactivo de 3 vistas sobre ASAIE ÉXODO, barra superior con selector de modo (`Iniciar sesión` ↔ `Registrar IE`), cambio de idioma (`ES`/`EN`) y alternancia Claro/Oscuro.
+  - **Login (`SignInComponent`):** tarjeta animada con detección de `Bloq Mayús`, alternancia de visibilidad de contraseña con `[appCustomTooltip]`, recordación opcional de usuario, spinner inline, animación *shake* ante errores y tarjeta CTA destacada para registrar nuevas IE con 30 días de prueba gratis.
+  - **Wizard de Auto-Registro de Nueva IE (`SignUpComponent`, `/auth/sign-up`):** flujo animado en 2 pasos (*Institución* y *Administrador*) con carga de catálogos públicos, auto-sugerencia de usuario, medidor interactivo de fortaleza de contraseña, inicio de sesión automático y enrutamiento inteligente mediante `resolvePostLoginRoute`.
+  - **Componente Reutilizable `V3SearchableSelectComponent` (`<app-v3-searchable-select>`):** selector `ControlValueAccessor` con búsqueda instantánea insensible a tildes, navegación completa por teclado, detección de espacio inferior/superior y estilos propios en `_searchable-select.scss`.
+- **Unificación Visual y Tokens:** reorganización de tokens `$auth-*` en `_variables.scss` y `page-auth.scss` sin colores hexadecimales hardcodeados, extendiendo la nueva estética a `forgot-password`, `reset-password`, `confirm-email`, `logout`, `not-authorized` y `lock-screen`.
+
 ## [3.9.0] - 2026-11-21
 
 ### Añadido

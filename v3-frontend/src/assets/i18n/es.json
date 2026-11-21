@@ -185,9 +185,13 @@
       "title"            : "Portal Docente",
       "hub"              : "Panel Docente",
       "gradebook"        : "Planilla de Notas",
-      "planning"         : "Logros y Parcelador",
+      "planning"         : "Descriptores y Parcelador",
+      "levelings"        : "Nivelaciones",
       "observer"         : "Observador (M1–M5)",
-      "virtualClassroom" : "Aula Virtual LMS"
+      "tracking"         : "Formato Seguimiento",
+      "reports"          : "Informes Docentes",
+      "virtualClassroom" : "Aula Virtual LMS",
+      "profile"          : "Mi Perfil y Firma"
     },
     "student"   : {
       "academicNote"      : "Notas Académicas",

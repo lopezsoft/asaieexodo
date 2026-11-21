@@ -184,9 +184,13 @@
       "title": "Teacher Portal",
       "hub": "Teacher Hub",
       "gradebook": "Gradebook",
-      "planning": "Achievements & Plans",
+      "planning": "Descriptors & Lesson Plans",
+      "levelings": "Levelings & Recovery",
       "observer": "Student Observer",
-      "virtualClassroom": "Virtual Classroom"
+      "tracking": "Tracking Format",
+      "reports": "Teacher Reports",
+      "virtualClassroom": "Virtual Classroom",
+      "profile": "My Profile & Signature"
     },
     "student": {
       "academicNote": "Academic Grades",

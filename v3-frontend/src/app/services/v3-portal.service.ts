@@ -287,6 +287,125 @@ export interface StudentPortalGradesView {
   readonly observerAnnotations: ObserverAnnotationRow[];
 }
 
+export interface TeacherPeriodSummary {
+  readonly id: number;
+  readonly periodNumber: number;
+  readonly name: string;
+  readonly gradeGroupId: number | null;
+  readonly gradeGroupName: string | null;
+  readonly academicYear: number;
+  readonly weightPercentage: number;
+  readonly startDate: string;
+  readonly endDate: string;
+  readonly gradingOpenDate: string | null;
+  readonly gradingCloseDate: string | null;
+  readonly recoveryOpenDate: string | null;
+  readonly recoveryCloseDate: string | null;
+  readonly isActive: boolean;
+  readonly isClosed: boolean;
+}
+
+export interface TeacherSelfProfile {
+  readonly id: number;
+  readonly documentNumber: string;
+  readonly firstName: string;
+  readonly middleName: string | null;
+  readonly lastName: string;
+  readonly secondLastName: string | null;
+  readonly fullName: string;
+  readonly address: string | null;
+  readonly phone: string | null;
+  readonly email: string | null;
+  readonly signatureUrl: string | null;
+}
+
+export interface TeacherGradebookColumnRow {
+  readonly id: number;
+  readonly courseAssignmentId: number;
+  readonly dimensionId: number;
+  readonly dimensionName: string;
+  readonly dimensionWeight: number;
+  readonly periodNumber: number;
+  readonly columnNumber: number;
+  readonly description: string;
+  readonly weightPercentage: number;
+  readonly activityDate: string | null;
+}
+
+export interface CourseGradeItemsRow {
+  readonly enrollmentId: number;
+  readonly academicGradeId: number;
+  readonly genderCode: string | null;
+  readonly nationalScaleId: number | null;
+  readonly items: Record<number, number>;
+}
+
+export interface GradeAchievementAssignedRow {
+  readonly id: number;
+  readonly academicGradeId: number;
+  readonly enrollmentId: number;
+  readonly studentFullName: string;
+  readonly achievementStandardId: number;
+  readonly code: string | null;
+  readonly indicatorType: string;
+  readonly description: string;
+  readonly nationalScaleName: string | null;
+}
+
+export interface TeacherLevelingCandidateRow {
+  readonly enrollmentId: number;
+  readonly courseAssignmentId: number;
+  readonly studentDocumentNumber: string;
+  readonly studentFullName: string;
+  readonly gradeName: string;
+  readonly groupCode: string;
+  readonly subjectName: string;
+  readonly academicAreaName: string;
+  readonly campusName: string;
+  readonly periodNumber: number;
+  readonly previousScore: number;
+  recoveryScore: number;
+  recoveryDate: string | null;
+  actNumber: string | null;
+  observations: string | null;
+}
+
+export interface TeacherLevelingListView {
+  readonly minPassingScore: number;
+  readonly maxRecoveryScore: number;
+  readonly rows: TeacherLevelingCandidateRow[];
+}
+
+export interface StudentTrackingFormatRow {
+  readonly studentProfileId: number;
+  readonly enrollmentId: number;
+  readonly studentFullName: string;
+  readonly studentDocumentNumber: string;
+  readonly gradeName: string;
+  readonly groupCode: string;
+  readonly shiftName: string;
+  observations: string;
+  pv: boolean;
+  tv: boolean;
+  gw: boolean;
+  gf: boolean;
+  otherAccess: boolean;
+  ee: boolean;
+  internet: boolean;
+  tvService: boolean;
+  mobileData: boolean;
+}
+
+export interface ObserverExtendedData {
+  readonly studentProfileId: number;
+  readonly enrollmentId: number;
+  readonly observerModel5: Record<string, unknown>;
+  readonly observerModel3: Record<
+    string,
+    { p1?: string; p2?: string; p3?: string; p4?: string }
+  >;
+}
+
 /**
  * Servicio HTTP V3 unificado para los Portales Docente (/api/v1/teacher/*)
  * y Estudiantil/Familiar (/api/v1/student/*). Reemplaza 100% de los llamados
@@ -637,6 +756,14 @@ export class V3PortalService {
       .pipe(map((r) => r.data));
   }
 
+  deleteEvaluationQuestion(questionId: number): Observable<{ deleted: boolean }> {
+    return this.http
+      .delete<ApiEnvelope<{ deleted: boolean }>>(
+        `${this.teacherUrl}/evaluations/questions/${questionId}`,
+      )
+      .pipe(map((r) => r.data));
+  }
+
   listEvaluationAttempts(evaluationId: number): Observable<EvaluationAttemptRow[]> {
     return this.http
       .get<ApiEnvelope<EvaluationAttemptRow[]>>(
@@ -669,6 +796,300 @@ export class V3PortalService {
     return this.http
       .delete<ApiEnvelope<{ deleted: boolean }>>(
         `${this.teacherUrl}/live-classes/${liveClassId}`,
+      )
+      .pipe(map((r) => r.data));
+  }
+
+  // Extensiones Portal Docente (paridad 100% asaie-teachers)
+  listTeacherPeriods(academicYear: number): Observable<TeacherPeriodSummary[]> {
+    const params = new HttpParams().set('academicYear', String(academicYear));
+    return this.http
+      .get<ApiEnvelope<TeacherPeriodSummary[]>>(`${this.teacherUrl}/periods`, {
+        params,
+      })
+      .pipe(map((r) => r.data));
+  }
+
+  getTeacherSelfProfile(): Observable<TeacherSelfProfile | null> {
+    return this.http
+      .get<ApiEnvelope<TeacherSelfProfile | null>>(`${this.teacherUrl}/profile`)
+      .pipe(map((r) => r.data));
+  }
+
+  updateTeacherSelfProfile(
+    payload: Record<string, unknown>,
+  ): Observable<TeacherSelfProfile> {
+    return this.http
+      .patch<ApiEnvelope<TeacherSelfProfile>>(
+        `${this.teacherUrl}/profile`,
+        payload,
+      )
+      .pipe(map((r) => r.data));
+  }
+
+  listCourseColumns(
+    courseAssignmentId: number,
+    periodNumber: number,
+  ): Observable<TeacherGradebookColumnRow[]> {
+    const params = new HttpParams().set('periodNumber', String(periodNumber));
+    return this.http
+      .get<ApiEnvelope<TeacherGradebookColumnRow[]>>(
+        `${this.teacherUrl}/courses/${courseAssignmentId}/columns`,
+        { params },
+      )
+      .pipe(map((r) => r.data));
+  }
+
+  upsertCourseColumn(
+    courseAssignmentId: number,
+    payload: {
+      dimensionId: number;
+      periodNumber: number;
+      columnNumber: number;
+      description: string;
+      weightPercentage: number;
+      activityDate?: string | null;
+    },
+  ): Observable<TeacherGradebookColumnRow> {
+    return this.http
+      .post<ApiEnvelope<TeacherGradebookColumnRow>>(
+        `${this.teacherUrl}/courses/${courseAssignmentId}/columns`,
+        payload,
+      )
+      .pipe(map((r) => r.data));
+  }
+
+  deleteCourseColumn(columnId: number): Observable<{ deleted: boolean }> {
+    return this.http
+      .delete<ApiEnvelope<{ deleted: boolean }>>(
+        `${this.teacherUrl}/columns/${columnId}`,
+      )
+      .pipe(map((r) => r.data));
+  }
+
+  listCourseGradeItems(
+    courseAssignmentId: number,
+    academicYear: number,
+    periodNumber: number,
+  ): Observable<CourseGradeItemsRow[]> {
+    const params = new HttpParams()
+      .set('academicYear', String(academicYear))
+      .set('periodNumber', String(periodNumber));
+    return this.http
+      .get<ApiEnvelope<CourseGradeItemsRow[]>>(
+        `${this.teacherUrl}/courses/${courseAssignmentId}/grade-items`,
+        { params },
+      )
+      .pipe(map((r) => r.data));
+  }
+
+  saveGradeItemsBatch(
+    courseAssignmentId: number,
+    payload: {
+      academicYear: number;
+      periodNumber: number;
+      items: Array<{
+        enrollmentId: number;
+        itemNumber: number;
+        score: number;
+        dimensionId?: number | null;
+        gradebookColumnId?: number | null;
+      }>;
+    },
+  ): Observable<{ savedCount: number }> {
+    return this.http
+      .put<ApiEnvelope<{ savedCount: number }>>(
+        `${this.teacherUrl}/courses/${courseAssignmentId}/grade-items`,
+        payload,
+      )
+      .pipe(map((r) => r.data));
+  }
+
+  createAchievementsMultiScale(payload: {
+    gradeId: number;
+    subjectId: number;
+    dimensionId?: number | null;
+    academicYear: number;
+    periodNumber: number;
+    indicatorType: string;
+    variants: Array<{
+      nationalScaleId?: number | null;
+      code?: string | null;
+      description: string;
+    }>;
+  }): Observable<{ createdCount: number }> {
+    return this.http
+      .post<ApiEnvelope<{ createdCount: number }>>(
+        `${this.teacherUrl}/achievements/multi-scale`,
+        payload,
+      )
+      .pipe(map((r) => r.data));
+  }
+
+  listCourseAssignedAchievements(
+    courseAssignmentId: number,
+    academicYear: number,
+    periodNumber: number,
+  ): Observable<GradeAchievementAssignedRow[]> {
+    const params = new HttpParams()
+      .set('academicYear', String(academicYear))
+      .set('periodNumber', String(periodNumber));
+    return this.http
+      .get<ApiEnvelope<GradeAchievementAssignedRow[]>>(
+        `${this.teacherUrl}/courses/${courseAssignmentId}/assigned-achievements`,
+        { params },
+      )
+      .pipe(map((r) => r.data));
+  }
+
+  assignAchievementsBatch(payload: {
+    academicYear: number;
+    academicGradeIds: number[];
+    achievementStandardIds: number[];
+  }): Observable<{ assignedCount: number }> {
+    return this.http
+      .post<ApiEnvelope<{ assignedCount: number }>>(
+        `${this.teacherUrl}/grades/assign-achievements`,
+        payload,
+      )
+      .pipe(map((r) => r.data));
+  }
+
+  unassignAchievement(
+    linkId: number,
+    academicYear: number,
+  ): Observable<{ deleted: boolean }> {
+    const params = new HttpParams().set('academicYear', String(academicYear));
+    return this.http
+      .delete<ApiEnvelope<{ deleted: boolean }>>(
+        `${this.teacherUrl}/grades/assigned-achievements/${linkId}`,
+        { params },
+      )
+      .pipe(map((r) => r.data));
+  }
+
+  syncCourseAchievements(
+    courseAssignmentId: number,
+    payload: { academicYear: number; periodNumber: number },
+  ): Observable<{ syncedCount: number }> {
+    return this.http
+      .post<ApiEnvelope<{ syncedCount: number }>>(
+        `${this.teacherUrl}/courses/${courseAssignmentId}/sync-achievements`,
+        payload,
+      )
+      .pipe(map((r) => r.data));
+  }
+
+  listPeriodicLevelings(
+    courseAssignmentId: number,
+    academicYear: number,
+    periodNumber: number,
+  ): Observable<TeacherLevelingListView> {
+    const params = new HttpParams()
+      .set('courseAssignmentId', String(courseAssignmentId))
+      .set('academicYear', String(academicYear))
+      .set('periodNumber', String(periodNumber));
+    return this.http
+      .get<ApiEnvelope<TeacherLevelingListView>>(
+        `${this.teacherUrl}/levelings/periodic`,
+        { params },
+      )
+      .pipe(map((r) => r.data));
+  }
+
+  listFinalLevelings(academicYear: number): Observable<TeacherLevelingListView> {
+    const params = new HttpParams().set('academicYear', String(academicYear));
+    return this.http
+      .get<ApiEnvelope<TeacherLevelingListView>>(
+        `${this.teacherUrl}/levelings/final`,
+        { params },
+      )
+      .pipe(map((r) => r.data));
+  }
+
+  saveLevelingsBatch(payload: {
+    academicYear: number;
+    recoveryType: 'PERIOD_RECOVERY' | 'FINAL_RECOVERY';
+    rows: Array<{
+      enrollmentId: number;
+      courseAssignmentId: number;
+      periodNumber: number;
+      previousScore: number;
+      recoveryScore: number;
+      recoveryDate?: string | null;
+      actNumber?: string | null;
+      observations?: string | null;
+    }>;
+  }): Observable<{ savedCount: number }> {
+    return this.http
+      .post<ApiEnvelope<{ savedCount: number }>>(
+        `${this.teacherUrl}/levelings/save-batch`,
+        payload,
+      )
+      .pipe(map((r) => r.data));
+  }
+
+  getObserverExtendedData(enrollmentId: number): Observable<ObserverExtendedData> {
+    return this.http
+      .get<ApiEnvelope<ObserverExtendedData>>(
+        `${this.teacherUrl}/observer/${enrollmentId}/extended`,
+      )
+      .pipe(map((r) => r.data));
+  }
+
+  saveObserverExtendedData(
+    enrollmentId: number,
+    payload: {
+      observerModel5?: Record<string, unknown>;
+      observerModel3?: Record<
+        string,
+        { p1?: string; p2?: string; p3?: string; p4?: string }
+      >;
+    },
+  ): Observable<ObserverExtendedData> {
+    return this.http
+      .put<ApiEnvelope<ObserverExtendedData>>(
+        `${this.teacherUrl}/observer/${enrollmentId}/extended`,
+        payload,
+      )
+      .pipe(map((r) => r.data));
+  }
+
+  listTrackingFormat(
+    academicGroupId: number,
+    academicYear: number,
+  ): Observable<StudentTrackingFormatRow[]> {
+    const params = new HttpParams()
+      .set('academicGroupId', String(academicGroupId))
+      .set('academicYear', String(academicYear));
+    return this.http
+      .get<ApiEnvelope<StudentTrackingFormatRow[]>>(
+        `${this.teacherUrl}/tracking-format`,
+        { params },
+      )
+      .pipe(map((r) => r.data));
+  }
+
+  saveTrackingFormatBatch(payload: {
+    academicYear: number;
+    rows: Array<{
+      studentProfileId: number;
+      observations: string;
+      pv: boolean;
+      tv: boolean;
+      gw: boolean;
+      gf: boolean;
+      otherAccess: boolean;
+      ee: boolean;
+      internet: boolean;
+      tvService: boolean;
+      mobileData: boolean;
+    }>;
+  }): Observable<{ savedCount: number }> {
+    return this.http
+      .put<ApiEnvelope<{ savedCount: number }>>(
+        `${this.teacherUrl}/tracking-format`,
+        payload,
       )
       .pipe(map((r) => r.data));
   }

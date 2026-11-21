@@ -11,6 +11,7 @@ import { GlobalExceptionFilter } from '../../shared/infrastructure/http/filters/
 import { SmartLoggerService } from '../../shared/infrastructure/logging/smart-logger.service';
 import { JASPER_REPORTS_QUEUE } from '../reporting/infrastructure/queues/jasper-report.processor';
 import { ManagePortalUseCase } from './application/use-cases/manage-portal.use-case';
+import { ManageTeacherExtendedUseCase } from './application/use-cases/manage-teacher-extended.use-case';
 
 function isTcpOpen(host: string, port: number): Promise<boolean> {
   return new Promise((resolve) => {
@@ -87,6 +88,10 @@ describe('Sprint 8 — Teacher Portal (Gradebook, Observer M5, LMS) & Student Po
     const fastify = app.getHttpAdapter().getInstance();
     for (const url of [
       '/api/v1/teacher/courses',
+      '/api/v1/teacher/periods',
+      '/api/v1/teacher/profile',
+      '/api/v1/teacher/levelings/final',
+      '/api/v1/teacher/tracking-format?academicGroupId=1',
       '/api/v1/teacher/achievements',
       '/api/v1/teacher/lesson-plans',
       '/api/v1/teacher/activities',
@@ -129,5 +134,18 @@ describe('Sprint 8 — Teacher Portal (Gradebook, Observer M5, LMS) & Student Po
     const overview = await useCase.getStudentOverview(schoolId, 999999n, 2026);
     expect(overview.enrollmentId).toBeNull();
     expect(overview.courses).toEqual([]);
+
+    const extended = moduleRef.get(ManageTeacherExtendedUseCase);
+    const periods = await extended.listTeacherPeriods(schoolId, 2026);
+    expect(Array.isArray(periods)).toBe(true);
+
+    const finalLevelings = await extended.listFinalLevelings(
+      schoolId,
+      1n,
+      'RECTOR',
+      2026,
+    );
+    expect(finalLevelings.minPassingScore).toBeGreaterThan(0);
+    expect(Array.isArray(finalLevelings.rows)).toBe(true);
   });
 });

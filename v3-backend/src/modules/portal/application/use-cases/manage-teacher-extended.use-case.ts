@@ -124,9 +124,15 @@ export class ManageTeacherExtendedUseCase {
   unassignAchievement(
     schoolId: bigint,
     academicYear: number,
-    linkId: bigint,
+    academicScoreId: bigint,
+    achievementStandardId: bigint,
   ): Promise<void> {
-    return this.repository.unassignAchievement(schoolId, academicYear, linkId);
+    return this.repository.unassignAchievement(
+      schoolId,
+      academicYear,
+      academicScoreId,
+      achievementStandardId,
+    );
   }
 
   syncCourseAchievements(

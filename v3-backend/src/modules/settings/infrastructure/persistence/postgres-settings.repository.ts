@@ -1195,12 +1195,11 @@ export class PostgresSettingsRepository implements SettingsRepositoryPort {
   ): Promise<{ deletedCount: number }> {
     return this.db.withTenantTransaction(schoolId, async (client) => {
       const res = await client.query(
-        `DELETE FROM academic_grades
+        `DELETE FROM academic_scores
          WHERE academic_year = $1
-           AND is_locked = FALSE
            AND final_score = 0
            AND COALESCE(recovery_score, 0) = 0
-           AND COALESCE(leveling_score, 0) = 0`,
+           AND COALESCE(lost_score, 0) = 0`,
         [academicYear],
       );
       return { deletedCount: res.rowCount ?? 0 };

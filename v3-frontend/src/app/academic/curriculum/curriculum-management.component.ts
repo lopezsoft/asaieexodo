@@ -280,7 +280,7 @@ type CurriculumTab = 'areas' | 'subjects' | 'studyPlans' | 'assignments';
                 </div>
                 <div class="col-md-1">
                   <label class="form-label small fw-semibold">IHS *</label>
-                  <input type="number" min="1" max="40" class="form-control form-control-sm" [(ngModel)]="studyPlanForm.weeklyHours" />
+                  <input type="number" min="0.5" max="40" step="0.5" class="form-control form-control-sm" [(ngModel)]="studyPlanForm.weeklyHours" />
                 </div>
                 <div class="col-md-1">
                   <label class="form-label small fw-semibold">% Área</label>
@@ -372,7 +372,7 @@ type CurriculumTab = 'areas' | 'subjects' | 'studyPlans' | 'assignments';
                 </div>
                 <div class="col-md-1">
                   <label class="form-label small fw-semibold">IHS</label>
-                  <input type="number" min="1" max="40" class="form-control form-control-sm" [(ngModel)]="assignmentForm.weeklyHours" />
+                  <input type="number" min="0.5" max="40" step="0.5" class="form-control form-control-sm" [(ngModel)]="assignmentForm.weeklyHours" />
                 </div>
                 <div class="col-md-2 d-grid">
                   <button

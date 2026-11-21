@@ -105,9 +105,9 @@ export class UpsertStudyPlanDto {
   @Max(2100)
   academicYear!: number;
 
-  @ApiProperty({ example: 4 })
-  @IsInt()
-  @Min(1)
+  @ApiProperty({ example: 4.5 })
+  @IsNumber()
+  @Min(0.5)
   @Max(40)
   weeklyHours!: number;
 
@@ -155,9 +155,9 @@ export class SaveCourseAssignmentDto {
   @Max(2100)
   academicYear!: number;
 
-  @ApiProperty({ example: 4 })
-  @IsInt()
-  @Min(1)
+  @ApiProperty({ example: 4.5 })
+  @IsNumber()
+  @Min(0.5)
   @Max(40)
   weeklyHours!: number;
 

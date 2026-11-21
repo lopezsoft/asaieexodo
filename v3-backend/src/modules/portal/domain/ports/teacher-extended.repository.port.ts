@@ -223,7 +223,8 @@ export abstract class TeacherExtendedRepositoryPort {
   abstract unassignAchievement(
     schoolId: bigint,
     academicYear: number,
-    linkId: bigint,
+    academicScoreId: bigint,
+    achievementStandardId: bigint,
   ): Promise<void>;
 
   abstract syncCourseAchievements(

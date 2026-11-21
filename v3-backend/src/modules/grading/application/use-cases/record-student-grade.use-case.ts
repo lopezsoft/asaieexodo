@@ -63,7 +63,7 @@ export class RecordStudentGradeUseCase {
       rules.decimalsCount,
     );
 
-    let validatedRecovery = 0;
+    let validatedRecovery: number | null = null;
     if (command.recoveryScore !== undefined && command.recoveryScore > 0) {
       const recoveryVo = GradingScore.create(
         command.recoveryScore,
@@ -80,22 +80,10 @@ export class RecordStudentGradeUseCase {
       validatedRecovery = recoveryVo.value;
     }
 
-    let validatedLeveling = 0;
-    if (command.levelingScore !== undefined && command.levelingScore > 0) {
-      const levelingVo = GradingScore.create(
-        command.levelingScore,
-        rules.minScaleScore,
-        rules.maxScaleScore,
-        rules.decimalsCount,
-      );
-      validatedLeveling = levelingVo.value;
-    }
-
-    const effective = Math.max(
-      validatedFinalScore.value,
-      validatedRecovery,
-      validatedLeveling,
-    );
+    const effective =
+      validatedRecovery !== null && validatedRecovery > 0
+        ? validatedRecovery
+        : validatedFinalScore.value;
 
     return this.gradeRepository.upsertGrade({
       schoolId: command.schoolId,
@@ -105,11 +93,10 @@ export class RecordStudentGradeUseCase {
       periodId: command.periodId,
       finalScore: validatedFinalScore.value,
       recoveryScore: validatedRecovery,
-      levelingScore: validatedLeveling,
       justifiedAbsences: command.justifiedAbsences ?? 0,
       unjustifiedAbsences: command.unjustifiedAbsences ?? 0,
       lateArrivals: command.lateArrivals ?? 0,
-      teacherObservations: command.teacherObservations ?? null,
+      preReportObservations: command.teacherObservations ?? null,
       hasPreReportAlert: effective < rules.minPassingScore,
       changeReason: command.changeReason ?? null,
       updatedByUserId: command.updatedByUserId,

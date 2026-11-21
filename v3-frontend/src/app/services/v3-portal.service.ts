@@ -27,18 +27,12 @@ export interface GradebookStudentRow {
   studentDocumentNumber: string;
   studentFullName: string;
   gradeId: number | null;
-  conceptualScore: number;
-  proceduralScore: number;
-  attitudinalScore: number;
-  evaluationExamScore: number;
   finalScore: number;
   recoveryScore: number;
-  levelingScore: number;
   effectiveScore: number;
   justifiedAbsences: number;
   unjustifiedAbsences: number;
   lateArrivals: number;
-  teacherObservations: string | null;
   hasPreReportAlert: boolean;
   isLocked: boolean;
 }
@@ -272,11 +266,9 @@ export interface StudentPortalGradesView {
     readonly teacherName: string;
     readonly finalScore: number;
     readonly recoveryScore: number;
-    readonly levelingScore: number;
     readonly effectiveScore: number;
     readonly justifiedAbsences: number;
     readonly unjustifiedAbsences: number;
-    readonly teacherObservations: string | null;
   }>;
   readonly preReports: Array<{
     readonly periodNumber: number;
@@ -956,13 +948,14 @@ export class V3PortalService {
   }
 
   unassignAchievement(
-    linkId: number,
+    academicScoreId: number,
+    achievementStandardId: number,
     academicYear: number,
   ): Observable<{ deleted: boolean }> {
     const params = new HttpParams().set('academicYear', String(academicYear));
     return this.http
       .delete<ApiEnvelope<{ deleted: boolean }>>(
-        `${this.teacherUrl}/grades/assigned-achievements/${linkId}`,
+        `${this.teacherUrl}/grades/assigned-achievements/${academicScoreId}/${achievementStandardId}`,
         { params },
       )
       .pipe(map((r) => r.data));

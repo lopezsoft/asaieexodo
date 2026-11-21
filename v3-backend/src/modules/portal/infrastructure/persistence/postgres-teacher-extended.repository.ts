@@ -13,7 +13,7 @@ import {
   TeacherSelfProfile,
 } from '../../domain/ports/teacher-extended.repository.port';
 
-/** Lista estática segura (allowlist) de las 30 casillas parciales inline en `academic_grades`. */
+/** Lista estática segura (allowlist) de las 30 casillas parciales inline en `academic_scores`. */
 const GRADE_SCORE_COLUMNS = [
   'n1', 'n2', 'n3', 'n4', 'n5', 'n6', 'n7', 'n8', 'n9', 'n10',
   'n11', 'n12', 'n13', 'n14', 'n15', 'n16', 'n17', 'n18', 'n19', 'n20',
@@ -313,7 +313,7 @@ export class PostgresTeacherExtendedRepository extends TeacherExtendedRepository
       >(
         `SELECT ag.enrollment_id, ag.id AS grade_id, gn.code AS gender_code, ag.national_scale_id,
                 ${GRADE_SCORE_SELECT_PREFIXED}
-           FROM academic_grades ag
+           FROM academic_scores ag
            INNER JOIN student_enrollments se
              ON se.school_id = ag.school_id AND se.id = ag.enrollment_id
            INNER JOIN student_profiles sp
@@ -390,7 +390,6 @@ export class PostgresTeacherExtendedRepository extends TeacherExtendedRepository
           'El periodo no existe o se encuentra cerrado.',
         );
       }
-      const periodId = periodRes.rows[0].id;
 
       // Cargar pesos porcentuales configurados por columna n1..n30 del curso y periodo
       const weightsRes = await client.query<{
@@ -440,7 +439,6 @@ export class PostgresTeacherExtendedRepository extends TeacherExtendedRepository
           input.academicYear,
           enrollmentId,
           courseAssignmentId.toString(),
-          periodId,
           input.periodNumber,
         ];
         const valuePlaceholders = colNames.map(
@@ -453,12 +451,12 @@ export class PostgresTeacherExtendedRepository extends TeacherExtendedRepository
         const gradeRes = await client.query<
           { id: string } & Record<(typeof GRADE_SCORE_COLUMNS)[number], string | null>
         >(
-          `INSERT INTO academic_grades (
+          `INSERT INTO academic_scores (
              school_id, academic_year, enrollment_id, course_assignment_id,
-             period_id, period_number, final_score, ${colNames.join(', ')}
+             period_number, final_score, ${colNames.join(', ')}
            )
-           VALUES ($1,$2,$3,$4,$5,$6,0,${valuePlaceholders.join(', ')})
-           ON CONFLICT (school_id, academic_year, enrollment_id, course_assignment_id, period_number)
+           VALUES ($1,$2,$3,$4,$5,0,${valuePlaceholders.join(', ')})
+           ON CONFLICT (school_id, academic_year, enrollment_id, period_number, course_assignment_id)
            DO UPDATE SET ${conflictUpdates}, updated_at = NOW()
            RETURNING id, ${GRADE_SCORE_RETURNING}`,
           [...baseParams, ...colValues],
@@ -491,14 +489,14 @@ export class PostgresTeacherExtendedRepository extends TeacherExtendedRepository
               : 0;
 
         await client.query(
-          `UPDATE academic_grades ag
+          `UPDATE academic_scores ag
               SET final_score = $4::numeric,
                   national_scale_id = (
                     SELECT gs.national_scale_id
                       FROM grading_scales gs
                      WHERE gs.school_id = ag.school_id
                        AND gs.academic_year = ag.academic_year
-                       AND GREATEST($4::numeric, ag.recovery_score, ag.leveling_score)
+                       AND COALESCE(NULLIF(ag.recovery_score, 0), $4::numeric)
                            BETWEEN gs.min_score AND gs.max_score
                        AND (gs.grade_group_id IS NULL OR gs.grade_group_id = $5::bigint)
                      ORDER BY (gs.grade_group_id IS NOT NULL AND gs.grade_group_id = $5::bigint) DESC, gs.grade_group_id NULLS LAST
@@ -573,8 +571,7 @@ export class PostgresTeacherExtendedRepository extends TeacherExtendedRepository
   ): Promise<GradeAchievementAssignedRow[]> {
     return this.db.withTenantTransaction(schoolId, async (client) => {
       const res = await client.query<{
-        id: string;
-        academic_grade_id: string;
+        academic_score_id: string;
         enrollment_id: string;
         full_name: string;
         achievement_standard_id: string;
@@ -583,15 +580,15 @@ export class PostgresTeacherExtendedRepository extends TeacherExtendedRepository
         description: string;
         scale_name: string | null;
       }>(
-        `SELECT aga.id, aga.academic_grade_id, ag.enrollment_id,
+        `SELECT aga.academic_score_id, ag.enrollment_id,
                 TRIM(CONCAT_WS(' ', sp.last_name, sp.second_last_name, sp.first_name)) AS full_name,
                 aga.achievement_standard_id, ast.code, ast.indicator_type, ast.description,
                 ngs.name AS scale_name
-           FROM academic_grade_achievements aga
-           INNER JOIN academic_grades ag
+           FROM academic_score_achievements aga
+           INNER JOIN academic_scores ag
              ON ag.school_id = aga.school_id
             AND ag.academic_year = aga.academic_year
-            AND ag.id = aga.academic_grade_id
+            AND ag.id = aga.academic_score_id
            INNER JOIN student_enrollments se
              ON se.school_id = ag.school_id AND se.id = ag.enrollment_id
            INNER JOIN student_profiles sp
@@ -612,8 +609,8 @@ export class PostgresTeacherExtendedRepository extends TeacherExtendedRepository
         ],
       );
       return res.rows.map((r) => ({
-        id: Number(r.id),
-        academicGradeId: Number(r.academic_grade_id),
+        id: Number(r.achievement_standard_id),
+        academicGradeId: Number(r.academic_score_id),
         enrollmentId: Number(r.enrollment_id),
         studentFullName: r.full_name,
         achievementStandardId: Number(r.achievement_standard_id),
@@ -635,15 +632,15 @@ export class PostgresTeacherExtendedRepository extends TeacherExtendedRepository
   ): Promise<{ assignedCount: number }> {
     return this.db.withTenantTransaction(schoolId, async (client) => {
       let assignedCount = 0;
-      for (const gradeId of input.academicGradeIds) {
+      for (const scoreId of input.academicGradeIds) {
         for (const standardId of input.achievementStandardIds) {
           const ins = await client.query(
-            `INSERT INTO academic_grade_achievements (
-               school_id, academic_year, academic_grade_id, achievement_standard_id
+            `INSERT INTO academic_score_achievements (
+               school_id, academic_year, academic_score_id, achievement_standard_id
              )
              VALUES ($1,$2,$3,$4)
-             ON CONFLICT (school_id, academic_year, academic_grade_id, achievement_standard_id) DO NOTHING`,
-            [schoolId.toString(), input.academicYear, gradeId, standardId],
+             ON CONFLICT (school_id, academic_year, academic_score_id, achievement_standard_id) DO NOTHING`,
+            [schoolId.toString(), input.academicYear, scoreId, standardId],
           );
           assignedCount += ins.rowCount ?? 0;
         }
@@ -655,18 +652,27 @@ export class PostgresTeacherExtendedRepository extends TeacherExtendedRepository
   async unassignAchievement(
     schoolId: bigint,
     academicYear: number,
-    linkId: bigint,
+    academicScoreId: bigint,
+    achievementStandardId: bigint,
   ): Promise<void> {
     await this.db.withTenantTransaction(schoolId, async (client) => {
       const res = await client.query(
-        `DELETE FROM academic_grade_achievements
-          WHERE school_id = $1 AND academic_year = $2 AND id = $3`,
-        [schoolId.toString(), academicYear, linkId.toString()],
+        `DELETE FROM academic_score_achievements
+          WHERE school_id = $1
+            AND academic_year = $2
+            AND academic_score_id = $3
+            AND achievement_standard_id = $4`,
+        [
+          schoolId.toString(),
+          academicYear,
+          academicScoreId.toString(),
+          achievementStandardId.toString(),
+        ],
       );
       if (res.rowCount === 0) {
         throw new ResourceNotFoundException(
-          'AcademicGradeAchievement',
-          linkId.toString(),
+          'AcademicScoreAchievement',
+          `${academicScoreId.toString()}:${achievementStandardId.toString()}`,
         );
       }
     });
@@ -703,13 +709,13 @@ export class PostgresTeacherExtendedRepository extends TeacherExtendedRepository
 
       // Sincronizar primero national_scale_id según grading_scales institucional y grade_group_id del curso
       await client.query(
-        `UPDATE academic_grades ag
+        `UPDATE academic_scores ag
             SET national_scale_id = (
               SELECT gs.national_scale_id
                 FROM grading_scales gs
                WHERE gs.school_id = ag.school_id
                  AND gs.academic_year = ag.academic_year
-                 AND ag.effective_score BETWEEN gs.min_score AND gs.max_score
+                 AND COALESCE(NULLIF(ag.recovery_score, 0), ag.final_score) BETWEEN gs.min_score AND gs.max_score
                  AND (gs.grade_group_id IS NULL OR gs.grade_group_id = $5::bigint)
                ORDER BY (gs.grade_group_id IS NOT NULL AND gs.grade_group_id = $5::bigint) DESC, gs.grade_group_id NULLS LAST
                LIMIT 1
@@ -729,11 +735,11 @@ export class PostgresTeacherExtendedRepository extends TeacherExtendedRepository
 
       // Asociar logros activos que coincidan con la escala o sean generales (national_scale_id IS NULL)
       const insRes = await client.query(
-        `INSERT INTO academic_grade_achievements (
-           school_id, academic_year, academic_grade_id, achievement_standard_id
+        `INSERT INTO academic_score_achievements (
+           school_id, academic_year, academic_score_id, achievement_standard_id
          )
          SELECT ag.school_id, ag.academic_year, ag.id, ast.id
-           FROM academic_grades ag
+           FROM academic_scores ag
            INNER JOIN achievement_standards ast
              ON ast.school_id = ag.school_id
             AND ast.academic_year = ag.academic_year
@@ -746,8 +752,8 @@ export class PostgresTeacherExtendedRepository extends TeacherExtendedRepository
             AND ag.academic_year = $2
             AND ag.course_assignment_id = $3
             AND ag.period_number = $4
-            AND ag.effective_score > 0
-         ON CONFLICT (school_id, academic_year, academic_grade_id, achievement_standard_id) DO NOTHING`,
+            AND COALESCE(NULLIF(ag.recovery_score, 0), ag.final_score) > 0
+         ON CONFLICT (school_id, academic_year, academic_score_id, achievement_standard_id) DO NOTHING`,
         [
           schoolId.toString(),
           input.academicYear,
@@ -805,10 +811,10 @@ export class PostgresTeacherExtendedRepository extends TeacherExtendedRepository
         `SELECT gr.enrollment_id, gr.course_assignment_id, sp.document_number,
                 TRIM(CONCAT_WS(' ', sp.last_name, sp.second_last_name, sp.first_name)) AS full_name,
                 g.name AS grade_name, ag.group_code, s.name AS subject_name,
-                aa.name AS area_name, c.name AS campus_name, gr.period_number,
-                gr.final_score, gr.recovery_score,
+                COALESCE(aa.name, 'Sin área') AS area_name, c.name AS campus_name, gr.period_number,
+                gr.final_score, COALESCE(gr.recovery_score, 0)::text AS recovery_score,
                 prr.recovery_date::text, prr.act_number, prr.observations
-           FROM academic_grades gr
+           FROM academic_scores gr
            INNER JOIN student_enrollments se ON se.school_id = gr.school_id AND se.id = gr.enrollment_id
            INNER JOIN student_profiles sp ON sp.school_id = se.school_id AND sp.id = se.student_profile_id
            INNER JOIN course_assignments ca ON ca.school_id = gr.school_id AND ca.id = gr.course_assignment_id
@@ -816,7 +822,13 @@ export class PostgresTeacherExtendedRepository extends TeacherExtendedRepository
            INNER JOIN grades g ON g.school_id = ca.school_id AND g.id = ca.grade_id
            INNER JOIN academic_groups ag ON ag.school_id = ca.school_id AND ag.id = ca.academic_group_id
            INNER JOIN subjects s ON s.school_id = ca.school_id AND s.id = ca.subject_id
-           INNER JOIN academic_areas aa ON aa.school_id = s.school_id AND aa.id = s.academic_area_id
+           LEFT JOIN subject_area_assignments saa
+             ON saa.school_id = gr.school_id
+            AND saa.academic_year = gr.academic_year
+            AND saa.subject_id = s.id
+           LEFT JOIN academic_areas aa
+             ON aa.school_id = s.school_id
+            AND aa.id = COALESCE(saa.academic_area_id, s.academic_area_id)
            LEFT JOIN LATERAL (
              SELECT recovery_date, act_number, observations
                FROM period_recovery_records r
@@ -898,15 +910,15 @@ export class PostgresTeacherExtendedRepository extends TeacherExtendedRepository
                 g.name AS grade_name,
                 ag.group_code,
                 s.name AS subject_name,
-                aa.name AS area_name,
+                COALESCE(aa.name, 'Sin área') AS area_name,
                 c.name AS campus_name,
                 MAX(gr.period_number) AS period_number,
-                ROUND(AVG(gr.effective_score)::numeric, 2)::text AS final_score,
+                ROUND(AVG(COALESCE(NULLIF(gr.recovery_score, 0), gr.final_score))::numeric, 2)::text AS final_score,
                 COALESCE(MAX(prr.recovery_score), 0)::text AS recovery_score,
                 MAX(prr.recovery_date::text) AS recovery_date,
                 MAX(prr.act_number) AS act_number,
                 MAX(prr.observations) AS observations
-           FROM academic_grades gr
+           FROM academic_scores gr
            INNER JOIN student_enrollments se ON se.school_id = gr.school_id AND se.id = gr.enrollment_id
            INNER JOIN student_profiles sp ON sp.school_id = se.school_id AND sp.id = se.student_profile_id
            INNER JOIN course_assignments ca ON ca.school_id = gr.school_id AND ca.id = gr.course_assignment_id
@@ -915,7 +927,13 @@ export class PostgresTeacherExtendedRepository extends TeacherExtendedRepository
            INNER JOIN grades g ON g.school_id = ca.school_id AND g.id = ca.grade_id
            INNER JOIN academic_groups ag ON ag.school_id = ca.school_id AND ag.id = ca.academic_group_id
            INNER JOIN subjects s ON s.school_id = ca.school_id AND s.id = ca.subject_id
-           INNER JOIN academic_areas aa ON aa.school_id = s.school_id AND aa.id = s.academic_area_id
+           LEFT JOIN subject_area_assignments saa
+             ON saa.school_id = gr.school_id
+            AND saa.academic_year = gr.academic_year
+            AND saa.subject_id = s.id
+           LEFT JOIN academic_areas aa
+             ON aa.school_id = s.school_id
+            AND aa.id = COALESCE(saa.academic_area_id, s.academic_area_id)
            LEFT JOIN period_recovery_records prr
              ON prr.school_id = gr.school_id
             AND prr.academic_year = gr.academic_year
@@ -927,8 +945,8 @@ export class PostgresTeacherExtendedRepository extends TeacherExtendedRepository
             ${teacherClause}
           GROUP BY gr.enrollment_id, gr.course_assignment_id, sp.document_number,
                    sp.last_name, sp.second_last_name, sp.first_name,
-                   g.name, ag.group_code, s.name, aa.name, c.name
-          HAVING AVG(gr.effective_score) < $3
+                   g.name, ag.group_code, s.name, COALESCE(aa.name, 'Sin área'), c.name
+          HAVING AVG(COALESCE(NULLIF(gr.recovery_score, 0), gr.final_score)) < $3
           ORDER BY g.name, ag.group_code, full_name`,
         params,
       );
@@ -991,13 +1009,15 @@ export class PostgresTeacherExtendedRepository extends TeacherExtendedRepository
         }
 
         // Actualizar registro previo si existe para evitar duplicación al editar nivelaciones
+        const targetPeriodNumber =
+          input.recoveryType === 'FINAL_RECOVERY' ? null : row.periodNumber;
         const existingRec = await client.query<{ id: string }>(
           `SELECT id FROM period_recovery_records
             WHERE school_id = $1
               AND academic_year = $2
               AND enrollment_id = $3
               AND course_assignment_id = $4
-              AND period_number = $5
+              AND period_number IS NOT DISTINCT FROM $5
               AND recovery_type = $6
             ORDER BY id DESC
             LIMIT 1`,
@@ -1006,7 +1026,7 @@ export class PostgresTeacherExtendedRepository extends TeacherExtendedRepository
             input.academicYear,
             row.enrollmentId,
             row.courseAssignmentId,
-            row.periodNumber,
+            targetPeriodNumber,
             input.recoveryType,
           ],
         );
@@ -1018,7 +1038,8 @@ export class PostgresTeacherExtendedRepository extends TeacherExtendedRepository
                     previous_score = $4,
                     recovery_score = $5,
                     recovery_date = COALESCE($6::date, recovery_date),
-                    observations = $7
+                    observations = $7,
+                    updated_at = NOW()
               WHERE school_id = $1 AND id = $2`,
             [
               schoolId.toString(),
@@ -1043,7 +1064,7 @@ export class PostgresTeacherExtendedRepository extends TeacherExtendedRepository
               input.academicYear,
               row.enrollmentId,
               row.courseAssignmentId,
-              row.periodNumber,
+              targetPeriodNumber,
               row.actNumber ?? null,
               row.previousScore,
               row.recoveryScore,
@@ -1056,36 +1077,25 @@ export class PostgresTeacherExtendedRepository extends TeacherExtendedRepository
 
         if (input.recoveryType === 'PERIOD_RECOVERY') {
           await client.query(
-            `UPDATE academic_grades
-                SET recovery_score = $6, updated_at = NOW()
+            `UPDATE academic_scores
+                SET lost_score = COALESCE(lost_score, final_score),
+                    recovery_score = $6,
+                    is_leveled = TRUE,
+                    leveled_at = COALESCE($7::date, CURRENT_DATE),
+                    updated_at = NOW()
               WHERE school_id = $1
                 AND academic_year = $2
                 AND enrollment_id = $3
-                AND course_assignment_id = $4
-                AND period_number = $5`,
+                AND period_number = $4
+                AND course_assignment_id = $5`,
             [
               schoolId.toString(),
               input.academicYear,
               row.enrollmentId,
-              row.courseAssignmentId,
               row.periodNumber,
-              row.recoveryScore,
-            ],
-          );
-        } else {
-          await client.query(
-            `UPDATE academic_grades
-                SET leveling_score = $5, updated_at = NOW()
-              WHERE school_id = $1
-                AND academic_year = $2
-                AND enrollment_id = $3
-                AND course_assignment_id = $4`,
-            [
-              schoolId.toString(),
-              input.academicYear,
-              row.enrollmentId,
               row.courseAssignmentId,
               row.recoveryScore,
+              row.recoveryDate ?? null,
             ],
           );
         }

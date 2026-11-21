@@ -46,180 +46,97 @@ COMMENT ON TABLE academic_degrees_catalog IS 'Catálogo de últimos niveles educ
 COMMENT ON COLUMN academic_degrees_catalog.id IS 'Identificador único del registro en la tabla (clave primaria o parte de la clave primaria compuesta).';
 COMMENT ON COLUMN academic_degrees_catalog.name IS 'Nombre descriptivo oficial del registro.';
 
--- Tabla: academic_grade_achievements (Dominio 7: Calificaciones Periódicas, Nivelaciones, Puestos y Asistencia (Particionado))
-COMMENT ON TABLE academic_grade_achievements IS 'Tabla asociativa en 3NF que vincula los logros e indicadores alcanzados por el estudiante en cada calificación periódica.';
-COMMENT ON COLUMN academic_grade_achievements.id IS 'Identificador único del registro en la tabla (clave primaria o parte de la clave primaria compuesta).';
-COMMENT ON COLUMN academic_grade_achievements.school_id IS 'Identificador de la Institución Educativa propietaria del registro (clave de particionamiento lógico y aislamiento Row-Level Security RLS).';
-COMMENT ON COLUMN academic_grade_achievements.academic_year IS 'Año lectivo escolar de cuatro dígitos al cual pertenece el registro (ej. 2025, 2026, 2027).';
-COMMENT ON COLUMN academic_grade_achievements.academic_grade_id IS 'Identificador del registro padre de calificación periódica (referencia a academic_grades).';
-COMMENT ON COLUMN academic_grade_achievements.achievement_standard_id IS 'Identificador del logro o indicador de desempeño asignado (referencia a achievement_standards).';
+-- Tablas particionadas de Calificaciones (Dominio 7: academic_scores, academic_score_achievements, academic_score_suggestions, academic_score_audit_logs)
+COMMENT ON TABLE academic_scores IS 'Tabla maestra particionada por año lectivo que consolida las calificaciones periódicas (unifica nscp00..003 con alineamiento óptimo, n1..n30 inline NUMERIC(5,2) NULL y cero columnas redundantes).';
+COMMENT ON TABLE academic_scores_historic IS 'Partición física de calificaciones periódicas para años lectivos históricos (1990..2024).';
+COMMENT ON TABLE academic_scores_2025 IS 'Partición física de calificaciones periódicas correspondiente al año lectivo 2025.';
+COMMENT ON TABLE academic_scores_2026 IS 'Partición física de calificaciones periódicas correspondiente al año lectivo 2026.';
+COMMENT ON TABLE academic_scores_2027 IS 'Partición física de calificaciones periódicas correspondiente al rango 2027..2034.';
+COMMENT ON TABLE academic_scores_default IS 'Partición física por defecto (DEFAULT) de calificaciones periódicas para años fuera de rango.';
 
--- Tabla: academic_grade_audit_logs (Dominio 7: Calificaciones Periódicas, Nivelaciones, Puestos y Asistencia (Particionado))
-COMMENT ON TABLE academic_grade_audit_logs IS 'Trazabilidad de auditoría de modificaciones de notas periódicas (valor anterior, valor nuevo, usuario responsable y motivo).';
-COMMENT ON COLUMN academic_grade_audit_logs.id IS 'Identificador único del registro en la tabla (clave primaria o parte de la clave primaria compuesta).';
-COMMENT ON COLUMN academic_grade_audit_logs.school_id IS 'Identificador de la Institución Educativa propietaria del registro (clave de particionamiento lógico y aislamiento Row-Level Security RLS).';
-COMMENT ON COLUMN academic_grade_audit_logs.academic_year IS 'Año lectivo escolar de cuatro dígitos al cual pertenece el registro (ej. 2025, 2026, 2027).';
-COMMENT ON COLUMN academic_grade_audit_logs.enrollment_id IS 'Identificador de la matrícula académica anual del estudiante (referencia a student_enrollments).';
-COMMENT ON COLUMN academic_grade_audit_logs.course_assignment_id IS 'Identificador de la carga académica docente que vincula asignatura, grupo y profesor (referencia a course_assignments).';
-COMMENT ON COLUMN academic_grade_audit_logs.period_number IS 'Número secuencial del periodo académico dentro del año lectivo (1, 2, 3, 4).';
-COMMENT ON COLUMN academic_grade_audit_logs.previous_score IS 'Calificación anterior antes de aplicar la modificación o nivelación.';
-COMMENT ON COLUMN academic_grade_audit_logs.new_score IS 'Nueva calificación registrada tras la modificación en planilla.';
-COMMENT ON COLUMN academic_grade_audit_logs.changed_by_user_id IS 'Identificador del usuario que ejecutó el cambio de nota auditado.';
-COMMENT ON COLUMN academic_grade_audit_logs.change_reason IS 'Justificación o motivo registrado para la modificación de la calificación.';
-COMMENT ON COLUMN academic_grade_audit_logs.created_at IS 'Fecha y hora exacta (TIMESTAMPTZ) de creación del registro en la base de datos.';
+COMMENT ON TABLE academic_score_achievements IS 'Tabla asociativa particionada M:N con PK natural que vincula logros e indicadores alcanzados a cada calificación periódica (log_nscp00..003).';
+COMMENT ON TABLE academic_score_achievements_historic IS 'Partición física de logros asignados a calificaciones históricas (1990..2024).';
+COMMENT ON TABLE academic_score_achievements_2025 IS 'Partición física de logros asignados a calificaciones del año 2025.';
+COMMENT ON TABLE academic_score_achievements_2026 IS 'Partición física de logros asignados a calificaciones del año 2026.';
+COMMENT ON TABLE academic_score_achievements_2027 IS 'Partición física de logros asignados a calificaciones del rango 2027..2034.';
+COMMENT ON TABLE academic_score_achievements_default IS 'Partición física por defecto de logros asignados a calificaciones.';
 
--- Tabla: academic_grades (Dominio 7: Calificaciones Periódicas, Nivelaciones, Puestos y Asistencia (Particionado))
-COMMENT ON TABLE academic_grades IS 'Tabla maestra particionada por año lectivo que consolida las calificaciones periódicas por matrícula, carga académica y periodo (unifica nscp00..003 conservando n1..n30 inline NUMERIC(5,2) NULL para óptimo almacenamiento y rendimiento O(1)).';
+COMMENT ON TABLE academic_score_suggestions IS 'Tabla asociativa particionada M:N con PK natural que vincula sugerencias pedagógicas docentes a cada calificación periódica (sug_nscp00..003).';
+COMMENT ON TABLE academic_score_suggestions_historic IS 'Partición física de sugerencias asignadas a calificaciones históricas (1990..2024).';
+COMMENT ON TABLE academic_score_suggestions_2025 IS 'Partición física de sugerencias asignadas a calificaciones del año 2025.';
+COMMENT ON TABLE academic_score_suggestions_2026 IS 'Partición física de sugerencias asignadas a calificaciones del año 2026.';
+COMMENT ON TABLE academic_score_suggestions_2027 IS 'Partición física de sugerencias asignadas a calificaciones del rango 2027..2034.';
+COMMENT ON TABLE academic_score_suggestions_default IS 'Partición física por defecto de sugerencias asignadas a calificaciones.';
+
 DO $$
 DECLARE
   tbl TEXT;
   idx INT;
 BEGIN
   FOREACH tbl IN ARRAY ARRAY[
-    'academic_grades',
-    'academic_grades_historic',
-    'academic_grades_2025',
-    'academic_grades_2026',
-    'academic_grades_2027',
-    'academic_grades_default'
+    'academic_scores', 'academic_scores_historic', 'academic_scores_2025',
+    'academic_scores_2026', 'academic_scores_2027', 'academic_scores_default'
   ] LOOP
+    EXECUTE format('COMMENT ON COLUMN %I.id IS %L', tbl, 'Identificador único de la calificación dentro del colegio y año lectivo.');
+    EXECUTE format('COMMENT ON COLUMN %I.school_id IS %L', tbl, 'Identificador de la Institución Educativa propietaria (aislamiento Row-Level Security RLS).');
+    EXECUTE format('COMMENT ON COLUMN %I.enrollment_id IS %L', tbl, 'Identificador de la matrícula académica del estudiante (referencia a student_enrollments).');
+    EXECUTE format('COMMENT ON COLUMN %I.course_assignment_id IS %L', tbl, 'Identificador de la carga académica docente (referencia a course_assignments).');
+    EXECUTE format('COMMENT ON COLUMN %I.updated_at IS %L', tbl, 'Fecha y hora exacta de la última modificación registrada en la calificación.');
+    EXECUTE format('COMMENT ON COLUMN %I.leveled_at IS %L', tbl, 'Fecha en la que se registró la nivelación o habilitación del periodo (fecha legacy).');
+    EXECUTE format('COMMENT ON COLUMN %I.academic_year IS %L', tbl, 'Año lectivo escolar de cuatro dígitos (clave de particionamiento).');
+    EXECUTE format('COMMENT ON COLUMN %I.period_number IS %L', tbl, 'Número secuencial del periodo académico dentro del año lectivo (1..6).');
+    EXECUTE format('COMMENT ON COLUMN %I.national_scale_id IS %L', tbl, 'Desempeño en la Escala Nacional Decreto 1290 (1=Bajo, 2=Básico, 3=Alto, 4=Superior).');
+    EXECUTE format('COMMENT ON COLUMN %I.justified_absences IS %L', tbl, 'Cantidad de inasistencias justificadas registradas en el periodo (faltas).');
+    EXECUTE format('COMMENT ON COLUMN %I.unjustified_absences IS %L', tbl, 'Cantidad de inasistencias injustificadas registradas en el periodo.');
+    EXECUTE format('COMMENT ON COLUMN %I.late_arrivals IS %L', tbl, 'Cantidad de llegadas tarde o retardos registrados en el periodo.');
+    EXECUTE format('COMMENT ON COLUMN %I.is_leveled IS %L', tbl, 'Indicador booleano de si la calificación del periodo fue nivelada (nivelacion legacy).');
+    EXECUTE format('COMMENT ON COLUMN %I.final_score IS %L', tbl, 'Calificación definitiva del periodo académico (final legacy).');
+    EXECUTE format('COMMENT ON COLUMN %I.lost_score IS %L', tbl, 'Calificación original reprobada conservada antes de aplicar la nivelación periódica (nota_perdida).');
+    EXECUTE format('COMMENT ON COLUMN %I.recovery_score IS %L', tbl, 'Calificación obtenida en la nivelación o habilitación del periodo (nota_habilitacion, NULL si no aplica).');
     FOR idx IN 1..30 LOOP
       EXECUTE format(
         'COMMENT ON COLUMN %I.n%s IS %L',
-        tbl,
-        idx,
+        tbl, idx,
         'Calificación parcial de la casilla ' || idx || ' del periodo (NUMERIC(5,2), NULL si no diligenciada para ocupar 0 bytes en heap PostgreSQL).'
       );
     END LOOP;
   END LOOP;
+
+  FOREACH tbl IN ARRAY ARRAY[
+    'academic_score_achievements', 'academic_score_achievements_historic', 'academic_score_achievements_2025',
+    'academic_score_achievements_2026', 'academic_score_achievements_2027', 'academic_score_achievements_default'
+  ] LOOP
+    EXECUTE format('COMMENT ON COLUMN %I.school_id IS %L', tbl, 'Identificador de la Institución Educativa propietaria (aislamiento RLS).');
+    EXECUTE format('COMMENT ON COLUMN %I.academic_year IS %L', tbl, 'Año lectivo escolar de cuatro dígitos (clave de particionamiento).');
+    EXECUTE format('COMMENT ON COLUMN %I.academic_score_id IS %L', tbl, 'Identificador de la calificación periódica asociada (referencia a academic_scores).');
+    EXECUTE format('COMMENT ON COLUMN %I.achievement_standard_id IS %L', tbl, 'Identificador del logro o indicador de desempeño asignado (referencia a achievement_standards).');
+  END LOOP;
+
+  FOREACH tbl IN ARRAY ARRAY[
+    'academic_score_suggestions', 'academic_score_suggestions_historic', 'academic_score_suggestions_2025',
+    'academic_score_suggestions_2026', 'academic_score_suggestions_2027', 'academic_score_suggestions_default'
+  ] LOOP
+    EXECUTE format('COMMENT ON COLUMN %I.school_id IS %L', tbl, 'Identificador de la Institución Educativa propietaria (aislamiento RLS).');
+    EXECUTE format('COMMENT ON COLUMN %I.academic_year IS %L', tbl, 'Año lectivo escolar de cuatro dígitos (clave de particionamiento).');
+    EXECUTE format('COMMENT ON COLUMN %I.academic_score_id IS %L', tbl, 'Identificador de la calificación periódica asociada (referencia a academic_scores).');
+    EXECUTE format('COMMENT ON COLUMN %I.suggestion_id IS %L', tbl, 'Identificador de la sugerencia pedagógica asignada (referencia a academic_suggestions).');
+  END LOOP;
 END $$;
-COMMENT ON COLUMN academic_grades.id IS 'Identificador único del registro en la tabla (clave primaria o parte de la clave primaria compuesta).';
-COMMENT ON COLUMN academic_grades.school_id IS 'Identificador de la Institución Educativa propietaria del registro (clave de particionamiento lógico y aislamiento Row-Level Security RLS).';
-COMMENT ON COLUMN academic_grades.academic_year IS 'Año lectivo escolar de cuatro dígitos al cual pertenece el registro (ej. 2025, 2026, 2027).';
-COMMENT ON COLUMN academic_grades.enrollment_id IS 'Identificador de la matrícula académica anual del estudiante (referencia a student_enrollments).';
-COMMENT ON COLUMN academic_grades.course_assignment_id IS 'Identificador de la carga académica docente que vincula asignatura, grupo y profesor (referencia a course_assignments).';
-COMMENT ON COLUMN academic_grades.period_id IS 'Identificador del periodo académico institucional (referencia a academic_periods).';
-COMMENT ON COLUMN academic_grades.period_number IS 'Número secuencial del periodo académico dentro del año lectivo (1, 2, 3, 4).';
-COMMENT ON COLUMN academic_grades.conceptual_score IS 'Nota acumulada en la dimensión conceptual o cognitiva del periodo.';
-COMMENT ON COLUMN academic_grades.procedural_score IS 'Nota acumulada en la dimensión procedimental o práxica del periodo.';
-COMMENT ON COLUMN academic_grades.attitudinal_score IS 'Nota acumulada en la dimensión actitudinal o axiológica del periodo.';
-COMMENT ON COLUMN academic_grades.evaluation_exam_score IS 'Nota obtenida en la evaluación periódica o examen acumulativo.';
-COMMENT ON COLUMN academic_grades.final_score IS 'Calificación definitiva calculada para la asignatura en el periodo académico.';
-COMMENT ON COLUMN academic_grades.recovery_score IS 'Calificación obtenida en el proceso de nivelación o superación académica.';
-COMMENT ON COLUMN academic_grades.leveling_score IS 'Calificación obtenida en actividades de nivelación o habilitación extraordinaria.';
-COMMENT ON COLUMN academic_grades.national_scale_id IS 'Identificador del desempeño en la Escala de Valoración Nacional Decreto 1290 (1=Bajo, 2=Básico, 3=Alto, 4=Superior).';
-COMMENT ON COLUMN academic_grades.justified_absences IS 'Cantidad de inasistencias con excusa justificada registradas en el periodo.';
-COMMENT ON COLUMN academic_grades.unjustified_absences IS 'Cantidad de inasistencias sin excusa justificada registradas en el periodo.';
-COMMENT ON COLUMN academic_grades.late_arrivals IS 'Cantidad de llegadas tarde o retardos registrados en el periodo.';
-COMMENT ON COLUMN academic_grades.teacher_observations IS 'Observaciones pedagógicas redactadas por el docente titular en el boletín del periodo.';
-COMMENT ON COLUMN academic_grades.is_locked IS 'Indica si la calificación se encuentra bloqueada por cierre de periodo académico.';
-COMMENT ON COLUMN academic_grades.updated_by_user_id IS 'Identificador del usuario que realizó la última modificación del registro.';
-COMMENT ON COLUMN academic_grades.created_at IS 'Fecha y hora exacta (TIMESTAMPTZ) de creación del registro en la base de datos.';
-COMMENT ON COLUMN academic_grades.updated_at IS 'Fecha y hora exacta (TIMESTAMPTZ) de la última actualización del registro.';
 
--- Tabla: academic_grades_2025 (Dominio 7: Calificaciones Periódicas, Nivelaciones, Puestos y Asistencia (Particionado))
-COMMENT ON TABLE academic_grades_2025 IS 'Partición física de calificaciones periódicas correspondiente al año lectivo 2025.';
-COMMENT ON COLUMN academic_grades_2025.id IS 'Identificador único del registro en la tabla (clave primaria o parte de la clave primaria compuesta).';
-COMMENT ON COLUMN academic_grades_2025.school_id IS 'Identificador de la Institución Educativa propietaria del registro (clave de particionamiento lógico y aislamiento Row-Level Security RLS).';
-COMMENT ON COLUMN academic_grades_2025.academic_year IS 'Año lectivo escolar de cuatro dígitos al cual pertenece el registro (ej. 2025, 2026, 2027).';
-COMMENT ON COLUMN academic_grades_2025.enrollment_id IS 'Identificador de la matrícula académica anual del estudiante (referencia a student_enrollments).';
-COMMENT ON COLUMN academic_grades_2025.course_assignment_id IS 'Identificador de la carga académica docente que vincula asignatura, grupo y profesor (referencia a course_assignments).';
-COMMENT ON COLUMN academic_grades_2025.period_id IS 'Identificador del periodo académico institucional (referencia a academic_periods).';
-COMMENT ON COLUMN academic_grades_2025.period_number IS 'Número secuencial del periodo académico dentro del año lectivo (1, 2, 3, 4).';
-COMMENT ON COLUMN academic_grades_2025.conceptual_score IS 'Nota acumulada en la dimensión conceptual o cognitiva del periodo.';
-COMMENT ON COLUMN academic_grades_2025.procedural_score IS 'Nota acumulada en la dimensión procedimental o práxica del periodo.';
-COMMENT ON COLUMN academic_grades_2025.attitudinal_score IS 'Nota acumulada en la dimensión actitudinal o axiológica del periodo.';
-COMMENT ON COLUMN academic_grades_2025.evaluation_exam_score IS 'Nota obtenida en la evaluación periódica o examen acumulativo.';
-COMMENT ON COLUMN academic_grades_2025.final_score IS 'Calificación definitiva calculada para la asignatura en el periodo académico.';
-COMMENT ON COLUMN academic_grades_2025.recovery_score IS 'Calificación obtenida en el proceso de nivelación o superación académica.';
-COMMENT ON COLUMN academic_grades_2025.leveling_score IS 'Calificación obtenida en actividades de nivelación o habilitación extraordinaria.';
-COMMENT ON COLUMN academic_grades_2025.national_scale_id IS 'Identificador del desempeño en la Escala de Valoración Nacional Decreto 1290 (1=Bajo, 2=Básico, 3=Alto, 4=Superior).';
-COMMENT ON COLUMN academic_grades_2025.justified_absences IS 'Cantidad de inasistencias con excusa justificada registradas en el periodo.';
-COMMENT ON COLUMN academic_grades_2025.unjustified_absences IS 'Cantidad de inasistencias sin excusa justificada registradas en el periodo.';
-COMMENT ON COLUMN academic_grades_2025.late_arrivals IS 'Cantidad de llegadas tarde o retardos registrados en el periodo.';
-COMMENT ON COLUMN academic_grades_2025.teacher_observations IS 'Observaciones pedagógicas redactadas por el docente titular en el boletín del periodo.';
-COMMENT ON COLUMN academic_grades_2025.is_locked IS 'Indica si la calificación se encuentra bloqueada por cierre de periodo académico.';
-COMMENT ON COLUMN academic_grades_2025.updated_by_user_id IS 'Identificador del usuario que realizó la última modificación del registro.';
-COMMENT ON COLUMN academic_grades_2025.created_at IS 'Fecha y hora exacta (TIMESTAMPTZ) de creación del registro en la base de datos.';
-COMMENT ON COLUMN academic_grades_2025.updated_at IS 'Fecha y hora exacta (TIMESTAMPTZ) de la última actualización del registro.';
-
--- Tabla: academic_grades_2026 (Dominio 7: Calificaciones Periódicas, Nivelaciones, Puestos y Asistencia (Particionado))
-COMMENT ON TABLE academic_grades_2026 IS 'Partición física de calificaciones periódicas correspondiente al año lectivo 2026.';
-COMMENT ON COLUMN academic_grades_2026.id IS 'Identificador único del registro en la tabla (clave primaria o parte de la clave primaria compuesta).';
-COMMENT ON COLUMN academic_grades_2026.school_id IS 'Identificador de la Institución Educativa propietaria del registro (clave de particionamiento lógico y aislamiento Row-Level Security RLS).';
-COMMENT ON COLUMN academic_grades_2026.academic_year IS 'Año lectivo escolar de cuatro dígitos al cual pertenece el registro (ej. 2025, 2026, 2027).';
-COMMENT ON COLUMN academic_grades_2026.enrollment_id IS 'Identificador de la matrícula académica anual del estudiante (referencia a student_enrollments).';
-COMMENT ON COLUMN academic_grades_2026.course_assignment_id IS 'Identificador de la carga académica docente que vincula asignatura, grupo y profesor (referencia a course_assignments).';
-COMMENT ON COLUMN academic_grades_2026.period_id IS 'Identificador del periodo académico institucional (referencia a academic_periods).';
-COMMENT ON COLUMN academic_grades_2026.period_number IS 'Número secuencial del periodo académico dentro del año lectivo (1, 2, 3, 4).';
-COMMENT ON COLUMN academic_grades_2026.conceptual_score IS 'Nota acumulada en la dimensión conceptual o cognitiva del periodo.';
-COMMENT ON COLUMN academic_grades_2026.procedural_score IS 'Nota acumulada en la dimensión procedimental o práxica del periodo.';
-COMMENT ON COLUMN academic_grades_2026.attitudinal_score IS 'Nota acumulada en la dimensión actitudinal o axiológica del periodo.';
-COMMENT ON COLUMN academic_grades_2026.evaluation_exam_score IS 'Nota obtenida en la evaluación periódica o examen acumulativo.';
-COMMENT ON COLUMN academic_grades_2026.final_score IS 'Calificación definitiva calculada para la asignatura en el periodo académico.';
-COMMENT ON COLUMN academic_grades_2026.recovery_score IS 'Calificación obtenida en el proceso de nivelación o superación académica.';
-COMMENT ON COLUMN academic_grades_2026.leveling_score IS 'Calificación obtenida en actividades de nivelación o habilitación extraordinaria.';
-COMMENT ON COLUMN academic_grades_2026.national_scale_id IS 'Identificador del desempeño en la Escala de Valoración Nacional Decreto 1290 (1=Bajo, 2=Básico, 3=Alto, 4=Superior).';
-COMMENT ON COLUMN academic_grades_2026.justified_absences IS 'Cantidad de inasistencias con excusa justificada registradas en el periodo.';
-COMMENT ON COLUMN academic_grades_2026.unjustified_absences IS 'Cantidad de inasistencias sin excusa justificada registradas en el periodo.';
-COMMENT ON COLUMN academic_grades_2026.late_arrivals IS 'Cantidad de llegadas tarde o retardos registrados en el periodo.';
-COMMENT ON COLUMN academic_grades_2026.teacher_observations IS 'Observaciones pedagógicas redactadas por el docente titular en el boletín del periodo.';
-COMMENT ON COLUMN academic_grades_2026.is_locked IS 'Indica si la calificación se encuentra bloqueada por cierre de periodo académico.';
-COMMENT ON COLUMN academic_grades_2026.updated_by_user_id IS 'Identificador del usuario que realizó la última modificación del registro.';
-COMMENT ON COLUMN academic_grades_2026.created_at IS 'Fecha y hora exacta (TIMESTAMPTZ) de creación del registro en la base de datos.';
-COMMENT ON COLUMN academic_grades_2026.updated_at IS 'Fecha y hora exacta (TIMESTAMPTZ) de la última actualización del registro.';
-
--- Tabla: academic_grades_2027 (Dominio 7: Calificaciones Periódicas, Nivelaciones, Puestos y Asistencia (Particionado))
-COMMENT ON TABLE academic_grades_2027 IS 'Partición física de calificaciones periódicas correspondiente al año lectivo 2027.';
-COMMENT ON COLUMN academic_grades_2027.id IS 'Identificador único del registro en la tabla (clave primaria o parte de la clave primaria compuesta).';
-COMMENT ON COLUMN academic_grades_2027.school_id IS 'Identificador de la Institución Educativa propietaria del registro (clave de particionamiento lógico y aislamiento Row-Level Security RLS).';
-COMMENT ON COLUMN academic_grades_2027.academic_year IS 'Año lectivo escolar de cuatro dígitos al cual pertenece el registro (ej. 2025, 2026, 2027).';
-COMMENT ON COLUMN academic_grades_2027.enrollment_id IS 'Identificador de la matrícula académica anual del estudiante (referencia a student_enrollments).';
-COMMENT ON COLUMN academic_grades_2027.course_assignment_id IS 'Identificador de la carga académica docente que vincula asignatura, grupo y profesor (referencia a course_assignments).';
-COMMENT ON COLUMN academic_grades_2027.period_id IS 'Identificador del periodo académico institucional (referencia a academic_periods).';
-COMMENT ON COLUMN academic_grades_2027.period_number IS 'Número secuencial del periodo académico dentro del año lectivo (1, 2, 3, 4).';
-COMMENT ON COLUMN academic_grades_2027.conceptual_score IS 'Nota acumulada en la dimensión conceptual o cognitiva del periodo.';
-COMMENT ON COLUMN academic_grades_2027.procedural_score IS 'Nota acumulada en la dimensión procedimental o práxica del periodo.';
-COMMENT ON COLUMN academic_grades_2027.attitudinal_score IS 'Nota acumulada en la dimensión actitudinal o axiológica del periodo.';
-COMMENT ON COLUMN academic_grades_2027.evaluation_exam_score IS 'Nota obtenida en la evaluación periódica o examen acumulativo.';
-COMMENT ON COLUMN academic_grades_2027.final_score IS 'Calificación definitiva calculada para la asignatura en el periodo académico.';
-COMMENT ON COLUMN academic_grades_2027.recovery_score IS 'Calificación obtenida en el proceso de nivelación o superación académica.';
-COMMENT ON COLUMN academic_grades_2027.leveling_score IS 'Calificación obtenida en actividades de nivelación o habilitación extraordinaria.';
-COMMENT ON COLUMN academic_grades_2027.national_scale_id IS 'Identificador del desempeño en la Escala de Valoración Nacional Decreto 1290 (1=Bajo, 2=Básico, 3=Alto, 4=Superior).';
-COMMENT ON COLUMN academic_grades_2027.justified_absences IS 'Cantidad de inasistencias con excusa justificada registradas en el periodo.';
-COMMENT ON COLUMN academic_grades_2027.unjustified_absences IS 'Cantidad de inasistencias sin excusa justificada registradas en el periodo.';
-COMMENT ON COLUMN academic_grades_2027.late_arrivals IS 'Cantidad de llegadas tarde o retardos registrados en el periodo.';
-COMMENT ON COLUMN academic_grades_2027.teacher_observations IS 'Observaciones pedagógicas redactadas por el docente titular en el boletín del periodo.';
-COMMENT ON COLUMN academic_grades_2027.is_locked IS 'Indica si la calificación se encuentra bloqueada por cierre de periodo académico.';
-COMMENT ON COLUMN academic_grades_2027.updated_by_user_id IS 'Identificador del usuario que realizó la última modificación del registro.';
-COMMENT ON COLUMN academic_grades_2027.created_at IS 'Fecha y hora exacta (TIMESTAMPTZ) de creación del registro en la base de datos.';
-COMMENT ON COLUMN academic_grades_2027.updated_at IS 'Fecha y hora exacta (TIMESTAMPTZ) de la última actualización del registro.';
-
--- Tabla: academic_grades_historic (Dominio 7: Calificaciones Periódicas, Nivelaciones, Puestos y Asistencia (Particionado))
-COMMENT ON TABLE academic_grades_historic IS 'Partición por defecto para calificaciones periódicas de años lectivos históricos o futuros adicionales.';
-COMMENT ON COLUMN academic_grades_historic.id IS 'Identificador único del registro en la tabla (clave primaria o parte de la clave primaria compuesta).';
-COMMENT ON COLUMN academic_grades_historic.school_id IS 'Identificador de la Institución Educativa propietaria del registro (clave de particionamiento lógico y aislamiento Row-Level Security RLS).';
-COMMENT ON COLUMN academic_grades_historic.academic_year IS 'Año lectivo escolar de cuatro dígitos al cual pertenece el registro (ej. 2025, 2026, 2027).';
-COMMENT ON COLUMN academic_grades_historic.enrollment_id IS 'Identificador de la matrícula académica anual del estudiante (referencia a student_enrollments).';
-COMMENT ON COLUMN academic_grades_historic.course_assignment_id IS 'Identificador de la carga académica docente que vincula asignatura, grupo y profesor (referencia a course_assignments).';
-COMMENT ON COLUMN academic_grades_historic.period_id IS 'Identificador del periodo académico institucional (referencia a academic_periods).';
-COMMENT ON COLUMN academic_grades_historic.period_number IS 'Número secuencial del periodo académico dentro del año lectivo (1, 2, 3, 4).';
-COMMENT ON COLUMN academic_grades_historic.conceptual_score IS 'Nota acumulada en la dimensión conceptual o cognitiva del periodo.';
-COMMENT ON COLUMN academic_grades_historic.procedural_score IS 'Nota acumulada en la dimensión procedimental o práxica del periodo.';
-COMMENT ON COLUMN academic_grades_historic.attitudinal_score IS 'Nota acumulada en la dimensión actitudinal o axiológica del periodo.';
-COMMENT ON COLUMN academic_grades_historic.evaluation_exam_score IS 'Nota obtenida en la evaluación periódica o examen acumulativo.';
-COMMENT ON COLUMN academic_grades_historic.final_score IS 'Calificación definitiva calculada para la asignatura en el periodo académico.';
-COMMENT ON COLUMN academic_grades_historic.recovery_score IS 'Calificación obtenida en el proceso de nivelación o superación académica.';
-COMMENT ON COLUMN academic_grades_historic.leveling_score IS 'Calificación obtenida en actividades de nivelación o habilitación extraordinaria.';
-COMMENT ON COLUMN academic_grades_historic.national_scale_id IS 'Identificador del desempeño en la Escala de Valoración Nacional Decreto 1290 (1=Bajo, 2=Básico, 3=Alto, 4=Superior).';
-COMMENT ON COLUMN academic_grades_historic.justified_absences IS 'Cantidad de inasistencias con excusa justificada registradas en el periodo.';
-COMMENT ON COLUMN academic_grades_historic.unjustified_absences IS 'Cantidad de inasistencias sin excusa justificada registradas en el periodo.';
-COMMENT ON COLUMN academic_grades_historic.late_arrivals IS 'Cantidad de llegadas tarde o retardos registrados en el periodo.';
-COMMENT ON COLUMN academic_grades_historic.teacher_observations IS 'Observaciones pedagógicas redactadas por el docente titular en el boletín del periodo.';
-COMMENT ON COLUMN academic_grades_historic.is_locked IS 'Indica si la calificación se encuentra bloqueada por cierre de periodo académico.';
-COMMENT ON COLUMN academic_grades_historic.updated_by_user_id IS 'Identificador del usuario que realizó la última modificación del registro.';
-COMMENT ON COLUMN academic_grades_historic.created_at IS 'Fecha y hora exacta (TIMESTAMPTZ) de creación del registro en la base de datos.';
-COMMENT ON COLUMN academic_grades_historic.updated_at IS 'Fecha y hora exacta (TIMESTAMPTZ) de la última actualización del registro.';
+-- Tabla: academic_score_audit_logs (Dominio 7: Auditoría y Respaldo de Calificaciones)
+COMMENT ON TABLE academic_score_audit_logs IS 'Trazabilidad de auditoría y respaldo de modificaciones/eliminaciones de notas periódicas (unifica backup_notes).';
+COMMENT ON COLUMN academic_score_audit_logs.id IS 'Identificador único del evento de auditoría (clave primaria compuesta).';
+COMMENT ON COLUMN academic_score_audit_logs.school_id IS 'Identificador de la Institución Educativa propietaria (aislamiento RLS).';
+COMMENT ON COLUMN academic_score_audit_logs.academic_year IS 'Año lectivo escolar de cuatro dígitos.';
+COMMENT ON COLUMN academic_score_audit_logs.enrollment_id IS 'Identificador de la matrícula académica del estudiante.';
+COMMENT ON COLUMN academic_score_audit_logs.course_assignment_id IS 'Identificador de la carga académica docente.';
+COMMENT ON COLUMN academic_score_audit_logs.period_number IS 'Número secuencial del periodo académico (1..6).';
+COMMENT ON COLUMN academic_score_audit_logs.previous_score IS 'Calificación anterior antes de aplicar la modificación o nivelación.';
+COMMENT ON COLUMN academic_score_audit_logs.new_score IS 'Nueva calificación registrada tras la modificación en planilla.';
+COMMENT ON COLUMN academic_score_audit_logs.changed_by_user_id IS 'Identificador del usuario que ejecutó el cambio de nota auditado.';
+COMMENT ON COLUMN academic_score_audit_logs.change_reason IS 'Justificación o motivo registrado para la modificación de la calificación.';
+COMMENT ON COLUMN academic_score_audit_logs.snapshot_data IS 'Instantánea JSONB opcional de la fila completa antes de eliminación o sobreescritura (backup_notes).';
+COMMENT ON COLUMN academic_score_audit_logs.created_at IS 'Fecha y hora exacta (TIMESTAMPTZ) del registro de auditoría.';
 
 -- Tabla: academic_grading_rules (Dominio 3: Sedes, Estructura Académica y Configuración Institucional (SIEE))
 COMMENT ON TABLE academic_grading_rules IS 'Reglas institucionales del Sistema Institucional de Evaluación de Estudiantes (SIEE) por año lectivo y grupo de grados (nota mínima aprobatoria, decimales, áreas perdidas, redondeo).';
@@ -281,7 +198,7 @@ COMMENT ON COLUMN academic_pre_reports.enrollment_id IS 'Identificador de la mat
 COMMENT ON COLUMN academic_pre_reports.course_assignment_id IS 'Identificador de la carga académica docente que vincula asignatura, grupo y profesor (referencia a course_assignments).';
 COMMENT ON COLUMN academic_pre_reports.period_number IS 'Número secuencial del periodo académico dentro del año lectivo (1, 2, 3, 4).';
 COMMENT ON COLUMN academic_pre_reports.partial_score IS 'Nota parcial acumulada al momento del corte de preinforme académico.';
-COMMENT ON COLUMN academic_pre_reports.national_scale_id IS 'Identificador del desempeño en la Escala de Valoración Nacional Decreto 1290 (1=Bajo, 2=Básico, 3=Alto, 4=Superior).';
+COMMENT ON COLUMN academic_pre_reports.is_active IS 'Indica si la alerta temprana de preinforme se encuentra activa (estado legacy).';
 COMMENT ON COLUMN academic_pre_reports.observations IS 'Observaciones adicionales o notas aclaratorias del registro.';
 COMMENT ON COLUMN academic_pre_reports.created_at IS 'Fecha y hora exacta (TIMESTAMPTZ) de creación del registro en la base de datos.';
 
@@ -1228,7 +1145,9 @@ COMMENT ON COLUMN student_enrollments.campus_id IS 'Identificador de la sede fí
 COMMENT ON COLUMN student_enrollments.shift_id IS 'Identificador de la jornada escolar de la institución (referencia a school_shifts).';
 COMMENT ON COLUMN student_enrollments.grade_id IS 'Identificador del grado académico de la institución (referencia a grades).';
 COMMENT ON COLUMN student_enrollments.academic_group_id IS 'Identificador del grupo o salón de clases activo (referencia a academic_groups).';
-COMMENT ON COLUMN student_enrollments.study_methodology_id IS 'Identificador de la metodología educativa SIMAT aplicada (referencia a study_methodologies).';
+COMMENT ON COLUMN student_enrollments.book_number IS 'Número de libro oficial de matrículas asociado al registro (book legacy).';
+COMMENT ON COLUMN student_enrollments.previous_school_address IS 'Dirección física de la institución educativa de procedencia del estudiante.';
+COMMENT ON COLUMN student_enrollments.is_promoted IS 'Bandera booleana que indica si la matrícula ya fue promovida al siguiente grado (promoted legacy).';
 COMMENT ON COLUMN student_enrollments.character_id IS 'Identificador del carácter de educación media (Académico o Técnico).';
 COMMENT ON COLUMN student_enrollments.specialty_id IS 'Identificador de la especialidad académica o técnica de la matrícula (referencia a academic_specialties).';
 COMMENT ON COLUMN student_enrollments.enrollment_status_id IS 'Identificador del estado de matrícula SIMAT (referencia a enrollment_statuses).';
@@ -1542,44 +1461,186 @@ COMMENT ON COLUMN academic_years.created_at IS 'Fecha y hora exacta (TIMESTAMPTZ
 COMMENT ON COLUMN academic_years.updated_at IS 'Fecha y hora exacta (TIMESTAMPTZ) de la última actualización del año lectivo institucional.';
 COMMENT ON COLUMN education_levels.display_order IS 'Orden numérico ascendente de presentación del nivel educativo en listados y reportes.';
 
--- Nuevas columnas en academic_grades y sus particiones existentes
-COMMENT ON COLUMN academic_grades.effective_score IS 'Calificación efectiva consolidada calculada automáticamente como GREATEST(final_score, recovery_score, leveling_score).';
-COMMENT ON COLUMN academic_grades.has_pre_report_alert IS 'Bandera booleana que indica si el estudiante activó alerta temprana de desempeño bajo en el periodo.';
-COMMENT ON COLUMN academic_grades_historic.effective_score IS 'Calificación efectiva consolidada calculada automáticamente como GREATEST(final_score, recovery_score, leveling_score).';
-COMMENT ON COLUMN academic_grades_historic.has_pre_report_alert IS 'Bandera booleana que indica si el estudiante activó alerta temprana de desempeño bajo en el periodo.';
-COMMENT ON COLUMN academic_grades_2025.effective_score IS 'Calificación efectiva consolidada calculada automáticamente como GREATEST(final_score, recovery_score, leveling_score).';
-COMMENT ON COLUMN academic_grades_2025.has_pre_report_alert IS 'Bandera booleana que indica si el estudiante activó alerta temprana de desempeño bajo en el periodo.';
-COMMENT ON COLUMN academic_grades_2026.effective_score IS 'Calificación efectiva consolidada calculada automáticamente como GREATEST(final_score, recovery_score, leveling_score).';
-COMMENT ON COLUMN academic_grades_2026.has_pre_report_alert IS 'Bandera booleana que indica si el estudiante activó alerta temprana de desempeño bajo en el periodo.';
-COMMENT ON COLUMN academic_grades_2027.effective_score IS 'Calificación efectiva consolidada calculada automáticamente como GREATEST(final_score, recovery_score, leveling_score).';
-COMMENT ON COLUMN academic_grades_2027.has_pre_report_alert IS 'Bandera booleana que indica si el estudiante activó alerta temprana de desempeño bajo en el periodo.';
+-- =============================================================================
+-- NUEVAS TABLAS Y COLUMNAS DE PARIDAD CURRICULAR, SIEE Y OBSERVADOR (V3.16)
+-- =============================================================================
 
--- Partición DEFAULT: academic_grades_default
-COMMENT ON TABLE academic_grades_default IS 'Partición física por defecto (DEFAULT) de calificaciones periódicas para años lectivos fuera del rango 1990..2034.';
-COMMENT ON COLUMN academic_grades_default.id IS 'Identificador único del registro en la tabla (clave primaria compuesta).';
-COMMENT ON COLUMN academic_grades_default.school_id IS 'Identificador de la Institución Educativa propietaria del registro (clave de aislamiento Row-Level Security RLS).';
-COMMENT ON COLUMN academic_grades_default.academic_year IS 'Año lectivo escolar de cuatro dígitos al cual pertenece el registro.';
-COMMENT ON COLUMN academic_grades_default.enrollment_id IS 'Identificador de la matrícula académica anual del estudiante (referencia a student_enrollments).';
-COMMENT ON COLUMN academic_grades_default.course_assignment_id IS 'Identificador de la carga académica docente que vincula asignatura, grupo y profesor (referencia a course_assignments).';
-COMMENT ON COLUMN academic_grades_default.period_id IS 'Identificador del periodo académico institucional (referencia a academic_periods).';
-COMMENT ON COLUMN academic_grades_default.period_number IS 'Número secuencial del periodo académico evaluado dentro del año lectivo (1..6).';
-COMMENT ON COLUMN academic_grades_default.conceptual_score IS 'Subnota consolidada correspondiente a la dimensión conceptual o cognitiva (Saber).';
-COMMENT ON COLUMN academic_grades_default.procedural_score IS 'Subnota consolidada correspondiente a la dimensión procedimental o práctica (Hacer).';
-COMMENT ON COLUMN academic_grades_default.attitudinal_score IS 'Subnota consolidada correspondiente a la dimensión actitudinal o axiológica (Ser).';
-COMMENT ON COLUMN academic_grades_default.evaluation_exam_score IS 'Calificación obtenida en la evaluación acumulativa o examen de periodo.';
-COMMENT ON COLUMN academic_grades_default.final_score IS 'Calificación definitiva numérica calculada para la asignatura en el periodo.';
-COMMENT ON COLUMN academic_grades_default.recovery_score IS 'Calificación obtenida en el proceso de recuperación o superación académica del periodo.';
-COMMENT ON COLUMN academic_grades_default.leveling_score IS 'Calificación obtenida en actividades de nivelación o habilitación extraordinaria.';
-COMMENT ON COLUMN academic_grades_default.effective_score IS 'Calificación efectiva consolidada calculada automáticamente como GREATEST(final_score, recovery_score, leveling_score).';
-COMMENT ON COLUMN academic_grades_default.national_scale_id IS 'Identificador del desempeño en la Escala de Valoración Nacional Decreto 1290 (1=Bajo, 2=Básico, 3=Alto, 4=Superior).';
-COMMENT ON COLUMN academic_grades_default.justified_absences IS 'Cantidad de inasistencias con excusa justificada registradas en el periodo.';
-COMMENT ON COLUMN academic_grades_default.unjustified_absences IS 'Cantidad de inasistencias sin excusa justificada registradas en el periodo.';
-COMMENT ON COLUMN academic_grades_default.late_arrivals IS 'Cantidad de llegadas tarde o retardos registrados en el periodo.';
-COMMENT ON COLUMN academic_grades_default.teacher_observations IS 'Observaciones pedagógicas redactadas por el docente titular en el boletín del periodo.';
-COMMENT ON COLUMN academic_grades_default.has_pre_report_alert IS 'Bandera booleana que indica si el estudiante activó alerta temprana de desempeño bajo en el periodo.';
-COMMENT ON COLUMN academic_grades_default.is_locked IS 'Indica si la calificación se encuentra bloqueada por cierre de periodo académico.';
-COMMENT ON COLUMN academic_grades_default.updated_by_user_id IS 'Identificador del usuario que realizó la última modificación del registro.';
-COMMENT ON COLUMN academic_grades_default.created_at IS 'Fecha y hora exacta (TIMESTAMPTZ) de creación del registro en la base de datos.';
-COMMENT ON COLUMN academic_grades_default.updated_at IS 'Fecha y hora exacta (TIMESTAMPTZ) de la última actualización del registro.';
+-- Nuevas columnas en tablas existentes
+COMMENT ON COLUMN campuses.gender_restriction_id IS 'Restricción de género admitido en la sede educativa (sex_id legacy).';
+COMMENT ON COLUMN campuses.suburb IS 'Barrio o vereda donde se ubica la sede educativa.';
+
+COMMENT ON COLUMN academic_grading_rules.rounding_threshold_score IS 'Nota umbral inferior desde la cual se aplica redondeo automático SIEE (nota_redondeo).';
+COMMENT ON COLUMN academic_grading_rules.rounding_target_score IS 'Nota destino asignada al cumplirse el umbral de redondeo SIEE (nota_final_redondeo).';
+COMMENT ON COLUMN academic_grading_rules.min_area_average IS 'Promedio mínimo exigido en áreas académicas según SIEE (prom_areas).';
+COMMENT ON COLUMN academic_grading_rules.fails_area_if_any_subject_fails IS 'Indica si perder una asignatura dentro de un área compuesta hace perder el área completa.';
+COMMENT ON COLUMN academic_grading_rules.fails_year_by_mandatory_area IS 'Activa la reprobación del año lectivo cuando el estudiante reprueba un área obligatoria.';
+COMMENT ON COLUMN academic_grading_rules.academic_year_mode IS 'Modalidad de cálculo del año lectivo configurada en SIEE (t_año_lectivo).';
+COMMENT ON COLUMN academic_grading_rules.ranks_by_area_average IS 'Indica si el puesto académico se calcula sobre promedios de áreas en lugar de asignaturas.';
+COMMENT ON COLUMN academic_grading_rules.enforces_recovery_dates IS 'Indica si las fechas límite de nivelación se validan estrictamente para docentes.';
+COMMENT ON COLUMN academic_grading_rules.students_per_book IS 'Cantidad máxima de estudiantes por libro final oficial de valoraciones.';
+COMMENT ON COLUMN academic_grading_rules.extra_settings IS 'Configuraciones operativas SIEE adicionales en formato JSONB.';
+
+COMMENT ON COLUMN academic_periods.is_gradable IS 'Indica si el periodo acepta registro de calificaciones numéricas (calificable legacy).';
+COMMENT ON COLUMN grading_scales.is_failing IS 'Indica si este rango de desempeño representa reprobación académica (reprueba legacy).';
+COMMENT ON COLUMN grading_scales.is_gradable IS 'Indica si el nivel de desempeño participa en cálculo cuantitativo (calificable legacy).';
+COMMENT ON COLUMN evaluation_dimensions.is_gradable IS 'Indica si la competencia o dimensión es calificable en planilla (calificable legacy).';
+COMMENT ON COLUMN evaluation_dimensions.icon_url IS 'Ruta o URL del ícono representativo de la competencia en planilla.';
+COMMENT ON COLUMN evaluation_dimension_columns.abbreviation IS 'Abreviatura corta de la columna de competencia (abrev legacy).';
+COMMENT ON COLUMN evaluation_dimension_columns.column_type IS 'Rol de la casilla dentro de n1..n30: NOTA (manual), PROM (promedio) o PORC (porcentaje).';
+COMMENT ON COLUMN evaluation_dimension_columns.is_editable IS 'Indica si la columna permite digitación directa por el docente.';
+
+COMMENT ON COLUMN student_family_links.lives_with_student IS 'Indica si el acudiente o familiar convive en el mismo hogar con el estudiante.';
+
+COMMENT ON COLUMN subjects.subject_type IS 'Clasificación del tipo de asignatura (1=Académica, 2=Técnica/Comportamiento).';
+COMMENT ON COLUMN subjects.is_excluded_from_average IS 'Indica si la asignatura se excluye del promedio general y cuadro de honor (excluir legacy).';
+COMMENT ON COLUMN curriculum_study_plans.process_weights IS 'Pesos porcentuales de procesos educativos (proc1..proc4 legacy) en formato JSONB.';
+COMMENT ON COLUMN curriculum_study_plans.updated_at IS 'Fecha y hora de la última actualización del plan de estudios.';
+
+COMMENT ON COLUMN teacher_gradebook_columns.short_name IS 'Nombre corto o código del encabezado de columna en la planilla docente.';
+COMMENT ON COLUMN teacher_gradebook_columns.is_active IS 'Indica si la columna de actividad está habilitada en la planilla del periodo.';
+COMMENT ON COLUMN teacher_gradebook_columns.is_editable IS 'Indica si el docente puede editar manualmente las notas de esta columna.';
+COMMENT ON COLUMN teacher_gradebook_columns.is_evaluation_linked IS 'Indica si la columna está sincronizada con una evaluación en línea.';
+COMMENT ON COLUMN teacher_gradebook_columns.is_activity_linked IS 'Indica si la columna está sincronizada con una actividad o foro virtual.';
+COMMENT ON COLUMN teacher_gradebook_columns.text_color IS 'Color de texto configurado para el encabezado de la columna en planilla.';
+COMMENT ON COLUMN teacher_gradebook_columns.background_color IS 'Color de fondo configurado para la columna en planilla.';
+
+COMMENT ON COLUMN achievement_standards.teacher_profile_id IS 'Identificador del docente autor del logro o indicador (opcional).';
+COMMENT ON COLUMN achievement_standards.sequence_number IS 'Número consecutivo del logro dentro del banco institucional.';
+COMMENT ON COLUMN achievement_standards.assignment_mode IS 'Modo de asignación del logro en boletines (1=Automático por escala, 2=Manual).';
+
+COMMENT ON COLUMN promotion_records.book_number IS 'Número del libro final oficial de valoraciones (libro legacy).';
+COMMENT ON COLUMN promotion_records.recovery_average IS 'Promedio definitivo recalculado tras actividades finales de recuperación (promedio_rec).';
+COMMENT ON COLUMN promotion_records.passed_areas_count IS 'Cantidad total de áreas académicas aprobadas por el estudiante (areas_g).';
+COMMENT ON COLUMN promotion_records.is_commission_promoted IS 'Indica si el estudiante fue promovido por decisión de la Comisión de Evaluación y Promoción.';
+COMMENT ON COLUMN promotion_records.promotion_messages IS 'Textos y observaciones institucionales estructurados para el acta de promoción (msg..msg3).';
+COMMENT ON COLUMN promotion_records.updated_at IS 'Fecha y hora de la última actualización del acta de promoción.';
+
+COMMENT ON COLUMN period_recovery_records.status IS 'Estado operativo del registro de recuperación o nivelación (1=Activo, 0=Anulado).';
+COMMENT ON COLUMN period_recovery_records.updated_at IS 'Fecha y hora de la última actualización del registro de recuperación.';
+
+COMMENT ON COLUMN student_period_rankings.total_score IS 'Sumatoria total de calificaciones usada para desempate en puestos y cuadro de honor.';
+COMMENT ON COLUMN student_period_rankings.max_score IS 'Calificación más alta obtenida por el estudiante en el periodo.';
+COMMENT ON COLUMN student_period_rankings.min_score IS 'Calificación más baja obtenida por el estudiante en el periodo.';
+COMMENT ON COLUMN student_period_rankings.group_total_students IS 'Cantidad total de estudiantes evaluados en el grupo para el cálculo del puesto.';
+COMMENT ON COLUMN student_period_rankings.honor_roll_rank IS 'Posición específica obtenida en el cuadro de honor institucional.';
+COMMENT ON COLUMN student_period_rankings.honor_roll_scope IS 'Alcance del cuadro de honor (1=Grupo, 2=Grado, 3=Institucional).';
+
+COMMENT ON COLUMN observer_template_sections.academic_year IS 'Año lectivo de vigencia de la sección o ítem del modelo de observador.';
+COMMENT ON COLUMN student_observers.model_type IS 'Identificador del modelo de observador aplicado (1..5).';
+COMMENT ON COLUMN student_observers.profile_data IS 'Datos estructurados psicosociales, médicos, familiares y de inclusión en formato JSONB (Modelo 5).';
+COMMENT ON COLUMN student_observers.is_active IS 'Indica si la ficha del observador del estudiante está activa.';
+
+-- Nueva tabla: campus_study_methodologies
+COMMENT ON TABLE campus_study_methodologies IS 'Metodologías educativas SIMAT autorizadas por sede física (cong_metod).';
+COMMENT ON COLUMN campus_study_methodologies.id IS 'Identificador único del registro (clave primaria compuesta).';
+COMMENT ON COLUMN campus_study_methodologies.school_id IS 'Identificador de la Institución Educativa propietaria (aislamiento RLS).';
+COMMENT ON COLUMN campus_study_methodologies.campus_id IS 'Identificador de la sede educativa (referencia a campuses).';
+COMMENT ON COLUMN campus_study_methodologies.study_methodology_id IS 'Identificador de la metodología educativa del catálogo oficial.';
+COMMENT ON COLUMN campus_study_methodologies.is_active IS 'Indica si la metodología está activa en la sede.';
+
+-- Nueva tabla: grade_group_memberships
+COMMENT ON TABLE grade_group_memberships IS 'Tabla asociativa M:N entre grados escolares y grupos de grados académicos o de promoción (aux_grados_agrupados).';
+COMMENT ON COLUMN grade_group_memberships.school_id IS 'Identificador de la Institución Educativa propietaria (aislamiento RLS).';
+COMMENT ON COLUMN grade_group_memberships.grade_group_id IS 'Identificador del grupo de grados (referencia a grade_groups).';
+COMMENT ON COLUMN grade_group_memberships.grade_id IS 'Identificador del grado escolar asociado (referencia a grades).';
+
+-- Nueva tabla: document_number_sequences
+COMMENT ON TABLE document_number_sequences IS 'Consecutivos legales anuales de certificados, constancias y actas expedidas (certificate_numbers).';
+COMMENT ON COLUMN document_number_sequences.id IS 'Identificador único del consecutivo (clave primaria compuesta).';
+COMMENT ON COLUMN document_number_sequences.school_id IS 'Identificador de la Institución Educativa propietaria (aislamiento RLS).';
+COMMENT ON COLUMN document_number_sequences.academic_year IS 'Año lectivo de vigencia del consecutivo.';
+COMMENT ON COLUMN document_number_sequences.document_type IS 'Código o tipo de documento oficial numerado.';
+COMMENT ON COLUMN document_number_sequences.parent_sequence_id IS 'Identificador opcional de secuencia padre en certificaciones agrupadas.';
+COMMENT ON COLUMN document_number_sequences.last_number IS 'Último número consecutivo asignado para el tipo de documento y año.';
+COMMENT ON COLUMN document_number_sequences.updated_at IS 'Fecha y hora de la última expedición numerada.';
+
+-- Nueva tabla: document_templates
+COMMENT ON TABLE document_templates IS 'Plantillas configurables de constancias, certificados, actas de grado y carnets por vigencia anual.';
+COMMENT ON COLUMN document_templates.id IS 'Identificador único de la plantilla (clave primaria compuesta).';
+COMMENT ON COLUMN document_templates.school_id IS 'Identificador de la Institución Educativa propietaria (aislamiento RLS).';
+COMMENT ON COLUMN document_templates.template_category IS 'Categoría de la plantilla (CERTIFICATE, CONSTANCY, GRADUATION_ACT, ID_CARD).';
+COMMENT ON COLUMN document_templates.name IS 'Nombre descriptivo de la plantilla documental.';
+COMMENT ON COLUMN document_templates.year_from IS 'Año lectivo inicial de vigencia de la plantilla.';
+COMMENT ON COLUMN document_templates.year_until IS 'Año lectivo final de vigencia de la plantilla.';
+COMMENT ON COLUMN document_templates.config_json IS 'Estructura, textos, encabezados, QR y firmas de la plantilla en JSONB.';
+COMMENT ON COLUMN document_templates.is_active IS 'Indica si la plantilla se encuentra activa para emisión.';
+COMMENT ON COLUMN document_templates.updated_at IS 'Fecha y hora de la última modificación de la plantilla.';
+
+-- Nueva tabla: teacher_academic_years
+COMMENT ON TABLE teacher_academic_years IS 'Planta docente activa registrada por año lectivo escolar (aux_docentes).';
+COMMENT ON COLUMN teacher_academic_years.school_id IS 'Identificador de la Institución Educativa propietaria (aislamiento RLS).';
+COMMENT ON COLUMN teacher_academic_years.academic_year IS 'Año lectivo escolar en el que el docente estuvo activo.';
+COMMENT ON COLUMN teacher_academic_years.teacher_profile_id IS 'Identificador del perfil docente (referencia a teacher_profiles).';
+COMMENT ON COLUMN teacher_academic_years.is_active IS 'Indica si el docente estuvo activo en la planta de ese año.';
+COMMENT ON COLUMN teacher_academic_years.created_at IS 'Fecha y hora de registro en la planta anual.';
+
+-- Nueva tabla: subject_area_assignments
+COMMENT ON TABLE subject_area_assignments IS 'Asignación anual histórica de cada asignatura a su área académica correspondiente (aux_asignaturas).';
+COMMENT ON COLUMN subject_area_assignments.id IS 'Identificador único de la asignación anual (clave primaria compuesta).';
+COMMENT ON COLUMN subject_area_assignments.school_id IS 'Identificador de la Institución Educativa propietaria (aislamiento RLS).';
+COMMENT ON COLUMN subject_area_assignments.academic_year IS 'Año lectivo en el que rige la pertenencia de la asignatura al área.';
+COMMENT ON COLUMN subject_area_assignments.subject_id IS 'Identificador de la asignatura (referencia a subjects).';
+COMMENT ON COLUMN subject_area_assignments.academic_area_id IS 'Identificador del área académica asignada para ese año (referencia a academic_areas).';
+COMMENT ON COLUMN subject_area_assignments.is_active IS 'Indica si la asignatura estuvo habilitada dentro del área en ese año lectivo.';
+COMMENT ON COLUMN subject_area_assignments.created_at IS 'Fecha y hora de creación del registro.';
+
+-- Nueva tabla: academic_suggestions
+COMMENT ON TABLE academic_suggestions IS 'Banco institucional y docente de sugerencias u observaciones pedagógicas periódicas (sugerencias).';
+COMMENT ON COLUMN academic_suggestions.id IS 'Identificador único de la sugerencia (clave primaria compuesta).';
+COMMENT ON COLUMN academic_suggestions.school_id IS 'Identificador de la Institución Educativa propietaria (aislamiento RLS).';
+COMMENT ON COLUMN academic_suggestions.teacher_profile_id IS 'Identificador del docente autor de la sugerencia (opcional).';
+COMMENT ON COLUMN academic_suggestions.academic_year IS 'Año lectivo al que pertenece la sugerencia.';
+COMMENT ON COLUMN academic_suggestions.period_number IS 'Número del periodo académico asociado (1..6).';
+COMMENT ON COLUMN academic_suggestions.suggestion_type IS 'Categoría o tipo de sugerencia pedagógica.';
+COMMENT ON COLUMN academic_suggestions.description IS 'Texto descriptivo de la sugerencia u observación pedagógica.';
+COMMENT ON COLUMN academic_suggestions.is_active IS 'Indica si la sugerencia se encuentra activa.';
+COMMENT ON COLUMN academic_suggestions.created_at IS 'Fecha y hora de creación de la sugerencia.';
+
+-- Nueva tabla: student_enrollment_access_controls
+COMMENT ON TABLE student_enrollment_access_controls IS 'Permisos granulares por matrícula estudiantil para visualizar notas, boletines, certificados y aula virtual (student_access).';
+COMMENT ON COLUMN student_enrollment_access_controls.school_id IS 'Identificador de la Institución Educativa propietaria (aislamiento RLS).';
+COMMENT ON COLUMN student_enrollment_access_controls.enrollment_id IS 'Identificador de la matrícula del estudiante (clave primaria compuesta).';
+COMMENT ON COLUMN student_enrollment_access_controls.can_view_scores IS 'Habilita la consulta de calificaciones periódicas al estudiante/acudiente.';
+COMMENT ON COLUMN student_enrollment_access_controls.can_view_report_cards IS 'Habilita la descarga de boletines informativos.';
+COMMENT ON COLUMN student_enrollment_access_controls.can_view_certificates IS 'Habilita la descarga de constancias y certificados académicos.';
+COMMENT ON COLUMN student_enrollment_access_controls.can_take_evaluations IS 'Habilita la presentación de evaluaciones en línea.';
+COMMENT ON COLUMN student_enrollment_access_controls.can_view_activities IS 'Habilita el acceso y entrega de actividades virtuales.';
+COMMENT ON COLUMN student_enrollment_access_controls.can_join_live_classes IS 'Habilita el ingreso a clases virtuales en vivo.';
+COMMENT ON COLUMN student_enrollment_access_controls.can_view_levelings IS 'Habilita la consulta de actividades y actas de nivelación.';
+COMMENT ON COLUMN student_enrollment_access_controls.updated_at IS 'Fecha y hora de la última actualización de permisos.';
+
+-- Nueva tabla: advance_promotions
+COMMENT ON TABLE advance_promotions IS 'Registro de actas de Promoción Anticipada intra-año según Decreto 1290 (promoted_header + promoted_observation).';
+COMMENT ON COLUMN advance_promotions.id IS 'Identificador único de la promoción anticipada (clave primaria compuesta).';
+COMMENT ON COLUMN advance_promotions.school_id IS 'Identificador de la Institución Educativa propietaria (aislamiento RLS).';
+COMMENT ON COLUMN advance_promotions.academic_year IS 'Año lectivo en el que ocurrió la promoción anticipada.';
+COMMENT ON COLUMN advance_promotions.previous_enrollment_id IS 'Matrícula original del grado cursado en el primer periodo.';
+COMMENT ON COLUMN advance_promotions.new_enrollment_id IS 'Nueva matrícula generada en el grado superior al que fue promovido.';
+COMMENT ON COLUMN advance_promotions.act_number IS 'Número de acta o resolución del Consejo Directivo/Académico.';
+COMMENT ON COLUMN advance_promotions.promotion_date IS 'Fecha oficial de aprobación de la promoción anticipada.';
+COMMENT ON COLUMN advance_promotions.certificate_texts IS 'Textos personalizados del acta y constancia de promoción anticipada en JSONB.';
+COMMENT ON COLUMN advance_promotions.created_at IS 'Fecha y hora de creación del registro.';
+
+-- Nueva tabla: advance_promotion_subject_details
+COMMENT ON TABLE advance_promotion_subject_details IS 'Detalle de calificaciones del primer periodo preservadas del grado anterior en una promoción anticipada (detail_promoted).';
+COMMENT ON COLUMN advance_promotion_subject_details.id IS 'Identificador único del detalle (clave primaria compuesta).';
+COMMENT ON COLUMN advance_promotion_subject_details.school_id IS 'Identificador de la Institución Educativa propietaria (aislamiento RLS).';
+COMMENT ON COLUMN advance_promotion_subject_details.advance_promotion_id IS 'Identificador del acta padre de promoción anticipada.';
+COMMENT ON COLUMN advance_promotion_subject_details.subject_id IS 'Identificador de la asignatura evaluada.';
+COMMENT ON COLUMN advance_promotion_subject_details.period_number IS 'Número del periodo evaluado antes de la promoción (por defecto 1).';
+COMMENT ON COLUMN advance_promotion_subject_details.score IS 'Calificación sobresaliente obtenida en la asignatura.';
+COMMENT ON COLUMN advance_promotion_subject_details.absences IS 'Cantidad de inasistencias registradas en la asignatura.';
+
+-- Nueva tabla: observer_criteria_evaluations
+COMMENT ON TABLE observer_criteria_evaluations IS 'Matriz estructurada de valoración por periodo (S, CS, AV, N) para criterios del Observador Modelo 3 (obs_items_modelo_3).';
+COMMENT ON COLUMN observer_criteria_evaluations.school_id IS 'Identificador de la Institución Educativa propietaria (aislamiento RLS).';
+COMMENT ON COLUMN observer_criteria_evaluations.student_observer_id IS 'Identificador del observador del estudiante (referencia a student_observers).';
+COMMENT ON COLUMN observer_criteria_evaluations.criteria_id IS 'Identificador del criterio evaluado (referencia a observer_criteria).';
+COMMENT ON COLUMN observer_criteria_evaluations.teacher_profile_id IS 'Identificador del docente evaluador del criterio.';
+COMMENT ON COLUMN observer_criteria_evaluations.period_1_rating IS 'Valoración del criterio en el periodo 1 (S, CS, AV, N).';
+COMMENT ON COLUMN observer_criteria_evaluations.period_2_rating IS 'Valoración del criterio en el periodo 2 (S, CS, AV, N).';
+COMMENT ON COLUMN observer_criteria_evaluations.period_3_rating IS 'Valoración del criterio en el periodo 3 (S, CS, AV, N).';
+COMMENT ON COLUMN observer_criteria_evaluations.period_4_rating IS 'Valoración del criterio en el periodo 4 (S, CS, AV, N).';
+COMMENT ON COLUMN observer_criteria_evaluations.updated_at IS 'Fecha y hora de la última actualización de la valoración.';
 
 COMMIT;

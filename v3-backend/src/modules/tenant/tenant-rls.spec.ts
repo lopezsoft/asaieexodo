@@ -182,7 +182,7 @@ describe('PostgreSQL 17 Single-DB Multi-Tenant RLS, Security Guards, pgvector CR
     expect(openApiDoc.paths['/api/v1/auth/change-password']).toBeDefined();
   });
 
-  it('verifies PostgreSQL 17 RLS, 133 tables/partitions, 0 uncommented cols, cleaned geo seeds, CRM & S3 when DB is online', async () => {
+  it('verifies PostgreSQL 17 RLS, 155 tables/partitions, 0 uncommented cols, cleaned geo seeds, CRM & S3 when DB is online', async () => {
     if (!postgresAvailable) {
       return;
     }
@@ -247,7 +247,7 @@ describe('PostgreSQL 17 Single-DB Multi-Tenant RLS, Security Guards, pgvector CR
              FROM pg_catalog.pg_class c
              JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
              WHERE n.nspname = 'public'
-               AND c.relname LIKE 'academic_grade%'
+               AND c.relname LIKE 'academic_score%'
                AND c.relkind = 'r'
                AND (NOT c.relrowsecurity OR NOT c.relforcerowsecurity)) AS unprotected_partitions
         `);
@@ -255,9 +255,9 @@ describe('PostgreSQL 17 Single-DB Multi-Tenant RLS, Security Guards, pgvector CR
       },
     );
 
-    expect(Number(verification.total_pg_relations)).toBe(133);
-    // Las 5 particiones hijas de academic_grades tienen REVOKE ALL para asaie_app_runtime (133 - 5 = 128 accesibles)
-    expect(Number(verification.runtime_accessible_tables)).toBe(128);
+    expect(Number(verification.total_pg_relations)).toBe(155);
+    // Las 15 particiones hijas (academic_scores_*, academic_score_achievements_*, academic_score_suggestions_*) tienen REVOKE ALL para asaie_app_runtime (155 - 15 = 140 accesibles)
+    expect(Number(verification.runtime_accessible_tables)).toBe(140);
     expect(Number(verification.unprotected_partitions)).toBe(0);
     expect(Number(verification.non_english_cols)).toBe(0);
     expect(Number(verification.tables_without_comment)).toBe(0);

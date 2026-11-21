@@ -11,34 +11,32 @@ import {
 } from '../../domain/ports/academic-grade.repository.port';
 import { GradingScore } from '../../domain/strategies/grading-calculation.strategy';
 
-interface GradeRow {
+interface ScoreRow {
   id: string;
   school_id: string;
   academic_year: number;
   enrollment_id: string;
   course_assignment_id: string;
-  period_id: string;
   period_number: number;
   final_score: string;
-  recovery_score: string;
-  leveling_score: string;
+  lost_score: string | null;
+  recovery_score: string | null;
+  is_leveled: boolean;
+  leveled_at: string | null;
   national_scale_id: number | null;
   justified_absences: number;
   unjustified_absences: number;
   late_arrivals: number;
-  teacher_observations: string | null;
-  has_pre_report_alert: boolean;
-  is_locked: boolean;
-  updated_by_user_id: string;
 }
 
 interface BulletinSummaryRow {
   area_name: string;
   subject_name: string;
-  weekly_hours: number;
+  weekly_hours: string;
   final_score: string;
-  recovery_score: string;
-  leveling_score: string;
+  lost_score: string | null;
+  recovery_score: string | null;
+  is_leveled: boolean;
   effective_score: string;
   scale_name: string | null;
   scale_abbreviation: string | null;
@@ -129,43 +127,41 @@ export class PostgresAcademicGradeRepository
         );
       }
 
-      // 2. Bloquear fila previa (si existe) para validar is_locked y auditar cambio de nota
+      // 2. Bloquear fila previa (si existe) para auditar cambio de nota y preservar lost_score
       const existingRes = await client.query<{
         id: string;
         final_score: string;
-        is_locked: boolean;
+        lost_score: string | null;
       }>(
-        `SELECT id, final_score, is_locked
-         FROM academic_grades
+        `SELECT id, final_score, lost_score
+         FROM academic_scores
          WHERE school_id = $1
            AND academic_year = $2
            AND enrollment_id = $3
-           AND course_assignment_id = $4
-           AND period_number = $5
+           AND period_number = $4
+           AND course_assignment_id = $5
          FOR UPDATE`,
         [
           String(input.schoolId),
           input.academicYear,
           String(input.enrollmentId),
-          String(input.courseAssignmentId),
           period.period_number,
+          String(input.courseAssignmentId),
         ],
       );
 
       const previousGrade = existingRes.rows[0];
-      if (previousGrade?.is_locked) {
-        throw new DomainException(
-          'GRADE_LOCKED',
-          'Esta calificación se encuentra bloqueada y no puede ser modificada.',
-        );
-      }
+      const hasRecovery =
+        input.recoveryScore !== null && input.recoveryScore > 0;
+      const effectiveValue = hasRecovery
+        ? (input.recoveryScore as number)
+        : input.finalScore;
+      const lostScore =
+        hasRecovery
+          ? Number(previousGrade?.lost_score ?? previousGrade?.final_score ?? input.finalScore)
+          : (previousGrade?.lost_score ? Number(previousGrade.lost_score) : null);
 
       // 3. Resolver national_scale_id segun la escala institucional del colegio
-      const effectiveValue = Math.max(
-        input.finalScore,
-        input.recoveryScore,
-        input.levelingScore,
-      );
       const scaleRes = await client.query<{ national_scale_id: number }>(
         `SELECT gs.national_scale_id
          FROM grading_scales gs
@@ -178,60 +174,56 @@ export class PostgresAcademicGradeRepository
       );
       const nationalScaleId = scaleRes.rows[0]?.national_scale_id ?? null;
 
-      // 4. Upsert 100% alineado con academic_grades (02-core-schema-rls.sql)
-      const res = await client.query<GradeRow>(
-        `INSERT INTO academic_grades (
+      // 4. Upsert 100% alineado con academic_scores (02-core-schema-rls.sql)
+      const res = await client.query<ScoreRow>(
+        `INSERT INTO academic_scores (
            school_id, academic_year, enrollment_id, course_assignment_id,
-           period_id, period_number, final_score, recovery_score, leveling_score,
-           national_scale_id, justified_absences, unjustified_absences, late_arrivals,
-           teacher_observations, has_pre_report_alert, updated_by_user_id
+           period_number, final_score, lost_score, recovery_score, is_leveled,
+           leveled_at, national_scale_id, justified_absences,
+           unjustified_absences, late_arrivals
          )
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
-         ON CONFLICT (school_id, academic_year, enrollment_id, course_assignment_id, period_number)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10::date, $11, $12, $13, $14)
+         ON CONFLICT (school_id, academic_year, enrollment_id, period_number, course_assignment_id)
          DO UPDATE SET
-           period_id = EXCLUDED.period_id,
            final_score = EXCLUDED.final_score,
+           lost_score = COALESCE(EXCLUDED.lost_score, academic_scores.lost_score),
            recovery_score = EXCLUDED.recovery_score,
-           leveling_score = EXCLUDED.leveling_score,
+           is_leveled = EXCLUDED.is_leveled,
+           leveled_at = COALESCE(EXCLUDED.leveled_at, academic_scores.leveled_at),
            national_scale_id = EXCLUDED.national_scale_id,
            justified_absences = EXCLUDED.justified_absences,
            unjustified_absences = EXCLUDED.unjustified_absences,
            late_arrivals = EXCLUDED.late_arrivals,
-           teacher_observations = EXCLUDED.teacher_observations,
-           has_pre_report_alert = EXCLUDED.has_pre_report_alert,
-           updated_by_user_id = EXCLUDED.updated_by_user_id,
            updated_at = NOW()
          RETURNING id, school_id, academic_year, enrollment_id, course_assignment_id,
-                   period_id, period_number, final_score, recovery_score, leveling_score,
-                   national_scale_id, justified_absences, unjustified_absences, late_arrivals,
-                   teacher_observations, has_pre_report_alert, is_locked, updated_by_user_id`,
+                   period_number, final_score, lost_score, recovery_score, is_leveled,
+                   leveled_at::text, national_scale_id, justified_absences,
+                   unjustified_absences, late_arrivals`,
         [
           String(input.schoolId),
           input.academicYear,
           String(input.enrollmentId),
           String(input.courseAssignmentId),
-          String(input.periodId),
           period.period_number,
           input.finalScore,
-          input.recoveryScore,
-          input.levelingScore,
+          lostScore,
+          hasRecovery ? input.recoveryScore : null,
+          hasRecovery,
+          hasRecovery ? new Date().toISOString().slice(0, 10) : null,
           nationalScaleId,
           input.justifiedAbsences,
           input.unjustifiedAbsences,
           input.lateArrivals,
-          input.teacherObservations ?? null,
-          input.hasPreReportAlert,
-          String(input.updatedByUserId),
         ],
       );
 
-      // 5. Registrar trazabilidad en academic_grade_audit_logs
+      // 5. Registrar trazabilidad en academic_score_audit_logs
       const previousScore = previousGrade
         ? Number(previousGrade.final_score)
         : null;
       if (previousScore === null || previousScore !== input.finalScore) {
         await client.query(
-          `INSERT INTO academic_grade_audit_logs (
+          `INSERT INTO academic_score_audit_logs (
              school_id, academic_year, enrollment_id, course_assignment_id,
              period_number, previous_score, new_score, changed_by_user_id, change_reason
            )
@@ -255,14 +247,14 @@ export class PostgresAcademicGradeRepository
         await client.query(
           `INSERT INTO academic_pre_reports (
              school_id, academic_year, enrollment_id, course_assignment_id,
-             period_number, partial_score, national_scale_id, observations
+             period_number, partial_score, observations, is_active
            )
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, TRUE)
            ON CONFLICT (school_id, academic_year, enrollment_id, course_assignment_id, period_number)
            DO UPDATE SET
              partial_score = EXCLUDED.partial_score,
-             national_scale_id = EXCLUDED.national_scale_id,
-             observations = EXCLUDED.observations`,
+             observations = COALESCE(EXCLUDED.observations, academic_pre_reports.observations),
+             is_active = TRUE`,
           [
             String(input.schoolId),
             input.academicYear,
@@ -270,8 +262,7 @@ export class PostgresAcademicGradeRepository
             String(input.courseAssignmentId),
             period.period_number,
             effectiveValue,
-            nationalScaleId,
-            input.teacherObservations ?? null,
+            input.preReportObservations ?? null,
           ],
         );
       } else {
@@ -293,29 +284,25 @@ export class PostgresAcademicGradeRepository
       }
 
       const row = res.rows[0];
-      const recVal = Number(row.recovery_score);
-      const levVal = Number(row.leveling_score);
+      const recVal = row.recovery_score !== null ? Number(row.recovery_score) : 0;
+      const lostVal = row.lost_score !== null ? Number(row.lost_score) : 0;
 
       return AcademicGrade.createOrUpdate(BigInt(row.id), {
         schoolId: BigInt(row.school_id),
         academicYear: row.academic_year,
         enrollmentId: BigInt(row.enrollment_id),
         courseAssignmentId: BigInt(row.course_assignment_id),
-        periodId: BigInt(row.period_id),
         periodNumber: row.period_number,
         finalScore: GradingScore.create(Number(row.final_score), 0, 100),
-        recoveryScore:
-          recVal > 0 ? GradingScore.create(recVal, 0, 100) : null,
-        levelingScore:
-          levVal > 0 ? GradingScore.create(levVal, 0, 100) : null,
+        lostScore: lostVal > 0 ? GradingScore.create(lostVal, 0, 100) : null,
+        recoveryScore: recVal > 0 ? GradingScore.create(recVal, 0, 100) : null,
+        isLeveled: row.is_leveled,
+        leveledAt: row.leveled_at,
         nationalScaleId: row.national_scale_id,
         justifiedAbsences: row.justified_absences,
         unjustifiedAbsences: row.unjustified_absences,
         lateArrivals: row.late_arrivals,
-        teacherObservations: row.teacher_observations,
-        hasPreReportAlert: row.has_pre_report_alert,
-        isLocked: row.is_locked,
-        updatedByUserId: BigInt(row.updated_by_user_id),
+        hasPreReportAlert: input.hasPreReportAlert,
       });
     });
   }
@@ -327,49 +314,79 @@ export class PostgresAcademicGradeRepository
     periodId: bigint,
   ): Promise<StudentBulletinGradeSummary[]> {
     return this.db.withTenantTransaction(schoolId, async (client) => {
+      // Resolver period_number desde academic_periods (soporta ID real de periodo o número 1..6 directo)
+      const periodLookup = await client.query<{ period_number: number }>(
+        `SELECT period_number FROM academic_periods
+          WHERE school_id = $1 AND academic_year = $2 AND id = $3 LIMIT 1`,
+        [String(schoolId), academicYear, String(periodId)],
+      );
+      const periodNumber =
+        periodLookup.rows[0]?.period_number ?? Number(periodId);
+
       const res = await client.query<BulletinSummaryRow>(
         `SELECT
-           ar.name AS area_name,
+           COALESCE(ar.name, 'SIN ÁREA') AS area_name,
            sub.name AS subject_name,
-           ca.weekly_hours,
-           ag.final_score,
-           ag.recovery_score,
-           ag.leveling_score,
-           GREATEST(ag.final_score, ag.recovery_score, ag.leveling_score) AS effective_score,
+           COALESCE(csp.weekly_hours, ca.weekly_hours) AS weekly_hours,
+           sc.final_score,
+           sc.lost_score,
+           sc.recovery_score,
+           sc.is_leveled,
+           COALESCE(NULLIF(sc.recovery_score, 0), sc.final_score) AS effective_score,
            ngs.name AS scale_name,
            ngs.abbreviation AS scale_abbreviation,
            ngs.hex_color AS scale_color,
-           ag.unjustified_absences,
-           ag.has_pre_report_alert
-         FROM academic_grades ag
+           sc.unjustified_absences,
+           EXISTS (
+             SELECT 1 FROM academic_pre_reports pr
+              WHERE pr.school_id = sc.school_id
+                AND pr.academic_year = sc.academic_year
+                AND pr.enrollment_id = sc.enrollment_id
+                AND pr.course_assignment_id = sc.course_assignment_id
+                AND pr.period_number = sc.period_number
+                AND pr.is_active = TRUE
+           ) AS has_pre_report_alert
+         FROM academic_scores sc
          INNER JOIN course_assignments ca
-           ON ca.id = ag.course_assignment_id AND ca.school_id = ag.school_id
+           ON ca.id = sc.course_assignment_id AND ca.school_id = sc.school_id
          INNER JOIN subjects sub
-           ON sub.id = ca.subject_id AND sub.school_id = ag.school_id
-         INNER JOIN academic_areas ar
-           ON ar.id = sub.academic_area_id AND ar.school_id = ag.school_id
+           ON sub.id = ca.subject_id AND sub.school_id = sc.school_id
+         LEFT JOIN subject_area_assignments saa
+           ON saa.school_id = sub.school_id
+          AND saa.academic_year = sc.academic_year
+          AND saa.subject_id = sub.id
+         LEFT JOIN academic_areas ar
+           ON ar.id = COALESCE(saa.academic_area_id, sub.academic_area_id)
+          AND ar.school_id = sc.school_id
+         LEFT JOIN curriculum_study_plans csp
+           ON csp.school_id = ca.school_id
+          AND csp.campus_id IS NULL
+          AND csp.grade_id = ca.grade_id
+          AND csp.subject_id = ca.subject_id
+          AND csp.academic_year = sc.academic_year
          LEFT JOIN national_grading_scales ngs
-           ON ngs.id = ag.national_scale_id
-         WHERE ag.school_id = $1
-           AND ag.academic_year = $2
-           AND ag.enrollment_id = $3
-           AND ag.period_id = $4
-         ORDER BY ar.display_order ASC, sub.display_order ASC`,
+           ON ngs.id = sc.national_scale_id
+         WHERE sc.school_id = $1
+           AND sc.academic_year = $2
+           AND sc.enrollment_id = $3
+           AND sc.period_number = $4
+         ORDER BY COALESCE(ar.display_order, 999) ASC, sub.display_order ASC`,
         [
           String(schoolId),
           academicYear,
           String(enrollmentId),
-          String(periodId),
+          periodNumber,
         ],
       );
 
       return res.rows.map((r) => ({
         areaName: r.area_name,
         subjectName: r.subject_name,
-        weeklyHours: r.weekly_hours,
+        weeklyHours: Number(r.weekly_hours),
         finalScore: Number(r.final_score),
-        recoveryScore: Number(r.recovery_score),
-        levelingScore: Number(r.leveling_score),
+        lostScore: r.lost_score !== null ? Number(r.lost_score) : null,
+        recoveryScore: r.recovery_score !== null ? Number(r.recovery_score) : null,
+        isLeveled: r.is_leveled,
         effectiveScore: Number(r.effective_score),
         scaleName: r.scale_name,
         scaleAbbreviation: r.scale_abbreviation,

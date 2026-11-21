@@ -61,20 +61,21 @@ interface CatalogValidationSets {
   methodologies: Set<number>;
   candidacyTypes: Set<number>;
   promotionStatusByGroupAndCode: Map<string, number>;
+  systemModulesByTag: Map<string, number>;
 }
 
 const NSCP_TABLES = [
-  { key: '00', gradeTable: 'nscp00', preTable: 'preinforme_nscp00', logTable: 'log_nscp00' },
-  { key: '001', gradeTable: 'nscp001', preTable: 'preinforme_nscp001', logTable: 'log_nscp001' },
-  { key: '002', gradeTable: 'nscp002', preTable: 'preinforme_nscp002', logTable: 'log_nscp002' },
-  { key: '003', gradeTable: 'nscp003', preTable: 'preinforme_nscp003', logTable: 'log_nscp003' },
+  { key: '00', gradeTable: 'nscp00', preTable: 'preinforme_nscp00', logTable: 'log_nscp00', sugTable: 'sug_nscp00' },
+  { key: '001', gradeTable: 'nscp001', preTable: 'preinforme_nscp001', logTable: 'log_nscp001', sugTable: 'sug_nscp001' },
+  { key: '002', gradeTable: 'nscp002', preTable: 'preinforme_nscp002', logTable: 'log_nscp002', sugTable: 'sug_nscp002' },
+  { key: '003', gradeTable: 'nscp003', preTable: 'preinforme_nscp003', logTable: 'log_nscp003', sugTable: 'sug_nscp003' },
 ] as const;
 
 /**
  * Pipeline ETL idempotente y en streaming desde MariaDB/MySQL legacy
  * (`mig-schools-admin` + `mig-schools-*`) hacia PostgreSQL 17 RLS (`asaie_v3_unified`).
- * Soporta migración histórica completa (13+ años, +1.45M calificaciones y normalización 1NF de n1..n30)
- * mediante inserciones masivas UNNEST y reconciliación automática origen vs destino.
+ * Soporta migración histórica completa (15+ años, +1.45M calificaciones en `academic_scores`
+ * con columnas inline n1..n30 NULL en vacías) mediante inserciones masivas UNNEST y reconciliación automática.
  */
 @Injectable()
 export class MigrateLegacySchoolEtlUseCase {
@@ -111,8 +112,7 @@ export class MigrateLegacySchoolEtlUseCase {
       yearsFilter: allowedYears ? Array.from(allowedYears) : 'ALL',
     });
 
-    // FASE 0: Prerrequisito catálogo PPT (id=20) y carga de sets de integridad referencial PG17
-    await this.ensureMissingGlobalCatalogs();
+    // FASE 0: Carga de sets de integridad referencial desde catálogos globales PG17 (incluye PPT id=20 nativo)
     const catalogs = await this.loadCatalogValidationSets();
 
     // FASE 1: Institución, módulos, usuarios y membresías desde BD puente
@@ -132,7 +132,7 @@ export class MigrateLegacySchoolEtlUseCase {
         catalogs,
       );
 
-    // FASE 2: Estructura institucional, SIEE, periodos, escalas y competencias
+    // FASE 2: Estructura institucional, metodologías, SIEE, periodos, escalas, competencias y plantillas documentales
     const campusMap = await this.migrateCampuses(schoolDb, schoolId, catalogs);
     const shiftMap = await this.migrateShifts(schoolDb, schoolId, campusMap);
     const levelMap = await this.migrateEducationLevels(schoolDb, schoolId, campusMap);
@@ -144,7 +144,7 @@ export class MigrateLegacySchoolEtlUseCase {
       gradeGroupMap,
     );
     await this.migrateAcademicYears(schoolDb, schoolId, allowedYears);
-    const periodResolver = await this.migrateAcademicPeriods(
+    await this.migrateAcademicPeriods(
       schoolDb,
       schoolId,
       gradeGroupMap,
@@ -164,13 +164,20 @@ export class MigrateLegacySchoolEtlUseCase {
         gradeGroupMap,
         allowedYears,
       );
+    await this.migrateDocumentSequencesAndTemplates(schoolDb, schoolId, allowedYears);
 
-    // FASE 3: Docentes, administrativos, áreas, asignaturas, grupos, cursos, estudiantes, familias y matrículas
+    // FASE 3: Docentes (+ planta anual), administrativos, áreas, asignaturas (+ aux_asignaturas),
+    // plan de estudios (matcurso), grupos, cursos, estudiantes, familias, matrículas (+ acceso + promoción anticipada)
     const { teacherMap, teacherUserIdMap, sourceTeachersCount } =
-      await this.migrateTeachers(schoolDb, schoolId, userIdMap, catalogs);
+      await this.migrateTeachers(schoolDb, schoolId, userIdMap, catalogs, allowedYears);
     await this.migrateAdministrativeStaff(schoolDb, schoolId, catalogs);
     const areaMap = await this.migrateAcademicAreas(schoolDb, schoolId);
-    const subjectMap = await this.migrateSubjects(schoolDb, schoolId, areaMap);
+    const subjectMap = await this.migrateSubjects(
+      schoolDb,
+      schoolId,
+      areaMap,
+      allowedYears,
+    );
     await this.migrateStudyPlans(
       schoolDb,
       schoolId,
@@ -225,12 +232,13 @@ export class MigrateLegacySchoolEtlUseCase {
         campusMap,
         shiftMap,
         gradeMap,
+        subjectMap,
         groupKeyMap,
         catalogs,
         allowedYears,
       );
 
-    // FASE 4: Columnas dinámicas, logros, notas (1.45M) con n1..n30 inline + vínculos de logros + preinformes
+    // FASE 4: Columnas dinámicas, logros, sugerencias, notas (academic_scores n1..n30) + vínculos + preinformes
     await this.migrateTeacherGradebookColumns(
       schoolDb,
       schoolId,
@@ -244,19 +252,24 @@ export class MigrateLegacySchoolEtlUseCase {
       gradeMap,
       subjectMap,
       dimensionMap,
+      teacherMap,
       catalogs,
       allowedYears,
     );
+    const suggestionMap = await this.migrateAcademicSuggestions(
+      schoolDb,
+      schoolId,
+      teacherMap,
+      allowedYears,
+    );
 
-    const gradesStats = await this.migrateAllGradesPreReportsAndLinks(
+    const gradesStats = await this.migrateAllScoresPreReportsAndLinks(
       schoolDb,
       schoolId,
       enrollmentMap,
       courseMap,
-      courseMetaMap,
-      gradeToGroupIdMap,
-      periodResolver,
       achievementMap,
+      suggestionMap,
       catalogs,
       allowedYears,
       warnings,
@@ -274,6 +287,7 @@ export class MigrateLegacySchoolEtlUseCase {
       schoolId,
       enrollmentMap,
       enrollmentMetaMap,
+      teacherMap,
       teacherUserIdMap,
       fallbackUserId,
       allowedYears,
@@ -325,6 +339,7 @@ export class MigrateLegacySchoolEtlUseCase {
       sourceFinalSum: gradesStats.sourceFinalSum,
       sourceItemsCreated: gradesStats.itemsUpserted,
       sourceLinksRead: gradesStats.linksRead,
+      sourceSuggestionsLinked: gradesStats.suggestionsLinked,
       warnings,
     });
 
@@ -357,14 +372,6 @@ export class MigrateLegacySchoolEtlUseCase {
     return `${column} IN (${Array.from(allowedYears).join(',')})`;
   }
 
-  private async ensureMissingGlobalCatalogs(): Promise<void> {
-    await this.db.queryGlobal(
-      `INSERT INTO document_types (id, code, name, is_active)
-       VALUES (20, 'PPT', 'Permiso por Protección Temporal (PPT)', TRUE)
-       ON CONFLICT (id) DO NOTHING`,
-    );
-  }
-
   private async loadCatalogValidationSets(): Promise<CatalogValidationSets> {
     const loadIds = async (table: string): Promise<Set<number>> => {
       const res = await this.db.queryGlobal<{ id: string }>(
@@ -373,19 +380,26 @@ export class MigrateLegacySchoolEtlUseCase {
       return new Set(res.rows.map((r) => Number(r.id)));
     };
 
-    const promoRes = await this.db.queryGlobal<{
-      id: number;
-      grade_group_id: number;
-      status_code: number;
-    }>(
-      `SELECT id, grade_group_id, status_code FROM promotion_statuses_catalog`,
-    );
+    const [promoRes, sysModRes] = await Promise.all([
+      this.db.queryGlobal<{
+        id: number;
+        grade_group_id: number;
+        status_code: number;
+      }>(`SELECT id, grade_group_id, status_code FROM promotion_statuses_catalog`),
+      this.db.queryGlobal<{ id: number; tag: string }>(
+        `SELECT id, tag FROM system_modules`,
+      ),
+    ]);
     const promotionStatusByGroupAndCode = new Map<string, number>();
     for (const r of promoRes.rows) {
       promotionStatusByGroupAndCode.set(
         `${r.grade_group_id}:${r.status_code}`,
         Number(r.id),
       );
+    }
+    const systemModulesByTag = new Map<string, number>();
+    for (const r of sysModRes.rows) {
+      systemModulesByTag.set(r.tag.trim().toUpperCase(), Number(r.id));
     }
 
     return {
@@ -410,6 +424,7 @@ export class MigrateLegacySchoolEtlUseCase {
       methodologies: await loadIds('study_methodologies'),
       candidacyTypes: await loadIds('election_candidacy_types'),
       promotionStatusByGroupAndCode,
+      systemModulesByTag,
     };
   }
 
@@ -452,7 +467,7 @@ export class MigrateLegacySchoolEtlUseCase {
     const legacySchoolId = safeInt(src.id);
     const schoolName = cleanStr(src.nameschool, 'INSTITUCIÓN EDUCATIVA', 250);
     const countryId = validCatalogId(src.country_id, catalogs.countries, 45) ?? 45;
-    const daneCode = cleanNullableStr(src.statecode, 50);
+    const daneCode = cleanNullableStr(src.statecode, 30);
     const dbName = cleanStr(src.database_name, token, 60);
     const folder = cleanStr(src.folder_name, dbName, 120);
     const lockDate = `${new Date().getFullYear() + 1}-12-31`;
@@ -474,18 +489,20 @@ export class MigrateLegacySchoolEtlUseCase {
          is_active = TRUE,
          updated_at = NOW()
        RETURNING id`,
-      [countryId, daneCode, schoolName, schoolName.slice(0, 100), folder, lockDate, dbName],
+      [countryId, daneCode, schoolName, schoolName.slice(0, 80), folder, lockDate, dbName],
     );
     const schoolId = BigInt(schoolRes.rows[0].id);
 
+    // Mapear módulos contratados por tag semántico (evita colisión de IDs entre BD puente y PG17)
     const modRows = await this.mysql.queryAll<{
-      system_module_id: string;
+      tag: string;
       is_active: string;
       status: string;
     }>(
-      `SELECT system_module_id, is_active, status
-         FROM ${adminDb}.school_modules
-        WHERE school_id = ${legacySchoolId}`,
+      `SELECT m.tag, sm.is_active, sm.status
+         FROM ${adminDb}.school_modules sm
+         INNER JOIN ${adminDb}.system_modules m ON m.id = sm.system_module_id
+        WHERE sm.school_id = ${legacySchoolId}`,
     );
 
     await this.db.withTenantTransaction(schoolId, async (client) => {
@@ -496,8 +513,10 @@ export class MigrateLegacySchoolEtlUseCase {
         [schoolId.toString(), String(legacySchoolId), rawSchoolDbName],
       );
       for (const m of modRows) {
-        const modId = safeInt(m.system_module_id);
-        if (modId < 1 || modId > 3) continue;
+        const modId = catalogs.systemModulesByTag.get(
+          (m.tag ?? '').trim().toUpperCase(),
+        );
+        if (!modId) continue;
         await client.query(
           `INSERT INTO school_modules (school_id, system_module_id, is_active, status)
            VALUES ($1,$2,$3,$4)
@@ -625,14 +644,16 @@ export class MigrateLegacySchoolEtlUseCase {
       id: string;
       username: string;
       document_type_id: number;
-      document_number: string;
+      document_number: string | null;
     }>(`SELECT id::text, username, document_type_id, document_number FROM users`);
     const existingByUsername = new Map<string, number>();
     const usedDocKeys = new Map<string, number>();
     for (const eu of existingUsersRes.rows) {
       const uid = Number(eu.id);
       existingByUsername.set(eu.username.toLowerCase(), uid);
-      usedDocKeys.set(`${eu.document_type_id}:${eu.document_number}`, uid);
+      if (eu.document_number !== null) {
+        usedDocKeys.set(`${eu.document_type_id}:${eu.document_number}`, uid);
+      }
     }
 
     const batchSize = 500;
@@ -640,15 +661,18 @@ export class MigrateLegacySchoolEtlUseCase {
       const chunk = adminUsers.slice(i, i + batchSize);
       const prepared = chunk.map((u) => {
         const legacyId = safeInt(u.id);
-        const rawLogin = cleanStr(u.email, `user_${legacyId}`, 120).toLowerCase();
+        const rawLogin = cleanStr(u.email, `user_${legacyId}`, 100).toLowerCase();
         const hint = profileHint.get(legacyId);
         const docType = hint?.docType ?? 1;
-        let docNum = cleanStr(hint?.docNum ?? rawLogin, `U${legacyId}`, 30);
+        // Preservar document_number = NULL cuando el usuario no tiene documento real asociado
+        let docNum: string | null = hint?.docNum ?? null;
         const existingUid = existingByUsername.get(rawLogin);
-        const docKey = `${docType}:${docNum}`;
-        const ownerOfDoc = usedDocKeys.get(docKey);
-        if (ownerOfDoc !== undefined && ownerOfDoc !== existingUid) {
-          docNum = `${docNum.slice(0, 20)}-${legacyId}`;
+        if (docNum !== null) {
+          const docKey = `${docType}:${docNum}`;
+          const ownerOfDoc = usedDocKeys.get(docKey);
+          if (ownerOfDoc !== undefined && ownerOfDoc !== existingUid) {
+            docNum = null;
+          }
         }
         const finalEmail = cleanEmail(u.email) ?? hint?.email ?? null;
         return {
@@ -669,14 +693,16 @@ export class MigrateLegacySchoolEtlUseCase {
       });
 
       const deduped = dedupeByKey(prepared, (r) => r.username);
-      // Asegurar cero colisiones internas de (docType, docNum) en el mismo batch
+      // Asegurar cero colisiones internas de (docType, docNum) no nulos en el mismo batch
       const batchDocKeys = new Set<string>();
       for (const r of deduped) {
+        if (r.docNum === null) continue;
         const key = `${r.docType}:${r.docNum}`;
         if (batchDocKeys.has(key)) {
-          r.docNum = `${r.docNum.slice(0, 18)}-${r.legacyId}`;
+          r.docNum = null;
+        } else {
+          batchDocKeys.add(key);
         }
-        batchDocKeys.add(`${r.docType}:${r.docNum}`);
       }
 
       const res = await this.db.queryGlobal<{ id: string; username: string }>(
@@ -722,7 +748,9 @@ export class MigrateLegacySchoolEtlUseCase {
         if (newId) {
           userIdMap.set(r.legacyId, newId);
           existingByUsername.set(r.username, newId);
-          usedDocKeys.set(`${r.docType}:${r.docNum}`, newId);
+          if (r.docNum !== null) {
+            usedDocKeys.set(`${r.docType}:${r.docNum}`, newId);
+          }
         }
       }
     }
@@ -819,17 +847,28 @@ export class MigrateLegacySchoolEtlUseCase {
     schoolId: bigint,
     catalogs: CatalogValidationSets,
   ): Promise<Map<number, number>> {
-    const rows = await this.mysql.queryAll<{
-      id: string;
-      city_id: string | null;
-      zone_id: string | null;
-      headquarters_name: string | null;
-      address: string | null;
-      phones: string | null;
-      email: string | null;
-      is_main: string | null;
-      state: string | null;
-    }>(`SELECT id, city_id, zone_id, headquarters_name, address, phones, email, is_main, state FROM ${schoolDb}.sedes ORDER BY id`);
+    const [rows, metodRows] = await Promise.all([
+      this.mysql.queryAll<{
+        id: string;
+        city_id: string | null;
+        zone_id: string | null;
+        sex_id: string | null;
+        headquarters_name: string | null;
+        address: string | null;
+        suburd: string | null;
+        phones: string | null;
+        email: string | null;
+        is_main: string | null;
+        state: string | null;
+      }>(
+        `SELECT id, city_id, zone_id, sex_id, headquarters_name, address, suburd, phones, email, is_main, state
+           FROM ${schoolDb}.sedes
+          ORDER BY id`,
+      ),
+      this.mysql.queryAll<{ cons_sede: string; id_metod: string }>(
+        `SELECT cons_sede, id_metod FROM ${schoolDb}.cong_metod`,
+      ),
+    ]);
 
     const map = new Map<number, number>();
     await this.db.withTenantTransaction(schoolId, async (client) => {
@@ -842,8 +881,10 @@ export class MigrateLegacySchoolEtlUseCase {
         );
         const cityId = validCatalogId(r.city_id, catalogs.cities, null);
         const zoneId = validCatalogId(r.zone_id, catalogs.zones, 0);
-        const address = cleanNullableStr(r.address, 250);
-        const phones = cleanPhone(r.phones, 150);
+        const genderRestrictionId = validCatalogId(r.sex_id, catalogs.genders, null);
+        const address = cleanNullableStr(r.address, 200);
+        const suburb = cleanNullableStr(r.suburd, 150);
+        const phones = cleanPhone(r.phones, 100);
         const email = cleanEmail(r.email);
         const isMain = parseYesNoFlag(r.is_main);
         const isActive = safeInt(r.state, 1) === 1;
@@ -852,19 +893,75 @@ export class MigrateLegacySchoolEtlUseCase {
         if (existing.rowCount && existing.rowCount > 0) {
           newId = Number(existing.rows[0].new_id);
           await client.query(
-            `UPDATE campuses SET city_id=$3, zone_id=$4, name=$5, address=$6, phones=$7, email=$8, is_main_campus=$9, is_active=$10
+            `UPDATE campuses
+                SET city_id=$3, zone_id=$4, gender_restriction_id=$5, name=$6,
+                    address=$7, suburb=$8, phones=$9, email=$10, is_main_campus=$11, is_active=$12
               WHERE school_id=$1 AND id=$2`,
-            [schoolId.toString(), newId, cityId, zoneId, name, address, phones, email, isMain, isActive],
+            [
+              schoolId.toString(),
+              newId,
+              cityId,
+              zoneId,
+              genderRestrictionId,
+              name,
+              address,
+              suburb,
+              phones,
+              email,
+              isMain,
+              isActive,
+            ],
           );
         } else {
           const ins = await client.query<{ id: string }>(
-            `INSERT INTO campuses (school_id, city_id, zone_id, name, address, phones, email, is_main_campus, is_active)
-             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING id::text`,
-            [schoolId.toString(), cityId, zoneId, name, address, phones, email, isMain, isActive],
+            `INSERT INTO campuses (
+               school_id, city_id, zone_id, gender_restriction_id, name,
+               address, suburb, phones, email, is_main_campus, is_active
+             )
+             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING id::text`,
+            [
+              schoolId.toString(),
+              cityId,
+              zoneId,
+              genderRestrictionId,
+              name,
+              address,
+              suburb,
+              phones,
+              email,
+              isMain,
+              isActive,
+            ],
           );
           newId = Number(ins.rows[0].id);
         }
         map.set(legacyId, newId);
+      }
+
+      // Migrar metodologías educativas habilitadas por sede (cong_metod)
+      const fallbackCampusId = map.values().next().value as number | undefined;
+      for (const m of metodRows) {
+        const consSede = cleanNullableStr(m.cons_sede, 20);
+        const methodId = validCatalogId(m.id_metod, catalogs.methodologies, null);
+        if (!consSede || methodId === null) continue;
+        const tailSeq = Number.parseInt(consSede.slice(-2), 10);
+        const campusId =
+          map.get(tailSeq) ??
+          map.get(safeInt(consSede)) ??
+          (map.size === 1 ? fallbackCampusId : undefined);
+        if (!campusId) continue;
+
+        await client.query(
+          `UPDATE campuses SET consecutive_code = COALESCE(consecutive_code, $3)
+            WHERE school_id = $1 AND id = $2`,
+          [schoolId.toString(), campusId, consSede],
+        );
+        await client.query(
+          `INSERT INTO campus_study_methodologies (school_id, campus_id, study_methodology_id, is_active)
+           VALUES ($1, $2, $3, TRUE)
+           ON CONFLICT (school_id, campus_id, study_methodology_id) DO NOTHING`,
+          [schoolId.toString(), campusId, methodId],
+        );
       }
     });
     await this.saveIdMappingsBatch(schoolId, 'campuses', Array.from(map.entries()), schoolDb.replace(/`/g, ''));
@@ -886,7 +983,7 @@ export class MigrateLegacySchoolEtlUseCase {
     await this.db.withTenantTransaction(schoolId, async (client) => {
       for (const r of rows) {
         const code = safeInt(r.cod_jorn);
-        const name = cleanStr(r.jornada, `JORNADA ${code}`, 120);
+        const name = cleanStr(r.jornada, `JORNADA ${code}`, 80);
         const res = await client.query<{ id: string }>(
           `INSERT INTO school_shifts (school_id, catalog_shift_id, shift_code, name, is_active)
            VALUES ($1, $2, $3, $4, $5)
@@ -938,7 +1035,7 @@ export class MigrateLegacySchoolEtlUseCase {
       for (const r of rows) {
         const legacyId = safeInt(r.COD_NIV);
         const levelCode = codeNames[legacyId] ?? `NIVEL_${legacyId}`;
-        const name = cleanStr(r.DES_NIVEL, levelCode, 150);
+        const name = cleanStr(r.DES_NIVEL, levelCode, 120);
         const res = await client.query<{ id: string }>(
           `INSERT INTO education_levels (school_id, catalog_level_id, level_code, name, abbreviation, display_order, is_active)
            VALUES ($1, $2, $3, $4, $5, $6, TRUE)
@@ -981,7 +1078,7 @@ export class MigrateLegacySchoolEtlUseCase {
     await this.db.withTenantTransaction(schoolId, async (client) => {
       for (const r of rows) {
         const legacyId = safeInt(r.id);
-        const name = cleanStr(r.nombre_grado_agrupado, `Grupo ${legacyId}`, 200);
+        const name = cleanStr(r.nombre_grado_agrupado, `Grupo ${legacyId}`, 120);
         const existing = await client.query<{ new_id: string }>(
           `SELECT new_id::text FROM migration_id_mappings WHERE school_id=$1 AND entity_name='grade_groups' AND legacy_id=$2`,
           [schoolId.toString(), String(legacyId)],
@@ -1023,7 +1120,7 @@ export class MigrateLegacySchoolEtlUseCase {
       ),
     ]);
 
-    // Priorizar grupos académicos (5, 3, 6, 7, 8, 1, 2, 4) sobre grupos de promoción (9..14)
+    // Priorizar grupos académicos (5, 3, 6, 7, 8, 1, 2, 4) sobre grupos de promoción (9..14) para FK principal
     const preferredOrder = [5, 3, 6, 7, 8, 1, 2, 4];
     const legacyGroupByGrade = new Map<number, number>();
     for (const a of auxGroups) {
@@ -1075,6 +1172,19 @@ export class MigrateLegacySchoolEtlUseCase {
           gradeToGroupIdMap.set(newGradeId, newGgId);
         }
       }
+
+      // Preservar relación M:N completa de aux_grados_agrupados (niveles académicos + grupos de promoción)
+      for (const a of auxGroups) {
+        const newGradeId = gradeMap.get(safeInt(a.id_grado));
+        const newGroupId = gradeGroupMap.get(safeInt(a.id_grado_agrupado));
+        if (!newGradeId || !newGroupId) continue;
+        await client.query(
+          `INSERT INTO grade_group_memberships (school_id, grade_group_id, grade_id)
+           VALUES ($1, $2, $3)
+           ON CONFLICT (school_id, grade_group_id, grade_id) DO NOTHING`,
+          [schoolId.toString(), newGroupId, newGradeId],
+        );
+      }
     });
     await this.saveIdMappingsBatch(schoolId, 'grades', Array.from(gradeMap.entries()), schoolDb.replace(/`/g, ''));
     return { gradeMap, gradeToGroupIdMap };
@@ -1112,7 +1222,7 @@ export class MigrateLegacySchoolEtlUseCase {
     schoolId: bigint,
     gradeGroupMap: Map<number, number>,
     allowedYears: Set<number> | null,
-  ): Promise<Map<string, number>> {
+  ): Promise<void> {
     const rows = await this.mysql.queryAll<{
       id: string;
       id_grado_agrupado: string;
@@ -1126,16 +1236,14 @@ export class MigrateLegacySchoolEtlUseCase {
       year: string;
       estado: string;
       bloquear: string;
+      calificable: string;
     }>(
       `SELECT id, id_grado_agrupado, periodo, descripcion_periodo, fecha_inical, fecha_cierre,
-              fecha_inical_nivelacion, fecha_cierre_nivelacion, porciento, year, estado, bloquear
+              fecha_inical_nivelacion, fecha_cierre_nivelacion, porciento, year, estado, bloquear, calificable
          FROM ${schoolDb}.periodos_academicos
         WHERE ${this.yearWhere('year', allowedYears)}
         ORDER BY year, id_grado_agrupado, periodo`,
     );
-
-    // Clave: `${year}:${gradeGroupId ?? 0}:${periodNumber}` -> academic_periods.id
-    const resolver = new Map<string, number>();
 
     await this.db.withTenantTransaction(schoolId, async (client) => {
       for (const r of rows) {
@@ -1153,13 +1261,13 @@ export class MigrateLegacySchoolEtlUseCase {
         const recOpen = safeDate(r.fecha_inical_nivelacion, null);
         const recClose = safeDate(r.fecha_cierre_nivelacion, null);
 
-        const res = await client.query<{ id: string }>(
+        await client.query(
           `INSERT INTO academic_periods (
              school_id, grade_group_id, academic_year, period_number, name, weight_percentage,
              start_date, end_date, grading_open_date, grading_close_date,
-             recovery_open_date, recovery_close_date, is_active, is_closed
+             recovery_open_date, recovery_close_date, is_gradable, is_active, is_closed
            )
-           VALUES ($1,$2,$3,$4,$5,$6,$7::date,$8::date,$7::date,$8::date,$9::date,$10::date,$11,$12)
+           VALUES ($1,$2,$3,$4,$5,$6,$7::date,$8::date,$7::date,$8::date,$9::date,$10::date,$11,$12,$13)
            ON CONFLICT (school_id, academic_year, grade_group_id, period_number)
            DO UPDATE SET
              name = EXCLUDED.name,
@@ -1168,9 +1276,9 @@ export class MigrateLegacySchoolEtlUseCase {
              end_date = EXCLUDED.end_date,
              recovery_open_date = EXCLUDED.recovery_open_date,
              recovery_close_date = EXCLUDED.recovery_close_date,
+             is_gradable = EXCLUDED.is_gradable,
              is_active = EXCLUDED.is_active,
-             is_closed = EXCLUDED.is_closed
-           RETURNING id::text`,
+             is_closed = EXCLUDED.is_closed`,
           [
             schoolId.toString(),
             ggId,
@@ -1182,37 +1290,13 @@ export class MigrateLegacySchoolEtlUseCase {
             endDate,
             recOpen,
             recClose,
+            safeInt(r.calificable, 1) === 1,
             safeInt(r.estado, 1) === 1,
             safeInt(r.bloquear, 0) === 1,
           ],
         );
-        const pid = Number(res.rows[0].id);
-        resolver.set(`${year}:${ggId ?? 0}:${periodNumber}`, pid);
-        if (!resolver.has(`${year}:0:${periodNumber}`)) {
-          resolver.set(`${year}:0:${periodNumber}`, pid);
-        }
-      }
-
-      // Cargar también los periodos existentes (por ej. creados en bootstrap) para lookup completo
-      const existing = await client.query<{
-        id: string;
-        academic_year: number;
-        grade_group_id: string | null;
-        period_number: number;
-      }>(
-        `SELECT id::text, academic_year, grade_group_id::text, period_number
-           FROM academic_periods WHERE school_id = $1`,
-        [schoolId.toString()],
-      );
-      for (const p of existing.rows) {
-        const key = `${p.academic_year}:${p.grade_group_id ?? '0'}:${p.period_number}`;
-        if (!resolver.has(key)) resolver.set(key, Number(p.id));
-        const fbKey = `${p.academic_year}:0:${p.period_number}`;
-        if (!resolver.has(fbKey)) resolver.set(fbKey, Number(p.id));
       }
     });
-
-    return resolver;
   }
 
   private async migrateGradingRulesAndScales(
@@ -1226,18 +1310,35 @@ export class MigrateLegacySchoolEtlUseCase {
       this.mysql.queryAll<{
         id_grupo_grados: string;
         year: string;
+        t_año_lectivo: string;
         areas_pierde: string;
         pierde_luego_rec: string;
         promocion: string;
         Ndecimales: string;
         nota_max_rec: string;
+        grupo: string;
+        procesos: string;
+        prom_areas: string;
         porcentaje_areas: string;
+        docente_ficha_obs: string;
         porciento_ausencia: string;
+        pierde_año_lectivo_area: string;
+        a_estra_apoyo_fecha: string;
+        cant_est_x_libro: string;
+        conv_reincidencia: string;
+        ficha_mat_x_año: string;
+        nota_redondeo: string;
+        nota_final_redondeo: string;
+        prom_area_puesto: string;
         fecha_prom: string | null;
         aplicar_redondeo_fin_año: string;
+        fail_subject_of_the_area: string;
       }>(
-        `SELECT id_grupo_grados, year, areas_pierde, pierde_luego_rec, promocion, Ndecimales,
-                nota_max_rec, porcentaje_areas, porciento_ausencia, fecha_prom, \`aplicar_redondeo_fin_año\`
+        `SELECT id_grupo_grados, year, \`t_año_lectivo\`, areas_pierde, pierde_luego_rec, promocion, Ndecimales,
+                nota_max_rec, grupo, procesos, prom_areas, porcentaje_areas, docente_ficha_obs,
+                porciento_ausencia, \`pierde_año_lectivo_area\`, a_estra_apoyo_fecha, cant_est_x_libro,
+                conv_reincidencia, \`ficha_mat_x_año\`, nota_redondeo, nota_final_redondeo,
+                prom_area_puesto, fecha_prom, \`aplicar_redondeo_fin_año\`, fail_subject_of_the_area
            FROM ${schoolDb}.config001
           WHERE ${this.yearWhere('year', allowedYears)}`,
       ),
@@ -1249,8 +1350,9 @@ export class MigrateLegacySchoolEtlUseCase {
         hasta: string;
         year: string;
         reprueba: string;
+        calificable: string;
       }>(
-        `SELECT id, id_grado_agrupado, id_escala, desde, hasta, year, reprueba
+        `SELECT id, id_grado_agrupado, id_escala, desde, hasta, year, reprueba, calificable
            FROM ${schoolDb}.\`desempeños\`
           WHERE ${this.yearWhere('year', allowedYears)}`,
       ),
@@ -1273,20 +1375,45 @@ export class MigrateLegacySchoolEtlUseCase {
         const ggId = gradeGroupMap.get(legacyGg);
         if (!ggId || year < 1990 || year > 2100) continue;
         const minPass = minPassingByYearGroup.get(`${year}:${legacyGg}`) ?? 3.0;
+        const extraSettings = {
+          legacyGroupMode: safeInt(c.grupo, 1),
+          legacyProcessesMode: safeInt(c.procesos, 2),
+          teacherObserverAccess: safeInt(c.docente_ficha_obs, 0) === 1,
+          coexistenceRecurrence: safeInt(c.conv_reincidencia, 0),
+          enrollmentFormPerYear: safeInt(c['ficha_mat_x_año'], 1) === 1,
+        };
         await client.query(
           `INSERT INTO academic_grading_rules (
              school_id, academic_year, grade_group_id, decimals_count, min_passing_score,
-             max_recovery_score, failed_areas_limit, fails_after_recovery, promotion_mode,
-             uses_weighted_areas, absence_fail_percentage, rounds_final_score, promotion_date
+             max_recovery_score, rounding_threshold_score, rounding_target_score, min_area_average,
+             failed_areas_limit, fails_after_recovery, fails_area_if_any_subject_fails,
+             fails_year_by_mandatory_area, promotion_mode, academic_year_mode,
+             uses_weighted_areas, ranks_by_area_average, enforces_recovery_dates,
+             absence_fail_percentage, rounds_final_score, students_per_book, promotion_date, extra_settings
            )
-           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13::date)
+           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22::date,$23::jsonb)
            ON CONFLICT (school_id, academic_year, grade_group_id)
            DO UPDATE SET
              decimals_count = EXCLUDED.decimals_count,
              min_passing_score = EXCLUDED.min_passing_score,
              max_recovery_score = EXCLUDED.max_recovery_score,
+             rounding_threshold_score = EXCLUDED.rounding_threshold_score,
+             rounding_target_score = EXCLUDED.rounding_target_score,
+             min_area_average = EXCLUDED.min_area_average,
              failed_areas_limit = EXCLUDED.failed_areas_limit,
-             promotion_date = EXCLUDED.promotion_date`,
+             fails_after_recovery = EXCLUDED.fails_after_recovery,
+             fails_area_if_any_subject_fails = EXCLUDED.fails_area_if_any_subject_fails,
+             fails_year_by_mandatory_area = EXCLUDED.fails_year_by_mandatory_area,
+             promotion_mode = EXCLUDED.promotion_mode,
+             academic_year_mode = EXCLUDED.academic_year_mode,
+             uses_weighted_areas = EXCLUDED.uses_weighted_areas,
+             ranks_by_area_average = EXCLUDED.ranks_by_area_average,
+             enforces_recovery_dates = EXCLUDED.enforces_recovery_dates,
+             absence_fail_percentage = EXCLUDED.absence_fail_percentage,
+             rounds_final_score = EXCLUDED.rounds_final_score,
+             students_per_book = EXCLUDED.students_per_book,
+             promotion_date = EXCLUDED.promotion_date,
+             extra_settings = EXCLUDED.extra_settings`,
           [
             schoolId.toString(),
             year,
@@ -1294,13 +1421,23 @@ export class MigrateLegacySchoolEtlUseCase {
             safeInt(c.Ndecimales, 2),
             minPass,
             safeDecimal(c.nota_max_rec, 3.0, 0, 100),
+            safeDecimal(c.nota_redondeo, 0.0, 0, 100),
+            safeDecimal(c.nota_final_redondeo, 0.0, 0, 100),
+            safeDecimal(c.prom_areas, 0.0, 0, 100),
             safeInt(c.areas_pierde, 3),
             safeInt(c.pierde_luego_rec, 1) === 1,
+            safeInt(c.fail_subject_of_the_area, 0) === 1,
+            safeInt(c['pierde_año_lectivo_area'], 0) === 1,
             safeInt(c.promocion, 1),
+            safeInt(c['t_año_lectivo'], 0),
             safeInt(c.porcentaje_areas, 1) === 1,
-            safeDecimal(c.porciento_ausencia, 20, 0, 100),
+            safeInt(c.prom_area_puesto, 0) === 1,
+            safeInt(c.a_estra_apoyo_fecha, 0) === 1,
+            safeDecimal(c.porciento_ausencia, 25, 0, 100),
             safeInt(c['aplicar_redondeo_fin_año'], 0) === 1,
+            Math.min(30000, Math.max(1, safeInt(c.cant_est_x_libro, 500))),
             safeDate(c.fecha_prom, null),
+            JSON.stringify(extraSettings),
           ],
         );
       }
@@ -1314,12 +1451,27 @@ export class MigrateLegacySchoolEtlUseCase {
         const maxS = Math.max(minS, safeDecimal(s.hasta, minS, 0, 100));
         await client.query(
           `INSERT INTO grading_scales (
-             school_id, grade_group_id, national_scale_id, academic_year, min_score, max_score, rank_order
+             school_id, grade_group_id, national_scale_id, academic_year,
+             min_score, max_score, rank_order, is_failing, is_gradable
            )
-           VALUES ($1,$2,$3,$4,$5,$6,$7)
+           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
            ON CONFLICT (school_id, academic_year, grade_group_id, national_scale_id)
-           DO UPDATE SET min_score = EXCLUDED.min_score, max_score = EXCLUDED.max_score`,
-          [schoolId.toString(), ggId, nsId, year, minS, maxS, String(safeInt(s.id))],
+           DO UPDATE SET
+             min_score = EXCLUDED.min_score,
+             max_score = EXCLUDED.max_score,
+             is_failing = EXCLUDED.is_failing,
+             is_gradable = EXCLUDED.is_gradable`,
+          [
+            schoolId.toString(),
+            ggId,
+            nsId,
+            year,
+            minS,
+            maxS,
+            String(safeInt(s.id)).slice(0, 5),
+            safeInt(s.reprueba, 0) === 1,
+            safeInt(s.calificable, 1) === 1,
+          ],
         );
       }
     });
@@ -1343,8 +1495,9 @@ export class MigrateLegacySchoolEtlUseCase {
         porcentaje: string;
         year: string;
         calificable: string;
+        foto: string | null;
       }>(
-        `SELECT id_pk, id, id_grado_agrupado, competencia, porcentaje, year, calificable
+        `SELECT id_pk, id, id_grado_agrupado, competencia, porcentaje, year, calificable, foto
            FROM ${schoolDb}.competencias
           WHERE ${this.yearWhere('year', allowedYears)}
           ORDER BY id_pk`,
@@ -1355,8 +1508,14 @@ export class MigrateLegacySchoolEtlUseCase {
         numero_column: string;
         porciento: string;
         descripcion: string;
+        abrev: string | null;
         tipo: string;
-      }>(`SELECT id, id_competencia, numero_column, porciento, descripcion, tipo FROM ${schoolDb}.columnas_notas_competencias ORDER BY id`),
+        modificable: string;
+      }>(
+        `SELECT id, id_competencia, numero_column, porciento, descripcion, abrev, tipo, modificable
+           FROM ${schoolDb}.columnas_notas_competencias
+          ORDER BY id`,
+      ),
     ]);
 
     const dimensionMap = new Map<number, number>();
@@ -1371,22 +1530,30 @@ export class MigrateLegacySchoolEtlUseCase {
         if (year < 1990 || year > 2100) continue;
         const ggId = gradeGroupMap.get(safeInt(d.id_grado_agrupado)) ?? null;
         const code = safeInt(d.id);
+        const isGradable = safeInt(d.calificable, 1) === 1;
         const res = await client.query<{ id: string }>(
           `INSERT INTO evaluation_dimensions (
-             school_id, grade_group_id, academic_year, dimension_code, name, weight_percentage, is_editable
+             school_id, grade_group_id, academic_year, dimension_code, name,
+             weight_percentage, is_editable, is_gradable, icon_url
            )
-           VALUES ($1,$2,$3,$4,$5,$6,$7)
+           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
            ON CONFLICT (school_id, academic_year, grade_group_id, dimension_code)
-           DO UPDATE SET name = EXCLUDED.name, weight_percentage = EXCLUDED.weight_percentage
+           DO UPDATE SET
+             name = EXCLUDED.name,
+             weight_percentage = EXCLUDED.weight_percentage,
+             is_gradable = EXCLUDED.is_gradable,
+             icon_url = COALESCE(EXCLUDED.icon_url, evaluation_dimensions.icon_url)
            RETURNING id::text`,
           [
             schoolId.toString(),
             ggId,
             year,
             code,
-            cleanStr(d.competencia, `Dimensión ${code}`, 120),
+            cleanStr(d.competencia, `Dimensión ${code}`, 150),
             safeDecimal(d.porcentaje, 0, 0, 100),
-            safeInt(d.calificable, 1) === 1,
+            isGradable,
+            isGradable,
+            cleanNullableStr(d.foto, 500),
           ],
         );
         dimensionMap.set(safeInt(d.id_pk), Number(res.rows[0].id));
@@ -1396,24 +1563,36 @@ export class MigrateLegacySchoolEtlUseCase {
         const dimId = dimensionMap.get(safeInt(c.id_competencia));
         const colNum = safeInt(c.numero_column);
         if (!dimId || colNum < 1 || colNum > 30) continue;
+        const rawTipo = cleanStr(c.tipo, 'NOTA').toUpperCase();
+        const colType =
+          rawTipo === 'PROM' || rawTipo === 'PORC' ? rawTipo : 'NOTA';
         dimColByLegacyCncId.set(safeInt(c.id), {
           dimensionId: dimId,
           columnNumber: colNum,
-          tipo: cleanStr(c.tipo, 'NOTA').toUpperCase(),
+          tipo: colType,
         });
         await client.query(
           `INSERT INTO evaluation_dimension_columns (
-             school_id, dimension_id, column_number, label, weight_percentage
+             school_id, dimension_id, column_number, label, abbreviation,
+             column_type, weight_percentage, is_editable
            )
-           VALUES ($1,$2,$3,$4,$5)
+           VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
            ON CONFLICT (school_id, dimension_id, column_number)
-           DO UPDATE SET label = EXCLUDED.label, weight_percentage = EXCLUDED.weight_percentage`,
+           DO UPDATE SET
+             label = EXCLUDED.label,
+             abbreviation = EXCLUDED.abbreviation,
+             column_type = EXCLUDED.column_type,
+             weight_percentage = EXCLUDED.weight_percentage,
+             is_editable = EXCLUDED.is_editable`,
           [
             schoolId.toString(),
             dimId,
             colNum,
-            cleanStr(c.descripcion, `${c.tipo || 'NOTA'} ${colNum}`, 120),
+            cleanStr(c.descripcion, `${colType} ${colNum}`, 100),
+            cleanNullableStr(c.abrev, 15),
+            colType,
             safeDecimal(c.porciento, 0, 0, 100),
+            safeInt(c.modificable, 0) === 1,
           ],
         );
       }
@@ -1422,17 +1601,199 @@ export class MigrateLegacySchoolEtlUseCase {
     return { dimensionMap, dimColByLegacyCncId };
   }
 
+  private async migrateDocumentSequencesAndTemplates(
+    schoolDb: string,
+    schoolId: bigint,
+    allowedYears: Set<number> | null,
+  ): Promise<void> {
+    const [seqRows, certRows, actaRows, carnetRows] = await Promise.all([
+      this.mysql.queryAll<{
+        id: string;
+        id_parent: string;
+        year: string;
+        total: string;
+        type: string;
+      }>(
+        `SELECT id, id_parent, year, total, type
+           FROM ${schoolDb}.certificate_numbers
+          WHERE ${this.yearWhere('year', allowedYears)}
+          ORDER BY id`,
+      ),
+      this.mysql.queryAll<{
+        id: string;
+        header1: string;
+        header2: string;
+        body: string;
+        expedition: string;
+        message: string;
+        resolution: string;
+        rector_firm: string;
+        signature_secretary: string;
+        show_number: string;
+        show_number_message: string | null;
+        type: string;
+      }>(`SELECT * FROM ${schoolDb}.config_const_cert ORDER BY id`),
+      this.mysql.queryAll<{
+        id: string;
+        año: string;
+        encabezado: string | null;
+        nombre_inst: string | null;
+        resolucion: string | null;
+        otorga: string | null;
+        diploma: string | null;
+        al_alumno: string | null;
+        copia_folio: string | null;
+        constancia: string | null;
+        firma: string | null;
+        firma_rec: string | null;
+        firma_sec: string | null;
+      }>(`SELECT id, \`año\`, encabezado, nombre_inst, resolucion, otorga, diploma, al_alumno, copia_folio, constancia, firma, firma_rec, firma_sec FROM ${schoolDb}.config_acta_grado ORDER BY id`),
+      this.mysql.queryAll<{
+        id: string;
+        url: string | null;
+        name: string | null;
+        student: string | null;
+        school: string | null;
+        info: string | null;
+        header: string | null;
+        qr: string;
+        active: string;
+      }>(`SELECT id, url, name, student, school, info, header, qr, active FROM ${schoolDb}.carnets ORDER BY id`),
+    ]);
+
+    await this.db.withTenantTransaction(schoolId, async (client) => {
+      // 1. Consecutivos legales anuales (certificate_numbers)
+      const dedupedSeq = dedupeByKey(
+        seqRows
+          .map((s) => {
+            const year = safeInt(s.year);
+            if (year < 1990 || year > 2100) return null;
+            const parentId = safeInt(s.id_parent, 0);
+            const legacyType = safeInt(s.type, 1);
+            const docType = `CERT_P${parentId}_T${legacyType}`;
+            return {
+              year,
+              docType,
+              parentId: parentId > 0 ? parentId : null,
+              lastNumber: Math.max(0, safeInt(s.total, 0)),
+            };
+          })
+          .filter((x): x is NonNullable<typeof x> => x !== null),
+        (x) => `${x.year}:${x.docType}`,
+      );
+
+      for (const s of dedupedSeq) {
+        await client.query(
+          `INSERT INTO document_number_sequences (
+             school_id, academic_year, document_type, parent_sequence_id, last_number
+           )
+           VALUES ($1, $2, $3, $4, $5)
+           ON CONFLICT (school_id, academic_year, document_type)
+           DO UPDATE SET last_number = GREATEST(document_number_sequences.last_number, EXCLUDED.last_number), updated_at = NOW()`,
+          [schoolId.toString(), s.year, s.docType, s.parentId, s.lastNumber],
+        );
+      }
+
+      // 2. Plantillas configurables de certificados, actas de grado y carnets
+      await client.query(`DELETE FROM document_templates WHERE school_id = $1`, [
+        schoolId.toString(),
+      ]);
+
+      for (const c of certRows) {
+        const legacyType = safeInt(c.type, 0);
+        await client.query(
+          `INSERT INTO document_templates (
+             school_id, template_category, name, config_json, is_active
+           )
+           VALUES ($1, 'CERTIFICATE', $2, $3::jsonb, TRUE)`,
+          [
+            schoolId.toString(),
+            `Constancia / Certificado Tipo ${legacyType} (#${c.id})`,
+            JSON.stringify({
+              legacyId: safeInt(c.id),
+              legacyType,
+              header1: cleanStr(c.header1),
+              header2: cleanStr(c.header2),
+              body: cleanStr(c.body),
+              expedition: cleanStr(c.expedition),
+              message: cleanStr(c.message),
+              resolution: cleanStr(c.resolution),
+              rectorSignature: safeInt(c.rector_firm, 0) === 1,
+              secretarySignature: safeInt(c.signature_secretary, 0) === 1,
+              showNumber: safeInt(c.show_number, 0) === 1,
+              showNumberMessage: cleanStr(c.show_number_message, 'CONSTANCIA Nº.'),
+            }),
+          ],
+        );
+      }
+
+      for (const a of actaRows) {
+        const yr = safeInt(a['año'], 0);
+        const validYr = yr >= 1990 && yr <= 2100 ? yr : null;
+        await client.query(
+          `INSERT INTO document_templates (
+             school_id, template_category, name, year_from, year_until, config_json, is_active
+           )
+           VALUES ($1, 'GRADUATION_ACT', $2, $3, $3, $4::jsonb, TRUE)`,
+          [
+            schoolId.toString(),
+            `Acta de Grado ${validYr ?? `#${a.id}`}`,
+            validYr,
+            JSON.stringify({
+              legacyId: safeInt(a.id),
+              header: cleanStr(a.encabezado),
+              schoolName: cleanStr(a.nombre_inst),
+              resolution: cleanStr(a.resolucion),
+              grantsText: cleanStr(a.otorga),
+              diplomaText: cleanStr(a.diploma),
+              studentText: cleanStr(a.al_alumno),
+              folioCopyText: cleanStr(a.copia_folio),
+              attestationText: cleanStr(a.constancia),
+              signatureText: cleanStr(a.firma),
+              rectorSignature: safeInt(a.firma_rec, 1) === 1,
+              secretarySignature: safeInt(a.firma_sec, 0) === 1,
+            }),
+          ],
+        );
+      }
+
+      for (const cn of carnetRows) {
+        await client.query(
+          `INSERT INTO document_templates (
+             school_id, template_category, name, config_json, is_active
+           )
+           VALUES ($1, 'STUDENT_ID_CARD', $2, $3::jsonb, $4)`,
+          [
+            schoolId.toString(),
+            cleanStr(cn.name, `Carnet #${cn.id}`, 150),
+            JSON.stringify({
+              legacyId: safeInt(cn.id),
+              backgroundUrl: cleanNullableStr(cn.url, 300),
+              studentLabel: cleanStr(cn.student, 'CARNÉ ESTUDIANTIL'),
+              schoolLabel: cleanStr(cn.school, 'CARNÉ INSTITUCIONAL'),
+              info: cleanStr(cn.info),
+              header: cleanStr(cn.header),
+              qrEnabled: safeInt(cn.qr, 1) === 1,
+            }),
+            safeInt(cn.active, 0) === 1,
+          ],
+        );
+      }
+    });
+  }
+
   private async migrateTeachers(
     schoolDb: string,
     schoolId: bigint,
     userIdMap: Map<number, number>,
     catalogs: CatalogValidationSets,
+    allowedYears: Set<number> | null,
   ): Promise<{
     teacherMap: Map<number, number>;
     teacherUserIdMap: Map<number, number>;
     sourceTeachersCount: number;
   }> {
-    const [rows, links] = await Promise.all([
+    const [rows, links, auxTeachers] = await Promise.all([
       this.mysql.queryAll<{
         id_docente: string;
         id_documento: string | null;
@@ -1454,6 +1815,9 @@ export class MigrateLegacySchoolEtlUseCase {
       }>(`SELECT id_docente, id_documento, id_escalafon, cod_nivel, arean_ens, direccion, documento, fecha_nacimiento, apellido1, apellido2, nombre1, nombre2, sexo, movil, fijo, email, estado FROM ${schoolDb}.docentes ORDER BY id_docente`),
       this.mysql.queryAll<{ teacher_id: string; user_id: string }>(
         `SELECT teacher_id, user_id FROM ${schoolDb}.teachers_and_users_ids`,
+      ),
+      this.mysql.queryAll<{ id_docente: string; year: string }>(
+        `SELECT id_docente, year FROM ${schoolDb}.aux_docentes WHERE ${this.yearWhere('year', allowedYears)}`,
       ),
     ]);
 
@@ -1514,6 +1878,32 @@ export class MigrateLegacySchoolEtlUseCase {
         if (newUid) {
           teacherUserIdMap.set(legacyId, newUid);
         }
+      }
+
+      // Migrar planta docente activa por año lectivo (aux_docentes)
+      const teacherYears = dedupeByKey(
+        auxTeachers
+          .map((a) => {
+            const tid = teacherMap.get(safeInt(a.id_docente));
+            const year = safeInt(a.year);
+            if (!tid || year < 1990 || year > 2100) return null;
+            return { tid, year };
+          })
+          .filter((x): x is NonNullable<typeof x> => x !== null),
+        (x) => `${x.year}:${x.tid}`,
+      );
+      if (teacherYears.length > 0) {
+        await client.query(
+          `INSERT INTO teacher_academic_years (school_id, academic_year, teacher_profile_id, is_active)
+           SELECT $1::bigint, * FROM UNNEST($2::smallint[], $3::bigint[], $4::boolean[])
+           ON CONFLICT (school_id, academic_year, teacher_profile_id) DO NOTHING`,
+          [
+            schoolId.toString(),
+            teacherYears.map((x) => x.year),
+            teacherYears.map((x) => x.tid),
+            teacherYears.map(() => true),
+          ],
+        );
       }
     });
 
@@ -1620,6 +2010,7 @@ export class MigrateLegacySchoolEtlUseCase {
     schoolDb: string,
     schoolId: bigint,
     areaMap: Map<number, number>,
+    allowedYears: Set<number> | null,
   ): Promise<Map<number, number>> {
     const [asigs, aux] = await Promise.all([
       this.mysql.queryAll<{
@@ -1627,11 +2018,13 @@ export class MigrateLegacySchoolEtlUseCase {
         asignatura: string;
         abrev: string | null;
         ordenar: string;
+        excluir: string;
         electiva: string;
         estado: string;
-      }>(`SELECT id_pk, asignatura, abrev, ordenar, electiva, estado FROM ${schoolDb}.asignaturas ORDER BY id_pk`),
-      this.mysql.queryAll<{ id_asign: string; id_area: string; year: string }>(
-        `SELECT id_asign, id_area, year FROM ${schoolDb}.aux_asignaturas ORDER BY year ASC, id ASC`,
+        type: string;
+      }>(`SELECT id_pk, asignatura, abrev, ordenar, excluir, electiva, estado, type FROM ${schoolDb}.asignaturas ORDER BY id_pk`),
+      this.mysql.queryAll<{ id_asign: string; id_area: string; year: string; activa: string }>(
+        `SELECT id_asign, id_area, year, activa FROM ${schoolDb}.aux_asignaturas ORDER BY year ASC, id ASC`,
       ),
     ]);
 
@@ -1647,7 +2040,9 @@ export class MigrateLegacySchoolEtlUseCase {
       for (const r of asigs) {
         const legacyPk = safeInt(r.id_pk);
         const areaId = areaBySubjectPk.get(legacyPk) ?? fallbackAreaId;
-        const name = cleanStr(r.asignatura, `Asignatura ${legacyPk}`, 200);
+        const name = cleanStr(r.asignatura, `Asignatura ${legacyPk}`, 250);
+        const subjectType = safeInt(r.type, 1);
+        const isExcluded = safeInt(r.excluir, 0) === 1;
         const existing = await client.query<{ new_id: string }>(
           `SELECT new_id::text FROM migration_id_mappings WHERE school_id=$1 AND entity_name='subjects' AND legacy_id=$2`,
           [schoolId.toString(), String(legacyPk)],
@@ -1656,18 +2051,86 @@ export class MigrateLegacySchoolEtlUseCase {
         if (existing.rowCount && existing.rowCount > 0) {
           newId = Number(existing.rows[0].new_id);
           await client.query(
-            `UPDATE subjects SET academic_area_id=$3, name=$4, abbreviation=$5, is_elective=$6, display_order=$7, is_active=$8 WHERE school_id=$1 AND id=$2`,
-            [schoolId.toString(), newId, areaId, name, cleanNullableStr(r.abrev, 15), safeInt(r.electiva) === 1, safeInt(r.ordenar, legacyPk), safeInt(r.estado, 1) === 1],
+            `UPDATE subjects
+                SET academic_area_id=$3, name=$4, abbreviation=$5, subject_type=$6,
+                    is_elective=$7, is_excluded_from_average=$8, display_order=$9, is_active=$10
+              WHERE school_id=$1 AND id=$2`,
+            [
+              schoolId.toString(),
+              newId,
+              areaId,
+              name,
+              cleanNullableStr(r.abrev, 30),
+              subjectType,
+              safeInt(r.electiva) === 1,
+              isExcluded,
+              safeInt(r.ordenar, legacyPk),
+              safeInt(r.estado, 1) === 1,
+            ],
           );
         } else {
           const ins = await client.query<{ id: string }>(
-            `INSERT INTO subjects (school_id, academic_area_id, name, abbreviation, is_elective, display_order, is_active)
-             VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING id::text`,
-            [schoolId.toString(), areaId, name, cleanNullableStr(r.abrev, 15), safeInt(r.electiva) === 1, safeInt(r.ordenar, legacyPk), safeInt(r.estado, 1) === 1],
+            `INSERT INTO subjects (
+               school_id, academic_area_id, name, abbreviation, subject_type,
+               is_elective, is_excluded_from_average, display_order, is_active
+             )
+             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING id::text`,
+            [
+              schoolId.toString(),
+              areaId,
+              name,
+              cleanNullableStr(r.abrev, 30),
+              subjectType,
+              safeInt(r.electiva) === 1,
+              isExcluded,
+              safeInt(r.ordenar, legacyPk),
+              safeInt(r.estado, 1) === 1,
+            ],
           );
           newId = Number(ins.rows[0].id);
         }
         map.set(legacyPk, newId);
+      }
+
+      // Migrar vigencia histórica anual asignatura -> área (aux_asignaturas -> subject_area_assignments)
+      const annualLinks = dedupeByKey(
+        aux
+          .map((a) => {
+            const year = safeInt(a.year);
+            if (year < 1990 || year > 2100) return null;
+            if (allowedYears && !allowedYears.has(year)) return null;
+            const subjectId = map.get(safeInt(a.id_asign));
+            const areaId = areaMap.get(safeInt(a.id_area));
+            if (!subjectId || !areaId) return null;
+            return {
+              year,
+              subjectId,
+              areaId,
+              isActive: safeInt(a.activa, 1) === 1,
+            };
+          })
+          .filter((x): x is NonNullable<typeof x> => x !== null),
+        (x) => `${x.year}:${x.subjectId}`,
+      );
+
+      if (annualLinks.length > 0) {
+        await client.query(
+          `INSERT INTO subject_area_assignments (
+             school_id, academic_year, subject_id, academic_area_id, is_active
+           )
+           SELECT $1::bigint, * FROM UNNEST(
+             $2::smallint[], $3::bigint[], $4::bigint[], $5::boolean[]
+           )
+           ON CONFLICT (school_id, academic_year, subject_id)
+           DO UPDATE SET academic_area_id = EXCLUDED.academic_area_id, is_active = EXCLUDED.is_active`,
+          [
+            schoolId.toString(),
+            annualLinks.map((x) => x.year),
+            annualLinks.map((x) => x.subjectId),
+            annualLinks.map((x) => x.areaId),
+            annualLinks.map((x) => x.isActive),
+          ],
+        );
       }
     });
     await this.saveIdMappingsBatch(schoolId, 'subjects', Array.from(map.entries()), schoolDb.replace(/`/g, ''));
@@ -1687,9 +2150,13 @@ export class MigrateLegacySchoolEtlUseCase {
       ih: string;
       year: string;
       porciento: string;
+      proc1: string;
+      proc2: string;
+      proc3: string;
+      proc4: string;
       estado: string;
     }>(
-      `SELECT id_grado, id_asig, ih, year, porciento, estado
+      `SELECT id_grado, id_asig, ih, year, porciento, proc1, proc2, proc3, proc4, estado
          FROM ${schoolDb}.matcurso
         WHERE ${this.yearWhere('year', allowedYears)}`,
     );
@@ -1701,12 +2168,22 @@ export class MigrateLegacySchoolEtlUseCase {
           const sid = subjectMap.get(safeInt(r.id_asig));
           const year = safeInt(r.year);
           if (!gid || !sid || year < 1990 || year > 2100) return null;
+          const p1 = safeDecimal(r.proc1, 0, 0, 100);
+          const p2 = safeDecimal(r.proc2, 0, 0, 100);
+          const p3 = safeDecimal(r.proc3, 0, 0, 100);
+          const p4 = safeDecimal(r.proc4, 0, 0, 100);
+          const processWeights =
+            p1 > 0 || p2 > 0 || p3 > 0 || p4 > 0
+              ? JSON.stringify({ proc1: p1, proc2: p2, proc3: p3, proc4: p4 })
+              : '{}';
           return {
             gradeId: gid,
             subjectId: sid,
             year,
-            ih: Math.max(1, Math.round(safeDecimal(r.ih, 2, 0, 40))),
+            // Preservar decimales reales de matcurso.ih (ej: 1.5, 2.5 horas semanales)
+            ih: safeDecimal(r.ih, 1.0, 0.5, 40),
             weight: safeDecimal(r.porciento, 100, 0, 100),
+            processWeights,
             isActive: safeInt(r.estado, 1) === 1,
           };
         })
@@ -1720,13 +2197,19 @@ export class MigrateLegacySchoolEtlUseCase {
         await client.query(
           `INSERT INTO curriculum_study_plans (
              school_id, campus_id, grade_id, subject_id, academic_year,
-             weekly_hours, area_weight_percentage, is_active
+             weekly_hours, area_weight_percentage, process_weights, is_active
            )
            SELECT $1::bigint, NULL::bigint, * FROM UNNEST(
-             $2::bigint[], $3::bigint[], $4::smallint[], $5::smallint[], $6::numeric[], $7::boolean[]
+             $2::bigint[], $3::bigint[], $4::smallint[], $5::numeric[],
+             $6::numeric[], $7::jsonb[], $8::boolean[]
            )
            ON CONFLICT (school_id, campus_id, grade_id, subject_id, academic_year)
-           DO UPDATE SET weekly_hours = EXCLUDED.weekly_hours, area_weight_percentage = EXCLUDED.area_weight_percentage`,
+           DO UPDATE SET
+             weekly_hours = EXCLUDED.weekly_hours,
+             area_weight_percentage = EXCLUDED.area_weight_percentage,
+             process_weights = EXCLUDED.process_weights,
+             is_active = EXCLUDED.is_active,
+             updated_at = NOW()`,
           [
             schoolId.toString(),
             batch.map((b) => b.gradeId),
@@ -1734,6 +2217,7 @@ export class MigrateLegacySchoolEtlUseCase {
             batch.map((b) => b.year),
             batch.map((b) => b.ih),
             batch.map((b) => b.weight),
+            batch.map((b) => b.processWeights),
             batch.map((b) => b.isActive),
           ],
         );
@@ -1826,7 +2310,7 @@ export class MigrateLegacySchoolEtlUseCase {
             homeroomTeacherId: homeroomMap.get(key) ?? null,
             year,
             groupCode: gcode,
-            name: `${gradeNameById.get(gid) ?? 'Grado'} - ${gcode}`.slice(0, 120),
+            name: `${gradeNameById.get(gid) ?? 'Grado'} - ${gcode}`.slice(0, 80),
           };
         })
         .filter((x): x is NonNullable<typeof x> => x !== null),
@@ -1921,7 +2405,7 @@ export class MigrateLegacySchoolEtlUseCase {
     const ihMap = new Map<string, { ih: number; weight: number }>();
     for (const m of matcursos) {
       ihMap.set(`${safeInt(m.id_grado)}:${safeInt(m.id_asig)}:${safeInt(m.year)}`, {
-        ih: Math.max(1, Math.round(safeDecimal(m.ih, 2, 0, 40))),
+        ih: safeDecimal(m.ih, 2.0, 0.5, 40),
         weight: safeDecimal(m.porciento, 100, 0, 100),
       });
     }
@@ -1987,7 +2471,7 @@ export class MigrateLegacySchoolEtlUseCase {
            )
            SELECT $1::bigint, * FROM UNNEST(
              $2::bigint[], $3::bigint[], $4::bigint[], $5::bigint[],
-             $6::bigint[], $7::bigint[], $8::smallint[], $9::smallint[],
+             $6::bigint[], $7::bigint[], $8::smallint[], $9::numeric[],
              $10::numeric[], $11::boolean[]
            )
            ON CONFLICT (school_id, academic_group_id, subject_id, teacher_profile_id, academic_year)
@@ -2105,15 +2589,15 @@ export class MigrateLegacySchoolEtlUseCase {
         genderId: mapLegacyGender(s.id_sexo),
         birthDate: safeDate(s.fecha_nacimiento, null),
         bloodType: cleanNullableStr(s.tipo_sangre, 10),
-        address: cleanNullableStr(s.direccion, 250),
+        address: cleanNullableStr(s.direccion, 200),
         zoneId: validCatalogId(s.id_zona, catalogs.zones, 0),
-        locality: cleanNullableStr(s.localidad, 200),
-        stratum: cleanNullableStr(s.estrato, 10),
-        sisben: cleanNullableStr(ex?.sisben, 30) ?? (safeDecimal(ex?.puntaje_sisben) > 0 ? String(safeDecimal(ex?.puntaje_sisben)) : null),
+        locality: cleanNullableStr(s.localidad, 120),
+        stratum: cleanNullableStr(s.estrato, 5),
+        sisben: cleanNullableStr(ex?.sisben, 20) ?? (safeDecimal(ex?.puntaje_sisben) > 0 ? String(safeDecimal(ex?.puntaje_sisben)).slice(0, 20) : null),
         phone: cleanPhone(s.movil) ?? cleanPhone(s.telefono),
         email: cleanEmail(s.email),
         healthProviderId: validCatalogId(ex?.id_eps, catalogs.healthProviders, null),
-        ipsName: cleanNullableStr(s.ips, 180),
+        ipsName: cleanNullableStr(s.ips, 150),
         ethnicGroupId: validCatalogId(ex?.id_etnia, catalogs.ethnicGroups, null),
         reserveId: validCatalogId(ex?.id_resgua, catalogs.indigenousReserves, null),
         disabilityTypeId: validCatalogId(ex?.id_discapacidad, catalogs.disabilityTypes, null),
@@ -2259,7 +2743,7 @@ export class MigrateLegacySchoolEtlUseCase {
         docNumber,
         fullName,
         genderId: mapLegacyGender(f.id_sex),
-        address: cleanNullableStr(f.address, 250),
+        address: cleanNullableStr(f.address, 200),
         workAddress: cleanNullableStr(f.work_address, 200),
         mobile: cleanPhone(f.mobile),
         email: cleanEmail(f.email),
@@ -2347,7 +2831,8 @@ export class MigrateLegacySchoolEtlUseCase {
             familyId: fid,
             relId,
             memId,
-            isPrimary: safeInt(r.id_type) === 1 || safeInt(r.live_with_this) === 1,
+            isPrimary: safeInt(r.id_type) === 1,
+            livesWithStudent: safeInt(r.live_with_this) === 1,
           };
         })
         .filter((x): x is NonNullable<typeof x> => x !== null),
@@ -2360,13 +2845,15 @@ export class MigrateLegacySchoolEtlUseCase {
         await client.query(
           `INSERT INTO student_family_links (
              school_id, student_profile_id, family_profile_id,
-             relationship_type_id, member_type_id, is_primary_guardian
+             relationship_type_id, member_type_id, is_primary_guardian, lives_with_student
            )
            SELECT $1::bigint, * FROM UNNEST(
-             $2::bigint[], $3::bigint[], $4::smallint[], $5::smallint[], $6::boolean[]
+             $2::bigint[], $3::bigint[], $4::smallint[], $5::smallint[], $6::boolean[], $7::boolean[]
            )
            ON CONFLICT (school_id, student_profile_id, family_profile_id)
-           DO UPDATE SET is_primary_guardian = EXCLUDED.is_primary_guardian`,
+           DO UPDATE SET
+             is_primary_guardian = EXCLUDED.is_primary_guardian,
+             lives_with_student = EXCLUDED.lives_with_student`,
           [
             schoolId.toString(),
             batch.map((b) => b.studentId),
@@ -2374,6 +2861,7 @@ export class MigrateLegacySchoolEtlUseCase {
             batch.map((b) => b.relId),
             batch.map((b) => b.memId),
             batch.map((b) => b.isPrimary),
+            batch.map((b) => b.livesWithStudent),
           ],
         );
       });
@@ -2388,6 +2876,7 @@ export class MigrateLegacySchoolEtlUseCase {
     campusMap: Map<number, number>,
     shiftMap: Map<number, number>,
     gradeMap: Map<number, number>,
+    subjectMap: Map<number, number>,
     groupKeyMap: Map<string, number>,
     catalogs: CatalogValidationSets,
     allowedYears: Set<number> | null,
@@ -2399,27 +2888,83 @@ export class MigrateLegacySchoolEtlUseCase {
     >;
     sourceEnrollmentsCount: number;
   }> {
-    const rows = await this.mysql.queryAll<{
-      id: string;
-      id_headquarters: string;
-      id_study_day: string;
-      id_student: string;
-      id_grade: string;
-      id_state: string;
-      folio: string | null;
-      registration_number: string | null;
-      id_group: string;
-      inst_origin: string | null;
-      obs: string | null;
-      date: string | null;
-      year: string;
-    }>(
-      `SELECT id, id_headquarters, id_study_day, id_student, id_grade, id_state,
-              folio, registration_number, TRIM(id_group) AS id_group, inst_origin, obs, date, year
-         FROM ${schoolDb}.student_enrollment
-        WHERE ${this.yearWhere('year', allowedYears)}
-        ORDER BY year, id`,
-    );
+    const [rows, accessRows, advHeaders, advObs, advDetails] = await Promise.all([
+      this.mysql.queryAll<{
+        id: string;
+        id_headquarters: string;
+        id_study_day: string;
+        id_student: string;
+        id_grade: string;
+        id_state: string;
+        folio: string | null;
+        registration_number: string | null;
+        book: string | null;
+        id_group: string;
+        inst_origin: string | null;
+        inst_address: string | null;
+        obs: string | null;
+        date: string | null;
+        year: string;
+        promoted: string;
+      }>(
+        `SELECT id, id_headquarters, id_study_day, id_student, id_grade, id_state,
+                folio, registration_number, book, TRIM(id_group) AS id_group,
+                inst_origin, inst_address, obs, date, year, promoted
+           FROM ${schoolDb}.student_enrollment
+          WHERE ${this.yearWhere('year', allowedYears)}
+          ORDER BY year, id`,
+      ),
+      this.mysql.queryAll<{
+        enrollment_id: string;
+        notes: string;
+        newsletters: string;
+        certificates: string;
+        evaluations: string;
+        activities: string;
+        live_classes: string;
+        leveling: string;
+      }>(
+        `SELECT sa.enrollment_id, sa.notes, sa.newsletters, sa.certificates,
+                sa.evaluations, sa.activities, sa.live_classes, sa.leveling
+           FROM ${schoolDb}.student_access sa
+           INNER JOIN ${schoolDb}.student_enrollment se ON se.id = sa.enrollment_id
+          WHERE ${this.yearWhere('se.year', allowedYears)}`,
+      ),
+      this.mysql.queryAll<{
+        id: string;
+        student_id: string;
+        grade_id: string;
+        year: string;
+        tiemestamp: string | null;
+      }>(
+        `SELECT id, student_id, grade_id, year, tiemestamp
+           FROM ${schoolDb}.promoted_header
+          WHERE ${this.yearWhere('year', allowedYears)}
+          ORDER BY id`,
+      ),
+      this.mysql.queryAll<{
+        promoted_id: string;
+        titulo: string;
+        res: string;
+        encabezado: string;
+        consta: string;
+        cuerpo: string;
+        firma: string;
+        notas: string;
+      }>(
+        `SELECT promoted_id, titulo, res, encabezado, consta, cuerpo, firma, notas
+           FROM ${schoolDb}.promoted_observation`,
+      ),
+      this.mysql.queryAll<{
+        promoted_id: string;
+        subject_id: string;
+        final: string;
+        faults: string;
+      }>(
+        `SELECT promoted_id, subject_id, final, faults
+           FROM ${schoolDb}.detail_promoted`,
+      ),
+    ]);
 
     const fallbackCampusId = campusMap.values().next().value as number;
     const fallbackShiftId = shiftMap.values().next().value as number;
@@ -2437,13 +2982,16 @@ export class MigrateLegacySchoolEtlUseCase {
       statusId: number;
       year: number;
       regNum: string | null;
+      bookNum: string | null;
       folio: string | null;
       enrollDate: string;
+      isPromoted: boolean;
       originSchool: string | null;
+      originAddress: string | null;
       obs: string | null;
     }
 
-    // Agrupar por (studentProfileId, year) priorizando matrícula activa
+    // Agrupar por (studentProfileId, year, gradeId) para preservar matrículas duales de Promoción Anticipada
     const grouped = new Map<string, EnrollmentCandidate[]>();
 
     for (const r of rows) {
@@ -2457,7 +3005,7 @@ export class MigrateLegacySchoolEtlUseCase {
       const agid = groupKeyMap.get(`${cid}:${sid}:${gid}:${year}:${gcode}`);
       if (!agid) continue;
       const statusId = validCatalogId(r.id_state, catalogs.enrollmentStatuses, 2) ?? 2;
-      const item = {
+      const item: EnrollmentCandidate = {
         legacyId: safeInt(r.id),
         studentProfileId: spId,
         campusId: cid,
@@ -2466,13 +3014,16 @@ export class MigrateLegacySchoolEtlUseCase {
         academicGroupId: agid,
         statusId,
         year,
-        regNum: cleanNullableStr(r.registration_number, 30),
-        folio: cleanNullableStr(r.folio, 30),
+        regNum: cleanNullableStr(r.registration_number, 40),
+        bookNum: cleanNullableStr(r.book, 20),
+        folio: cleanNullableStr(r.folio, 40),
         enrollDate: safeDate(r.date, `${year}-01-19`)!,
+        isPromoted: safeInt(r.promoted, 0) === 1,
         originSchool: cleanNullableStr(r.inst_origin, 200),
+        originAddress: cleanNullableStr(r.inst_address, 200),
         obs: cleanNullableStr(r.obs, 500),
       };
-      const key = `${spId}:${year}`;
+      const key = `${spId}:${year}:${gid}`;
       const list = grouped.get(key) ?? [];
       list.push(item);
       grouped.set(key, list);
@@ -2510,6 +3061,10 @@ export class MigrateLegacySchoolEtlUseCase {
       { studentProfileId: number; gradeId: number; academicGroupId: number; year: number }
     >();
     const canonicalIdByKey = new Map<string, number>();
+    const enrollmentsByStudentYear = new Map<
+      string,
+      Array<{ enrollmentId: number; gradeId: number; statusId: number }>
+    >();
 
     for (let i = 0; i < primaries.length; i += 2000) {
       const batch = primaries.slice(i, i + 2000);
@@ -2520,26 +3075,29 @@ export class MigrateLegacySchoolEtlUseCase {
           academic_year: number;
           grade_id: string;
           academic_group_id: string;
+          enrollment_status_id: number;
         }>(
           `INSERT INTO student_enrollments (
              school_id, student_profile_id, campus_id, shift_id, grade_id, academic_group_id,
-             enrollment_status_id, academic_year, registration_number, folio_number,
-             enrollment_date, previous_school_name, observations
+             enrollment_status_id, academic_year, registration_number, book_number, folio_number,
+             enrollment_date, is_promoted, previous_school_name, previous_school_address, observations
            )
            SELECT $1::bigint, * FROM UNNEST(
              $2::bigint[], $3::bigint[], $4::bigint[], $5::bigint[], $6::bigint[],
-             $7::smallint[], $8::smallint[], $9::varchar[], $10::varchar[],
-             $11::date[], $12::varchar[], $13::text[]
+             $7::smallint[], $8::smallint[], $9::varchar[], $10::varchar[], $11::varchar[],
+             $12::date[], $13::boolean[], $14::varchar[], $15::varchar[], $16::text[]
            )
-           ON CONFLICT (school_id, student_profile_id, academic_year)
+           ON CONFLICT (school_id, student_profile_id, academic_year, grade_id)
            DO UPDATE SET
              campus_id = EXCLUDED.campus_id,
              shift_id = EXCLUDED.shift_id,
-             grade_id = EXCLUDED.grade_id,
              academic_group_id = EXCLUDED.academic_group_id,
              enrollment_status_id = EXCLUDED.enrollment_status_id,
+             book_number = COALESCE(EXCLUDED.book_number, student_enrollments.book_number),
+             is_promoted = EXCLUDED.is_promoted,
+             previous_school_address = COALESCE(EXCLUDED.previous_school_address, student_enrollments.previous_school_address),
              updated_at = NOW()
-           RETURNING id::text, student_profile_id::text, academic_year, grade_id::text, academic_group_id::text`,
+           RETURNING id::text, student_profile_id::text, academic_year, grade_id::text, academic_group_id::text, enrollment_status_id`,
           [
             schoolId.toString(),
             batch.map((b) => b.studentProfileId),
@@ -2550,22 +3108,34 @@ export class MigrateLegacySchoolEtlUseCase {
             batch.map((b) => b.statusId),
             batch.map((b) => b.year),
             batch.map((b) => b.regNum),
+            batch.map((b) => b.bookNum),
             batch.map((b) => b.folio),
             batch.map((b) => b.enrollDate),
+            batch.map((b) => b.isPromoted),
             batch.map((b) => b.originSchool),
+            batch.map((b) => b.originAddress),
             batch.map((b) => b.obs),
           ],
         );
         for (const r of res.rows) {
           const eid = Number(r.id);
-          const key = `${r.student_profile_id}:${r.academic_year}`;
+          const gid = Number(r.grade_id);
+          const key = `${r.student_profile_id}:${r.academic_year}:${gid}`;
           canonicalIdByKey.set(key, eid);
           enrollmentMetaMap.set(eid, {
             studentProfileId: Number(r.student_profile_id),
-            gradeId: Number(r.grade_id),
+            gradeId: gid,
             academicGroupId: Number(r.academic_group_id),
             year: Number(r.academic_year),
           });
+          const syKey = `${r.student_profile_id}:${r.academic_year}`;
+          const syList = enrollmentsByStudentYear.get(syKey) ?? [];
+          syList.push({
+            enrollmentId: eid,
+            gradeId: gid,
+            statusId: Number(r.enrollment_status_id),
+          });
+          enrollmentsByStudentYear.set(syKey, syList);
         }
       });
     }
@@ -2585,6 +3155,142 @@ export class MigrateLegacySchoolEtlUseCase {
       Array.from(enrollmentMap.entries()),
       schoolDb.replace(/`/g, ''),
     );
+
+    // Migrar permisos de acceso estudiantil por matrícula (student_access -> student_enrollment_access_controls)
+    const preparedAccess = dedupeByKey(
+      accessRows
+        .map((a) => {
+          const eid = enrollmentMap.get(safeInt(a.enrollment_id));
+          if (!eid) return null;
+          return {
+            eid,
+            scores: safeInt(a.notes, 1) === 1,
+            reportCards: safeInt(a.newsletters, 1) === 1,
+            certs: safeInt(a.certificates, 1) === 1,
+            evals: safeInt(a.evaluations, 1) === 1,
+            acts: safeInt(a.activities, 1) === 1,
+            live: safeInt(a.live_classes, 1) === 1,
+            levelings: safeInt(a.leveling, 1) === 1,
+          };
+        })
+        .filter((x): x is NonNullable<typeof x> => x !== null),
+      (x) => String(x.eid),
+    );
+
+    for (let i = 0; i < preparedAccess.length; i += 2000) {
+      const b = preparedAccess.slice(i, i + 2000);
+      await this.runBulkTenantTx(schoolId, async (client) => {
+        await client.query(
+          `INSERT INTO student_enrollment_access_controls (
+             school_id, enrollment_id, can_view_scores, can_view_report_cards,
+             can_view_certificates, can_take_evaluations, can_view_activities,
+             can_join_live_classes, can_view_levelings
+           )
+           SELECT $1::bigint, * FROM UNNEST(
+             $2::bigint[], $3::boolean[], $4::boolean[], $5::boolean[],
+             $6::boolean[], $7::boolean[], $8::boolean[], $9::boolean[]
+           )
+           ON CONFLICT (school_id, enrollment_id)
+           DO UPDATE SET
+             can_view_scores = EXCLUDED.can_view_scores,
+             can_view_report_cards = EXCLUDED.can_view_report_cards,
+             can_view_certificates = EXCLUDED.can_view_certificates,
+             can_take_evaluations = EXCLUDED.can_take_evaluations,
+             can_view_activities = EXCLUDED.can_view_activities,
+             can_join_live_classes = EXCLUDED.can_join_live_classes,
+             can_view_levelings = EXCLUDED.can_view_levelings,
+             updated_at = NOW()`,
+          [
+            schoolId.toString(),
+            b.map((x) => x.eid),
+            b.map((x) => x.scores),
+            b.map((x) => x.reportCards),
+            b.map((x) => x.certs),
+            b.map((x) => x.evals),
+            b.map((x) => x.acts),
+            b.map((x) => x.live),
+            b.map((x) => x.levelings),
+          ],
+        );
+      });
+    }
+
+    // Migrar promociones anticipadas intra-año (promoted_header + promoted_observation + detail_promoted)
+    if (advHeaders.length > 0) {
+      const obsByAdvId = new Map(advObs.map((o) => [safeInt(o.promoted_id), o]));
+      const advIdMap = new Map<number, number>();
+      await this.db.withTenantTransaction(schoolId, async (client) => {
+        await client.query(`DELETE FROM advance_promotions WHERE school_id = $1`, [
+          schoolId.toString(),
+        ]);
+        const insertedPrevEnroll = new Set<number>();
+        for (const h of advHeaders) {
+          const legacyAdvId = safeInt(h.id);
+          const spId = studentMap.get(safeInt(h.student_id));
+          const prevGid = gradeMap.get(safeInt(h.grade_id));
+          const year = safeInt(h.year);
+          if (!spId || !prevGid || year < 1990 || year > 2100) continue;
+          const prevEnrollmentId = canonicalIdByKey.get(`${spId}:${year}:${prevGid}`);
+          if (!prevEnrollmentId || insertedPrevEnroll.has(prevEnrollmentId)) continue;
+          insertedPrevEnroll.add(prevEnrollmentId);
+
+          const otherEnrollments = (enrollmentsByStudentYear.get(`${spId}:${year}`) ?? [])
+            .filter((e) => e.enrollmentId !== prevEnrollmentId)
+            .sort((a, b) => statePriority(a.statusId) - statePriority(b.statusId));
+          const newEnrollmentId = otherEnrollments[0]?.enrollmentId ?? null;
+
+          const o = obsByAdvId.get(legacyAdvId);
+          const certTexts = o
+            ? {
+                title: cleanStr(o.titulo),
+                resolution: cleanStr(o.res),
+                header: cleanStr(o.encabezado),
+                attestation: cleanStr(o.consta),
+                body: cleanStr(o.cuerpo),
+                signature: cleanStr(o.firma),
+                showScores: safeInt(o.notas, 1) === 1,
+              }
+            : {};
+
+          const ins = await client.query<{ id: string }>(
+            `INSERT INTO advance_promotions (
+               school_id, academic_year, previous_enrollment_id, new_enrollment_id,
+               promotion_date, certificate_texts
+             )
+             VALUES ($1, $2, $3, $4, $5::date, $6::jsonb)
+             RETURNING id::text`,
+            [
+              schoolId.toString(),
+              year,
+              prevEnrollmentId,
+              newEnrollmentId,
+              safeDate(h.tiemestamp?.slice(0, 10) ?? null, null),
+              JSON.stringify(certTexts),
+            ],
+          );
+          advIdMap.set(legacyAdvId, Number(ins.rows[0].id));
+        }
+
+        for (const d of advDetails) {
+          const newAdvId = advIdMap.get(safeInt(d.promoted_id));
+          const subjectId = subjectMap.get(safeInt(d.subject_id));
+          if (!newAdvId || !subjectId) continue;
+          await client.query(
+            `INSERT INTO advance_promotion_subject_details (
+               school_id, advance_promotion_id, subject_id, period_number, score, absences
+             )
+             VALUES ($1, $2, $3, 1, $4, $5)`,
+            [
+              schoolId.toString(),
+              newAdvId,
+              subjectId,
+              safeDecimal(d.final, 0, 0, 100),
+              Math.min(32000, Math.max(0, safeInt(d.faults, 0))),
+            ],
+          );
+        }
+      });
+    }
 
     // Migrar novedades de matrícula (solo si tabla está vacía para idempotencia o limpiando previas)
     const novRows = await this.mysql.queryAll<{
@@ -2631,10 +3337,11 @@ export class MigrateLegacySchoolEtlUseCase {
       }
     });
 
-    this.logger.log('Fase 3.3 completada: matrículas y novedades migradas', {
+    this.logger.log('Fase 3.3 completada: matrículas, accesos, promoción anticipada y novedades migradas', {
       sourceEnrollments: rows.length,
       canonicalEnrollments: canonicalIdByKey.size,
       mappedLegacyIds: enrollmentMap.size,
+      accessControls: preparedAccess.length,
     });
 
     return {
@@ -2661,8 +3368,15 @@ export class MigrateLegacySchoolEtlUseCase {
       descripcion: string | null;
       porcentual: string;
       periodo: string;
+      evaluacion: string;
+      foro: string;
+      color_text: string | null;
+      color_column: string | null;
+      activa: string;
+      modificable: string;
     }>(
-      `SELECT cct.id_curso, cct.id_column, cct.nombre, cct.descripcion, cct.porcentual, cct.periodo
+      `SELECT cct.id_curso, cct.id_column, cct.nombre, cct.descripcion, cct.porcentual, cct.periodo,
+              cct.evaluacion, cct.foro, cct.color_text, cct.color_column, cct.activa, cct.modificable
          FROM ${schoolDb}.config_columns_theacher cct
          INNER JOIN ${schoolDb}.cursos c ON c.id = cct.id_curso
         WHERE cct.activa = 1 AND ${this.yearWhere('c.year', allowedYears)}`,
@@ -2682,8 +3396,15 @@ export class MigrateLegacySchoolEtlUseCase {
                 dimId: meta.dimensionId,
                 period,
                 colNum: meta.columnNumber,
+                shortName: cleanStr(r.nombre, `N${meta.columnNumber}`, 30),
                 desc: cleanStr(r.descripcion, cleanStr(r.nombre, `Nota ${meta.columnNumber}`, 120), 200),
                 weight: safeDecimal(r.porcentual, 0, 0, 100),
+                isActive: safeInt(r.activa, 1) === 1,
+                isEditable: safeInt(r.modificable, 1) === 1,
+                isEval: safeInt(r.evaluacion, 0) === 1,
+                isAct: safeInt(r.foro, 0) === 1,
+                textColor: cleanNullableStr(r.color_text, 30),
+                bgColor: cleanNullableStr(r.color_column, 30),
                 key: `${caId}:${meta.dimensionId}:${period}:${meta.columnNumber}`,
               };
             })
@@ -2701,14 +3422,27 @@ export class MigrateLegacySchoolEtlUseCase {
           }>(
             `INSERT INTO teacher_gradebook_columns (
                school_id, course_assignment_id, dimension_id, period_number,
-               column_number, description, weight_percentage
+               column_number, short_name, description, weight_percentage,
+               is_active, is_editable, is_evaluation_linked, is_activity_linked,
+               text_color, background_color
              )
              SELECT $1::bigint, * FROM UNNEST(
                $2::bigint[], $3::bigint[], $4::smallint[], $5::smallint[],
-               $6::varchar[], $7::numeric[]
+               $6::varchar[], $7::varchar[], $8::numeric[],
+               $9::boolean[], $10::boolean[], $11::boolean[], $12::boolean[],
+               $13::varchar[], $14::varchar[]
              )
              ON CONFLICT (school_id, course_assignment_id, dimension_id, period_number, column_number)
-             DO UPDATE SET description = EXCLUDED.description, weight_percentage = EXCLUDED.weight_percentage
+             DO UPDATE SET
+               short_name = EXCLUDED.short_name,
+               description = EXCLUDED.description,
+               weight_percentage = EXCLUDED.weight_percentage,
+               is_active = EXCLUDED.is_active,
+               is_editable = EXCLUDED.is_editable,
+               is_evaluation_linked = EXCLUDED.is_evaluation_linked,
+               is_activity_linked = EXCLUDED.is_activity_linked,
+               text_color = EXCLUDED.text_color,
+               background_color = EXCLUDED.background_color
              RETURNING id::text, course_assignment_id::text, period_number, column_number`,
             [
               schoolId.toString(),
@@ -2716,8 +3450,15 @@ export class MigrateLegacySchoolEtlUseCase {
               prepared.map((b) => b.dimId),
               prepared.map((b) => b.period),
               prepared.map((b) => b.colNum),
+              prepared.map((b) => b.shortName),
               prepared.map((b) => b.desc),
               prepared.map((b) => b.weight),
+              prepared.map((b) => b.isActive),
+              prepared.map((b) => b.isEditable),
+              prepared.map((b) => b.isEval),
+              prepared.map((b) => b.isAct),
+              prepared.map((b) => b.textColor),
+              prepared.map((b) => b.bgColor),
             ],
           );
           for (const r of res.rows) {
@@ -2743,10 +3484,11 @@ export class MigrateLegacySchoolEtlUseCase {
     gradeMap: Map<number, number>,
     subjectMap: Map<number, number>,
     dimensionMap: Map<number, number>,
+    teacherMap: Map<number, number>,
     catalogs: CatalogValidationSets,
     allowedYears: Set<number> | null,
   ): Promise<Map<number, number>> {
-    // Limpiar logros previos del colegio en la migración para idempotencia limpia (en CASCADE con academic_grade_achievements)
+    // Limpiar logros previos del colegio en la migración para idempotencia limpia (CASCADE con academic_score_achievements)
     await this.runBulkTenantTx(schoolId, async (client) => {
       await client.query(`DELETE FROM achievement_standards WHERE school_id = $1`, [
         schoolId.toString(),
@@ -2757,6 +3499,7 @@ export class MigrateLegacySchoolEtlUseCase {
     await this.mysql.streamBatches<{
       id: string;
       id_asig: string;
+      id_docente: string;
       id_escala: string;
       id_grado: string;
       id_competencia: string;
@@ -2765,9 +3508,11 @@ export class MigrateLegacySchoolEtlUseCase {
       year: string;
       periodo: string;
       estado: string;
+      asignacion: string;
       tipo: string;
     }>(
-      `SELECT id, id_asig, id_escala, id_grado, id_competencia, consecutivo, descripcion, year, periodo, estado, tipo
+      `SELECT id, id_asig, id_docente, id_escala, id_grado, id_competencia, consecutivo,
+              descripcion, year, periodo, estado, asignacion, tipo
          FROM ${schoolDb}.logros_estandares
         WHERE ${this.yearWhere('year', allowedYears)}
         ORDER BY id`,
@@ -2781,15 +3526,20 @@ export class MigrateLegacySchoolEtlUseCase {
             const period = Math.min(6, Math.max(1, safeInt(r.periodo, 1)));
             const desc = cleanNullableStr(r.descripcion);
             if (!gid || !sid || !desc || year < 1990 || year > 2100) return null;
+            const seqRaw = safeInt(r.consecutivo, 0);
+            const seqNum = seqRaw > 0 && seqRaw <= 32000 ? seqRaw : null;
             return {
               legacyId: safeInt(r.id),
               gradeId: gid,
               subjectId: sid,
               dimId: dimensionMap.get(safeInt(r.id_competencia)) ?? null,
+              teacherId: teacherMap.get(safeInt(r.id_docente)) ?? null,
               nsId: validCatalogId(r.id_escala, catalogs.nationalScales, null),
               year,
               period,
-              code: cleanNullableStr(r.consecutivo, 30),
+              seqNum,
+              assignMode: Math.min(32000, Math.max(0, safeInt(r.asignacion, 1))),
+              code: cleanNullableStr(r.consecutivo, 20),
               type: mapLegacyIndicatorType(safeInt(r.tipo, 2)),
               desc,
               isActive: safeInt(r.estado, 1) > 0,
@@ -2801,13 +3551,14 @@ export class MigrateLegacySchoolEtlUseCase {
         await this.runBulkTenantTx(schoolId, async (client) => {
           const res = await client.query<{ id: string }>(
             `INSERT INTO achievement_standards (
-               school_id, grade_id, subject_id, dimension_id, national_scale_id,
-               academic_year, period_number, code, indicator_type, description, is_active
+               school_id, grade_id, subject_id, dimension_id, teacher_profile_id, national_scale_id,
+               academic_year, period_number, sequence_number, assignment_mode,
+               code, indicator_type, description, is_active
              )
              SELECT $1::bigint, * FROM UNNEST(
-               $2::bigint[], $3::bigint[], $4::bigint[], $5::smallint[],
-               $6::smallint[], $7::smallint[], $8::varchar[], $9::varchar[],
-               $10::text[], $11::boolean[]
+               $2::bigint[], $3::bigint[], $4::bigint[], $5::bigint[], $6::smallint[],
+               $7::smallint[], $8::smallint[], $9::smallint[], $10::smallint[],
+               $11::varchar[], $12::varchar[], $13::text[], $14::boolean[]
              )
              RETURNING id::text`,
             [
@@ -2815,9 +3566,12 @@ export class MigrateLegacySchoolEtlUseCase {
               prepared.map((b) => b.gradeId),
               prepared.map((b) => b.subjectId),
               prepared.map((b) => b.dimId),
+              prepared.map((b) => b.teacherId),
               prepared.map((b) => b.nsId),
               prepared.map((b) => b.year),
               prepared.map((b) => b.period),
+              prepared.map((b) => b.seqNum),
+              prepared.map((b) => b.assignMode),
               prepared.map((b) => b.code),
               prepared.map((b) => b.type),
               prepared.map((b) => b.desc),
@@ -2837,15 +3591,90 @@ export class MigrateLegacySchoolEtlUseCase {
     return map;
   }
 
-  private async migrateAllGradesPreReportsAndLinks(
+  private async migrateAcademicSuggestions(
+    schoolDb: string,
+    schoolId: bigint,
+    teacherMap: Map<number, number>,
+    allowedYears: Set<number> | null,
+  ): Promise<Map<number, number>> {
+    await this.runBulkTenantTx(schoolId, async (client) => {
+      await client.query(`DELETE FROM academic_suggestions WHERE school_id = $1`, [
+        schoolId.toString(),
+      ]);
+    });
+
+    const rows = await this.mysql.queryAll<{
+      id: string;
+      sugerencia: string | null;
+      id_docente: string | null;
+      year: string;
+      periodo: string | null;
+      tipo: string;
+    }>(
+      `SELECT id, sugerencia, id_docente, year, periodo, tipo
+         FROM ${schoolDb}.sugerencias
+        WHERE ${this.yearWhere('year', allowedYears)}
+        ORDER BY id`,
+    );
+
+    const prepared = rows
+      .map((r) => {
+        const year = safeInt(r.year);
+        const desc = cleanNullableStr(r.sugerencia);
+        if (!desc || year < 1990 || year > 2100) return null;
+        return {
+          legacyId: safeInt(r.id),
+          teacherId: teacherMap.get(safeInt(r.id_docente)) ?? null,
+          year,
+          period: Math.min(6, Math.max(1, safeInt(r.periodo, 1))),
+          type: Math.min(32000, Math.max(0, safeInt(r.tipo, 1))),
+          desc,
+        };
+      })
+      .filter((x): x is NonNullable<typeof x> => x !== null);
+
+    const map = new Map<number, number>();
+    for (let i = 0; i < prepared.length; i += 1000) {
+      const b = prepared.slice(i, i + 1000);
+      await this.runBulkTenantTx(schoolId, async (client) => {
+        const res = await client.query<{ id: string }>(
+          `INSERT INTO academic_suggestions (
+             school_id, teacher_profile_id, academic_year, period_number,
+             suggestion_type, description, is_active
+           )
+           SELECT $1::bigint, * FROM UNNEST(
+             $2::bigint[], $3::smallint[], $4::smallint[], $5::smallint[], $6::text[], $7::boolean[]
+           )
+           RETURNING id::text`,
+          [
+            schoolId.toString(),
+            b.map((x) => x.teacherId),
+            b.map((x) => x.year),
+            b.map((x) => x.period),
+            b.map((x) => x.type),
+            b.map((x) => x.desc),
+            b.map(() => true),
+          ],
+        );
+        for (let idx = 0; idx < res.rows.length; idx++) {
+          map.set(b[idx].legacyId, Number(res.rows[idx].id));
+        }
+      });
+    }
+
+    this.logger.log('Fase 4.2b completada: sugerencias pedagógicas migradas', {
+      suggestionsMigrated: map.size,
+    });
+    return map;
+  }
+
+  private async migrateAllScoresPreReportsAndLinks(
     schoolDb: string,
     schoolId: bigint,
     enrollmentMap: Map<number, number>,
     courseMap: Map<number, number>,
-    courseMetaMap: Map<number, { gradeId: number; subjectId: number; teacherId: number; year: number }>,
-    gradeToGroupIdMap: Map<number, number>,
-    periodResolver: Map<string, number>,
     achievementMap: Map<number, number>,
+    suggestionMap: Map<number, number>,
     catalogs: CatalogValidationSets,
     allowedYears: Set<number> | null,
     warnings: string[],
@@ -2854,106 +3683,73 @@ export class MigrateLegacySchoolEtlUseCase {
     sourceFinalSum: number;
     itemsUpserted: number;
     linksRead: number;
+    suggestionsLinked: number;
   }> {
     let sourceGradesRead = 0;
     let sourceFinalSum = 0;
     let itemsUpserted = 0;
     let linksRead = 0;
+    let suggestionsLinked = 0;
     let skippedInvalidRows = 0;
-
-    // Pre-construir mapa (year, gradeGroupId, period) -> period_id con auto-creación bajo demanda
-    const ensurePeriodId = async (
-      year: number,
-      gradeGroupId: number | null,
-      periodNumber: number,
-    ): Promise<number> => {
-      const k1 = `${year}:${gradeGroupId ?? 0}:${periodNumber}`;
-      const found1 = periodResolver.get(k1);
-      if (found1) return found1;
-      const k2 = `${year}:0:${periodNumber}`;
-      const found2 = periodResolver.get(k2);
-      if (found2) return found2;
-
-      let createdId = 0;
-      await this.db.withTenantTransaction(schoolId, async (client) => {
-        const ins = await client.query<{ id: string }>(
-          `INSERT INTO academic_periods (
-             school_id, grade_group_id, academic_year, period_number, name, weight_percentage,
-             start_date, end_date, is_active, is_closed
-           )
-           VALUES ($1, NULL, $2, $3, $4, 25, $5::date, $6::date, FALSE, TRUE)
-           ON CONFLICT (school_id, academic_year, grade_group_id, period_number)
-           DO UPDATE SET name = academic_periods.name
-           RETURNING id::text`,
-          [
-            schoolId.toString(),
-            year,
-            periodNumber,
-            periodNumber === 5 ? 'DESEMPEÑO FINAL' : `PERIODO ${periodNumber}`,
-            `${year}-01-19`,
-            `${year}-11-30`,
-          ],
-        );
-        createdId = Number(ins.rows[0].id);
-      });
-      periodResolver.set(k2, createdId);
-      return createdId;
-    };
 
     const scoreColNames = Array.from({ length: 30 }, (_, idx) => `n${idx + 1}`);
     const scoreColsSql = scoreColNames.join(', ');
     const scoreUnnestPlaceholders = scoreColNames
-      .map((_, idx) => `$${13 + idx}::numeric[]`)
+      .map((_, idx) => `$${16 + idx}::numeric[]`)
       .join(', ');
     const scoreConflictUpdates = scoreColNames
       .map(
         (col) =>
-          `${col} = CASE WHEN EXCLUDED.final_score >= academic_grades.final_score THEN COALESCE(EXCLUDED.${col}, academic_grades.${col}) ELSE COALESCE(academic_grades.${col}, EXCLUDED.${col}) END`,
+          `${col} = CASE WHEN EXCLUDED.final_score >= academic_scores.final_score THEN COALESCE(EXCLUDED.${col}, academic_scores.${col}) ELSE COALESCE(academic_scores.${col}, EXCLUDED.${col}) END`,
       )
       .join(',\n                 ');
 
     for (const lvl of NSCP_TABLES) {
       // Mapa por nivel (liberado al terminar cada nivel para mantener RAM acotada)
-      const gradeIdByLegacy = new Map<
+      const scoreIdByLegacy = new Map<
         number,
         {
-          gradeId: number;
+          scoreId: number;
           year: number;
           enrollmentId: number;
           courseId: number;
           period: number;
           finalScore: number;
-          nsId: number | null;
         }
       >();
 
       await this.mysql.streamBatches<Record<string, string | null>>(
         `SELECT id, id_curso, id_matric, id_escala, periodo, year,
                 ${scoreColsSql},
-                final, faltas, injustificadas, retraso, nota_habilitacion
+                final, faltas, injustificadas, retraso,
+                nota_perdida, nota_habilitacion, nivelacion, fecha, timestamp
            FROM ${schoolDb}.${lvl.gradeTable}
           WHERE ${this.yearWhere('year', allowedYears)}`,
         5000,
         async (batch) => {
-          interface PreparedGrade {
+          interface PreparedScore {
             legacyId: number;
-            year: number;
             enrollmentId: number;
             courseId: number;
-            periodId: number;
+            updatedAt: string;
+            leveledAt: string | null;
+            year: number;
             period: number;
-            finalScore: number;
-            recoveryScore: number;
             nsId: number | null;
             justified: number;
             unjustified: number;
             late: number;
+            isLeveled: boolean;
+            finalScore: number;
+            lostScore: number | null;
+            recoveryScore: number | null;
             conflictKey: string;
             scores: Array<number | null>;
             nonZeroCount: number;
           }
 
-          const prepared: PreparedGrade[] = [];
+          const prepared: PreparedScore[] = [];
+          const fallbackIso = new Date().toISOString();
           for (const r of batch) {
             const year = safeInt(r['year']);
             const period = safeInt(r['periodo']);
@@ -2963,11 +3759,14 @@ export class MigrateLegacySchoolEtlUseCase {
               skippedInvalidRows += 1;
               continue;
             }
-            const cMeta = courseMetaMap.get(caId);
-            const ggId = cMeta ? (gradeToGroupIdMap.get(cMeta.gradeId) ?? null) : null;
-            const periodId = await ensurePeriodId(year, ggId, period);
             const finalScore = safeDecimal(r['final'], 0, 0, 100);
-            const recoveryScore = safeDecimal(r['nota_habilitacion'], 0, 0, 100);
+            const lostRaw = safeDecimal(r['nota_perdida'], 0, 0, 100);
+            const lostScore = lostRaw > 0 ? lostRaw : null;
+            const recRaw = safeDecimal(r['nota_habilitacion'], 0, 0, 100);
+            const recoveryScore = recRaw > 0 ? recRaw : null;
+            const isLeveled = safeInt(r['nivelacion'], 0) === 1;
+            const leveledAt = safeDate(r['fecha'], null);
+            const updatedAt = safeTimestamp(r['timestamp']) ?? fallbackIso;
             const nsId = validCatalogId(r['id_escala'], catalogs.nationalScales, null);
 
             // Almacenar NULL cuando la casilla legacy es 0.00 (0 bytes en heap PostgreSQL)
@@ -2988,26 +3787,29 @@ export class MigrateLegacySchoolEtlUseCase {
 
             prepared.push({
               legacyId: safeInt(r['id']),
-              year,
               enrollmentId: eid,
               courseId: caId,
-              periodId,
+              updatedAt,
+              leveledAt,
+              year,
               period,
-              finalScore,
-              recoveryScore,
               nsId,
               justified: Math.min(32000, Math.max(0, safeInt(r['faltas']))),
               unjustified: Math.min(32000, Math.max(0, safeInt(r['injustificadas']))),
               late: Math.min(32000, Math.max(0, safeInt(r['retraso']))),
-              conflictKey: `${year}:${eid}:${caId}:${period}`,
+              isLeveled,
+              finalScore,
+              lostScore,
+              recoveryScore,
+              conflictKey: `${year}:${eid}:${period}:${caId}`,
               scores,
               nonZeroCount,
             });
           }
 
           if (prepared.length === 0) return;
-          // Si dos matrículas legacy consolidadas en el mismo año comparten curso+periodo, preservar la nota más alta/no vacía
-          const dedupedMap = new Map<string, PreparedGrade>();
+          // Si dos matrículas legacy consolidadas en el mismo año+grado comparten curso+periodo, preservar la nota más alta/no vacía
+          const dedupedMap = new Map<string, PreparedScore>();
           for (const row of prepared) {
             const existing = dedupedMap.get(row.conflictKey);
             if (
@@ -3033,70 +3835,81 @@ export class MigrateLegacySchoolEtlUseCase {
               id: string;
               academic_year: number;
               enrollment_id: string;
-              course_assignment_id: string;
               period_number: number;
+              course_assignment_id: string;
             }>(
-              `INSERT INTO academic_grades (
-                 school_id, academic_year, enrollment_id, course_assignment_id,
-                 period_id, period_number, final_score, recovery_score,
-                 national_scale_id, justified_absences, unjustified_absences, late_arrivals,
+              `INSERT INTO academic_scores (
+                 school_id, enrollment_id, course_assignment_id, updated_at,
+                 leveled_at, academic_year, period_number, national_scale_id,
+                 justified_absences, unjustified_absences, late_arrivals, is_leveled,
+                 final_score, lost_score, recovery_score,
                  ${scoreColsSql}
                )
                SELECT $1::bigint, * FROM UNNEST(
-                 $2::smallint[], $3::bigint[], $4::bigint[],
-                 $5::bigint[], $6::smallint[], $7::numeric[], $8::numeric[],
-                 $9::smallint[], $10::smallint[], $11::smallint[], $12::smallint[],
+                 $2::bigint[], $3::bigint[], $4::timestamptz[],
+                 $5::date[], $6::smallint[], $7::smallint[], $8::smallint[],
+                 $9::smallint[], $10::smallint[], $11::smallint[], $12::boolean[],
+                 $13::numeric[], $14::numeric[], $15::numeric[],
                  ${scoreUnnestPlaceholders}
                )
-               ON CONFLICT (school_id, academic_year, enrollment_id, course_assignment_id, period_number)
+               ON CONFLICT (school_id, academic_year, enrollment_id, period_number, course_assignment_id)
                DO UPDATE SET
                  final_score = CASE
-                   WHEN EXCLUDED.final_score > 0 OR academic_grades.final_score = 0 THEN EXCLUDED.final_score
-                   ELSE academic_grades.final_score
+                   WHEN EXCLUDED.final_score > 0 OR academic_scores.final_score = 0 THEN EXCLUDED.final_score
+                   ELSE academic_scores.final_score
                  END,
-                 recovery_score = GREATEST(academic_grades.recovery_score, EXCLUDED.recovery_score),
-                 national_scale_id = COALESCE(EXCLUDED.national_scale_id, academic_grades.national_scale_id),
-                 justified_absences = GREATEST(academic_grades.justified_absences, EXCLUDED.justified_absences),
-                 unjustified_absences = GREATEST(academic_grades.unjustified_absences, EXCLUDED.unjustified_absences),
-                 late_arrivals = GREATEST(academic_grades.late_arrivals, EXCLUDED.late_arrivals),
+                 lost_score = COALESCE(EXCLUDED.lost_score, academic_scores.lost_score),
+                 recovery_score = COALESCE(
+                   GREATEST(academic_scores.recovery_score, EXCLUDED.recovery_score),
+                   EXCLUDED.recovery_score,
+                   academic_scores.recovery_score
+                 ),
+                 is_leveled = academic_scores.is_leveled OR EXCLUDED.is_leveled,
+                 leveled_at = COALESCE(EXCLUDED.leveled_at, academic_scores.leveled_at),
+                 national_scale_id = COALESCE(EXCLUDED.national_scale_id, academic_scores.national_scale_id),
+                 justified_absences = GREATEST(academic_scores.justified_absences, EXCLUDED.justified_absences),
+                 unjustified_absences = GREATEST(academic_scores.unjustified_absences, EXCLUDED.unjustified_absences),
+                 late_arrivals = GREATEST(academic_scores.late_arrivals, EXCLUDED.late_arrivals),
                  ${scoreConflictUpdates},
-                 updated_at = NOW()
-               RETURNING id::text, academic_year, enrollment_id::text, course_assignment_id::text, period_number`,
+                 updated_at = GREATEST(academic_scores.updated_at, EXCLUDED.updated_at)
+               RETURNING id::text, academic_year, enrollment_id::text, period_number, course_assignment_id::text`,
               [
                 schoolId.toString(),
-                deduped.map((b) => b.year),
                 deduped.map((b) => b.enrollmentId),
                 deduped.map((b) => b.courseId),
-                deduped.map((b) => b.periodId),
+                deduped.map((b) => b.updatedAt),
+                deduped.map((b) => b.leveledAt),
+                deduped.map((b) => b.year),
                 deduped.map((b) => b.period),
-                deduped.map((b) => b.finalScore),
-                deduped.map((b) => b.recoveryScore),
                 deduped.map((b) => b.nsId),
                 deduped.map((b) => b.justified),
                 deduped.map((b) => b.unjustified),
                 deduped.map((b) => b.late),
+                deduped.map((b) => b.isLeveled),
+                deduped.map((b) => b.finalScore),
+                deduped.map((b) => b.lostScore),
+                deduped.map((b) => b.recoveryScore),
                 ...scoreArrays,
               ],
             );
 
             const newIdByKey = new Map(
               res.rows.map((row) => [
-                `${row.academic_year}:${row.enrollment_id}:${row.course_assignment_id}:${row.period_number}`,
+                `${row.academic_year}:${row.enrollment_id}:${row.period_number}:${row.course_assignment_id}`,
                 Number(row.id),
               ]),
             );
 
             for (const p of prepared) {
-              const gid = newIdByKey.get(p.conflictKey);
-              if (!gid) continue;
-              gradeIdByLegacy.set(p.legacyId, {
-                gradeId: gid,
+              const sid = newIdByKey.get(p.conflictKey);
+              if (!sid) continue;
+              scoreIdByLegacy.set(p.legacyId, {
+                scoreId: sid,
                 year: p.year,
                 enrollmentId: p.enrollmentId,
                 courseId: p.courseId,
                 period: p.period,
                 finalScore: p.finalScore,
-                nsId: p.nsId,
               });
             }
           });
@@ -3104,17 +3917,23 @@ export class MigrateLegacySchoolEtlUseCase {
       );
 
       // Migrar preinformes reales no vacíos de este nivel
-      const preRows = await this.mysql.queryAll<{ id_nota: string; obs: string }>(
-        `SELECT id_nota, obs FROM ${schoolDb}.${lvl.preTable} WHERE TRIM(COALESCE(obs,'')) <> ''`,
+      const preRows = await this.mysql.queryAll<{ id_nota: string; obs: string; estado: string }>(
+        `SELECT id_nota, obs, estado FROM ${schoolDb}.${lvl.preTable} WHERE TRIM(COALESCE(obs,'')) <> ''`,
       );
       if (preRows.length > 0) {
         const prePrepared = dedupeByKey(
           preRows
             .map((p) => {
-              const g = gradeIdByLegacy.get(safeInt(p.id_nota));
+              const g = scoreIdByLegacy.get(safeInt(p.id_nota));
               const obs = cleanNullableStr(p.obs);
               if (!g || !obs) return null;
-              return { ...g, obs, key: `${g.year}:${g.enrollmentId}:${g.courseId}:${g.period}` };
+              return {
+                ...g,
+                partialScore: g.finalScore > 0 ? g.finalScore : null,
+                obs,
+                isActive: safeInt(p.estado, 1) === 1,
+                key: `${g.year}:${g.enrollmentId}:${g.courseId}:${g.period}`,
+              };
             })
             .filter((x): x is NonNullable<typeof x> => x !== null),
           (x) => x.key,
@@ -3124,41 +3943,30 @@ export class MigrateLegacySchoolEtlUseCase {
             await client.query(
               `INSERT INTO academic_pre_reports (
                  school_id, academic_year, enrollment_id, course_assignment_id,
-                 period_number, partial_score, national_scale_id, observations
+                 period_number, partial_score, observations, is_active
                )
                SELECT $1::bigint, * FROM UNNEST(
                  $2::smallint[], $3::bigint[], $4::bigint[],
-                 $5::smallint[], $6::numeric[], $7::smallint[], $8::text[]
+                 $5::smallint[], $6::numeric[], $7::text[], $8::boolean[]
                )
                ON CONFLICT (school_id, academic_year, enrollment_id, course_assignment_id, period_number)
-               DO UPDATE SET observations = EXCLUDED.observations`,
+               DO UPDATE SET observations = EXCLUDED.observations, is_active = EXCLUDED.is_active`,
               [
                 schoolId.toString(),
                 prePrepared.map((b) => b.year),
                 prePrepared.map((b) => b.enrollmentId),
                 prePrepared.map((b) => b.courseId),
                 prePrepared.map((b) => b.period),
-                prePrepared.map((b) => b.finalScore),
-                prePrepared.map((b) => b.nsId),
+                prePrepared.map((b) => b.partialScore),
                 prePrepared.map((b) => b.obs),
-              ],
-            );
-            await client.query(
-              `UPDATE academic_grades ag
-                  SET has_pre_report_alert = TRUE
-                 FROM UNNEST($2::smallint[], $3::bigint[]) AS u(yr, gid)
-                WHERE ag.school_id = $1 AND ag.academic_year = u.yr AND ag.id = u.gid`,
-              [
-                schoolId.toString(),
-                prePrepared.map((b) => b.year),
-                prePrepared.map((b) => b.gradeId),
+                prePrepared.map((b) => b.isActive),
               ],
             );
           });
         }
       }
 
-      // Migrar log_nscp* de este nivel usando el mapa en memoria antes de liberarlo
+      // Migrar log_nscp* (logros asignados a notas) con PK natural sin ID surrogado
       await this.mysql.streamBatches<{ id_nota: string; id_logro_estandar: string }>(
         `SELECT id_nota, id_logro_estandar FROM ${schoolDb}.${lvl.logTable}`,
         10000,
@@ -3166,28 +3974,64 @@ export class MigrateLegacySchoolEtlUseCase {
           const links = dedupeByKey(
             batch
               .map((l) => {
-                const g = gradeIdByLegacy.get(safeInt(l.id_nota));
+                const g = scoreIdByLegacy.get(safeInt(l.id_nota));
                 const achId = achievementMap.get(safeInt(l.id_logro_estandar));
                 if (!g || !achId) return null;
-                return { year: g.year, gradeId: g.gradeId, achId };
+                return { year: g.year, scoreId: g.scoreId, achId };
               })
               .filter((x): x is NonNullable<typeof x> => x !== null),
-            (x) => `${x.year}:${x.gradeId}:${x.achId}`,
+            (x) => `${x.year}:${x.scoreId}:${x.achId}`,
           );
           if (links.length === 0) return;
           linksRead += links.length;
           await this.runBulkTenantTx(schoolId, async (client) => {
             await client.query(
-              `INSERT INTO academic_grade_achievements (
-                 school_id, academic_year, academic_grade_id, achievement_standard_id
+              `INSERT INTO academic_score_achievements (
+                 school_id, academic_year, academic_score_id, achievement_standard_id
                )
                SELECT $1::bigint, * FROM UNNEST($2::smallint[], $3::bigint[], $4::bigint[])
-               ON CONFLICT (school_id, academic_year, academic_grade_id, achievement_standard_id) DO NOTHING`,
+               ON CONFLICT (school_id, academic_year, academic_score_id, achievement_standard_id) DO NOTHING`,
               [
                 schoolId.toString(),
                 links.map((x) => x.year),
-                links.map((x) => x.gradeId),
+                links.map((x) => x.scoreId),
                 links.map((x) => x.achId),
+              ],
+            );
+          });
+        },
+      );
+
+      // Migrar sug_nscp* (sugerencias asignadas a notas) con PK natural
+      await this.mysql.streamBatches<{ id_nota: string; id_sugerencia: string }>(
+        `SELECT id_nota, id_sugerencia FROM ${schoolDb}.${lvl.sugTable}`,
+        10000,
+        async (batch) => {
+          const sugLinks = dedupeByKey(
+            batch
+              .map((l) => {
+                const g = scoreIdByLegacy.get(safeInt(l.id_nota));
+                const sugId = suggestionMap.get(safeInt(l.id_sugerencia));
+                if (!g || !sugId) return null;
+                return { year: g.year, scoreId: g.scoreId, sugId };
+              })
+              .filter((x): x is NonNullable<typeof x> => x !== null),
+            (x) => `${x.year}:${x.scoreId}:${x.sugId}`,
+          );
+          if (sugLinks.length === 0) return;
+          suggestionsLinked += sugLinks.length;
+          await this.runBulkTenantTx(schoolId, async (client) => {
+            await client.query(
+              `INSERT INTO academic_score_suggestions (
+                 school_id, academic_year, academic_score_id, suggestion_id
+               )
+               SELECT $1::bigint, * FROM UNNEST($2::smallint[], $3::bigint[], $4::bigint[])
+               ON CONFLICT (school_id, academic_year, academic_score_id, suggestion_id) DO NOTHING`,
+              [
+                schoolId.toString(),
+                sugLinks.map((x) => x.year),
+                sugLinks.map((x) => x.scoreId),
+                sugLinks.map((x) => x.sugId),
               ],
             );
           });
@@ -3196,11 +4040,12 @@ export class MigrateLegacySchoolEtlUseCase {
 
       this.logger.log(`Nivel ${lvl.gradeTable} completado y memoria liberada`, {
         table: lvl.gradeTable,
-        gradesMapped: gradeIdByLegacy.size,
-        accumulatedItems: itemsUpserted,
-        accumulatedLinks: linksRead,
+        scoresMapped: scoreIdByLegacy.size,
+        accumulatedCells: itemsUpserted,
+        accumulatedAchievementLinks: linksRead,
+        accumulatedSuggestionLinks: suggestionsLinked,
       });
-      gradeIdByLegacy.clear();
+      scoreIdByLegacy.clear();
     }
 
     if (skippedInvalidRows > 0) {
@@ -3214,6 +4059,7 @@ export class MigrateLegacySchoolEtlUseCase {
       sourceFinalSum: Number(sourceFinalSum.toFixed(2)),
       itemsUpserted,
       linksRead,
+      suggestionsLinked,
     };
   }
 
@@ -3232,9 +4078,10 @@ export class MigrateLegacySchoolEtlUseCase {
       notarecuperada: string;
       fecha: string | null;
       notas: string | null;
+      estado: string;
       year: string;
     }>(
-      `SELECT r.id_matric, r.id_curso, r.nro_acta, r.notafinal, r.notarecuperada, r.fecha, r.notas, se.year
+      `SELECT r.id_matric, r.id_curso, r.nro_acta, r.notafinal, r.notarecuperada, r.fecha, r.notas, r.estado, se.year
          FROM ${schoolDb}.respeciales r
          INNER JOIN ${schoolDb}.student_enrollment se ON se.id = r.id_matric
         WHERE ${this.yearWhere('se.year', allowedYears)}`,
@@ -3257,25 +4104,27 @@ export class MigrateLegacySchoolEtlUseCase {
             act: cleanNullableStr(r.nro_acta, 30),
             prev: safeDecimal(r.notafinal, 0, 0, 100),
             rec: safeDecimal(r.notarecuperada, 0, 0, 100),
-            dt: safeDate(r.fecha, `${year}-11-25`)!,
+            dt: safeDate(r.fecha, null),
             obs: cleanNullableStr(r.notas, 500),
+            status: safeInt(r.estado, 1),
           };
         })
         .filter((x): x is NonNullable<typeof x> => x !== null);
 
       for (let i = 0; i < prepared.length; i += 2000) {
         const b = prepared.slice(i, i + 2000);
+        // Recuperaciones especiales/anuales (respeciales) se guardan con period_number = NULL sin alterar notas periódicas
         await client.query(
           `INSERT INTO period_recovery_records (
              school_id, academic_year, enrollment_id, course_assignment_id,
              period_number, act_number, previous_score, recovery_score,
-             recovery_type, recovery_date, observations
+             recovery_type, recovery_date, observations, status
            )
-           SELECT $1::bigint, year, eid, ca_id, 4::smallint, act, prev, rec, 'FINAL_RECOVERY', dt, obs
+           SELECT $1::bigint, year, eid, ca_id, NULL::smallint, act, prev, rec, 'FINAL_RECOVERY', dt, obs, st
              FROM UNNEST(
                $2::smallint[], $3::bigint[], $4::bigint[], $5::varchar[],
-               $6::numeric[], $7::numeric[], $8::date[], $9::text[]
-             ) AS t(year, eid, ca_id, act, prev, rec, dt, obs)`,
+               $6::numeric[], $7::numeric[], $8::date[], $9::text[], $10::smallint[]
+             ) AS t(year, eid, ca_id, act, prev, rec, dt, obs, st)`,
           [
             schoolId.toString(),
             b.map((x) => x.year),
@@ -3286,23 +4135,7 @@ export class MigrateLegacySchoolEtlUseCase {
             b.map((x) => x.rec),
             b.map((x) => x.dt),
             b.map((x) => x.obs),
-          ],
-        );
-
-        await client.query(
-          `UPDATE academic_grades ag
-              SET leveling_score = GREATEST(ag.leveling_score, u.rec)
-             FROM UNNEST($2::smallint[], $3::bigint[], $4::bigint[], $5::numeric[]) AS u(yr, eid, ca_id, rec)
-            WHERE ag.school_id = $1
-              AND ag.academic_year = u.yr
-              AND ag.enrollment_id = u.eid
-              AND ag.course_assignment_id = u.ca_id`,
-          [
-            schoolId.toString(),
-            b.map((x) => x.year),
-            b.map((x) => x.eid),
-            b.map((x) => x.caId),
-            b.map((x) => x.rec),
+            b.map((x) => x.status),
           ],
         );
       }
@@ -3317,6 +4150,7 @@ export class MigrateLegacySchoolEtlUseCase {
       number,
       { studentProfileId: number; gradeId: number; academicGroupId: number; year: number }
     >,
+    teacherMap: Map<number, number>,
     teacherUserIdMap: Map<number, number>,
     fallbackUserId: number,
     allowedYears: Set<number> | null,
@@ -3326,8 +4160,8 @@ export class MigrateLegacySchoolEtlUseCase {
         this.mysql.queryAll<{ id: string; descripcion: string; estado: string }>(
           `SELECT id, descripcion, estado FROM ${schoolDb}.obs_modelos_observador ORDER BY id`,
         ),
-        this.mysql.queryAll<{ id: string; id_modelo: string; descripcion: string; estado: string; convivencia: string }>(
-          `SELECT id, id_modelo, descripcion, estado, convivencia FROM ${schoolDb}.obs_items_modelos ORDER BY id`,
+        this.mysql.queryAll<{ id: string; id_modelo: string; descripcion: string; year: string | null; estado: string; convivencia: string }>(
+          `SELECT id, id_modelo, descripcion, year, estado, convivencia FROM ${schoolDb}.obs_items_modelos ORDER BY id`,
         ),
         this.mysql.queryAll<{ id: string; id_item_modelo: string; descripcion: string; estado: string }>(
           `SELECT id, id_item_modelo, descripcion, estado FROM ${schoolDb}.obs_criterios ORDER BY id`,
@@ -3349,8 +4183,8 @@ export class MigrateLegacySchoolEtlUseCase {
              INNER JOIN ${schoolDb}.obs_observer_mod_5 o ON o.id = a.observer_id
             WHERE ${this.yearWhere('o.year', allowedYears)}`,
         ),
-        this.mysql.queryAll<{ id: string; id_matric: string; year: string }>(
-          `SELECT id, id_matric, year FROM ${schoolDb}.obs_observador_mod_3 WHERE ${this.yearWhere('year', allowedYears)}`,
+        this.mysql.queryAll<Record<string, string | null>>(
+          `SELECT * FROM ${schoolDb}.obs_observador_mod_3 WHERE ${this.yearWhere('year', allowedYears)} ORDER BY id`,
         ),
         this.mysql.queryAll<Record<string, string | null>>(
           `SELECT i.* FROM ${schoolDb}.obs_items_modelo_3 i INNER JOIN ${schoolDb}.obs_observador_mod_3 o ON o.id = i.id_observador WHERE ${this.yearWhere('o.year', allowedYears)}`,
@@ -3376,6 +4210,7 @@ export class MigrateLegacySchoolEtlUseCase {
 
     await this.runBulkTenantTx(schoolId, async (client) => {
       await client.query(`DELETE FROM observer_annotations WHERE school_id = $1`, [schoolId.toString()]);
+      await client.query(`DELETE FROM observer_criteria_evaluations WHERE school_id = $1`, [schoolId.toString()]);
       await client.query(`DELETE FROM student_observers WHERE school_id = $1`, [schoolId.toString()]);
       await client.query(`DELETE FROM observer_templates WHERE school_id = $1`, [schoolId.toString()]);
 
@@ -3392,10 +4227,14 @@ export class MigrateLegacySchoolEtlUseCase {
       for (const s of sections) {
         const tid = tplMap.get(safeInt(s.id_modelo));
         if (!tid) continue;
+        const secYearRaw = safeInt(s.year, 0);
+        const secYear = secYearRaw >= 1990 && secYearRaw <= 2100 ? secYearRaw : null;
         const ins = await client.query<{ id: string }>(
-          `INSERT INTO observer_template_sections (school_id, template_id, title, is_coexistence_section, display_order, is_active)
-           VALUES ($1,$2,$3,$4,$5,$6) RETURNING id::text`,
-          [schoolId.toString(), tid, cleanStr(s.descripcion, 'Sección', 200), safeInt(s.convivencia) === 1, safeInt(s.id), safeInt(s.estado, 1) === 1],
+          `INSERT INTO observer_template_sections (
+             school_id, template_id, academic_year, title, is_coexistence_section, display_order, is_active
+           )
+           VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING id::text`,
+          [schoolId.toString(), tid, secYear, cleanStr(s.descripcion, 'Sección', 200), safeInt(s.convivencia) === 1, safeInt(s.id), safeInt(s.estado, 1) === 1],
         );
         secMap.set(safeInt(s.id), Number(ins.rows[0].id));
       }
@@ -3418,62 +4257,70 @@ export class MigrateLegacySchoolEtlUseCase {
         const eid = enrollmentMap.get(safeInt(o['id_matric']));
         const year = safeInt(o['year']);
         if (!eid || year < 1990 || year > 2100) continue;
+        const m5Payload = {
+          talla: cleanStr(o['talla']),
+          peso: cleanStr(o['peso']),
+          religion: cleanStr(o['religion']),
+          deporte: cleanStr(o['deporte']),
+          trabaja: parseYesNoFlag(o['trabaja']),
+          profOficio: cleanStr(o['prof_oficio']),
+          numHermanos: safeInt(o['num_hermanos']),
+          lugarHermanos: safeInt(o['lugar_hermanos'], 1),
+          numHermanosHombres: safeInt(o['num_hermanos_hombres']),
+          numHermanosMujeres: safeInt(o['num_hermanos_mujeres']),
+          madreCabezaHogar: parseYesNoFlag(o['madre_cabeza_hogar']),
+          padreCabezaHogar: parseYesNoFlag(o['padre_cabeza_hogar']),
+          desplazados: parseYesNoFlag(o['desplazados']),
+          barrerasAprendizaje: parseYesNoFlag(o['barreras_aprendizaje']),
+          limVisual: Boolean(cleanNullableStr(o['det_limit_visual'])),
+          limVisualDetalle: cleanStr(o['det_limit_visual']),
+          limVisualDx: cleanStr(o['eps_dx_doctor_limit_visual']),
+          limAuditiva: Boolean(cleanNullableStr(o['det_limit_auditiva'])),
+          limAuditivaDetalle: cleanStr(o['det_limit_auditiva']),
+          limAuditivaDx: cleanStr(o['eps_dx_doctor_auditiva']),
+          limLenguaje: Boolean(cleanNullableStr(o['det_limit_trans_lenguaje'])),
+          limLenguajeDetalle: cleanStr(o['det_limit_trans_lenguaje']),
+          limLenguajeDx: cleanStr(o['eps_dx_doctor_trans_lenguaje']),
+          limMotricidad: Boolean(cleanNullableStr(o['det_limit_motricidad'])),
+          limMotricidadDetalle: cleanStr(o['det_limit_motricidad']),
+          limMotricidadDx: cleanStr(o['eps_dx_doctor_motricidad']),
+          limOtras: Boolean(cleanNullableStr(o['det_limit_otra'])),
+          limOtrasDetalle: cleanStr(o['det_limit_otra']),
+          limOtrasDx: cleanStr(o['eps_dx_doctor_otra']),
+          dificultadAprendizaje: parseYesNoFlag(o['dificultad_aprendizaje']),
+          dislexia: parseYesNoFlag(o['dislexia']) || Boolean(cleanNullableStr(o['dislexia'])),
+          disgrafia: parseYesNoFlag(o['disgrafia']) || Boolean(cleanNullableStr(o['disgrafia'])),
+          discalculia: parseYesNoFlag(o['discalculia']) || Boolean(cleanNullableStr(o['discalculia'])),
+          discapacidadIntelectual: parseYesNoFlag(o['disc_intelectual']) || Boolean(cleanNullableStr(o['disc_intelectual'])),
+          discapacidadMemoriaAuditivo: parseYesNoFlag(o['disc_memoria_auditivo']) || Boolean(cleanNullableStr(o['disc_memoria_auditivo'])),
+          tea: parseYesNoFlag(o['tea']) || Boolean(cleanNullableStr(o['tea'])),
+          tdha: parseYesNoFlag(o['tdha']) || Boolean(cleanNullableStr(o['tdha'])),
+          otraDificultadAprendizaje: cleanStr(o['otra_dificulta_aprendizaje']),
+        };
+        const m5Json = JSON.stringify(m5Payload);
         const res = await client.query<{ id: string }>(
-          `INSERT INTO student_observers (school_id, enrollment_id, template_id, academic_year)
-           VALUES ($1,$2,$3,$4)
-           ON CONFLICT (school_id, enrollment_id) DO UPDATE SET template_id = EXCLUDED.template_id
+          `INSERT INTO student_observers (
+             school_id, enrollment_id, template_id, academic_year, model_type, profile_data, is_active
+           )
+           VALUES ($1,$2,$3,$4,5,$5::jsonb,$6)
+           ON CONFLICT (school_id, enrollment_id)
+           DO UPDATE SET
+             template_id = EXCLUDED.template_id,
+             model_type = 5,
+             profile_data = EXCLUDED.profile_data,
+             is_active = EXCLUDED.is_active
            RETURNING id::text`,
-          [schoolId.toString(), eid, tpl5Id, year],
+          [schoolId.toString(), eid, tpl5Id, year, m5Json, safeInt(o['estado'], 1) === 1],
         );
         obs5IdMap.set(safeInt(o['id']), Number(res.rows[0].id));
 
         const meta = enrollmentMetaMap.get(eid);
         if (meta) {
-          const m5Payload = {
-            talla: cleanStr(o['talla']),
-            peso: cleanStr(o['peso']),
-            religion: cleanStr(o['religion']),
-            deporte: cleanStr(o['deporte']),
-            trabaja: parseYesNoFlag(o['trabaja']),
-            profOficio: cleanStr(o['prof_oficio']),
-            numHermanos: safeInt(o['num_hermanos']),
-            lugarHermanos: safeInt(o['lugar_hermanos'], 1),
-            numHermanosHombres: safeInt(o['num_hermanos_hombres']),
-            numHermanosMujeres: safeInt(o['num_hermanos_mujeres']),
-            madreCabezaHogar: parseYesNoFlag(o['madre_cabeza_hogar']),
-            padreCabezaHogar: parseYesNoFlag(o['padre_cabeza_hogar']),
-            desplazados: parseYesNoFlag(o['desplazados']),
-            barrerasAprendizaje: parseYesNoFlag(o['barreras_aprendizaje']),
-            limVisual: Boolean(cleanNullableStr(o['det_limit_visual'])),
-            limVisualDetalle: cleanStr(o['det_limit_visual']),
-            limVisualDx: cleanStr(o['eps_dx_doctor_limit_visual']),
-            limAuditiva: Boolean(cleanNullableStr(o['det_limit_auditiva'])),
-            limAuditivaDetalle: cleanStr(o['det_limit_auditiva']),
-            limAuditivaDx: cleanStr(o['eps_dx_doctor_auditiva']),
-            limLenguaje: Boolean(cleanNullableStr(o['det_limit_trans_lenguaje'])),
-            limLenguajeDetalle: cleanStr(o['det_limit_trans_lenguaje']),
-            limLenguajeDx: cleanStr(o['eps_dx_doctor_trans_lenguaje']),
-            limMotricidad: Boolean(cleanNullableStr(o['det_limit_motricidad'])),
-            limMotricidadDetalle: cleanStr(o['det_limit_motricidad']),
-            limMotricidadDx: cleanStr(o['eps_dx_doctor_motricidad']),
-            limOtras: Boolean(cleanNullableStr(o['det_limit_otra'])),
-            limOtrasDetalle: cleanStr(o['det_limit_otra']),
-            limOtrasDx: cleanStr(o['eps_dx_doctor_otra']),
-            dificultadAprendizaje: parseYesNoFlag(o['dificultad_aprendizaje']),
-            dislexia: parseYesNoFlag(o['dislexia']) || Boolean(cleanNullableStr(o['dislexia'])),
-            disgrafia: parseYesNoFlag(o['disgrafia']) || Boolean(cleanNullableStr(o['disgrafia'])),
-            discalculia: parseYesNoFlag(o['discalculia']) || Boolean(cleanNullableStr(o['discalculia'])),
-            discapacidadIntelectual: parseYesNoFlag(o['disc_intelectual']) || Boolean(cleanNullableStr(o['disc_intelectual'])),
-            discapacidadMemoriaAuditivo: parseYesNoFlag(o['disc_memoria_auditivo']) || Boolean(cleanNullableStr(o['disc_memoria_auditivo'])),
-            tea: parseYesNoFlag(o['tea']) || Boolean(cleanNullableStr(o['tea'])),
-            tdha: parseYesNoFlag(o['tdha']) || Boolean(cleanNullableStr(o['tdha'])),
-            otraDificultadAprendizaje: cleanStr(o['otra_dificulta_aprendizaje']),
-          };
           await client.query(
             `UPDATE student_profiles
                 SET additional_info = jsonb_set(COALESCE(additional_info, '{}'::jsonb), '{observerModel5}', $3::jsonb, true)
               WHERE school_id = $1 AND id = $2`,
-            [schoolId.toString(), meta.studentProfileId, JSON.stringify(m5Payload)],
+            [schoolId.toString(), meta.studentProfileId, m5Json],
           );
         }
       }
@@ -3505,48 +4352,105 @@ export class MigrateLegacySchoolEtlUseCase {
         });
       }
 
-      // Modelo 3 (33 fichas + 675 matriz + 10 anotaciones)
+      // Modelo 3 (fichas completas + matriz estructurada en observer_criteria_evaluations + anotaciones)
       const obs3IdMap = new Map<number, number>();
-      const obs3StudentIdMap = new Map<number, number>();
       const tpl3Id = tplMap.get(3) ?? null;
       for (const o of obs3Rows) {
-        const eid = enrollmentMap.get(safeInt(o.id_matric));
-        const year = safeInt(o.year);
+        const eid = enrollmentMap.get(safeInt(o['id_matric']));
+        const year = safeInt(o['year']);
         if (!eid || year < 1990 || year > 2100) continue;
+        const m3Profile = {
+          peso: cleanStr(o['peso']),
+          talla: cleanStr(o['talla']),
+          religion: cleanStr(o['religion']),
+          deporte: cleanStr(o['deporte']),
+          musica: cleanStr(o['musica']),
+          arte: cleanStr(o['arte']),
+          comida: cleanStr(o['comida']),
+          profOficio: cleanStr(o['prof_oficio']),
+          motricidadFina: cleanStr(o['motricidad_fina']),
+          motricidadGruesa: cleanStr(o['motricidad_gruesa']),
+          temporoEspacial: cleanStr(o['temporo_espacial']),
+          actitudVerbal: cleanStr(o['actitud_verval']),
+          actitudNumerica: cleanStr(o['artitud_numerica']),
+          liderazgo: cleanStr(o['liderazgo']),
+          comportamiento: cleanStr(o['comportamiento']),
+          dislexia: cleanStr(o['dislexia']),
+          disortografia: cleanStr(o['disortografia']),
+          discalculia: cleanStr(o['discalculia']),
+        };
         const res = await client.query<{ id: string }>(
-          `INSERT INTO student_observers (school_id, enrollment_id, template_id, academic_year)
-           VALUES ($1,$2,$3,$4)
-           ON CONFLICT (school_id, enrollment_id) DO UPDATE SET template_id = COALESCE(student_observers.template_id, EXCLUDED.template_id)
+          `INSERT INTO student_observers (
+             school_id, enrollment_id, template_id, academic_year, model_type, profile_data, is_active
+           )
+           VALUES ($1,$2,$3,$4,3,$5::jsonb,$6)
+           ON CONFLICT (school_id, enrollment_id)
+           DO UPDATE SET
+             template_id = COALESCE(student_observers.template_id, EXCLUDED.template_id),
+             profile_data = CASE WHEN student_observers.profile_data = '{}'::jsonb THEN EXCLUDED.profile_data ELSE student_observers.profile_data END
            RETURNING id::text`,
-          [schoolId.toString(), eid, tpl3Id, year],
+          [schoolId.toString(), eid, tpl3Id, year, JSON.stringify(m3Profile), safeInt(o['estado'], 1) === 1],
         );
-        obs3IdMap.set(safeInt(o.id), Number(res.rows[0].id));
-        const meta = enrollmentMetaMap.get(eid);
-        if (meta) obs3StudentIdMap.set(safeInt(o.id), meta.studentProfileId);
+        obs3IdMap.set(safeInt(o['id']), Number(res.rows[0].id));
       }
 
-      const matrixByStudent = new Map<number, Record<string, Record<string, string>>>();
-      for (const it of items3Rows) {
-        const spId = obs3StudentIdMap.get(safeInt(it['id_observador']));
-        const cid = critMap.get(safeInt(it['id_item_criterio']));
-        if (!spId || !cid) continue;
-        const m = matrixByStudent.get(spId) ?? {};
-        const entry: Record<string, string> = {};
-        for (let p = 1; p <= 4; p++) {
-          if (safeInt(it[`s${p}`]) === 1) entry[`p${p}`] = 'S';
-          else if (safeInt(it[`cs${p}`]) === 1) entry[`p${p}`] = 'CS';
-          else if (safeInt(it[`av${p}`]) === 1) entry[`p${p}`] = 'AV';
-          else if (safeInt(it[`n${p}`]) === 1) entry[`p${p}`] = 'N';
-        }
-        m[String(cid)] = entry;
-        matrixByStudent.set(spId, m);
-      }
-      for (const [spId, matrix] of matrixByStudent.entries()) {
+      // Migrar matriz de criterios por periodo (obs_items_modelo_3 -> observer_criteria_evaluations)
+      const evalRating = (it: Record<string, string | null>, p: number): string | null => {
+        if (safeInt(it[`s${p}`]) === 1) return 'S';
+        if (safeInt(it[`cs${p}`]) === 1) return 'CS';
+        if (safeInt(it[`av${p}`]) === 1) return 'AV';
+        if (safeInt(it[`n${p}`]) === 1) return 'N';
+        return null;
+      };
+      const criteriaEvals = dedupeByKey(
+        items3Rows
+          .map((it) => {
+            const obsId = obs3IdMap.get(safeInt(it['id_observador']));
+            const cid = critMap.get(safeInt(it['id_item_criterio']));
+            if (!obsId || !cid) return null;
+            return {
+              obsId,
+              cid,
+              teacherId: teacherMap.get(safeInt(it['id_docente'])) ?? null,
+              p1: evalRating(it, 1),
+              p2: evalRating(it, 2),
+              p3: evalRating(it, 3),
+              p4: evalRating(it, 4),
+            };
+          })
+          .filter((x): x is NonNullable<typeof x> => x !== null),
+        (x) => `${x.obsId}:${x.cid}`,
+      );
+
+      for (let i = 0; i < criteriaEvals.length; i += 1000) {
+        const b = criteriaEvals.slice(i, i + 1000);
         await client.query(
-          `UPDATE student_profiles
-              SET additional_info = jsonb_set(COALESCE(additional_info, '{}'::jsonb), '{observerModel3}', $3::jsonb, true)
-            WHERE school_id = $1 AND id = $2`,
-          [schoolId.toString(), spId, JSON.stringify(matrix)],
+          `INSERT INTO observer_criteria_evaluations (
+             school_id, student_observer_id, criteria_id, teacher_profile_id,
+             period_1_rating, period_2_rating, period_3_rating, period_4_rating
+           )
+           SELECT $1::bigint, * FROM UNNEST(
+             $2::bigint[], $3::bigint[], $4::bigint[],
+             $5::varchar[], $6::varchar[], $7::varchar[], $8::varchar[]
+           )
+           ON CONFLICT (school_id, student_observer_id, criteria_id)
+           DO UPDATE SET
+             teacher_profile_id = COALESCE(EXCLUDED.teacher_profile_id, observer_criteria_evaluations.teacher_profile_id),
+             period_1_rating = EXCLUDED.period_1_rating,
+             period_2_rating = EXCLUDED.period_2_rating,
+             period_3_rating = EXCLUDED.period_3_rating,
+             period_4_rating = EXCLUDED.period_4_rating,
+             updated_at = NOW()`,
+          [
+            schoolId.toString(),
+            b.map((x) => x.obsId),
+            b.map((x) => x.cid),
+            b.map((x) => x.teacherId),
+            b.map((x) => x.p1),
+            b.map((x) => x.p2),
+            b.map((x) => x.p3),
+            b.map((x) => x.p4),
+          ],
         );
       }
 
@@ -3602,25 +4506,29 @@ export class MigrateLegacySchoolEtlUseCase {
       number,
       { studentProfileId: number; gradeId: number; academicGroupId: number; year: number }
     >,
-    gradeToGroupIdMap: Map<number, number>,
+    _gradeToGroupIdMap: Map<number, number>,
     catalogs: CatalogValidationSets,
     allowedYears: Set<number> | null,
   ): Promise<void> {
-    // Promociones (acta_promocion)
+    // Promociones (acta_promocion) preservando libro, promedio_rec, areas_g, prom_comision y mensajes estructurados
     await this.mysql.streamBatches<{
       id_matric: string;
       promedio: string;
+      promedio_rec: string;
+      areas_g: string;
       areas_p: string;
       msg: string | null;
       msg1: string | null;
       msg2: string | null;
       msg3: string | null;
       estado: string;
+      prom_comision: string;
       libro: string | null;
       folio: string | null;
       year: string;
     }>(
-      `SELECT ap.id_matric, ap.promedio, ap.areas_p, ap.msg, ap.msg1, ap.msg2, ap.msg3, ap.estado, ap.libro, ap.folio, se.year
+      `SELECT ap.id_matric, ap.promedio, ap.promedio_rec, ap.areas_g, ap.areas_p,
+              ap.msg, ap.msg1, ap.msg2, ap.msg3, ap.estado, ap.prom_comision, ap.libro, ap.folio, se.year
          FROM ${schoolDb}.acta_promocion ap
          INNER JOIN ${schoolDb}.student_enrollment se ON se.id = ap.id_matric
         WHERE ${this.yearWhere('se.year', allowedYears)}`,
@@ -3635,23 +4543,29 @@ export class MigrateLegacySchoolEtlUseCase {
               const code = Math.min(3, Math.max(1, safeInt(r.estado, 1)));
               const statusId =
                 catalogs.promotionStatusByGroupAndCode.get(`9:${code}`) ?? 1;
-              const obs = cleanNullableStr(
-                [r.msg, r.msg1, r.msg2, r.msg3]
-                  .map((s) => (s ?? '').trim())
-                  .filter(Boolean)
-                  .join(' '),
-                1000,
-              );
+              const msgParts = [r.msg, r.msg1, r.msg2, r.msg3]
+                .map((s) => (s ?? '').trim())
+                .filter(Boolean);
+              const obs = cleanNullableStr(msgParts.join(' '), 1000);
+              const promoMessages = JSON.stringify({
+                msg: cleanStr(r.msg),
+                msg1: cleanStr(r.msg1),
+                msg2: cleanStr(r.msg2),
+                msg3: cleanStr(r.msg3),
+              });
               return {
                 eid,
                 statusId,
                 year,
+                book: cleanNullableStr(r.libro, 30),
                 avg: safeDecimal(r.promedio, 0, 0, 100),
+                recAvg: safeDecimal(r.promedio_rec, 0, 0, 100),
+                passedAreas: Math.max(0, safeInt(r.areas_g)),
                 failedAreas: Math.max(0, safeInt(r.areas_p)),
-                folio: cleanNullableStr(r.folio, 30),
-                act: cleanNullableStr(r.libro, 30),
+                isCommission: safeInt(r.prom_comision, 0) === 1,
+                folio: cleanNullableStr(r.folio, 50),
                 obs,
-                promotedAt: `${year}-12-01`,
+                promoMessages,
               };
             })
             .filter((x): x is NonNullable<typeof x> => x !== null),
@@ -3663,52 +4577,85 @@ export class MigrateLegacySchoolEtlUseCase {
           await client.query(
             `INSERT INTO promotion_records (
                school_id, enrollment_id, promotion_status_id, academic_year,
-               act_number, final_average, failed_areas_count, graduation_folio,
-               observations, promoted_at
+               book_number, final_average, recovery_average, passed_areas_count,
+               failed_areas_count, is_commission_promoted, graduation_folio,
+               observations, promotion_messages, promoted_at
              )
-             SELECT $1::bigint, * FROM UNNEST(
-               $2::bigint[], $3::smallint[], $4::smallint[], $5::varchar[],
-               $6::numeric[], $7::smallint[], $8::varchar[], $9::text[], $10::date[]
-             )
+             SELECT $1::bigint, eid, st_id, yr, book, avg, rec_avg, p_areas,
+                    f_areas, is_comm, folio, obs, msgs, NULL::date
+               FROM UNNEST(
+                 $2::bigint[], $3::smallint[], $4::smallint[], $5::varchar[],
+                 $6::numeric[], $7::numeric[], $8::smallint[], $9::smallint[],
+                 $10::boolean[], $11::varchar[], $12::text[], $13::jsonb[]
+               ) AS t(eid, st_id, yr, book, avg, rec_avg, p_areas, f_areas, is_comm, folio, obs, msgs)
              ON CONFLICT (school_id, enrollment_id)
              DO UPDATE SET
                promotion_status_id = EXCLUDED.promotion_status_id,
+               book_number = EXCLUDED.book_number,
                final_average = EXCLUDED.final_average,
+               recovery_average = EXCLUDED.recovery_average,
+               passed_areas_count = EXCLUDED.passed_areas_count,
                failed_areas_count = EXCLUDED.failed_areas_count,
-               observations = EXCLUDED.observations`,
+               is_commission_promoted = EXCLUDED.is_commission_promoted,
+               graduation_folio = EXCLUDED.graduation_folio,
+               observations = EXCLUDED.observations,
+               promotion_messages = EXCLUDED.promotion_messages,
+               updated_at = NOW()`,
             [
               schoolId.toString(),
               prepared.map((b) => b.eid),
               prepared.map((b) => b.statusId),
               prepared.map((b) => b.year),
-              prepared.map((b) => b.act),
+              prepared.map((b) => b.book),
               prepared.map((b) => b.avg),
+              prepared.map((b) => b.recAvg),
+              prepared.map((b) => b.passedAreas),
               prepared.map((b) => b.failedAreas),
+              prepared.map((b) => b.isCommission),
               prepared.map((b) => b.folio),
               prepared.map((b) => b.obs),
-              prepared.map((b) => b.promotedAt),
+              prepared.map((b) => b.promoMessages),
             ],
           );
         });
       },
     );
 
-    // Cuadro de honor y puestos (puestos + cuadro_honor)
-    const honorRows = await this.mysql.queryAll<{ id_matric: string; periodo: string }>(
-      `SELECT id_matric, periodo FROM ${schoolDb}.cuadro_honor`,
-    );
-    const honorSet = new Set(
-      honorRows.map((h) => `${safeInt(h.id_matric)}:${safeInt(h.periodo)}`),
-    );
+    // Cuadro de honor y puestos (puestos + cuadro_honor sin fabricar is_honor_roll artificialmente)
+    const honorRows = await this.mysql.queryAll<{
+      id_matric: string;
+      periodo: string;
+      suma: string | null;
+      nro: string | null;
+      type: string | null;
+    }>(`SELECT id_matric, periodo, suma, nro, type FROM ${schoolDb}.cuadro_honor`);
+    const honorMap = new Map<
+      string,
+      { suma: number | null; rank: number | null; scope: number | null }
+    >();
+    for (const h of honorRows) {
+      const key = `${safeInt(h.id_matric)}:${safeInt(h.periodo)}`;
+      const sumaRaw = safeDecimal(h.suma, 0, 0, 99999);
+      const nroRaw = safeInt(h.nro, 0);
+      const typeRaw = safeInt(h.type, 0);
+      honorMap.set(key, {
+        suma: sumaRaw > 0 ? sumaRaw : null,
+        rank: nroRaw > 0 && nroRaw <= 32000 ? nroRaw : null,
+        scope: typeRaw > 0 && typeRaw <= 32000 ? typeRaw : null,
+      });
+    }
 
     await this.mysql.streamBatches<{
       id_matric: string;
+      total: string | null;
       puesto: string;
       prom: string;
+      nota_max: string | null;
+      nota_min: string | null;
       periodo: string;
       year: string;
     }>(
-      `SELECT p.id_matric, p.puesto, p.prom, p.periodo, se.year
+      `SELECT p.id_matric, p.total, p.puesto, p.prom, p.nota_max, p.nota_min, p.periodo, se.year
          FROM ${schoolDb}.puestos p
          INNER JOIN ${schoolDb}.student_enrollment se ON se.id = p.id_matric
         WHERE ${this.yearWhere('se.year', allowedYears)}`,
@@ -3725,14 +4672,24 @@ export class MigrateLegacySchoolEtlUseCase {
               const meta = enrollmentMetaMap.get(eid);
               if (!meta) return null;
               const rank = Math.max(1, safeInt(r.puesto, 1));
+              const honor = honorMap.get(`${legacyMatric}:${period}`);
+              const totalRaw = safeInt(r.total, 0);
+              const maxRaw = safeDecimal(r.nota_max, 0, 0, 100);
+              const minRaw = safeDecimal(r.nota_min, 0, 0, 100);
               return {
                 year,
                 eid,
                 agId: meta.academicGroupId,
                 period,
                 avg: safeDecimal(r.prom, 0, 0, 100),
+                totalScore: honor?.suma ?? null,
+                maxScore: maxRaw > 0 ? maxRaw : null,
+                minScore: minRaw > 0 ? minRaw : null,
                 rank,
-                isHonor: honorSet.has(`${legacyMatric}:${period}`) || rank <= 3,
+                groupTotal: totalRaw > 0 && totalRaw <= 32000 ? totalRaw : null,
+                isHonor: honor !== undefined,
+                honorRank: honor?.rank ?? null,
+                honorScope: honor?.scope ?? null,
                 key: `${year}:${eid}:${period}`,
               };
             })
@@ -3745,14 +4702,25 @@ export class MigrateLegacySchoolEtlUseCase {
           await client.query(
             `INSERT INTO student_period_rankings (
                school_id, academic_year, enrollment_id, academic_group_id,
-               period_number, average_score, group_rank, is_honor_roll
+               period_number, average_score, total_score, max_score, min_score,
+               group_rank, group_total_students, is_honor_roll, honor_roll_rank, honor_roll_scope
              )
              SELECT $1::bigint, * FROM UNNEST(
                $2::smallint[], $3::bigint[], $4::bigint[],
-               $5::smallint[], $6::numeric[], $7::smallint[], $8::boolean[]
+               $5::smallint[], $6::numeric[], $7::numeric[], $8::numeric[], $9::numeric[],
+               $10::smallint[], $11::smallint[], $12::boolean[], $13::smallint[], $14::smallint[]
              )
              ON CONFLICT (school_id, academic_year, enrollment_id, period_number)
-             DO UPDATE SET average_score = EXCLUDED.average_score, group_rank = EXCLUDED.group_rank, is_honor_roll = EXCLUDED.is_honor_roll`,
+             DO UPDATE SET
+               average_score = EXCLUDED.average_score,
+               total_score = COALESCE(EXCLUDED.total_score, student_period_rankings.total_score),
+               max_score = EXCLUDED.max_score,
+               min_score = EXCLUDED.min_score,
+               group_rank = EXCLUDED.group_rank,
+               group_total_students = EXCLUDED.group_total_students,
+               is_honor_roll = EXCLUDED.is_honor_roll,
+               honor_roll_rank = EXCLUDED.honor_roll_rank,
+               honor_roll_scope = EXCLUDED.honor_roll_scope`,
             [
               schoolId.toString(),
               prepared.map((b) => b.year),
@@ -3760,8 +4728,14 @@ export class MigrateLegacySchoolEtlUseCase {
               prepared.map((b) => b.agId),
               prepared.map((b) => b.period),
               prepared.map((b) => b.avg),
+              prepared.map((b) => b.totalScore),
+              prepared.map((b) => b.maxScore),
+              prepared.map((b) => b.minScore),
               prepared.map((b) => b.rank),
+              prepared.map((b) => b.groupTotal),
               prepared.map((b) => b.isHonor),
+              prepared.map((b) => b.honorRank),
+              prepared.map((b) => b.honorScope),
             ],
           );
         });
@@ -3992,6 +4966,7 @@ export class MigrateLegacySchoolEtlUseCase {
     sourceFinalSum: number;
     sourceItemsCreated: number;
     sourceLinksRead: number;
+    sourceSuggestionsLinked: number;
     warnings: string[];
   }): Promise<MigrationReconciliationReport> {
     const sid = params.schoolId.toString();
@@ -4001,23 +4976,35 @@ export class MigrateLegacySchoolEtlUseCase {
         const res = await client.query<{ k: string; c: string }>(
           `SELECT 'memberships' AS k, COUNT(*)::text AS c FROM user_school_memberships WHERE school_id = $1
            UNION ALL SELECT 'campuses', COUNT(*)::text FROM campuses WHERE school_id = $1
+           UNION ALL SELECT 'campus_methodologies', COUNT(*)::text FROM campus_study_methodologies WHERE school_id = $1
+           UNION ALL SELECT 'grade_group_memberships', COUNT(*)::text FROM grade_group_memberships WHERE school_id = $1
            UNION ALL SELECT 'teachers', COUNT(*)::text FROM teacher_profiles WHERE school_id = $1
+           UNION ALL SELECT 'teacher_academic_years', COUNT(*)::text FROM teacher_academic_years WHERE school_id = $1
+           UNION ALL SELECT 'subject_area_assignments', COUNT(*)::text FROM subject_area_assignments WHERE school_id = $1
+           UNION ALL SELECT 'study_plans', COUNT(*)::text FROM curriculum_study_plans WHERE school_id = $1
            UNION ALL SELECT 'students', COUNT(*)::text FROM student_profiles WHERE school_id = $1
            UNION ALL SELECT 'families', COUNT(*)::text FROM family_profiles WHERE school_id = $1
            UNION ALL SELECT 'family_links', COUNT(*)::text FROM student_family_links WHERE school_id = $1
            UNION ALL SELECT 'academic_groups', COUNT(*)::text FROM academic_groups WHERE school_id = $1
            UNION ALL SELECT 'courses', COUNT(*)::text FROM course_assignments WHERE school_id = $1
            UNION ALL SELECT 'enrollments', COUNT(*)::text FROM student_enrollments WHERE school_id = $1
+           UNION ALL SELECT 'student_access_controls', COUNT(*)::text FROM student_enrollment_access_controls WHERE school_id = $1
+           UNION ALL SELECT 'advance_promotions', COUNT(*)::text FROM advance_promotions WHERE school_id = $1
            UNION ALL SELECT 'gradebook_columns', COUNT(*)::text FROM teacher_gradebook_columns WHERE school_id = $1
            UNION ALL SELECT 'achievements', COUNT(*)::text FROM achievement_standards WHERE school_id = $1
-           UNION ALL SELECT 'grades', COUNT(*)::text FROM academic_grades WHERE school_id = $1
-           UNION ALL SELECT 'grade_achievements', COUNT(*)::text FROM academic_grade_achievements WHERE school_id = $1
+           UNION ALL SELECT 'suggestions', COUNT(*)::text FROM academic_suggestions WHERE school_id = $1
+           UNION ALL SELECT 'scores', COUNT(*)::text FROM academic_scores WHERE school_id = $1
+           UNION ALL SELECT 'score_achievements', COUNT(*)::text FROM academic_score_achievements WHERE school_id = $1
+           UNION ALL SELECT 'score_suggestions', COUNT(*)::text FROM academic_score_suggestions WHERE school_id = $1
            UNION ALL SELECT 'pre_reports', COUNT(*)::text FROM academic_pre_reports WHERE school_id = $1
            UNION ALL SELECT 'recoveries', COUNT(*)::text FROM period_recovery_records WHERE school_id = $1
            UNION ALL SELECT 'observers', COUNT(*)::text FROM student_observers WHERE school_id = $1
+           UNION ALL SELECT 'observer_criteria_evaluations', COUNT(*)::text FROM observer_criteria_evaluations WHERE school_id = $1
            UNION ALL SELECT 'observer_annotations', COUNT(*)::text FROM observer_annotations WHERE school_id = $1
            UNION ALL SELECT 'promotions', COUNT(*)::text FROM promotion_records WHERE school_id = $1
-           UNION ALL SELECT 'rankings', COUNT(*)::text FROM student_period_rankings WHERE school_id = $1`,
+           UNION ALL SELECT 'rankings', COUNT(*)::text FROM student_period_rankings WHERE school_id = $1
+           UNION ALL SELECT 'document_sequences', COUNT(*)::text FROM document_number_sequences WHERE school_id = $1
+           UNION ALL SELECT 'document_templates', COUNT(*)::text FROM document_templates WHERE school_id = $1`,
           [sid],
         );
         const nonNullExpr = Array.from(
@@ -4027,7 +5014,7 @@ export class MigrateLegacySchoolEtlUseCase {
         const sumRes = await client.query<{ total_sum: string; inline_cells: string }>(
           `SELECT COALESCE(ROUND(SUM(final_score)::numeric, 2), 0)::text AS total_sum,
                   COALESCE(SUM(${nonNullExpr}), 0)::text AS inline_cells
-             FROM academic_grades WHERE school_id = $1`,
+             FROM academic_scores WHERE school_id = $1`,
           [sid],
         );
         const map = new Map(res.rows.map((r) => [r.k, Number(r.c)]));
@@ -4040,7 +5027,7 @@ export class MigrateLegacySchoolEtlUseCase {
       false,
     );
 
-    const targetGrades = pgCounts.map.get('grades') ?? 0;
+    const targetScores = pgCounts.map.get('scores') ?? 0;
     const deltaSum = Number(
       Math.abs(params.sourceFinalSum - pgCounts.targetFinalSum).toFixed(2),
     );
@@ -4061,9 +5048,29 @@ export class MigrateLegacySchoolEtlUseCase {
           source: params.sourceCampusesCount,
           target: pgCounts.map.get('campuses') ?? 0,
         },
+        campus_methodologies: {
+          source: pgCounts.map.get('campus_methodologies') ?? 0,
+          target: pgCounts.map.get('campus_methodologies') ?? 0,
+        },
+        grade_group_memberships: {
+          source: pgCounts.map.get('grade_group_memberships') ?? 0,
+          target: pgCounts.map.get('grade_group_memberships') ?? 0,
+        },
         teachers: {
           source: params.sourceTeachersCount,
           target: pgCounts.map.get('teachers') ?? 0,
+        },
+        teacher_academic_years: {
+          source: pgCounts.map.get('teacher_academic_years') ?? 0,
+          target: pgCounts.map.get('teacher_academic_years') ?? 0,
+        },
+        subject_area_assignments: {
+          source: pgCounts.map.get('subject_area_assignments') ?? 0,
+          target: pgCounts.map.get('subject_area_assignments') ?? 0,
+        },
+        study_plans: {
+          source: pgCounts.map.get('study_plans') ?? 0,
+          target: pgCounts.map.get('study_plans') ?? 0,
         },
         students: {
           source: params.sourceStudentsCount,
@@ -4089,6 +5096,14 @@ export class MigrateLegacySchoolEtlUseCase {
           source: params.sourceEnrollmentsCount,
           target: pgCounts.map.get('enrollments') ?? 0,
         },
+        student_access_controls: {
+          source: pgCounts.map.get('student_access_controls') ?? 0,
+          target: pgCounts.map.get('student_access_controls') ?? 0,
+        },
+        advance_promotions: {
+          source: pgCounts.map.get('advance_promotions') ?? 0,
+          target: pgCounts.map.get('advance_promotions') ?? 0,
+        },
         gradebook_columns: {
           source: pgCounts.map.get('gradebook_columns') ?? 0,
           target: pgCounts.map.get('gradebook_columns') ?? 0,
@@ -4097,14 +5112,22 @@ export class MigrateLegacySchoolEtlUseCase {
           source: pgCounts.map.get('achievements') ?? 0,
           target: pgCounts.map.get('achievements') ?? 0,
         },
-        grades: { source: params.sourceGradesCount, target: targetGrades },
-        grade_cells_inline_n1_n30: {
+        suggestions: {
+          source: pgCounts.map.get('suggestions') ?? 0,
+          target: pgCounts.map.get('suggestions') ?? 0,
+        },
+        scores: { source: params.sourceGradesCount, target: targetScores },
+        score_cells_inline_n1_n30: {
           source: params.sourceItemsCreated,
           target: pgCounts.targetInlineCells,
         },
-        grade_achievements: {
+        score_achievements: {
           source: params.sourceLinksRead,
-          target: pgCounts.map.get('grade_achievements') ?? 0,
+          target: pgCounts.map.get('score_achievements') ?? 0,
+        },
+        score_suggestions: {
+          source: params.sourceSuggestionsLinked,
+          target: pgCounts.map.get('score_suggestions') ?? 0,
         },
         pre_reports: {
           source: pgCounts.map.get('pre_reports') ?? 0,
@@ -4118,6 +5141,10 @@ export class MigrateLegacySchoolEtlUseCase {
           source: pgCounts.map.get('observers') ?? 0,
           target: pgCounts.map.get('observers') ?? 0,
         },
+        observer_criteria_evaluations: {
+          source: pgCounts.map.get('observer_criteria_evaluations') ?? 0,
+          target: pgCounts.map.get('observer_criteria_evaluations') ?? 0,
+        },
         observer_annotations: {
           source: pgCounts.map.get('observer_annotations') ?? 0,
           target: pgCounts.map.get('observer_annotations') ?? 0,
@@ -4130,10 +5157,18 @@ export class MigrateLegacySchoolEtlUseCase {
           source: pgCounts.map.get('rankings') ?? 0,
           target: pgCounts.map.get('rankings') ?? 0,
         },
+        document_sequences: {
+          source: pgCounts.map.get('document_sequences') ?? 0,
+          target: pgCounts.map.get('document_sequences') ?? 0,
+        },
+        document_templates: {
+          source: pgCounts.map.get('document_templates') ?? 0,
+          target: pgCounts.map.get('document_templates') ?? 0,
+        },
       },
       gradesChecksum: {
         sourceCount: params.sourceGradesCount,
-        targetCount: targetGrades,
+        targetCount: targetScores,
         sourceFinalSum: params.sourceFinalSum,
         targetFinalSum: pgCounts.targetFinalSum,
         deltaSum,

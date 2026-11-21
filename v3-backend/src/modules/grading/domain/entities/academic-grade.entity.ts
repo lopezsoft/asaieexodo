@@ -6,24 +6,22 @@ export interface AcademicGradeProps {
   readonly academicYear: number;
   readonly enrollmentId: bigint;
   readonly courseAssignmentId: bigint;
-  readonly periodId: bigint;
   readonly periodNumber: number;
   readonly finalScore: GradingScore;
+  readonly lostScore: GradingScore | null;
   readonly recoveryScore: GradingScore | null;
-  readonly levelingScore: GradingScore | null;
+  readonly isLeveled: boolean;
+  readonly leveledAt: string | null;
   readonly nationalScaleId: number | null;
   readonly justifiedAbsences: number;
   readonly unjustifiedAbsences: number;
   readonly lateArrivals: number;
-  readonly teacherObservations: string | null;
   readonly hasPreReportAlert: boolean;
-  readonly isLocked: boolean;
-  readonly updatedByUserId: bigint;
 }
 
 /**
  * Agregado Raiz que unifica las antiguas 4 tablas de notas (nscp00, nscp001, nscp002, nscp003)
- * 100% alineado con la tabla particionada `academic_grades` en PostgreSQL 17.
+ * 100% alineado con la tabla particionada `academic_scores` en PostgreSQL 17.
  */
 export class AcademicGrade extends AggregateRoot<bigint, AcademicGradeProps> {
   private constructor(id: bigint, props: AcademicGradeProps) {
@@ -38,11 +36,8 @@ export class AcademicGrade extends AggregateRoot<bigint, AcademicGradeProps> {
   }
 
   get effectiveScore(): number {
-    return Math.max(
-      this.props.finalScore.value,
-      this.props.recoveryScore?.value ?? 0,
-      this.props.levelingScore?.value ?? 0,
-    );
+    const rec = this.props.recoveryScore?.value ?? 0;
+    return rec > 0 ? rec : this.props.finalScore.value;
   }
 
   toPrimitives(): Record<string, unknown> {
@@ -52,19 +47,18 @@ export class AcademicGrade extends AggregateRoot<bigint, AcademicGradeProps> {
       academicYear: this.props.academicYear,
       enrollmentId: Number(this.props.enrollmentId),
       courseAssignmentId: Number(this.props.courseAssignmentId),
-      periodId: Number(this.props.periodId),
       periodNumber: this.props.periodNumber,
       finalScore: this.props.finalScore.value,
-      recoveryScore: this.props.recoveryScore?.value ?? 0,
-      levelingScore: this.props.levelingScore?.value ?? 0,
+      lostScore: this.props.lostScore?.value ?? null,
+      recoveryScore: this.props.recoveryScore?.value ?? null,
+      isLeveled: this.props.isLeveled,
+      leveledAt: this.props.leveledAt,
       effectiveScore: this.effectiveScore,
       nationalScaleId: this.props.nationalScaleId,
       justifiedAbsences: this.props.justifiedAbsences,
       unjustifiedAbsences: this.props.unjustifiedAbsences,
       lateArrivals: this.props.lateArrivals,
-      teacherObservations: this.props.teacherObservations,
       hasPreReportAlert: this.props.hasPreReportAlert,
-      isLocked: this.props.isLocked,
     };
   }
 }

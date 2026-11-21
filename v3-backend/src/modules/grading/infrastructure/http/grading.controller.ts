@@ -169,7 +169,7 @@ export class GradingController {
   @ApiOperation({
     summary: 'Registrar o actualizar calificación periódica de un estudiante',
     description:
-      'Calcula la nota definitiva aplicando las reglas institucionales (`academic_grading_rules`), registra trazabilidad en `academic_grade_audit_logs`, sincroniza `academic_pre_reports` y persiste en `academic_grades` bajo RLS usando el `schoolId` y `userId` del JWT verificado.',
+      'Calcula la nota definitiva aplicando las reglas institucionales (`academic_grading_rules`), registra trazabilidad en `academic_score_audit_logs`, sincroniza `academic_pre_reports` y persiste en `academic_scores` bajo RLS usando el `schoolId` y `userId` del JWT verificado.',
   })
   @ApiResponse({
     status: 201,

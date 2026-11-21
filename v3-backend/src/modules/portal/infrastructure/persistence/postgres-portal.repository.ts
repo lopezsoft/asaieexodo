@@ -78,7 +78,7 @@ export class PostgresPortalRepository extends PortalRepositoryPort {
                 ag.group_code,
                 ca.subject_id,
                 s.name AS subject_name,
-                aa.name AS area_name,
+                COALESCE(aa.name, 'Sin área') AS area_name,
                 ca.teacher_profile_id,
                 TRIM(CONCAT_WS(' ', tp.first_name, tp.middle_name, tp.last_name, tp.second_last_name)) AS teacher_name,
                 ca.academic_year,
@@ -94,7 +94,13 @@ export class PostgresPortalRepository extends PortalRepositoryPort {
            INNER JOIN grades g ON g.school_id = ca.school_id AND g.id = ca.grade_id
            INNER JOIN academic_groups ag ON ag.school_id = ca.school_id AND ag.id = ca.academic_group_id
            INNER JOIN subjects s ON s.school_id = ca.school_id AND s.id = ca.subject_id
-           INNER JOIN academic_areas aa ON aa.school_id = s.school_id AND aa.id = s.academic_area_id
+           LEFT JOIN subject_area_assignments saa
+             ON saa.school_id = ca.school_id
+            AND saa.academic_year = ca.academic_year
+            AND saa.subject_id = s.id
+           LEFT JOIN academic_areas aa
+             ON aa.school_id = s.school_id
+            AND aa.id = COALESCE(saa.academic_area_id, s.academic_area_id)
            INNER JOIN teacher_profiles tp ON tp.school_id = ca.school_id AND tp.id = ca.teacher_profile_id
           WHERE ca.school_id = $1
             AND ca.academic_year = $2
@@ -149,7 +155,7 @@ export class PostgresPortalRepository extends PortalRepositoryPort {
       }>(
         `SELECT ca.id, c.name AS campus_name, ss.name AS shift_name, ca.grade_id, g.name AS grade_name,
                 ca.academic_group_id, ag.group_code, ca.subject_id, s.name AS subject_name,
-                aa.name AS area_name, ca.teacher_profile_id,
+                COALESCE(aa.name, 'Sin área') AS area_name, ca.teacher_profile_id,
                 TRIM(CONCAT_WS(' ', tp.first_name, tp.middle_name, tp.last_name, tp.second_last_name)) AS teacher_name,
                 ca.academic_year, ca.weekly_hours
            FROM course_assignments ca
@@ -158,7 +164,13 @@ export class PostgresPortalRepository extends PortalRepositoryPort {
            INNER JOIN grades g ON g.school_id = ca.school_id AND g.id = ca.grade_id
            INNER JOIN academic_groups ag ON ag.school_id = ca.school_id AND ag.id = ca.academic_group_id
            INNER JOIN subjects s ON s.school_id = ca.school_id AND s.id = ca.subject_id
-           INNER JOIN academic_areas aa ON aa.school_id = s.school_id AND aa.id = s.academic_area_id
+           LEFT JOIN subject_area_assignments saa
+             ON saa.school_id = ca.school_id
+            AND saa.academic_year = ca.academic_year
+            AND saa.subject_id = s.id
+           LEFT JOIN academic_areas aa
+             ON aa.school_id = s.school_id
+            AND aa.id = COALESCE(saa.academic_area_id, s.academic_area_id)
            INNER JOIN teacher_profiles tp ON tp.school_id = ca.school_id AND tp.id = ca.teacher_profile_id
           WHERE ca.school_id = $1 AND ca.id = $2`,
         [schoolId.toString(), courseAssignmentId.toString()],
@@ -185,48 +197,44 @@ export class PostgresPortalRepository extends PortalRepositoryPort {
         document_number: string;
         full_name: string;
         grade_id: string | null;
-        conceptual_score: string | null;
-        procedural_score: string | null;
-        attitudinal_score: string | null;
-        evaluation_exam_score: string | null;
         final_score: string | null;
+        lost_score: string | null;
         recovery_score: string | null;
-        leveling_score: string | null;
         effective_score: string | null;
         justified_absences: number | null;
         unjustified_absences: number | null;
         late_arrivals: number | null;
-        teacher_observations: string | null;
+        pre_report_obs: string | null;
         has_pre_report_alert: boolean | null;
-        is_locked: boolean | null;
       }>(
         `SELECT se.id AS enrollment_id,
                 sp.document_number,
                 TRIM(CONCAT_WS(' ', sp.last_name, sp.second_last_name, sp.first_name, sp.middle_name)) AS full_name,
                 gr.id AS grade_id,
-                gr.conceptual_score,
-                gr.procedural_score,
-                gr.attitudinal_score,
-                gr.evaluation_exam_score,
                 gr.final_score,
+                gr.lost_score,
                 gr.recovery_score,
-                gr.leveling_score,
-                gr.effective_score,
+                COALESCE(NULLIF(gr.recovery_score, 0), gr.final_score) AS effective_score,
                 gr.justified_absences,
                 gr.unjustified_absences,
                 gr.late_arrivals,
-                gr.teacher_observations,
-                gr.has_pre_report_alert,
-                gr.is_locked
+                pr.observations AS pre_report_obs,
+                (pr.id IS NOT NULL AND pr.is_active) AS has_pre_report_alert
            FROM student_enrollments se
            INNER JOIN student_profiles sp
              ON sp.school_id = se.school_id AND sp.id = se.student_profile_id
-           LEFT JOIN academic_grades gr
+           LEFT JOIN academic_scores gr
              ON gr.school_id = se.school_id
             AND gr.academic_year = se.academic_year
             AND gr.enrollment_id = se.id
             AND gr.course_assignment_id = $3
             AND gr.period_number = $4
+           LEFT JOIN academic_pre_reports pr
+             ON pr.school_id = se.school_id
+            AND pr.academic_year = se.academic_year
+            AND pr.enrollment_id = se.id
+            AND pr.course_assignment_id = $3
+            AND pr.period_number = $4
           WHERE se.school_id = $1
             AND se.academic_group_id = $2
             AND se.academic_year = $5
@@ -240,25 +248,26 @@ export class PostgresPortalRepository extends PortalRepositoryPort {
         ],
       );
 
+      const isClosed = Boolean(periodRes.rows[0]?.is_closed);
       const students: GradebookStudentRow[] = studentsRes.rows.map((r) => ({
         enrollmentId: Number(r.enrollment_id),
         studentDocumentNumber: r.document_number,
         studentFullName: r.full_name,
         gradeId: r.grade_id ? Number(r.grade_id) : null,
-        conceptualScore: Number(r.conceptual_score ?? 0),
-        proceduralScore: Number(r.procedural_score ?? 0),
-        attitudinalScore: Number(r.attitudinal_score ?? 0),
-        evaluationExamScore: Number(r.evaluation_exam_score ?? 0),
+        conceptualScore: 0,
+        proceduralScore: 0,
+        attitudinalScore: 0,
+        evaluationExamScore: 0,
         finalScore: Number(r.final_score ?? 0),
         recoveryScore: Number(r.recovery_score ?? 0),
-        levelingScore: Number(r.leveling_score ?? 0),
+        levelingScore: Number(r.lost_score ?? 0),
         effectiveScore: Number(r.effective_score ?? 0),
         justifiedAbsences: Number(r.justified_absences ?? 0),
         unjustifiedAbsences: Number(r.unjustified_absences ?? 0),
         lateArrivals: Number(r.late_arrivals ?? 0),
-        teacherObservations: r.teacher_observations,
+        teacherObservations: r.pre_report_obs,
         hasPreReportAlert: Boolean(r.has_pre_report_alert),
-        isLocked: Boolean(r.is_locked),
+        isLocked: isClosed,
       }));
 
       return {
@@ -331,87 +340,69 @@ export class PostgresPortalRepository extends PortalRepositoryPort {
           `El periodo ${input.periodNumber} del año ${input.academicYear} se encuentra cerrado.`,
         );
       }
-      const periodId = periodRes.rows[0].id;
-
       let savedCount = 0;
       for (const row of input.rows) {
         const prevRes = await client.query<{
           final_score: string;
-          is_locked: boolean;
         }>(
-          `SELECT final_score, is_locked
-             FROM academic_grades
+          `SELECT final_score
+             FROM academic_scores
             WHERE school_id = $1
               AND academic_year = $2
               AND enrollment_id = $3
-              AND course_assignment_id = $4
-              AND period_number = $5`,
+              AND period_number = $4
+              AND course_assignment_id = $5`,
           [
             schoolId.toString(),
             input.academicYear,
             row.enrollmentId,
-            courseAssignmentId.toString(),
             input.periodNumber,
+            courseAssignmentId.toString(),
           ],
         );
 
-        if (prevRes.rows[0]?.is_locked) {
-          continue;
-        }
+        const recScore =
+          row.recoveryScore !== undefined && row.recoveryScore > 0
+            ? row.recoveryScore
+            : null;
 
         await client.query(
-          `INSERT INTO academic_grades (
+          `INSERT INTO academic_scores (
              school_id, academic_year, enrollment_id, course_assignment_id,
-             period_id, period_number, conceptual_score, procedural_score,
-             attitudinal_score, evaluation_exam_score, final_score,
-             recovery_score, leveling_score, justified_absences,
-             unjustified_absences, late_arrivals, teacher_observations,
-             has_pre_report_alert, updated_by_user_id
+             period_number, final_score, recovery_score, is_leveled, leveled_at,
+             justified_absences, unjustified_absences, late_arrivals
            )
-           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19)
-           ON CONFLICT (school_id, academic_year, enrollment_id, course_assignment_id, period_number)
+           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9::date,$10,$11,$12)
+           ON CONFLICT (school_id, academic_year, enrollment_id, period_number, course_assignment_id)
            DO UPDATE SET
-             conceptual_score = EXCLUDED.conceptual_score,
-             procedural_score = EXCLUDED.procedural_score,
-             attitudinal_score = EXCLUDED.attitudinal_score,
-             evaluation_exam_score = EXCLUDED.evaluation_exam_score,
              final_score = EXCLUDED.final_score,
-             recovery_score = EXCLUDED.recovery_score,
-             leveling_score = EXCLUDED.leveling_score,
+             recovery_score = COALESCE(EXCLUDED.recovery_score, academic_scores.recovery_score),
+             is_leveled = CASE WHEN EXCLUDED.is_leveled THEN TRUE ELSE academic_scores.is_leveled END,
+             leveled_at = COALESCE(EXCLUDED.leveled_at, academic_scores.leveled_at),
              justified_absences = EXCLUDED.justified_absences,
              unjustified_absences = EXCLUDED.unjustified_absences,
              late_arrivals = EXCLUDED.late_arrivals,
-             teacher_observations = EXCLUDED.teacher_observations,
-             has_pre_report_alert = EXCLUDED.has_pre_report_alert,
-             updated_by_user_id = EXCLUDED.updated_by_user_id,
              updated_at = NOW()`,
           [
             schoolId.toString(),
             input.academicYear,
             row.enrollmentId,
             courseAssignmentId.toString(),
-            periodId,
             input.periodNumber,
-            row.conceptualScore ?? 0,
-            row.proceduralScore ?? 0,
-            row.attitudinalScore ?? 0,
-            row.evaluationExamScore ?? 0,
             row.finalScore,
-            row.recoveryScore ?? 0,
-            row.levelingScore ?? 0,
+            recScore,
+            recScore !== null,
+            recScore !== null ? new Date().toISOString().slice(0, 10) : null,
             row.justifiedAbsences ?? 0,
             row.unjustifiedAbsences ?? 0,
             row.lateArrivals ?? 0,
-            row.teacherObservations ?? null,
-            row.hasPreReportAlert ?? false,
-            userId.toString(),
           ],
         );
 
         const prevScore = prevRes.rows[0] ? Number(prevRes.rows[0].final_score) : null;
         if (prevScore !== null && prevScore !== row.finalScore) {
           await client.query(
-            `INSERT INTO academic_grade_audit_logs (
+            `INSERT INTO academic_score_audit_logs (
                school_id, academic_year, enrollment_id, course_assignment_id,
                period_number, previous_score, new_score, changed_by_user_id, change_reason
              )
@@ -1786,16 +1777,22 @@ export class PostgresPortalRepository extends PortalRepositoryPort {
         teacher_name: string;
         weekly_hours: number;
       }>(
-        `SELECT ca.id, s.name AS subject_name, aa.name AS area_name,
+        `SELECT ca.id, s.name AS subject_name, COALESCE(aa.name, 'Sin área') AS area_name,
                 TRIM(CONCAT_WS(' ', tp.first_name, tp.last_name)) AS teacher_name,
                 ca.weekly_hours
            FROM course_assignments ca
            INNER JOIN subjects s ON s.school_id = ca.school_id AND s.id = ca.subject_id
-           INNER JOIN academic_areas aa ON aa.school_id = s.school_id AND aa.id = s.academic_area_id
+           LEFT JOIN subject_area_assignments saa
+             ON saa.school_id = ca.school_id
+            AND saa.academic_year = ca.academic_year
+            AND saa.subject_id = s.id
+           LEFT JOIN academic_areas aa
+             ON aa.school_id = s.school_id
+            AND aa.id = COALESCE(saa.academic_area_id, s.academic_area_id)
            INNER JOIN teacher_profiles tp ON tp.school_id = ca.school_id AND tp.id = ca.teacher_profile_id
           WHERE ca.school_id = $1 AND ca.academic_group_id = $2
             AND ca.academic_year = $3 AND ca.is_active = TRUE
-          ORDER BY aa.name, s.name`,
+          ORDER BY COALESCE(aa.name, 'Sin área'), s.name`,
         [schoolId.toString(), enr.academicGroupId, academicYear],
       );
 
@@ -1885,32 +1882,47 @@ export class PostgresPortalRepository extends PortalRepositoryPort {
         area_name: string;
         teacher_name: string;
         final_score: string;
-        recovery_score: string;
-        leveling_score: string;
+        lost_score: string | null;
+        recovery_score: string | null;
         effective_score: string;
         justified_absences: number;
         unjustified_absences: number;
-        teacher_observations: string | null;
+        pre_report_obs: string | null;
       }>(
-        `SELECT gr.id, gr.period_number, s.name AS subject_name, aa.name AS area_name,
+        `SELECT gr.id, gr.period_number, s.name AS subject_name,
+                COALESCE(aa.name, 'Sin área') AS area_name,
                 TRIM(CONCAT_WS(' ', tp.first_name, tp.last_name)) AS teacher_name,
-                gr.final_score, gr.recovery_score, gr.leveling_score, gr.effective_score,
-                gr.justified_absences, gr.unjustified_absences, gr.teacher_observations
-           FROM academic_grades gr
+                gr.final_score, gr.lost_score, gr.recovery_score,
+                COALESCE(NULLIF(gr.recovery_score, 0), gr.final_score) AS effective_score,
+                gr.justified_absences, gr.unjustified_absences,
+                pr.observations AS pre_report_obs
+           FROM academic_scores gr
            INNER JOIN course_assignments ca ON ca.school_id = gr.school_id AND ca.id = gr.course_assignment_id
            INNER JOIN subjects s ON s.school_id = ca.school_id AND s.id = ca.subject_id
-           INNER JOIN academic_areas aa ON aa.school_id = s.school_id AND aa.id = s.academic_area_id
+           LEFT JOIN subject_area_assignments saa
+             ON saa.school_id = gr.school_id
+            AND saa.academic_year = gr.academic_year
+            AND saa.subject_id = s.id
+           LEFT JOIN academic_areas aa
+             ON aa.school_id = s.school_id
+            AND aa.id = COALESCE(saa.academic_area_id, s.academic_area_id)
            INNER JOIN teacher_profiles tp ON tp.school_id = ca.school_id AND tp.id = ca.teacher_profile_id
+           LEFT JOIN academic_pre_reports pr
+             ON pr.school_id = gr.school_id
+            AND pr.academic_year = gr.academic_year
+            AND pr.enrollment_id = gr.enrollment_id
+            AND pr.course_assignment_id = gr.course_assignment_id
+            AND pr.period_number = gr.period_number
           WHERE gr.school_id = $1 AND gr.academic_year = $2 AND gr.enrollment_id = $3
             ${periodClause}
-          ORDER BY gr.period_number, aa.name, s.name`,
+          ORDER BY gr.period_number, COALESCE(aa.name, 'Sin área'), s.name`,
         params,
       );
 
       const preRes = await client.query<{
         period_number: number;
         subject_name: string;
-        partial_score: string;
+        partial_score: string | null;
         observations: string | null;
       }>(
         `SELECT pr.period_number, s.name AS subject_name, pr.partial_score, pr.observations
@@ -1939,17 +1951,17 @@ export class PostgresPortalRepository extends PortalRepositoryPort {
           academicAreaName: g.area_name,
           teacherName: g.teacher_name,
           finalScore: Number(g.final_score),
-          recoveryScore: Number(g.recovery_score),
-          levelingScore: Number(g.leveling_score),
+          recoveryScore: Number(g.recovery_score ?? 0),
+          levelingScore: Number(g.lost_score ?? 0),
           effectiveScore: Number(g.effective_score),
           justifiedAbsences: Number(g.justified_absences),
           unjustifiedAbsences: Number(g.unjustified_absences),
-          teacherObservations: g.teacher_observations,
+          teacherObservations: g.pre_report_obs,
         })),
         preReports: preRes.rows.map((p) => ({
           periodNumber: Number(p.period_number),
           subjectName: p.subject_name,
-          partialScore: Number(p.partial_score),
+          partialScore: Number(p.partial_score ?? 0),
           observations: p.observations,
         })),
         observerAnnotations: observer.annotations,

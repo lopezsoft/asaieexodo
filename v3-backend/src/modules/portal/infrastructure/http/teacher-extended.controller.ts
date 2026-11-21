@@ -216,19 +216,28 @@ export class TeacherExtendedController {
     };
   }
 
-  @Delete('grades/assigned-achievements/:linkId')
+  @Delete('grades/assigned-achievements/:academicScoreId/:achievementStandardId')
   @Roles(...TEACHER_ROLES)
   async unassignAchievement(
     @CurrentUser() p: ActiveTenantContext,
-    @Param('linkId', PositiveBigIntPipe) linkId: bigint,
+    @Param('academicScoreId', PositiveBigIntPipe) academicScoreId: bigint,
+    @Param('achievementStandardId', PositiveBigIntPipe) achievementStandardId: bigint,
     @Query('academicYear') academicYear?: string,
   ) {
     await this.useCase.unassignAchievement(
       p.schoolId,
       this.parseYear(academicYear, p.academicYear),
-      linkId,
+      academicScoreId,
+      achievementStandardId,
     );
-    return { success: true, data: { deleted: true, id: Number(linkId) } };
+    return {
+      success: true,
+      data: {
+        deleted: true,
+        academicScoreId: Number(academicScoreId),
+        achievementStandardId: Number(achievementStandardId),
+      },
+    };
   }
 
   @Post('courses/:courseAssignmentId/sync-achievements')

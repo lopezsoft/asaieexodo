@@ -167,9 +167,9 @@ export class MigrateLegacySchoolsUseCase {
         await client.query(
           `INSERT INTO school_shifts (school_id, catalog_shift_id, shift_code, name)
            VALUES
-             ($1, 1, 1, 'MAÑANA'),
-             ($1, 2, 2, 'TARDE'),
-             ($1, 6, 6, 'JORNADA ÚNICA')
+             ($1, 1, 1, 'JORNADA ÚNICA'),
+             ($1, 2, 2, 'MAÑANA'),
+             ($1, 3, 3, 'TARDE')
            ON CONFLICT (school_id, shift_code) DO NOTHING`,
           [String(newSchoolId)],
         );

@@ -88,10 +88,10 @@ export class PostgresAcademicRepository implements AcademicRepositoryPort {
   async listSubjects(schoolId: bigint): Promise<SubjectRecord[]> {
     return this.db.withTenantTransaction(schoolId, async (client) => {
       const res = await client.query<Record<string, unknown>>(
-        `SELECT s.*, a.name AS academic_area_name
+        `SELECT s.*, COALESCE(a.name, 'Sin área asignada') AS academic_area_name
          FROM subjects s
-         INNER JOIN academic_areas a ON a.school_id = s.school_id AND a.id = s.academic_area_id
-         ORDER BY a.display_order ASC, s.display_order ASC, s.name ASC`,
+         LEFT JOIN academic_areas a ON a.school_id = s.school_id AND a.id = s.academic_area_id
+         ORDER BY COALESCE(a.display_order, 999) ASC, s.display_order ASC, s.name ASC`,
       );
       return res.rows.map((r) => this.mapSubject(r));
     });
@@ -139,9 +139,9 @@ export class PostgresAcademicRepository implements AcademicRepositoryPort {
         throw new ResourceNotFoundException('Subject', input.id ?? 0n);
       }
       const res = await client.query<Record<string, unknown>>(
-        `SELECT s.*, a.name AS academic_area_name
+        `SELECT s.*, COALESCE(a.name, 'Sin área asignada') AS academic_area_name
          FROM subjects s
-         INNER JOIN academic_areas a ON a.school_id = s.school_id AND a.id = s.academic_area_id
+         LEFT JOIN academic_areas a ON a.school_id = s.school_id AND a.id = s.academic_area_id
          WHERE s.id = $1`,
         [saved.rows[0].id],
       );
@@ -170,14 +170,20 @@ export class PostgresAcademicRepository implements AcademicRepositoryPort {
                 cp.name AS campus_name,
                 g.name AS grade_name,
                 s.name AS subject_name,
-                a.name AS academic_area_name
+                COALESCE(a.name, 'Sin área') AS academic_area_name
          FROM curriculum_study_plans sp
          LEFT JOIN campuses cp ON cp.school_id = sp.school_id AND cp.id = sp.campus_id
          INNER JOIN grades g ON g.school_id = sp.school_id AND g.id = sp.grade_id
          INNER JOIN subjects s ON s.school_id = sp.school_id AND s.id = sp.subject_id
-         INNER JOIN academic_areas a ON a.school_id = s.school_id AND a.id = s.academic_area_id
+         LEFT JOIN subject_area_assignments saa
+           ON saa.school_id = sp.school_id
+          AND saa.academic_year = sp.academic_year
+          AND saa.subject_id = s.id
+         LEFT JOIN academic_areas a
+           ON a.school_id = s.school_id
+          AND a.id = COALESCE(saa.academic_area_id, s.academic_area_id)
          WHERE sp.academic_year = $1
-         ORDER BY g.display_order ASC, a.display_order ASC, s.name ASC`,
+         ORDER BY g.display_order ASC, COALESCE(a.display_order, 999) ASC, s.name ASC`,
         [academicYear],
       );
       return res.rows.map((r) => this.mapStudyPlan(r));
@@ -192,14 +198,15 @@ export class PostgresAcademicRepository implements AcademicRepositoryPort {
       const saved = await client.query<{ id: string }>(
         `INSERT INTO curriculum_study_plans (
            school_id, campus_id, grade_id, subject_id, academic_year,
-           weekly_hours, area_weight_percentage, is_active
+           weekly_hours, area_weight_percentage, is_active, updated_at
          )
-         VALUES ($1, $2, $3, $4, $5, $6, $7, TRUE)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, TRUE, NOW())
          ON CONFLICT (school_id, campus_id, grade_id, subject_id, academic_year)
          DO UPDATE SET
            weekly_hours = EXCLUDED.weekly_hours,
            area_weight_percentage = EXCLUDED.area_weight_percentage,
-           is_active = TRUE
+           is_active = TRUE,
+           updated_at = NOW()
          RETURNING id`,
         [
           String(schoolId),
@@ -217,12 +224,18 @@ export class PostgresAcademicRepository implements AcademicRepositoryPort {
                 cp.name AS campus_name,
                 g.name AS grade_name,
                 s.name AS subject_name,
-                a.name AS academic_area_name
+                COALESCE(a.name, 'Sin área') AS academic_area_name
          FROM curriculum_study_plans sp
          LEFT JOIN campuses cp ON cp.school_id = sp.school_id AND cp.id = sp.campus_id
          INNER JOIN grades g ON g.school_id = sp.school_id AND g.id = sp.grade_id
          INNER JOIN subjects s ON s.school_id = sp.school_id AND s.id = sp.subject_id
-         INNER JOIN academic_areas a ON a.school_id = s.school_id AND a.id = s.academic_area_id
+         LEFT JOIN subject_area_assignments saa
+           ON saa.school_id = sp.school_id
+          AND saa.academic_year = sp.academic_year
+          AND saa.subject_id = s.id
+         LEFT JOIN academic_areas a
+           ON a.school_id = s.school_id
+          AND a.id = COALESCE(saa.academic_area_id, s.academic_area_id)
          WHERE sp.id = $1`,
         [saved.rows[0].id],
       );
@@ -254,7 +267,7 @@ export class PostgresAcademicRepository implements AcademicRepositoryPort {
                 g.name AS grade_name,
                 ag.group_code,
                 s.name AS subject_name,
-                a.name AS academic_area_name,
+                COALESCE(a.name, 'Sin área') AS academic_area_name,
                 TRIM(CONCAT_WS(' ', tp.first_name, tp.middle_name, tp.last_name, tp.second_last_name)) AS teacher_name
          FROM course_assignments ca
          INNER JOIN campuses cp ON cp.school_id = ca.school_id AND cp.id = ca.campus_id
@@ -262,7 +275,13 @@ export class PostgresAcademicRepository implements AcademicRepositoryPort {
          INNER JOIN grades g ON g.school_id = ca.school_id AND g.id = ca.grade_id
          INNER JOIN academic_groups ag ON ag.school_id = ca.school_id AND ag.id = ca.academic_group_id
          INNER JOIN subjects s ON s.school_id = ca.school_id AND s.id = ca.subject_id
-         INNER JOIN academic_areas a ON a.school_id = s.school_id AND a.id = s.academic_area_id
+         LEFT JOIN subject_area_assignments saa
+           ON saa.school_id = ca.school_id
+          AND saa.academic_year = ca.academic_year
+          AND saa.subject_id = s.id
+         LEFT JOIN academic_areas a
+           ON a.school_id = s.school_id
+          AND a.id = COALESCE(saa.academic_area_id, s.academic_area_id)
          INNER JOIN teacher_profiles tp ON tp.school_id = ca.school_id AND tp.id = ca.teacher_profile_id
          WHERE ca.academic_year = $1
          ORDER BY cp.name ASC, g.display_order ASC, ag.group_code ASC, s.name ASC`,
@@ -328,7 +347,7 @@ export class PostgresAcademicRepository implements AcademicRepositoryPort {
                 g.name AS grade_name,
                 ag.group_code,
                 s.name AS subject_name,
-                a.name AS academic_area_name,
+                COALESCE(a.name, 'Sin área') AS academic_area_name,
                 TRIM(CONCAT_WS(' ', tp.first_name, tp.middle_name, tp.last_name, tp.second_last_name)) AS teacher_name
          FROM course_assignments ca
          INNER JOIN campuses cp ON cp.school_id = ca.school_id AND cp.id = ca.campus_id
@@ -336,7 +355,13 @@ export class PostgresAcademicRepository implements AcademicRepositoryPort {
          INNER JOIN grades g ON g.school_id = ca.school_id AND g.id = ca.grade_id
          INNER JOIN academic_groups ag ON ag.school_id = ca.school_id AND ag.id = ca.academic_group_id
          INNER JOIN subjects s ON s.school_id = ca.school_id AND s.id = ca.subject_id
-         INNER JOIN academic_areas a ON a.school_id = s.school_id AND a.id = s.academic_area_id
+         LEFT JOIN subject_area_assignments saa
+           ON saa.school_id = ca.school_id
+          AND saa.academic_year = ca.academic_year
+          AND saa.subject_id = s.id
+         LEFT JOIN academic_areas a
+           ON a.school_id = s.school_id
+          AND a.id = COALESCE(saa.academic_area_id, s.academic_area_id)
          INNER JOIN teacher_profiles tp ON tp.school_id = ca.school_id AND tp.id = ca.teacher_profile_id
          WHERE ca.id = $1`,
         [saved.rows[0].id],
@@ -729,11 +754,10 @@ export class PostgresAcademicRepository implements AcademicRepositoryPort {
                registration_number, folio_number, is_repeating_grade, is_new_student, observations
              )
              VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
-             ON CONFLICT (school_id, student_profile_id, academic_year)
+             ON CONFLICT (school_id, student_profile_id, academic_year, grade_id)
              DO UPDATE SET
                campus_id = EXCLUDED.campus_id,
                shift_id = EXCLUDED.shift_id,
-               grade_id = EXCLUDED.grade_id,
                academic_group_id = EXCLUDED.academic_group_id,
                enrollment_status_id = EXCLUDED.enrollment_status_id,
                updated_at = NOW()
@@ -908,11 +932,11 @@ export class PostgresAcademicRepository implements AcademicRepositoryPort {
                  WHERE e.academic_group_id = ca.academic_group_id
                    AND e.academic_year = ca.academic_year
                    AND e.enrollment_status_id IN (2, 3)) AS enrolled_students,
-                (SELECT COUNT(*)::int FROM academic_grades gr
+                (SELECT COUNT(*)::int FROM academic_scores gr
                  WHERE gr.course_assignment_id = ca.id
                    AND gr.academic_year = ca.academic_year
                    AND gr.period_number = $2
-                   AND gr.effective_score > 0) AS graded_students
+                   AND COALESCE(NULLIF(gr.recovery_score, 0), gr.final_score) > 0) AS graded_students
          FROM course_assignments ca
          INNER JOIN teacher_profiles tp ON tp.school_id = ca.school_id AND tp.id = ca.teacher_profile_id
          INNER JOIN subjects s ON s.school_id = ca.school_id AND s.id = ca.subject_id
@@ -959,9 +983,10 @@ export class PostgresAcademicRepository implements AcademicRepositoryPort {
 
       const res = await client.query<Record<string, unknown>>(
         `SELECT gr.*,
+                COALESCE(NULLIF(gr.recovery_score, 0), gr.final_score) AS effective_score,
                 s.name AS subject_name,
                 TRIM(CONCAT_WS(' ', tp.first_name, tp.last_name)) AS teacher_name
-         FROM academic_grades gr
+         FROM academic_scores gr
          INNER JOIN course_assignments ca ON ca.school_id = gr.school_id AND ca.id = gr.course_assignment_id
          INNER JOIN subjects s ON s.school_id = ca.school_id AND s.id = ca.subject_id
          INNER JOIN teacher_profiles tp ON tp.school_id = ca.school_id AND tp.id = ca.teacher_profile_id
@@ -987,56 +1012,61 @@ export class PostgresAcademicRepository implements AcademicRepositoryPort {
     },
   ): Promise<EnrollmentGradeRow> {
     return this.db.withTenantTransaction(schoolId, async (client) => {
-      const prevRes = await client.query<{ final_score: string }>(
-        `SELECT final_score FROM academic_grades WHERE id = $1 AND academic_year = $2`,
+      const prevRes = await client.query<{
+        final_score: string;
+        enrollment_id: string;
+        course_assignment_id: string;
+        period_number: number;
+      }>(
+        `SELECT final_score, enrollment_id, course_assignment_id, period_number
+           FROM academic_scores WHERE id = $1 AND academic_year = $2`,
         [String(gradeId), academicYear],
       );
       if (prevRes.rowCount === 0) {
-        throw new ResourceNotFoundException('AcademicGrade', gradeId);
+        throw new ResourceNotFoundException('AcademicScore', gradeId);
       }
+      const prev = prevRes.rows[0];
+      const recScore =
+        input.recoveryScore !== undefined && input.recoveryScore > 0
+          ? input.recoveryScore
+          : null;
 
       await client.query(
-        `UPDATE academic_grades
+        `UPDATE academic_scores
          SET final_score = $3,
              recovery_score = COALESCE($4, recovery_score),
-             leveling_score = COALESCE($5, leveling_score),
-             is_locked = COALESCE($6, is_locked),
-             updated_by_user_id = $7,
+             is_leveled = CASE WHEN $4 IS NOT NULL THEN TRUE ELSE is_leveled END,
+             leveled_at = CASE WHEN $4 IS NOT NULL THEN CURRENT_DATE ELSE leveled_at END,
              updated_at = NOW()
          WHERE id = $1 AND academic_year = $2`,
-        [
-          String(gradeId),
-          academicYear,
-          input.finalScore,
-          input.recoveryScore ?? null,
-          input.levelingScore ?? null,
-          input.isLocked ?? null,
-          String(userId),
-        ],
+        [String(gradeId), academicYear, input.finalScore, recScore],
       );
 
       await client.query(
-        `INSERT INTO academic_grade_audit_logs (
-           school_id, academic_year, academic_grade_id, changed_by_user_id,
-           previous_score, new_score, change_reason
+        `INSERT INTO academic_score_audit_logs (
+           school_id, academic_year, enrollment_id, course_assignment_id,
+           period_number, previous_score, new_score, changed_by_user_id, change_reason
          )
-         VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
         [
           String(schoolId),
           academicYear,
-          String(gradeId),
-          String(userId),
-          Number(prevRes.rows[0].final_score),
+          prev.enrollment_id,
+          prev.course_assignment_id,
+          prev.period_number,
+          Number(prev.final_score),
           input.finalScore,
+          String(userId),
           input.reason?.trim() || 'Ajuste administrativo de nota',
         ],
       );
 
       const res = await client.query<Record<string, unknown>>(
         `SELECT gr.*,
+                COALESCE(NULLIF(gr.recovery_score, 0), gr.final_score) AS effective_score,
                 s.name AS subject_name,
                 TRIM(CONCAT_WS(' ', tp.first_name, tp.last_name)) AS teacher_name
-         FROM academic_grades gr
+         FROM academic_scores gr
          INNER JOIN course_assignments ca ON ca.school_id = gr.school_id AND ca.id = gr.course_assignment_id
          INNER JOIN subjects s ON s.school_id = ca.school_id AND s.id = ca.subject_id
          INNER JOIN teacher_profiles tp ON tp.school_id = ca.school_id AND tp.id = ca.teacher_profile_id
@@ -1058,7 +1088,7 @@ export class PostgresAcademicRepository implements AcademicRepositoryPort {
   ): Promise<{ transferredCount: number }> {
     return this.db.withTenantTransaction(schoolId, async (client) => {
       const res = await client.query(
-        `UPDATE academic_grades
+        `UPDATE academic_scores
          SET course_assignment_id = $4, updated_at = NOW()
          WHERE academic_year = $1
            AND enrollment_id = $2
@@ -1145,10 +1175,14 @@ export class PostgresAcademicRepository implements AcademicRepositoryPort {
         ],
       );
 
-      // Sincroniza nota de nivelación en academic_grades
+      // Sincroniza nota de nivelación en academic_scores
       await client.query(
-        `UPDATE academic_grades
-         SET recovery_score = GREATEST(recovery_score, $5), updated_at = NOW()
+        `UPDATE academic_scores
+         SET lost_score = COALESCE(lost_score, final_score),
+             recovery_score = GREATEST(COALESCE(recovery_score, 0), $5),
+             is_leveled = TRUE,
+             leveled_at = CURRENT_DATE,
+             updated_at = NOW()
          WHERE academic_year = $1
            AND enrollment_id = $2
            AND course_assignment_id = $3
@@ -1206,14 +1240,19 @@ export class PostgresAcademicRepository implements AcademicRepositoryPort {
              SELECT e.id AS enrollment_id,
                     e.academic_group_id,
                     e.grade_id,
-                    ROUND(AVG(gr.effective_score)::numeric, 2) AS avg_score,
-                    COUNT(*) FILTER (WHERE gr.effective_score < 3.00)::smallint AS failed_cnt
+                    ROUND(AVG(COALESCE(NULLIF(gr.recovery_score, 0), gr.final_score))::numeric, 2) AS avg_score,
+                    COUNT(*) FILTER (WHERE COALESCE(NULLIF(gr.recovery_score, 0), gr.final_score) < 3.00)::smallint AS failed_cnt
              FROM student_enrollments e
-             INNER JOIN academic_grades gr
+             INNER JOIN academic_scores gr
                ON gr.school_id = e.school_id
               AND gr.enrollment_id = e.id
               AND gr.academic_year = e.academic_year
               AND gr.period_number = $2
+             INNER JOIN course_assignments ca
+               ON ca.school_id = gr.school_id AND ca.id = gr.course_assignment_id
+             INNER JOIN subjects s
+               ON s.school_id = ca.school_id AND s.id = ca.subject_id
+              AND s.is_excluded_from_average = FALSE
              WHERE e.academic_year = $1
                AND e.enrollment_status_id IN (2, 3)
              GROUP BY e.id, e.academic_group_id, e.grade_id
@@ -1454,6 +1493,14 @@ export class PostgresAcademicRepository implements AcademicRepositoryPort {
   }
 
   private mapEnrollmentGrade(r: Record<string, unknown>): EnrollmentGradeRow {
+    const finalScore = Number(r.final_score);
+    const recoveryScore = r.recovery_score != null ? Number(r.recovery_score) : 0;
+    const effectiveScore =
+      r.effective_score != null
+        ? Number(r.effective_score)
+        : recoveryScore > 0
+          ? recoveryScore
+          : finalScore;
     return {
       id: Number(r.id),
       academicYear: Number(r.academic_year),
@@ -1461,15 +1508,15 @@ export class PostgresAcademicRepository implements AcademicRepositoryPort {
       courseAssignmentId: Number(r.course_assignment_id),
       subjectName: String(r.subject_name),
       teacherName: String(r.teacher_name),
-      periodId: Number(r.period_id),
+      periodId: Number(r.period_number),
       periodNumber: Number(r.period_number),
-      finalScore: Number(r.final_score),
-      recoveryScore: Number(r.recovery_score),
-      levelingScore: Number(r.leveling_score),
-      effectiveScore: Number(r.effective_score),
+      finalScore,
+      recoveryScore,
+      levelingScore: r.lost_score != null ? Number(r.lost_score) : 0,
+      effectiveScore,
       justifiedAbsences: Number(r.justified_absences),
       unjustifiedAbsences: Number(r.unjustified_absences),
-      isLocked: Boolean(r.is_locked),
+      isLocked: false,
     };
   }
 

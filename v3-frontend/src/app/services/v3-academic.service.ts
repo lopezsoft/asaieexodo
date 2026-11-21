@@ -163,15 +163,12 @@ export interface EnrollmentGradeRow {
   readonly courseAssignmentId: number;
   readonly subjectName: string;
   readonly teacherName: string;
-  readonly periodId: number;
   readonly periodNumber: number;
   readonly finalScore: number;
   readonly recoveryScore: number;
-  readonly levelingScore: number;
   readonly effectiveScore: number;
   readonly justifiedAbsences: number;
   readonly unjustifiedAbsences: number;
-  readonly isLocked: boolean;
 }
 
 export interface PeriodRecoveryRecord {
@@ -181,12 +178,12 @@ export interface PeriodRecoveryRecord {
   readonly studentFullName: string;
   readonly courseAssignmentId: number;
   readonly subjectName: string;
-  readonly periodNumber: number;
+  readonly periodNumber: number | null;
   readonly actNumber: string | null;
   readonly previousScore: number;
   readonly recoveryScore: number;
   readonly recoveryType: string;
-  readonly recoveryDate: string;
+  readonly recoveryDate: string | null;
   readonly observations: string | null;
 }
 
@@ -553,8 +550,6 @@ export class V3AcademicService {
       academicYear: number;
       finalScore: number;
       recoveryScore?: number;
-      levelingScore?: number;
-      isLocked?: boolean;
       reason?: string;
     },
   ): Observable<EnrollmentGradeRow> {

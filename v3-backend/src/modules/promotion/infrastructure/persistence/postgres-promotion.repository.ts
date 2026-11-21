@@ -122,21 +122,27 @@ export class PostgresPromotionRepository extends PromotionRepositoryPort {
           total_abs: string;
         }>(
           `SELECT ca.subject_id,
-                  s.academic_area_id,
-                  aa.fails_school_year,
-                  ROUND(AVG(ag.effective_score)::numeric, 2) AS avg_score,
-                  COALESCE(SUM(ag.justified_absences + ag.unjustified_absences), 0) AS total_abs
-             FROM academic_grades ag
+                  COALESCE(saa.academic_area_id, s.academic_area_id, 0) AS academic_area_id,
+                  COALESCE(aa.fails_school_year, FALSE) AS fails_school_year,
+                  ROUND(AVG(COALESCE(NULLIF(sc.recovery_score, 0), sc.final_score))::numeric, 2) AS avg_score,
+                  COALESCE(SUM(sc.justified_absences + sc.unjustified_absences), 0) AS total_abs
+             FROM academic_scores sc
              INNER JOIN course_assignments ca
-               ON ca.school_id = ag.school_id AND ca.id = ag.course_assignment_id
+               ON ca.school_id = sc.school_id AND ca.id = sc.course_assignment_id
              INNER JOIN subjects s
                ON s.school_id = ca.school_id AND s.id = ca.subject_id
-             INNER JOIN academic_areas aa
-               ON aa.school_id = s.school_id AND aa.id = s.academic_area_id
-            WHERE ag.school_id = $1
-              AND ag.academic_year = $2
-              AND ag.enrollment_id = $3
-            GROUP BY ca.subject_id, s.academic_area_id, aa.fails_school_year`,
+              AND s.is_excluded_from_average = FALSE
+             LEFT JOIN subject_area_assignments saa
+               ON saa.school_id = sc.school_id
+              AND saa.academic_year = sc.academic_year
+              AND saa.subject_id = s.id
+             LEFT JOIN academic_areas aa
+               ON aa.school_id = s.school_id
+              AND aa.id = COALESCE(saa.academic_area_id, s.academic_area_id)
+            WHERE sc.school_id = $1
+              AND sc.academic_year = $2
+              AND sc.enrollment_id = $3
+            GROUP BY ca.subject_id, COALESCE(saa.academic_area_id, s.academic_area_id, 0), COALESCE(aa.fails_school_year, FALSE)`,
           [schoolId.toString(), input.academicYear, enrollmentId],
         );
 
@@ -462,7 +468,7 @@ export class PostgresPromotionRepository extends PromotionRepositoryPort {
              is_repeating_grade, is_new_student
            )
            VALUES ($1, $2, $3, $4, $5, $6, $7, 2, $8, FALSE)
-           ON CONFLICT (school_id, student_profile_id, academic_year) DO NOTHING`,
+           ON CONFLICT (school_id, student_profile_id, academic_year, grade_id) DO NOTHING`,
           [
             schoolId.toString(),
             src.student_profile_id,
@@ -540,21 +546,26 @@ export class PostgresPromotionRepository extends PromotionRepositoryPort {
           periods_count: string;
         }>(
           `SELECT s.name AS subject_name,
-                  aa.name AS area_name,
-                  ROUND(AVG(gr.effective_score)::numeric, 2) AS avg_score,
+                  COALESCE(aa.name, 'Sin área') AS area_name,
+                  ROUND(AVG(COALESCE(NULLIF(gr.recovery_score, 0), gr.final_score))::numeric, 2) AS avg_score,
                   COUNT(*)::text AS periods_count
-             FROM academic_grades gr
+             FROM academic_scores gr
              INNER JOIN course_assignments ca
                ON ca.school_id = gr.school_id AND ca.id = gr.course_assignment_id
              INNER JOIN subjects s
                ON s.school_id = ca.school_id AND s.id = ca.subject_id
-             INNER JOIN academic_areas aa
-               ON aa.school_id = s.school_id AND aa.id = s.academic_area_id
+             LEFT JOIN subject_area_assignments saa
+               ON saa.school_id = gr.school_id
+              AND saa.academic_year = gr.academic_year
+              AND saa.subject_id = s.id
+             LEFT JOIN academic_areas aa
+               ON aa.school_id = s.school_id
+              AND aa.id = COALESCE(saa.academic_area_id, s.academic_area_id)
             WHERE gr.school_id = $1
               AND gr.academic_year = $2
               AND gr.enrollment_id = $3
-            GROUP BY s.name, aa.name
-            ORDER BY aa.name, s.name`,
+            GROUP BY s.name, COALESCE(aa.name, 'Sin área')
+            ORDER BY COALESCE(aa.name, 'Sin área'), s.name`,
           [schoolId.toString(), row.academic_year, row.enrollment_id],
         );
 

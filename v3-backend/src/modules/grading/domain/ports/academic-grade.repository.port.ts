@@ -15,12 +15,11 @@ export interface SaveAcademicGradeInput {
   readonly courseAssignmentId: bigint;
   readonly periodId: bigint;
   readonly finalScore: number;
-  readonly recoveryScore: number;
-  readonly levelingScore: number;
+  readonly recoveryScore: number | null;
   readonly justifiedAbsences: number;
   readonly unjustifiedAbsences: number;
   readonly lateArrivals: number;
-  readonly teacherObservations?: string | null;
+  readonly preReportObservations?: string | null;
   readonly hasPreReportAlert: boolean;
   readonly changeReason?: string | null;
   readonly updatedByUserId: bigint;
@@ -31,8 +30,9 @@ export interface StudentBulletinGradeSummary {
   readonly subjectName: string;
   readonly weeklyHours: number;
   readonly finalScore: number;
-  readonly recoveryScore: number;
-  readonly levelingScore: number;
+  readonly lostScore: number | null;
+  readonly recoveryScore: number | null;
+  readonly isLeveled: boolean;
   readonly effectiveScore: number;
   readonly scaleName: string | null;
   readonly scaleAbbreviation: string | null;

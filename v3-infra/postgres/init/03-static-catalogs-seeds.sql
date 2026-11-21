@@ -10545,6 +10545,7 @@ INSERT INTO document_types (id, code, name, is_active) VALUES (6, 'NIP', 'Númer
 INSERT INTO document_types (id, code, name, is_active) VALUES (7, 'NUIP', 'Número Único de Identificación Personal (NUIP)', TRUE) ON CONFLICT (id) DO NOTHING;
 INSERT INTO document_types (id, code, name, is_active) VALUES (8, 'NIESE', 'Número de Identificación establecido por la Secretaría de Educación', TRUE) ON CONFLICT (id) DO NOTHING;
 INSERT INTO document_types (id, code, name, is_active) VALUES (9, 'CER.C', 'Certificado Cabildo', TRUE) ON CONFLICT (id) DO NOTHING;
+INSERT INTO document_types (id, code, name, is_active) VALUES (20, 'PPT', 'Permiso por Protección Temporal (PPT)', TRUE) ON CONFLICT (id) DO NOTHING;
 INSERT INTO document_types (id, code, name, is_active) VALUES (99, 'NN', 'Ninguno', TRUE) ON CONFLICT (id) DO NOTHING;
 
 -- 8. ethnic_groups (99 etnias)
@@ -11214,7 +11215,9 @@ INSERT INTO system_modules (id, tag, module_name, is_active) VALUES
     (5, 'VIRTUAL_CLASSROOM', 'Aula Virtual y Evaluaciones en Linea', TRUE),
     (6, 'SCHOOL_ELECTIONS', 'Gobierno Escolar y Votaciones', TRUE),
     (7, 'CERTIFICATES_REPORTS', 'Boletines, Actas y Constancias Jasper', TRUE),
-    (8, 'SCHOOL_CRM_OMNICHANNEL', 'CRM Escolar, Comunicacion Omnicanal y Asistente IA Vectorial', TRUE)
+    (8, 'SCHOOL_CRM_OMNICHANNEL', 'CRM Escolar, Comunicacion Omnicanal y Asistente IA Vectorial', TRUE),
+    (9, 'ACADEMIC_ACTIVITIES', 'Actividades Academicas', TRUE),
+    (10, 'SIMULACRUM', 'Simulacros Academicos', TRUE)
   ON CONFLICT (tag) DO NOTHING;
 
 -- 54. crm_channels (Canales de Comunicacion Omnicanal CRM Escolar)

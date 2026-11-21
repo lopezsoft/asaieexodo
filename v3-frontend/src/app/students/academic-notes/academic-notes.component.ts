@@ -74,7 +74,6 @@ import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.d
                     <th class="text-center">Recup.</th>
                     <th class="text-center">Efectiva</th>
                     <th class="text-center">Faltas</th>
-                    <th>Observación</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -90,11 +89,10 @@ import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.d
                       <td class="text-center">{{ g.recoveryScore }}</td>
                       <td class="text-center fw-bold text-primary">{{ g.effectiveScore }}</td>
                       <td class="text-center small">{{ g.unjustifiedAbsences }}</td>
-                      <td class="small text-muted">{{ g.teacherObservations || '—' }}</td>
                     </tr>
                   } @empty {
                     <tr>
-                      <td colspan="8" class="text-center text-muted py-4">Aún no hay calificaciones publicadas.</td>
+                      <td colspan="7" class="text-center text-muted py-4">Aún no hay calificaciones publicadas.</td>
                     </tr>
                   }
                 </tbody>

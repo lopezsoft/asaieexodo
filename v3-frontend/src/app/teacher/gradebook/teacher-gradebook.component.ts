@@ -234,16 +234,11 @@ type GenderFilter = 'ALL' | 'M' | 'F';
                         N{{ col.columnNumber }}
                       </th>
                     }
-                    <th style="width: 82px;">Saber</th>
-                    <th style="width: 82px;">Hacer</th>
-                    <th style="width: 82px;">Ser</th>
-                    <th style="width: 82px;">Eval.</th>
                     <th style="width: 88px;">Definitiva</th>
                     <th style="width: 82px;">Recup.</th>
                     <th style="width: 56px;" [appCustomTooltip]="'Faltas Justificadas'">F.J</th>
                     <th style="width: 56px;" [appCustomTooltip]="'Faltas Injustificadas'">F.I</th>
                     <th style="width: 56px;" [appCustomTooltip]="'Retardos'">Ret.</th>
-                    <th style="min-width: 140px;">Observación</th>
                     <th class="text-center">Logros</th>
                   </tr>
                 </thead>
@@ -275,18 +270,6 @@ type GenderFilter = 'ALL' | 'M' | 'F';
                         </td>
                       }
                       <td>
-                        <input type="number" step="0.1" min="0" max="100" class="form-control form-control-sm" [(ngModel)]="st.conceptualScore" [disabled]="st.isLocked || gradebook()!.isPeriodClosed" (ngModelChange)="recalcRow(st)" />
-                      </td>
-                      <td>
-                        <input type="number" step="0.1" min="0" max="100" class="form-control form-control-sm" [(ngModel)]="st.proceduralScore" [disabled]="st.isLocked || gradebook()!.isPeriodClosed" (ngModelChange)="recalcRow(st)" />
-                      </td>
-                      <td>
-                        <input type="number" step="0.1" min="0" max="100" class="form-control form-control-sm" [(ngModel)]="st.attitudinalScore" [disabled]="st.isLocked || gradebook()!.isPeriodClosed" (ngModelChange)="recalcRow(st)" />
-                      </td>
-                      <td>
-                        <input type="number" step="0.1" min="0" max="100" class="form-control form-control-sm" [(ngModel)]="st.evaluationExamScore" [disabled]="st.isLocked || gradebook()!.isPeriodClosed" (ngModelChange)="recalcRow(st)" />
-                      </td>
-                      <td>
                         <input type="number" step="0.1" min="0" max="100" class="form-control form-control-sm fw-bold" [(ngModel)]="st.finalScore" [disabled]="st.isLocked || gradebook()!.isPeriodClosed" />
                       </td>
                       <td>
@@ -301,9 +284,6 @@ type GenderFilter = 'ALL' | 'M' | 'F';
                       <td>
                         <input type="number" min="0" class="form-control form-control-sm" [(ngModel)]="st.lateArrivals" [disabled]="st.isLocked || gradebook()!.isPeriodClosed" />
                       </td>
-                      <td>
-                        <input type="text" class="form-control form-control-sm" [(ngModel)]="st.teacherObservations" [disabled]="st.isLocked || gradebook()!.isPeriodClosed" placeholder="Observación..." />
-                      </td>
                       <td class="text-center">
                         <button
                           type="button"
@@ -317,7 +297,7 @@ type GenderFilter = 'ALL' | 'M' | 'F';
                     </tr>
                   } @empty {
                     <tr>
-                      <td [attr.colspan]="13 + columns().length" class="text-center text-muted py-4">
+                      <td [attr.colspan]="8 + columns().length" class="text-center text-muted py-4">
                         Seleccione un curso con estudiantes matriculados.
                       </td>
                     </tr>
@@ -575,13 +555,13 @@ type GenderFilter = 'ALL' | 'M' | 'F';
               </tr>
             </thead>
             <tbody>
-              @for (item of modalAssignedAchievements(); track item.id) {
+              @for (item of modalAssignedAchievements(); track item.academicGradeId + ':' + item.achievementStandardId) {
                 <tr>
                   <td class="small fw-semibold">{{ item.studentFullName }}</td>
                   <td><span class="badge text-bg-info">{{ item.indicatorType }}</span></td>
                   <td class="small">{{ item.description }}</td>
                   <td class="text-end">
-                    <button type="button" class="btn btn-sm btn-outline-danger" (click)="unassignAchievement(item.id)" [appCustomTooltip]="'Quitar logro asignado'">
+                    <button type="button" class="btn btn-sm btn-outline-danger" (click)="unassignAchievement(item)" [appCustomTooltip]="'Quitar logro asignado'">
                       <i class="material-symbols-outlined fs-6">delete</i>
                     </button>
                   </td>
@@ -795,26 +775,6 @@ export class TeacherGradebookComponent implements OnInit, OnDestroy {
     }
   }
 
-  recalcRow(st: {
-    conceptualScore: number;
-    proceduralScore: number;
-    attitudinalScore: number;
-    evaluationExamScore: number;
-    finalScore: number;
-  }): void {
-    const scores = [
-      Number(st.conceptualScore || 0),
-      Number(st.proceduralScore || 0),
-      Number(st.attitudinalScore || 0),
-      Number(st.evaluationExamScore || 0),
-    ].filter((v) => v > 0);
-    if (scores.length > 0) {
-      st.finalScore = Number(
-        (scores.reduce((acc, v) => acc + v, 0) / scores.length).toFixed(2),
-      );
-    }
-  }
-
   saveAllGrades(silent = false): void {
     const gb = this.gradebook();
     if (!gb || gb.students.length === 0) return;
@@ -854,18 +814,11 @@ export class TeacherGradebookComponent implements OnInit, OnDestroy {
         periodNumber: this.selectedPeriod,
         rows: gb.students.map((s) => ({
           enrollmentId: s.enrollmentId,
-          conceptualScore: Number(s.conceptualScore || 0),
-          proceduralScore: Number(s.proceduralScore || 0),
-          attitudinalScore: Number(s.attitudinalScore || 0),
-          evaluationExamScore: Number(s.evaluationExamScore || 0),
           finalScore: Number(s.finalScore || 0),
           recoveryScore: Number(s.recoveryScore || 0),
-          levelingScore: Number(s.levelingScore || 0),
           justifiedAbsences: Number(s.justifiedAbsences || 0),
           unjustifiedAbsences: Number(s.unjustifiedAbsences || 0),
           lateArrivals: Number(s.lateArrivals || 0),
-          teacherObservations: s.teacherObservations || null,
-          hasPreReportAlert: s.hasPreReportAlert,
         })),
       }),
       items:
@@ -968,9 +921,13 @@ export class TeacherGradebookComponent implements OnInit, OnDestroy {
       });
   }
 
-  unassignAchievement(linkId: number): void {
+  unassignAchievement(item: GradeAchievementAssignedRow): void {
     this.portalService
-      .unassignAchievement(linkId, this.academicYear())
+      .unassignAchievement(
+        item.academicGradeId,
+        item.achievementStandardId,
+        this.academicYear(),
+      )
       .subscribe(() => {
         this.messages.showSuccess('Logro desvinculado de la calificación.');
         this.loadCourseData();
@@ -989,14 +946,9 @@ export class TeacherGradebookComponent implements OnInit, OnDestroy {
       for (const col of this.columns()) {
         base[`N${col.columnNumber}`] = this.getItemScore(s.enrollmentId, col.columnNumber);
       }
-      base['Saber'] = s.conceptualScore;
-      base['Hacer'] = s.proceduralScore;
-      base['Ser'] = s.attitudinalScore;
-      base['Evaluacion'] = s.evaluationExamScore;
       base['Definitiva'] = s.finalScore;
       base['Recuperacion'] = s.recoveryScore;
       base['Faltas'] = s.unjustifiedAbsences;
-      base['Observaciones'] = s.teacherObservations ?? '';
       return base;
     });
     const ws = XLSX.utils.json_to_sheet(sheetData);
@@ -1028,16 +980,9 @@ export class TeacherGradebookComponent implements OnInit, OnDestroy {
           if (!student || student.isLocked) continue;
           matched++;
 
-          if (r['Saber'] !== undefined) student.conceptualScore = Number(r['Saber']) || 0;
-          if (r['Hacer'] !== undefined) student.proceduralScore = Number(r['Hacer']) || 0;
-          if (r['Ser'] !== undefined) student.attitudinalScore = Number(r['Ser']) || 0;
-          if (r['Evaluacion'] !== undefined) student.evaluationExamScore = Number(r['Evaluacion']) || 0;
           if (r['Definitiva'] !== undefined) student.finalScore = Number(r['Definitiva']) || 0;
           if (r['Recuperacion'] !== undefined) student.recoveryScore = Number(r['Recuperacion']) || 0;
           if (r['Faltas'] !== undefined) student.unjustifiedAbsences = Number(r['Faltas']) || 0;
-          if (r['Observaciones'] !== undefined) {
-            student.teacherObservations = String(r['Observaciones'] ?? '').trim() || null;
-          }
           for (const col of this.columns()) {
             const key = `N${col.columnNumber}`;
             if (r[key] !== undefined && r[key] !== '') {

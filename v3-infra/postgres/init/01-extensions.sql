@@ -33,7 +33,4 @@ AS $$
     SELECT NULLIF(current_setting('app.current_school_id', true), '')::BIGINT;
 $$;
 
--- Eliminar cualquier funcion huerfana/insegura de bypass RLS en bases existentes
-DROP FUNCTION IF EXISTS is_tenant_bypass_enabled();
-
 GRANT EXECUTE ON FUNCTION current_tenant_school_id() TO asaie_app_runtime;

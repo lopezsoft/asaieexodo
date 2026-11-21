@@ -3,6 +3,11 @@
 Todos los cambios notables de **v3-frontend** (Angular 20+ para toda la Comunidad Educativa) se documentan en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [3.6.0] - 2026-11-20
+
+### Añadido
+- **Módulo Elecciones Escolares y Cabina Estudiantil (Sprint 7, `/elections/*` y `/student/school-elections`):** Migración completa desde ExtJS (`elecciones/` y `estudiantes/` votaciones) hacia Angular 20 Standalone + Signals (`V3ElectionsService`, Hub Electoral, Control de Jornadas/Mesas/Jurados, Inscripción de Candidatos y Voto en Blanco, Escrutinio en Tiempo Real y reemplazo total del stub `SchoolElectionsComponent` por la Cabina Electoral Estudiantil con voto único verificado).
+
 ## [3.5.0] - 2026-11-20
 
 ### Añadido

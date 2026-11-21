@@ -3,6 +3,12 @@
 Todos los cambios notables de **v3-backend** (NestJS 11 + Fastify 5 + PostgreSQL 17 Unificado con RLS) se documentan en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [3.11.0] - 2026-11-20
+
+### Añadido
+- **Módulo Hexagonal `ElectionsModule` (`/api/v1/elections/*` — Sprint 7):** Catálogo de candidaturas (`/candidacy-types`), control de jornadas electorales con apertura/cierre (`GET/POST/PATCH/DELETE /elections`), mesas de votación y jurados (`/stations`, `/juries`), inscripción de candidatos y voto en blanco (`/candidates`), cabina electoral autenticada (`GET /active-ballot`), registro de voto único verificado por matrícula y candidatura (`POST /:electionId/vote`) y escrutinio en tiempo real (`GET /:electionId/results`).
+- **Suite de integración en vivo `elections.spec.ts`:** Verificación de seguridad 401, ciclo completo de elecciones/mesas/jurados/candidatos y escrutinio sobre PostgreSQL 17 RLS.
+
 ## [3.10.0] - 2026-11-20
 
 ### Añadido

@@ -3,6 +3,11 @@
 Todos los cambios notables de **v3-frontend** (Angular 20+ para toda la Comunidad Educativa) se documentan en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [3.5.0] - 2026-11-20
+
+### Añadido
+- **Módulo Promoción y Cierre de Año (Sprint 6, `/promotion/*`):** Migración completa desde ExtJS (`promocion/`) hacia Angular 20 Standalone + Signals (`V3PromotionService`, Hub de Promoción, Libro Final/Actas/Sábanas con reportes JasperReports, Promoción Anticipada, Matrícula Masiva de Estudiantes Antiguos, Historial Académico Multianual + Encabezados de Certificados, y Cierre/Reapertura del Año Lectivo).
+
 ## [3.4.0] - 2026-11-20
 
 ### Añadido

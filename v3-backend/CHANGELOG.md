@@ -3,6 +3,12 @@
 Todos los cambios notables de **v3-backend** (NestJS 11 + Fastify 5 + PostgreSQL 17 Unificado con RLS) se documentan en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [3.10.0] - 2026-11-20
+
+### Añadido
+- **Módulo Hexagonal `PromotionModule` (`/api/v1/promotion/*` — Sprint 6):** Catálogo de estados de promoción (`/statuses`), libro final de calificaciones y generación masiva con cálculo de áreas/asignaturas reprobadas y puestos por grupo (`/records`, `POST /generate-final-book`, `PATCH /records/:id`), promoción anticipada con traslado atómico (`/advance`), matrícula masiva de estudiantes antiguos con detección automática de repitencia (`/enroll-returning`), historial académico multianual (`/academic-history/:studentProfileId`), encabezados de certificados y actas (`/certificate-headers`) y cierre/reapertura de año lectivo (`/close-year`).
+- **Suite de integración en vivo `promotion.spec.ts`:** Verificación de seguridad 401, catálogo oficial, encabezados y libro final sobre PostgreSQL 17 RLS.
+
 ## [3.9.0] - 2026-11-20
 
 ### Añadido

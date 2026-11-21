@@ -8,5 +8,5 @@ export const environment = {
   APPURL: 'https://campus.asaie.co',
   SOCKET_URL: 'https://wss.asaie.co',
   APIJWT: 'asaie-v3-unified-jwt',
-  VERSION: '3.8.1',
+  VERSION: '3.9.0',
 };

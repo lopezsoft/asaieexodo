@@ -3,6 +3,15 @@
 Todos los cambios notables de **v3-frontend** (Angular 20+ para toda la Comunidad Educativa) se documentan en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [3.9.0] - 2026-11-21
+
+### Añadido
+- **Panel de Accesos Multi-Colegio / Multi-Rol (`/access-panel`, `AccessPanelComponent`):** Vista dedicada para usuarios con múltiples perfiles o colegios con buscador instantáneo (por colegio, código DANE o módulo), filtros rápidos por rol, tarjetas de 3 columnas con iconos diferenciados por módulo y cambio seguro de contexto vía `POST /api/v1/auth/switch-context` (JWT + RLS).
+- **Enrutamiento Inteligente Post-Login y Post-Cambio de Rol (`resolveLandingRouteByRole` / `resolvePostLoginRoute`):**
+  - Usuarios con múltiples accesos ingresan al **Panel de Accesos (`/access-panel`)** con barra lateral y encabezado limpios hasta seleccionar colegio y módulo.
+  - Usuarios con un único perfil ingresan directamente a su portal (`/teacher` para Docentes, `/student/academic-notes` para Estudiantes/Acudientes y `/dashboard` para Directivos/Administrativos).
+  - Al cambiar de tarjeta o contexto, se invalida la caché de catálogos y se redirige automáticamente al portal del rol elegido.
+
 ## [3.8.1] - 2026-11-20
 
 ### Cambiado

@@ -27,7 +27,7 @@ export class ProfileComponent extends FormComponent implements OnInit, AfterView
           first_name     : ['',[Validators.required, Validators.minLength(3)]],
           last_name      : ['',[Validators.required, Validators.minLength(3)]],
           active         : [true, [Validators.required]],
-          email          : ['', [Validators.pattern('^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$'), Validators.required]]
+          email          : ['', [Validators.required]]
       });
   }
 

@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.8.0.final using JasperReports Library version 6.8.0-2ed8dfabb690ff337a5797129f2cd92902b0c87b  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="respeciales_subreport" pageWidth="276" pageHeight="842" columnWidth="276" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="64e860b9-b024-4653-bea2-b64292bf6089">
+	<property name="ireport.zoom" value="2.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="asaie"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="0"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="1000"/>
+	<parameter name="PYear" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="PEnrollment" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[CALL sp_select_respeciales_est ($P{PYear} ,  $P{PEnrollment} )]]>
+	</queryString>
+	<field name="acta" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="acta"/>
+	</field>
+	<field name="id_matric" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="id_matric"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="student_enrollment"/>
+	</field>
+	<field name="año" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="año"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="student_enrollment"/>
+	</field>
+	<field name="cod_area" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="cod_area"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="aux_asignaturas"/>
+	</field>
+	<field name="notafinal" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="notafinal"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="respeciales"/>
+	</field>
+	<field name="notarecuperada" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="notarecuperada"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="respeciales"/>
+	</field>
+	<field name="fecha" class="java.sql.Date">
+		<property name="com.jaspersoft.studio.field.label" value="fecha"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="respeciales"/>
+	</field>
+	<field name="abrev" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="abrev"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="asignaturas"/>
+	</field>
+	<field name="area" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="area"/>
+	</field>
+	<field name="nombres" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="nombres"/>
+	</field>
+	<group name="Group1">
+		<groupExpression><![CDATA[$F{cod_area}]]></groupExpression>
+		<groupHeader>
+			<band height="8">
+				<textField>
+					<reportElement x="0" y="0" width="276" height="8" uuid="4e5f2ac2-df5a-46c9-a562-0870ce665161">
+						<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					</reportElement>
+					<box leftPadding="2" rightPadding="2"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="Arial" size="6" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{area}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="8" splitType="Stretch">
+			<textField isStretchWithOverflow="true">
+				<reportElement positionType="Float" x="0" y="0" width="276" height="8" isPrintInFirstWholeBand="true" isPrintWhenDetailOverflows="true" forecolor="#000000" uuid="342cd2c9-5cc6-4a07-ae96-4ef3acd59748">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box leftPadding="3" rightPadding="2"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial" size="6" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{abrev}.trim()+" .Nota: "+$F{notarecuperada}.toString()+". Acta Nº. "+$F{acta}+". Fecha: "+$F{fecha}.toString()]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

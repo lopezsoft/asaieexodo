@@ -1,0 +1,7 @@
+/node_modules
+/dist
+/storage/temp-reports/*
+!/storage/temp-reports/.gitkeep
+/resources/reports/**/*.jasper
+.env
+*.log

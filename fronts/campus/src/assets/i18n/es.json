@@ -1,0 +1,203 @@
+{
+  "lang": "es",
+  "export": {
+    "excel" : " - Exportar a Excel",
+    "csv"   : " - Exportar a CSV",
+    "pdf"   : " - Exportar a PDF",
+    "xml"   : " - Exportar a XML",
+    "html"  : " - Exportar a HTML",
+    "json"  : " - Exportar a JSON",
+    "tsv"   : " - Exportar a TSV",
+    "print" : " - Imprimir"
+  },
+  "languages": {
+    "title" : "Cambiar idioma",
+    "label" : "Seleccione el idioma",
+    "button": "Cambiar",
+    "en" : "Inglés",
+    "es" : "Español",
+    "fr" : "Francés",
+    "pt" : "Portugués",
+    "it" : "Italiano",
+    "de" : "Alemán"
+  },
+  "placeholder" : {
+    "password"        : "Contraseña",
+    "confirmPassword" : "Confirmar contraseña",
+    "search"          : "Búsqueda...",
+    "email"           : "Correo electrónico",
+    "userName"        : "Nombre de usuario"
+  },
+  "forgotPassword": {
+    "title"      : "¿Olvidaste tu contraseña?",
+    "instructions" : "Ingrese la dirección de correo electrónico que utilizó cuando se unió y le enviaremos instrucciones para restablecer su contraseña.",
+    "emailLabel"  : "Correo electrónico",
+    "emailPlaceholder": "Escribe tu correo electrónico",
+    "submitButton": "Enviar instrucciones",
+    "backToSignIn": "Volver al inicio de sesión"
+  },
+  "profile": {
+    "title": "Perfil de Usuario",
+    "firstName": "Nombre",
+    "lastName": "Apellidos",
+    "email": "Correo Electrónico"
+  },
+  "profileChange": {
+    "title": "Cambiar Nombre de Usuario",
+    "currentUsername": "Nombre de Usuario Actual",
+    "newEmail": "Nuevo nombre de usuario",
+    "newEmailPlaceholder": "Escribe el nuevo correo"
+  },
+  "validation": {
+    "required": "Este campo es obligatorio.",
+    "invalidEmail": "El formato del correo no es válido."
+  },
+  "resetPassword": {
+    "title"      : "¿Restablecer contraseña?",
+    "instructions" : "Ingrese su nueva contraseña y confírmela otra vez en el campo de abajo.",
+    "currentPassword": "Contraseña actual",
+    "currentPasswordPlaceholder": "Escribe tu contraseña actual",
+    "newPassword" : "Nueva contraseña",
+    "newPasswordLabel" : "Nueva contraseña",
+    "confirmPassword" : "Confirmar contraseña",
+    "confirmPasswordLabel" : "Confirmar contraseña",
+    "newPasswordPlaceholder" : "Escribe tu nueva contraseña",
+    "confirmPasswordPlaceholder" : "Confirma tu nueva contraseña",
+    "submitButton": "Restablecer contraseña",
+    "backToSignIn": "Volver al inicio de sesión"
+  },
+  "signIn" : {
+    "welcome": "¡Bienvenido a ASAIE ÉXODO!",
+    "instructions": "Inicia sesión con tu cuenta social o ingresa tus datos",
+    "emailLabel": "Correo o Nombre de Usuario",
+    "emailPlaceholder": "Escribe tu correo o nombre de usuario",
+    "passwordLabel": "Contraseña",
+    "passwordPlaceholder": "Escribe la contraseña",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "button": "Iniciar sesión",
+    "noAccount": "No tienes una cuenta.",
+    "signUp": "Regístrate",
+    "rememberMe"  : "Recuérdame",
+    "headerForm"  : "Inicio de sesión",
+    "label"      : {
+      "youHaveNotRegistered"  : "¿No te has registrado?",
+      "createAccount"         : "Crear cuenta",
+      "forgotYourPassword"    : "¿Has olvidado tu contraseña?",
+      "forgotPassword"    : "Recordar contraseña"
+    }
+  },
+  "resend": {
+    "header"      : "Correo de confirmación",
+    "description" : "Ingrese su dirección de correo electrónico y le enviaremos un nuevo correo de confirmación.",
+    "button"      : {
+      "resend"     : "Reenviar correo de confirmación",
+      "resending"  : "Reenviando..."
+    },
+    "label"      : {
+      "notReceived"    : "¿No has recibido el correo de confirmación?",
+      "resend"         : "Reenviar correo de confirmación"
+    }
+  },
+  "register" : {
+    "title"       : "Crear cuenta",
+    "description" : "Complete el siguiente formulario para crear una nueva cuenta.",
+    "headerForm"  : "Formulario de Registro",
+    "userData"  	: "Datos del usuario",
+    "companyData" : "Datos de la empresa",
+    "button"      : {
+      "registerNow"       : "Registrar ahora",
+      "creatingAccount"   : "Creando cuenta..."
+    },
+    "label"      : {
+      "youRegistered" : "¿Ya te has registrado?",
+      "login"         : "Iniciar sesión"
+    },
+    "placeholder" : {
+      "nameAndSurname" : "Ingrese su nombre y apellidos"
+    },
+    "messages" : {
+      "successfulRegistration"  : "Registro exitoso.",
+      "differentPasswords"      : "Las contraseñas son diferentes."
+    }
+  },
+  "titleMessages"    : {
+    "emptyFields"     : "Campos en blanco",
+    "delete"          : "Eliminar registro",
+    "logout"          : "Cerrar sesión"
+  },
+  "bodyMessages"    : {
+    "emptyFields"   : "Por favor llene los campos del formulario.",
+    "logout"        : "¿Desea cerrar la sesión?",
+    "delete"        : "¿Seguro que desea eliminar el registro?"
+  },
+  "menu" : {
+    "dashboard" : "Dashboard",
+    "user"      : {
+      "profile"   : "Perfil",
+      "user"      : "Usuario",
+      "logout"    : "Cerrar sesión",
+      "profileChange" : "Cambiar nombre de usuario",
+      "returnToAccessPanel" : "Ir al panel de acceso",
+      "changeModule"        : "Cambiar de módulo"
+    },
+    "student"   : {
+      "academicNote"      : "Notas Académicas",
+      "academicReport"    : "Informes Académicos",
+      "attendance"        : "Asistencia",
+      "academicCalendar"  : "Calendario Académico",
+      "academicActivities"  : "Actividades Académicas",
+      "schoolElections"   : "Elecciones Escolares",
+      "teacherEvaluation" : "Evaluación Docente",
+      "teachers"          : "Docentes",
+      "family"            : "Familiares"
+    }
+  },
+  "notFound" : {
+    "title"   : "Página no encontrada",
+    "message" : "Lo sentimos, la página que estás buscando no existe.",
+    "button"  : "Volver al inicio"
+  },
+  "buttons" : {
+    "goToStart" : "Ir al inicio",
+    "recover"   : "Recuperar",
+    "yes"     : "Si",
+    "no"      : "No",
+    "cancel"  : "Cancelar",
+    "edit"  	: "Editar",
+    "delete"  : "Borrar",
+    "close"   : "Cancelar",
+    "save"    : "Guardar",
+    "new"     : "Nuevo",
+    "import"  : "Importar",
+    "search"  : "Buscar",
+    "report"  : "Informe",
+    "saveAndClose"  : "Guardar y cerrar",
+    "saveAndCreate" : "Guardar y crear nuevo",
+    "accept"   : "Aceptar"
+  },
+  "general" : {
+    "error"               : "Error",
+    "isRequired"          : "Es requerido",
+    "pleaseWait"          : "Espere por favor",
+    "savedSuccessfully"   : "Guardado exitosamente",
+    "successfullyCreated" : "Creado exitosamente",
+    "loading"             : "Cargando",
+    "createEdit"          : "Crear/Editar",
+    "currency"            : "Moneda",
+    "tax"                 : "Impuesto",
+    "country"             : "País",
+    "404"                 : "404 La página no existe",
+    "asterisk"            : "*"
+  },
+	"messages": {
+		"loading"							: "Procesando petición, espere por favor...",
+		"confirmProcess"			: "Seguro que desea procesar esta petición?",
+		"processSuccessfully"	: "Petición procesada correctamente.",
+    "authenticating"      : "Autenticando...",
+    "sending"             : "Enviando...",
+    "updatingPassword"    : "Actualizando contraseña...",
+    "saving"              : "Guardando...",
+    "processing"          : "Procesando su solicitud...",
+    "loadingModule"       : "Cargando módulo..."
+	}
+}

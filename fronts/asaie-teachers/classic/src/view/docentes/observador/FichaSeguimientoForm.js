@@ -17,7 +17,26 @@ Ext.define('Admin.view.docentes.observador.FichaSeguimientoForm' ,{
 		me.onStore('docentes.observador.DislexiaStore');
 		me.onStore('docentes.observador.ItemsModelo3Store');
 		me.onStore('docentes.observador.DisortografiaStore');
-		this.setTitle('Ficha de seguimiento - ' + Global.getYear());
+		me.onStore('general.DocumentosStore');
+		me.onStore('general.CountryStore');
+		me.onStore('general.CitiesStore');
+		me.onStore('general.CitiesStore2');
+		me.onStore('general.CitiesStore3');
+		me.onStore('general.PoblacionatendidaStore');
+		me.onStore('general.RHStore');
+		me.onStore('general.EstratoStore');
+		me.onStore('general.ZonaStore');
+		me.onStore('general.SedesStore');
+		me.onStore('general.GradosStore');
+		me.onStore('general.GrupoStore');
+		me.onStore('general.JornadasStore');
+		me.onStore('general.EstadoStore');
+		me.onStore('inscripciones.MatriculasStore');
+		me.onStore('inscripciones.InscripcionesStore');
+		me.onStore('inscripciones.ExtraInscripcionesStore');
+		me.onStore('inscripciones.FamiliesStudentStore');
+		me.onStore('inscripciones.HistorialStore');
+		this.setTitle('Listado de estudiantes - ' + Global.getYear());
 		this.callParent(arguments);
 	},
     items : [
@@ -90,7 +109,7 @@ Ext.define('Admin.view.docentes.observador.FichaSeguimientoForm' ,{
 				}
 		    ],
 		    listeners: {
-			    'selectionchange': function(grid, selected, eOpts) {
+			    'selectionchange': function(grid, selected) {
 			        this.down('#btnObservador').setDisabled(!selected.length);
 			    }
 			},
@@ -100,6 +119,8 @@ Ext.define('Admin.view.docentes.observador.FichaSeguimientoForm' ,{
 					items : [
 						{
 							xtype		: 'cbCargaDocente',
+							labelAlign	: 'left',
+							hideLabel	: true,
 							listeners: {
 								focusenter: function(t) {
 									if (t.value) {
@@ -125,19 +146,54 @@ Ext.define('Admin.view.docentes.observador.FichaSeguimientoForm' ,{
 							bind: {
 								disabled: '{!cbcarga.value}'
 							},
-							handler: function(btn) {
-								var 
-									store	= Ext.getStore('EstudiantesStore');
+							handler: function() {
+								const store = Ext.getStore('EstudiantesStore');
 								store.reload();
 							}
 						},'-',
 						{
 							xtype 	: 'customButton',
 							itemId	: 'btnObservador',
-							text 	: 'Ver fichas',
+							text 	: 'Ver ficha de seguimiento',
 							disabled: true,
 							iconCls : 'x-fa fa-spinner',
 							handler	: 'onClickCrudObservador'
+						},
+						{
+							xtype       : 'customButton',
+							tooltip     : 'Crear Familiares',
+							text        : 'Crear Familiares',
+							iconCls     : 'x-fa fa-users',
+							handler     : function(btn) {
+								const app = Admin.getApplication();
+								const win = btn.up('form');
+								const data = win.down('grid').getSelection()[0];
+								app.setParamStore('FamiliesStore', {
+									pdbTable        : 'families'
+								},false);
+								Ext.create('Admin.view.academico.inscripciones.Families',{
+									record  : data
+								}).show();
+							}
+						},
+						{
+							xtype       : 'customButton',
+							tooltip     : 'Familiares asignados al estudiante',
+							iconCls     : 'x-fa fa-users',
+							text        : 'Familiares',
+							itemId      : 'btnFamil',
+							disabled  	: true,
+							handler     : function(btn) {
+								const me = Admin.getApplication(),
+									dataGrid    = btn.up('form').down('grid').getSelection()[0];
+								me.setParamStore('FamiliesStudentStore', {
+									pdbTable        : 'aux_families_students',
+									pdbIdStudent    :  dataGrid.get('id_student')
+								},false);
+								Ext.create('Admin.view.academico.inscripciones.FamiliesStudent',{
+									record  : dataGrid
+								}).show();
+							}
 						},
 						{
 							xtype	: 'closebutton'

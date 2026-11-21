@@ -1,0 +1,64 @@
+<div class="breadcrumb-card mb-25 d-md-flex align-items-center justify-content-between">
+  <h5 class="mb-0">
+    {{ 'profileChange.title' | transloco }}
+  </h5>
+  <ol class="breadcrumb list-unstyled mt-0 mb-0 p-0">
+    <li class="breadcrumb-item d-inline-block position-relative">
+      <a routerLink="/profile" class="d-inline-block position-relative">
+        <i class="material-symbols-outlined">account_circle</i>
+        {{ 'menu.user.profile' | transloco }}
+      </a>
+    </li>
+    <li class="breadcrumb-item d-inline-block position-relative">
+      {{ 'profileChange.title' | transloco }}
+    </li>
+  </ol>
+</div>
+
+<section class="users-change-username">
+  <div class="trezo-card bg-white border-radius p-4 shadow-sm">
+    <h5 class="mb-3 fw-semibold">{{ 'profileChange.title' | transloco | uppercase }}</h5>
+    <form [formGroup]="changeForm" (ngSubmit)="onSubmit()">
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label">{{ 'profileChange.currentUsername' | transloco }}</label>
+          <input type="text" class="form-control" formControlName="currentUsername" />
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label">Nuevo nombre de usuario *</label>
+          <input
+            type="text"
+            class="form-control"
+            formControlName="newUsername"
+            placeholder="Ej. rector.institucion"
+          />
+          @if (changeForm.get('newUsername')?.invalid && changeForm.get('newUsername')?.touched) {
+            <small class="text-danger">
+              Ingresa un usuario válido (mín. 3 caracteres, sin espacios).
+            </small>
+          }
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label">Contraseña actual (verificación) *</label>
+          <input
+            type="password"
+            class="form-control"
+            formControlName="currentPassword"
+            placeholder="Confirma tu contraseña actual"
+          />
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <app-footer-form
+          [disabled]="changeForm.invalid"
+          [showSaveAndCreate]="false"
+          (saveAndCloseEvent)="onSubmit()"
+          (cancelEvent)="onCancel()"
+        />
+      </div>
+    </form>
+  </div>
+</section>

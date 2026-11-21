@@ -3,6 +3,7 @@
 namespace App\Modules\Observer;
 
 use App\Common\HttpResponseMessages;
+use App\Common\MessageExceptionResponse;
 use App\Modules\School\SchoolQueries;
 use App\Modules\Teacher\CoursesOfTeacher;
 use App\Queries\CallExecute;
@@ -20,12 +21,14 @@ class Observer
         try {
             $school = SchoolQueries::getSchoolRequest($request);
             $db     = $school->db;
-            $type   = $request->type ?? 3;
+            $type   = $request->typeObserver ?? 3;
             $year   = $school->year;
             $id     = $request->pdbId ?? 0;
+            $type   = (int)$type;
             $tableObserver = match ($type) {
                 4, 1 => "obs_observador_mod_1",
                 2 => "obs_observador_mod2",
+                5 => "obs_observer_mod_5",
                 default => "obs_observador_mod_3",
             };
             $result = DB::table("{$db}{$tableObserver}",'tob')
@@ -39,7 +42,7 @@ class Observer
                 ->where('tob.estado', 1);
 
             return HttpResponseMessages::getResponse([
-                'records'   => $result->paginate()
+                'records'   => $result->paginate(),
             ]);
         }catch (Exception $e) {
             return HttpResponseMessages::getResponse500([
@@ -112,13 +115,17 @@ class Observer
             $school     = SchoolQueries::getSchoolRequest($request);
             $db         = $school->db;
             $teacherId  = CoursesOfTeacher::getTeacherId($db);
-            $records    = json_decode($request->records);
+            $records    = json_decode($request->records, false, 512, JSON_THROW_ON_ERROR);
             $records->id_docente = $teacherId;
-            return InsertTable::insert($request, $records, $db.'obs_anotaciones_mod_3');
+            $records->teacher_id = $teacherId;
+            $type       = (int) ($request->typeObserver ?? 3);
+            $tableObserver = match ($type) {
+                5 => "obs_annotations_mod_5",
+                default => "obs_anotaciones_mod_3",
+            };
+            return InsertTable::insert($request, $records, $db.$tableObserver);
         }catch (Exception $e) {
-            return HttpResponseMessages::getResponse500([
-                'message'   => $e->getMessage()
-            ]);
+            return MessageExceptionResponse::response($e);
         }
     }
 

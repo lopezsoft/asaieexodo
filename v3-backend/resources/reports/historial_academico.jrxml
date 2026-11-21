@@ -1,0 +1,373 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.18.1.final using JasperReports Library version 6.18.1-9d75d1969e774d4f179fb3be8401e98a0e6d1611  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="historial_academico" pageWidth="612" pageHeight="792" whenNoDataType="NoDataSection" columnWidth="556" leftMargin="28" rightMargin="28" topMargin="45" bottomMargin="20" uuid="33974257-97b3-4498-8fe2-7887b59433ce">
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="35"/>
+	<property name="ireport.y" value="18"/>
+	<property name="ireport.callouts" value="##Sun Dec 13 17:00:36 COT 2015\ncallouts.1.text=Informe plantilla base para crear los dem\u00E1s informes\n\ncallouts.1.bounds=-12,404,240,51"/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="0"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="1000"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Asaie"/>
+	<parameter name="SQL_PARAM" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="R_FOOTER" class="java.lang.String"/>
+	<parameter name="R_MARKETING" class="java.lang.String"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["D:\\wamp64\\www\\asaieexodo\\backend\\public\\reports\\subreports\\"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="HOME_DIR" class="java.lang.String"/>
+	<parameter name="P_USER" class="java.lang.String"/>
+	<parameter name="AWS_PATH" class="java.lang.String"/>
+	<parameter name="P_GRADE" class="java.lang.String"/>
+	<queryString language="SQL">
+		<![CDATA[SELECT ta.id_matric,ta.msg,ta.promedio, ta.promedio_rec, ta.prom_comision, ta.areas_p,
+            tm.id_grade AS cod_grado,tm.id_group AS grupo, tm.year, tx.abrev_sexo AS sexo,
+            CONCAT(RTRIM(te.apellido1),' ',RTRIM(te.apellido2),' ',RTRIM(te.nombre1),' ',RTRIM(te.nombre2)) estudiante,
+            RTRIM(tg.grado) grado, RTRIM(tj.jornada) jornada, RTRIM(ts.headquarters_name) sede 
+            FROM acta_promocion AS ta 
+            LEFT JOIN student_enrollment AS tm ON ta.id_matric = tm.id 
+            LEFT JOIN inscripciones AS te ON tm.id_student = te.id 
+            LEFT JOIN sexo AS tx ON te.id_sexo = tx.id 
+            LEFT JOIN grados tg ON tm.id_grade = tg.id 
+            LEFT JOIN jornadas AS tj ON tm.id_study_day = tj.cod_jorn 
+            LEFT JOIN sedes AS ts ON tm.id_headquarters = ts.ID 
+            WHERE tm.id_grade BETWEEN $P{P_GRADE}  AND 15 AND tm.id_state = 2 AND 
+            ta.estado = 2 
+            ORDER BY estudiante,tm.id_grade, tm.id_group,ta.estado,tm.year]]>
+	</queryString>
+	<field name="id_matric" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="id_matric"/>
+		<property name="com.jaspersoft.studio.field.label" value="id_matric"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="acta_promocion"/>
+	</field>
+	<field name="msg" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="msg"/>
+		<property name="com.jaspersoft.studio.field.label" value="msg"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="acta_promocion"/>
+	</field>
+	<field name="promedio" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.name" value="promedio"/>
+		<property name="com.jaspersoft.studio.field.label" value="promedio"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="acta_promocion"/>
+	</field>
+	<field name="promedio_rec" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.name" value="promedio_rec"/>
+		<property name="com.jaspersoft.studio.field.label" value="promedio_rec"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="acta_promocion"/>
+	</field>
+	<field name="prom_comision" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="prom_comision"/>
+		<property name="com.jaspersoft.studio.field.label" value="prom_comision"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="acta_promocion"/>
+	</field>
+	<field name="areas_p" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="areas_p"/>
+		<property name="com.jaspersoft.studio.field.label" value="areas_p"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="acta_promocion"/>
+	</field>
+	<field name="cod_grado" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="id_grade"/>
+		<property name="com.jaspersoft.studio.field.label" value="cod_grado"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="student_enrollment"/>
+	</field>
+	<field name="grupo" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="id_group"/>
+		<property name="com.jaspersoft.studio.field.label" value="grupo"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="student_enrollment"/>
+	</field>
+	<field name="year" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="year"/>
+		<property name="com.jaspersoft.studio.field.label" value="year"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="student_enrollment"/>
+	</field>
+	<field name="sexo" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="abrev_sexo"/>
+		<property name="com.jaspersoft.studio.field.label" value="sexo"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="sexo"/>
+	</field>
+	<field name="estudiante" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="estudiante"/>
+		<property name="com.jaspersoft.studio.field.label" value="estudiante"/>
+	</field>
+	<field name="grado" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="grado"/>
+		<property name="com.jaspersoft.studio.field.label" value="grado"/>
+	</field>
+	<field name="jornada" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="jornada"/>
+		<property name="com.jaspersoft.studio.field.label" value="jornada"/>
+	</field>
+	<field name="sede" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="sede"/>
+		<property name="com.jaspersoft.studio.field.label" value="sede"/>
+	</field>
+	<group name="estudiante">
+		<groupExpression><![CDATA[$F{estudiante}]]></groupExpression>
+		<groupHeader>
+			<band height="12">
+				<textField textAdjust="StretchHeight">
+					<reportElement positionType="Float" mode="Opaque" x="0" y="0" width="556" height="12" isRemoveLineWhenBlank="true" backcolor="#EDEBEB" uuid="4ca034c7-96c7-45d6-a5a6-ef0566eb8054">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					</reportElement>
+					<box leftPadding="1" rightPadding="1">
+						<topPen lineWidth="0.75"/>
+						<leftPen lineWidth="0.75"/>
+						<bottomPen lineWidth="0.75"/>
+						<rightPen lineWidth="0.75"/>
+					</box>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font fontName="Arial" size="9" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{estudiante}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="72" splitType="Stretch">
+			<subreport>
+				<reportElement positionType="Float" stretchType="ContainerHeight" x="0" y="0" width="555" height="72" uuid="1ac9ea5b-4c4a-4c90-b800-7de5a969c12e">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<subreportParameter name="AWS_PATH">
+					<subreportParameterExpression><![CDATA[$P{AWS_PATH}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "report_header.jasper"]]></subreportExpression>
+			</subreport>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="18" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+			<staticText>
+				<reportElement positionType="Float" x="0" y="0" width="556" height="18" uuid="1314f785-5f6b-4c97-bba4-80f0311f5c59">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[HISTORIAL ACADÉMICO, ESTUDIANTES CON ÁREAS PENDIENTES]]></text>
+			</staticText>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="11" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+			<staticText>
+				<reportElement positionType="Float" stretchType="ContainerHeight" x="0" y="0" width="160" height="11" uuid="65f39089-201e-424c-8d01-eb094c500e1f"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[GRADO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" stretchType="ContainerBottom" x="160" y="0" width="20" height="11" uuid="b64725a2-2366-477b-b42c-3eaeb8bfc61e"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[GPO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="180" y="0" width="120" height="11" uuid="4fec131a-c4bd-45f2-876a-eda25f7f2186"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[JORNADA]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" stretchType="ContainerBottom" x="300" y="0" width="30" height="11" uuid="3cad7ceb-eef9-4281-82c9-81ad1a12c3c2"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[AÑO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" stretchType="ContainerBottom" x="330" y="0" width="20" height="11" uuid="787d8276-bbe6-496f-94b6-ccfcad42de93"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[A.P]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" x="350" y="0" width="206" height="11" uuid="129a0782-8d70-4f9a-b3cd-2a9856946066"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial" size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[ASIGNATURAS PENDIENTES]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="11" splitType="Stretch">
+			<textField textAdjust="StretchHeight">
+				<reportElement positionType="Float" stretchType="ContainerHeight" x="0" y="0" width="160" height="11" uuid="184b2b32-a536-4000-9509-5dd554b35c35"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial" size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{grado}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight">
+				<reportElement positionType="Float" stretchType="ContainerHeight" x="160" y="0" width="20" height="11" uuid="197c36d9-9e78-4c65-b021-17ecce66e087"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{grupo}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight">
+				<reportElement positionType="Float" stretchType="ContainerHeight" x="180" y="0" width="120" height="11" uuid="4c4e1aa9-aef3-4a33-ac25-75ca5a5c5532"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial" size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{jornada}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight">
+				<reportElement positionType="Float" stretchType="ContainerHeight" x="300" y="0" width="30" height="11" uuid="9059dd53-144c-4d85-bded-bc3a2df9f110"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{year}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight">
+				<reportElement positionType="Float" stretchType="ContainerHeight" x="330" y="0" width="20" height="11" uuid="dfbf7471-a437-4d2f-9f6b-61a96b9248cd"/>
+				<box leftPadding="2" rightPadding="2">
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{areas_p}]]></textFieldExpression>
+			</textField>
+			<subreport>
+				<reportElement stretchType="ContainerHeight" x="350" y="0" width="206" height="11" uuid="46e088e4-0622-4498-8d71-f78f89bed490">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<subreportParameter name="PYear">
+					<subreportParameterExpression><![CDATA[$F{year}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="PEnrollment">
+					<subreportParameterExpression><![CDATA[$F{id_matric}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="id_grado">
+					<subreportParameterExpression><![CDATA[$F{cod_grado}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "asignaturas_perdidas_subreport.jasper"]]></subreportExpression>
+			</subreport>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="1" splitType="Stretch">
+			<line>
+				<reportElement positionType="Float" x="0" y="0" width="555" height="1" forecolor="#2C18DE" uuid="dd047833-0123-405f-ab97-4ecd3d1c1bb9">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<graphicElement>
+					<pen lineWidth="0.65"/>
+				</graphicElement>
+			</line>
+		</band>
+	</columnFooter>
+	<pageFooter>
+		<band height="30" splitType="Stretch">
+			<textField>
+				<reportElement positionType="Float" x="535" y="1" width="21" height="10" uuid="184a72c7-f142-4496-b933-89d1fe3009b0"/>
+				<box rightPadding="2"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial" size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight">
+				<reportElement positionType="Float" x="16" y="22" width="507" height="8" isRemoveLineWhenBlank="true" forecolor="#052E85" uuid="7829f300-5387-4522-b2ae-d6bf773009d8"/>
+				<textElement textAlignment="Center">
+					<font fontName="Arial" size="6" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{R_MARKETING}]]></textFieldExpression>
+			</textField>
+			<subreport>
+				<reportElement x="0" y="0" width="556" height="17" isRemoveLineWhenBlank="true" uuid="1ddd3d78-ba11-4791-a3c9-63337d5b401c">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "report_footer.jasper"]]></subreportExpression>
+			</subreport>
+		</band>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

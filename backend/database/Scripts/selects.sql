@@ -48,6 +48,12 @@ WHERE a.`year` = 2022 AND NOT EXISTS (
     SELECT 1 FROM cursos AS b WHERE b.id_asig = a.id_asig AND b.id_grado = a.id_grado AND b.`year` = a.`year`
 );
 
+
+SELECT * FROM cursos AS a
+WHERE a.`year` = 2025 AND NOT EXISTS (
+    SELECT 1 FROM matcurso AS b WHERE b.id_asig = a.id_asig AND b.id_grado = a.id_grado AND b.`year` = a.`year`
+);
+
 INSERT INTO matcurso(id_grado, id_asig, year)
 SELECT a.id_grado, a.id_asig, a.`year` FROM cursos AS a
 WHERE a.`year` = 2021 AND NOT EXISTS (
@@ -335,3 +341,21 @@ WHERE a.`year` = 2025;
 DELETE FROM tp_aux_white_vote WHERE YEAR = 2025;
 DELETE FROM tp_white_vote WHERE YEAR= 2025;
 DELETE FROM tp_votes WHERE YEAR= 2025;
+
+
+-- Actualizar cursos de un estudiante entre periodos, si la asignatura es la misma
+
+UPDATE IGNORE nscp002 AS u
+-- 1. Unimos la tabla destino (Periodo 1) con cursos para saber su asignatura
+JOIN cursos AS cr ON cr.id = u.id_curso
+-- 2. Unimos con la tabla fuente (Periodo 2) para el mismo estudiante
+JOIN nscp002 AS a ON a.id_matric = u.id_matric 
+-- 3. Unimos la fuente con cursos para saber su asignatura
+JOIN cursos AS c ON c.id = a.id_curso
+-- 4. Aplicamos la actualización
+SET u.id_curso = a.id_curso
+-- 5. Filtros de lógica
+WHERE u.id_matric = 5738 
+  AND u.periodo = 1      -- Destino es periodo 1
+  AND a.periodo = 2      -- Fuente es periodo 2
+  AND cr.id_asig = c.id_asig; -- CRUCIAL: Que sea la misma asignatura

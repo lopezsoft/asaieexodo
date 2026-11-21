@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.18.1.final using JasperReports Library version 6.18.1-9d75d1969e774d4f179fb3be8401e98a0e6d1611  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="carga_academica" pageWidth="612" pageHeight="792" whenNoDataType="NoDataSection" columnWidth="556" leftMargin="28" rightMargin="28" topMargin="43" bottomMargin="20" uuid="33974257-97b3-4498-8fe2-7887b59433ce">
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="35"/>
+	<property name="ireport.y" value="18"/>
+	<property name="ireport.callouts" value="##Sun Dec 13 17:00:36 COT 2015\ncallouts.1.text=Informe plantilla base para crear los dem\u00E1s informes\n\ncallouts.1.bounds=-12,404,240,51"/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="0"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="1000"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="dbsme"/>
+	<parameter name="SQL_PARAM" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="R_FOOTER" class="java.lang.String"/>
+	<parameter name="R_MARKETING" class="java.lang.String"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["D:\\wamp64\\www\\asaieexodo\\backend\\public\\reports\\subreports\\"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="HOME_DIR" class="java.lang.String"/>
+	<parameter name="P_USER" class="java.lang.String"/>
+	<parameter name="AWS_PATH" class="java.lang.String"/>
+	<queryString language="SQL">
+		<![CDATA[$P!{SQL_PARAM}]]>
+	</queryString>
+	<field name="cod_grado" class="java.lang.String"/>
+	<field name="grupo" class="java.lang.String"/>
+	<field name="id_docente" class="java.lang.Integer"/>
+	<field name="id_asig" class="java.lang.Integer"/>
+	<field name="id_sede" class="java.lang.Integer"/>
+	<field name="cod_jorn" class="java.lang.Integer"/>
+	<field name="año" class="java.lang.Integer"/>
+	<field name="grado" class="java.lang.String"/>
+	<field name="asignatura" class="java.lang.String"/>
+	<field name="sede" class="java.lang.String"/>
+	<field name="jornada" class="java.lang.String"/>
+	<field name="ih" class="java.math.BigDecimal"/>
+	<field name="docente" class="java.lang.String"/>
+	<variable name="ih1" class="java.math.BigDecimal" resetType="Group" resetGroup="Group1" calculation="Sum">
+		<variableExpression><![CDATA[$F{ih}]]></variableExpression>
+	</variable>
+	<group name="Group1">
+		<groupExpression><![CDATA[$F{id_docente}]]></groupExpression>
+		<groupFooter>
+			<band height="11">
+				<textField>
+					<reportElement x="526" y="0" width="30" height="11" uuid="e3ed95e5-e79e-40ec-89dd-e82830650ebc"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="DejaVu Serif" size="9"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{ih1}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement x="467" y="0" width="58" height="11" uuid="ed8b3014-87f8-4538-a9ed-e7548cd6ddca"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="DejaVu Serif" size="9" isBold="true"/>
+					</textElement>
+					<text><![CDATA[HORAS:]]></text>
+				</staticText>
+			</band>
+		</groupFooter>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="72" splitType="Stretch">
+			<subreport>
+				<reportElement positionType="Float" stretchType="ContainerHeight" x="0" y="0" width="555" height="72" uuid="eb1c5d3d-683a-40d8-bd36-193f1fb75ba3">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<subreportParameter name="AWS_PATH">
+					<subreportParameterExpression><![CDATA[$P{AWS_PATH}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "report_header.jasper"]]></subreportExpression>
+			</subreport>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="50" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+			<staticText>
+				<reportElement positionType="Float" x="0" y="0" width="556" height="18" uuid="1314f785-5f6b-4c97-bba4-80f0311f5c59">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="DejaVu Serif" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[ASIGNACIÓN ACADÉMICA POR DOCENTE]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement positionType="Float" x="0" y="20" width="556" height="12" uuid="6dd242d4-0b77-4f15-af12-3657af25af6a"/>
+				<box leftPadding="2" rightPadding="2"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA["SEDE: "+$F{sede}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement positionType="Float" x="0" y="35" width="556" height="12" uuid="c7fd6ff5-e8d1-4dd0-91a5-13586ab32337"/>
+				<box leftPadding="2" rightPadding="2"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA["DOCENTE: "+$F{docente}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="12" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+			<staticText>
+				<reportElement positionType="Float" mode="Opaque" x="0" y="0" width="199" height="12" isRemoveLineWhenBlank="true" backcolor="#E8E8E8" uuid="4b924ac2-ee7a-4d0d-a30a-7e00efeae30e">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="DejaVu Serif" isBold="true"/>
+				</textElement>
+				<text><![CDATA[GRADO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" mode="Opaque" x="199" y="0" width="51" height="12" isRemoveLineWhenBlank="true" backcolor="#E8E8E8" uuid="654afff6-eef5-42d9-b639-fa65e37500f2">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="DejaVu Serif" isBold="true"/>
+				</textElement>
+				<text><![CDATA[GRUPO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" mode="Opaque" x="250" y="0" width="79" height="12" isRemoveLineWhenBlank="true" backcolor="#E8E8E8" uuid="564debb6-015b-4891-b47d-33cceeb0d8d1">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="DejaVu Serif" isBold="true"/>
+				</textElement>
+				<text><![CDATA[JORNADA]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" mode="Opaque" x="329" y="0" width="197" height="12" isRemoveLineWhenBlank="true" backcolor="#E8E8E8" uuid="bc95e605-b5e0-4767-ad53-5cf57ccbfd2c">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="DejaVu Serif" isBold="true"/>
+				</textElement>
+				<text><![CDATA[ASIGNATURA]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" mode="Opaque" x="526" y="0" width="30" height="12" isRemoveLineWhenBlank="true" backcolor="#E8E8E8" uuid="4bed9d57-ea37-46a3-aa71-b265c61e16a9">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="DejaVu Serif" isBold="true"/>
+				</textElement>
+				<text><![CDATA[I/H]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="12" splitType="Stretch">
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="ContainerHeight" mode="Transparent" x="0" y="0" width="199" height="12" isRemoveLineWhenBlank="true" uuid="a1d16abc-2617-4059-8a3c-560567df71a6">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box leftPadding="2" rightPadding="2">
+					<pen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="DejaVu Serif"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{grado}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="ContainerHeight" mode="Transparent" x="199" y="0" width="51" height="12" isRemoveLineWhenBlank="true" uuid="1c86cf24-b3ec-4e2c-b725-4aea7ae3e372">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box leftPadding="2" rightPadding="2">
+					<pen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="DejaVu Serif"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{grupo}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="ContainerHeight" mode="Transparent" x="250" y="0" width="79" height="12" isRemoveLineWhenBlank="true" uuid="fbcea06a-18cd-49c7-912d-b4722fa2ba9e">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box leftPadding="2" rightPadding="2">
+					<pen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="DejaVu Serif"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{jornada}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="ContainerHeight" mode="Transparent" x="329" y="0" width="197" height="12" isRemoveLineWhenBlank="true" uuid="d3fa9d14-18b2-4ba4-9eb4-e75c87a55dab">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box leftPadding="2" rightPadding="2">
+					<pen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="DejaVu Serif"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{asignatura}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="ContainerHeight" mode="Transparent" x="526" y="0" width="30" height="12" isRemoveLineWhenBlank="true" uuid="4f0e49d5-c6ac-4539-b422-f5c659f84126">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box leftPadding="2" rightPadding="2">
+					<pen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="DejaVu Serif"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{ih}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="1" splitType="Stretch">
+			<line>
+				<reportElement positionType="Float" x="0" y="0" width="556" height="1" forecolor="#2C18DE" uuid="dd047833-0123-405f-ab97-4ecd3d1c1bb9">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<graphicElement>
+					<pen lineWidth="0.75" lineStyle="Solid"/>
+				</graphicElement>
+			</line>
+		</band>
+	</columnFooter>
+	<pageFooter>
+		<band height="30" splitType="Stretch">
+			<textField>
+				<reportElement positionType="Float" x="535" y="1" width="21" height="10" uuid="184a72c7-f142-4496-b933-89d1fe3009b0"/>
+				<textElement>
+					<font fontName="DejaVu Serif" size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight">
+				<reportElement positionType="Float" x="16" y="22" width="507" height="8" isRemoveLineWhenBlank="true" forecolor="#052E85" uuid="7829f300-5387-4522-b2ae-d6bf773009d8"/>
+				<textElement textAlignment="Center">
+					<font fontName="DejaVu Serif" size="6" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{R_MARKETING}]]></textFieldExpression>
+			</textField>
+			<subreport>
+				<reportElement x="0" y="2" width="556" height="17" isRemoveLineWhenBlank="true" uuid="8560a6ba-703e-4fe4-878a-049d1b38f521">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "report_footer.jasper"]]></subreportExpression>
+			</subreport>
+		</band>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

@@ -262,7 +262,7 @@ Ext.define('Admin.view.configuraciones.controller.ConfiguracionesController',{
 		record  = btn.up('window').down('grid').getSelection()[0];
         me.onStore('general.AspectosObservadorStore');
 		let extra;
-		if (record.get('estado') == 1) {
+		if (record.get('estado') === 1) {
 			extra = {
 				pdbTable: 'obs_items_modelos',
 				where: '{"id_modelo": ' + record.get('id') + ', "year": ' + Global.getSchoolParams().year + '}'
@@ -277,12 +277,11 @@ Ext.define('Admin.view.configuraciones.controller.ConfiguracionesController',{
     },
 
     onEncabezadoObservador : function (btn) {
-		let me = this.app,
-			record = null;
-		record  = btn.up('window').down('grid').getSelection()[0];
+		const me = this.app;
+		const record  = btn.up('window').down('grid').getSelection()[0];
             me.onStore('general.EncabezadoObservadorStore');
 		let extra;
-		if (record.get('estado') == 1) {
+		if (record.get('estado') === 1) {
 			btn.up('window').mask();
 			extra = {
 				pdbTable: 'obs_modelos_observador_cuerpo',
@@ -295,9 +294,9 @@ Ext.define('Admin.view.configuraciones.controller.ConfiguracionesController',{
 					btn.up('window').unmask();
 					let win = Ext.create('Admin.view.configuraciones.EncabezadoObservadorView');
 					if (r.length > 0) {
-						form = win.down('form');
-						form.loadRecord(r[0]);
+						win.down('form').loadRecord(r[0]);
 					}
+					win.down('#id_observador').setValue(record.get('id'));
 					win.show();
 				}
 			})

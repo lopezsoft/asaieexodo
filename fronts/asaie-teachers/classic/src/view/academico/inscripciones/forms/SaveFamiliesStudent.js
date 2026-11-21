@@ -37,7 +37,7 @@ Ext.define('Admin.view.academico.inscripciones.forms.SaveFamiliesStudent',{
 			});
 		}else{ // Insertar
 			win.mask('Guardando...');
-			values.id_student = datastud.get('id');
+			values.id_student = datastud.get('id_student');
 			store.insert(0,values);
 			store.sync({
 				success : function(batch, o){
@@ -69,10 +69,8 @@ Ext.define('Admin.view.academico.inscripciones.forms.SaveFamiliesStudent',{
 				},
 				{
 					xtype		: 'customcheckboxfield',
-					boxLabel  	: 'Agregar como acudiente',
-					name      	: 'add_acud',
-					id        	: 'CkAcud',
-					hidden		: true
+					boxLabel  	: '¿Vive con este familiar?',
+					name      	: 'live_with_this',
 				}
 			]
 		}

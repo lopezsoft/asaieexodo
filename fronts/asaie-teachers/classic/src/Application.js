@@ -112,8 +112,9 @@ Ext.define('Admin.Application', {
     },
 
     onCreateStores: function() {
-        var me = Admin.getApplication();
-        me.onStore('general.MatriculadosStore');
+		const me = Admin.getApplication();
+		me.onStore('general.MatriculadosStore');
+		me.onStore('general.ADesicionStore');
         me.onStore('general.JornadasStore');
         me.onStore('general.GrupoStore');
         me.onStore('general.GradosStore');

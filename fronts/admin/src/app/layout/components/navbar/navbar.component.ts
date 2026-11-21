@@ -189,8 +189,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
         if (result.value) {
           this._http.get('/auth/logout', {})
           .subscribe(() => {
-            this._router.navigate(['/auth/login']);
             localStorage.removeItem(this._http.getApiJwt());
+            this._router.navigate(['/auth/login']);
             this._http.onClearCurrentUser();
             setTimeout(() => {
               window.location.reload();

@@ -12,39 +12,64 @@ Ext.define('Admin.view.docentes.observador.DatosView_3',{
 			xtype		: 'customform',
 			items	: [
 				{
-					name		: 'talla',
-					fieldLabel	: 'Talla:',
-					flex		: 3
+					xtype		: 'fieldcontainer',
+					layout		: 'hbox',
+					defaultType	: 'customtext',
+					items	: [
+						{
+							name		: 'talla',
+							fieldLabel	: 'Talla:',
+							flex		: 1
+						},
+						{
+							name		: 'peso',
+							fieldLabel	: 'Peso:',
+							flex		: 1,
+							margin		: '0 0 0 5'
+						},
+						{
+							name		: 'religion',
+							fieldLabel	: 'Religíon que profesa:',
+							flex		: 3,
+							margin		: '0 0 0 5'
+						},
+					]
 				},
 				{
-					name		: 'peso',
-					fieldLabel	: 'Peso:',
-					flex		: 3
-				},
-	            {
-					name		: 'religion',
-					fieldLabel	: 'Religíon que profesa:',
-					flex		: 3
-				},
-				{
-					name		: 'musica',
-					fieldLabel	: 'Música que le gusta:',
-					flex		: 3
-	            },
-	            {
-					name		: 'arte',
-					fieldLabel	: 'Arte:',
-					flex		: 3
+					xtype		: 'fieldcontainer',
+					layout		: 'hbox',
+					defaultType	: 'customtext',
+					items	: [
+						{
+							name		: 'musica',
+							fieldLabel	: 'Música que le gusta:',
+							flex		: 3
+						},
+						{
+							name		: 'arte',
+							fieldLabel	: 'Arte:',
+							flex		: 3,
+							margin		: '0 0 0 5'
+						},
+					]
 				},
 				{
-					name		: 'comida',
-					fieldLabel	: 'Comida(s) que le gusta(n):',
-					flex		: 3
-	            },
-				{
-					name		: 'prof_oficio',
-					fieldLabel	: 'Profesión/Oficio:',
-					flex		: 1
+					xtype		: 'fieldcontainer',
+					layout		: 'hbox',
+					defaultType	: 'customtext',
+					items	: [
+						{
+							name		: 'comida',
+							fieldLabel	: 'Comida(s) que le gusta(n):',
+							flex		: 1
+						},
+						{
+							name		: 'prof_oficio',
+							fieldLabel	: 'Profesión/Oficio:',
+							flex		: 1,
+							margin		: '0 0 0 5'
+						}
+					]
 				},
 	            {
 	            	xtype 	: 'fieldset',
@@ -54,9 +79,10 @@ Ext.define('Admin.view.docentes.observador.DatosView_3',{
 							fieldLabel 	: 'NIVEL DE DESEMPEÑO EN',
 		                    layout		: 'vbox',
 		                    defaultType	: 'CbSituacion',
+							labelAlign	: 'top',
 							defaults	: {
 								flex	: 1,
-								labelWidth	: 120
+								labelWidth	: 150
 							},
 		                    items: [
 			                    {
@@ -104,10 +130,11 @@ Ext.define('Admin.view.docentes.observador.DatosView_3',{
 						{
 							xtype		: 'fieldcontainer',
 							fieldLabel 	: 'DIFICULTADES DE APRENDIZAJE',
+							labelAlign	: 'top',
 							layout		: 'vbox',
 							defaults	: {
 								flex	: 1,
-								labelWidth	: 120
+								labelWidth	: 150
 							},
 							items: [
 								{

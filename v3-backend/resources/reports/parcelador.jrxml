@@ -1,0 +1,726 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.5.1.final using JasperReports Library version 6.5.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="parcelador" pageWidth="595" pageHeight="842" columnWidth="539" leftMargin="28" rightMargin="28" topMargin="43" bottomMargin="20" uuid="33974257-97b3-4498-8fe2-7887b59433ce">
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="136"/>
+	<property name="ireport.y" value="201"/>
+	<property name="ireport.callouts" value="callouts.1.fg=0,0,0\ncallouts.1.text=Informe plantilla base para crear los dem\u00E1s informes\n\n\ncallouts.1.bounds=80,519,239,50\ncallouts.1.bg=255,255,0\n"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="SME"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="0"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="1000"/>
+	<parameter name="FILTRO_AÑO" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="SQL_PARAM" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="R_TITLE" class="java.lang.String"/>
+	<parameter name="R_DANE" class="java.lang.String"/>
+	<parameter name="R_NIT" class="java.lang.String"/>
+	<parameter name="R_RESOL" class="java.lang.String"/>
+	<parameter name="R_FOOTER" class="java.lang.String"/>
+	<parameter name="R_DATE" class="java.lang.String"/>
+	<parameter name="R_IMG_LEFT" class="java.lang.String"/>
+	<parameter name="R_IMG_RIGHT" class="java.lang.String"/>
+	<parameter name="R_MARKETING" class="java.lang.String"/>
+	<parameter name="R_ESCUDO" class="java.lang.String"/>
+	<parameter name="R_ESCALA" class="java.lang.String"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["D:\\wamp\\www\\SME2018\\reports\\"]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[$P!{SQL_PARAM}]]>
+	</queryString>
+	<field name="id" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="id"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="parcelador"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="id_inst" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="id_inst"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="parcelador"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="id_sede" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="id_sede"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="parcelador"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="id_docente" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="id_docente"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="parcelador"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="id_grado" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="id_grado"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="parcelador"/>
+	</field>
+	<field name="id_asig" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="id_asig"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="parcelador"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="id_metod" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="id_metod"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="parcelador"/>
+	</field>
+	<field name="periodo" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="periodo"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="parcelador"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="año" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="año"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="parcelador"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="fecha_inicio" class="java.sql.Date">
+		<property name="com.jaspersoft.studio.field.label" value="fecha_inicio"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="parcelador"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="fecha_cierre" class="java.sql.Date">
+		<property name="com.jaspersoft.studio.field.label" value="fecha_cierre"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="parcelador"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="tiempo_probable" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="tiempo_probable"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="parcelador"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="tiempo_real" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="tiempo_real"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="parcelador"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="clases" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="clases"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="parcelador"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="estado" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.label" value="estado"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="parcelador"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="timestamp" class="java.sql.Timestamp">
+		<property name="com.jaspersoft.studio.field.label" value="timestamp"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="parcelador"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="docente" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="docente"/>
+	</field>
+	<field name="grado" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="grado"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="grados"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="sede" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="sede"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="sedes"/>
+	</field>
+	<field name="metodologia" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="metodologia"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="metodologias"/>
+	</field>
+	<field name="asignatura" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="asignatura"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="asignaturas"/>
+	</field>
+	<field name="area" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="area"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="areas"/>
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<group name="id">
+		<groupExpression><![CDATA[$F{id}]]></groupExpression>
+		<groupHeader>
+			<band height="104" splitType="Stretch">
+				<frame>
+					<reportElement positionType="Float" x="4" y="1" width="531" height="75" uuid="1a68bde6-9d9b-494f-92bf-7dab8279d81b"/>
+					<rectangle>
+						<reportElement positionType="Float" stretchType="ContainerHeight" mode="Transparent" x="0" y="15" width="531" height="60" uuid="0ff96420-a011-4279-b0c7-d55e12fe3e18"/>
+						<graphicElement>
+							<pen lineWidth="0.75" lineColor="#000000"/>
+						</graphicElement>
+					</rectangle>
+					<staticText>
+						<reportElement positionType="Float" x="0" y="0" width="531" height="16" uuid="e252fe0f-eab8-47a7-97ff-7aa4f51d4b1c"/>
+						<textElement textAlignment="Center" verticalAlignment="Middle">
+							<font fontName="DejaVu Serif" size="8" isBold="true"/>
+						</textElement>
+						<text><![CDATA[ESTRUCTURA CURRICULAR / PLAN DE FORMACIÓN / PARCELADOR]]></text>
+					</staticText>
+					<textField>
+						<reportElement positionType="Float" x="4" y="26" width="213" height="11" uuid="b5d72861-df7c-4eb3-8d59-da0a29b3e584"/>
+						<textElement>
+							<font fontName="DejaVu Serif" size="8"/>
+						</textElement>
+						<textFieldExpression><![CDATA[$F{sede}]]></textFieldExpression>
+					</textField>
+					<textField>
+						<reportElement positionType="Float" x="221" y="26" width="121" height="11" uuid="a58bdb1c-982e-438c-a2eb-3db63e616719"/>
+						<textElement>
+							<font fontName="DejaVu Serif" size="8"/>
+						</textElement>
+						<textFieldExpression><![CDATA[$F{metodologia}.toUpperCase()]]></textFieldExpression>
+					</textField>
+					<staticText>
+						<reportElement positionType="Float" x="4" y="17" width="31" height="9" uuid="d42a5946-c20f-4926-8887-3e8c6917da68"/>
+						<textElement>
+							<font fontName="DejaVu Serif" size="7" isBold="true"/>
+						</textElement>
+						<text><![CDATA[SEDE:]]></text>
+					</staticText>
+					<staticText>
+						<reportElement positionType="Float" x="221" y="16" width="121" height="10" uuid="b83d712b-4cd8-42a9-b0fa-bfb091718a0d"/>
+						<textElement>
+							<font fontName="DejaVu Serif" size="7" isBold="true"/>
+						</textElement>
+						<text><![CDATA[METODOLOGÍA DE ESTUDIO:]]></text>
+					</staticText>
+					<textField isStretchWithOverflow="true">
+						<reportElement positionType="Float" x="4" y="49" width="200" height="11" uuid="60419d57-5e16-474b-b918-0d2fa7f997f2"/>
+						<textElement>
+							<font fontName="DejaVu Serif" size="8"/>
+						</textElement>
+						<textFieldExpression><![CDATA[$F{docente}]]></textFieldExpression>
+					</textField>
+					<staticText>
+						<reportElement positionType="Float" x="4" y="38" width="42" height="11" uuid="607991de-d6ad-42bc-9473-d4b27891d0c7"/>
+						<textElement verticalAlignment="Middle">
+							<font fontName="DejaVu Serif" size="7" isBold="true"/>
+						</textElement>
+						<text><![CDATA[DOCENTE:]]></text>
+					</staticText>
+					<textField isStretchWithOverflow="true">
+						<reportElement positionType="Float" x="211" y="49" width="150" height="11" uuid="6b5599a7-77ee-487f-9135-6b5d296fdf6f"/>
+						<textElement verticalAlignment="Middle">
+							<font fontName="DejaVu Serif" size="8"/>
+						</textElement>
+						<textFieldExpression><![CDATA[$F{area}]]></textFieldExpression>
+					</textField>
+					<textField isStretchWithOverflow="true">
+						<reportElement positionType="Float" x="366" y="49" width="165" height="11" uuid="688a625b-4761-4cb0-9679-4fd0872839d8"/>
+						<textElement verticalAlignment="Middle">
+							<font fontName="DejaVu Serif" size="8"/>
+						</textElement>
+						<textFieldExpression><![CDATA[$F{asignatura}]]></textFieldExpression>
+					</textField>
+					<staticText>
+						<reportElement positionType="Float" x="211" y="38" width="27" height="11" uuid="a62102f9-7b48-4042-98f8-6b31461cb30a"/>
+						<textElement verticalAlignment="Middle">
+							<font fontName="DejaVu Serif" size="7" isBold="true"/>
+						</textElement>
+						<text><![CDATA[ÁREA:]]></text>
+					</staticText>
+					<staticText>
+						<reportElement positionType="Float" x="366" y="38" width="56" height="11" uuid="d58d7fcf-ebc1-49dc-85ca-3e7720132f88"/>
+						<textElement verticalAlignment="Middle">
+							<font fontName="DejaVu Serif" size="7" isBold="true"/>
+						</textElement>
+						<text><![CDATA[ASIGNATURA:]]></text>
+					</staticText>
+					<textField isStretchWithOverflow="true">
+						<reportElement positionType="Float" x="490" y="26" width="34" height="11" uuid="12928711-3d70-467a-b3ca-c7232a69eb03"/>
+						<textElement>
+							<font fontName="DejaVu Serif" size="8"/>
+						</textElement>
+						<textFieldExpression><![CDATA[$F{año}]]></textFieldExpression>
+					</textField>
+					<staticText>
+						<reportElement positionType="Float" x="346" y="16" width="33" height="10" uuid="def48084-15e4-4334-99e7-32927d2bb569"/>
+						<textElement>
+							<font fontName="DejaVu Serif" size="7" isBold="true"/>
+						</textElement>
+						<text><![CDATA[GRADO:]]></text>
+					</staticText>
+					<textField isStretchWithOverflow="true">
+						<reportElement positionType="Float" x="502" y="16" width="27" height="11" uuid="81ccbb2f-2670-42e0-9b25-0b579cef7ad1"/>
+						<textElement>
+							<font fontName="DejaVu Serif" size="8"/>
+						</textElement>
+						<textFieldExpression><![CDATA[$F{periodo}]]></textFieldExpression>
+					</textField>
+					<staticText>
+						<reportElement positionType="Float" x="461" y="26" width="23" height="10" uuid="cb912425-9f80-4818-88a0-fa7e557552e5"/>
+						<textElement>
+							<font fontName="DejaVu Serif" size="7" isBold="true"/>
+						</textElement>
+						<text><![CDATA[AÑO:]]></text>
+					</staticText>
+					<staticText>
+						<reportElement positionType="Float" x="461" y="16" width="40" height="10" uuid="e12c0ce5-dfca-4d9a-ad62-b8b503aa6d63"/>
+						<textElement>
+							<font fontName="DejaVu Serif" size="7" isBold="true"/>
+						</textElement>
+						<text><![CDATA[PERIODO:]]></text>
+					</staticText>
+					<textField isStretchWithOverflow="true">
+						<reportElement positionType="Float" x="346" y="26" width="110" height="11" uuid="2a118c2d-41b8-498e-882c-1013dcb80dd8"/>
+						<textElement>
+							<font fontName="DejaVu Serif" size="8" isBold="false"/>
+						</textElement>
+						<textFieldExpression><![CDATA[$F{grado}.toUpperCase()]]></textFieldExpression>
+					</textField>
+					<textField>
+						<reportElement positionType="Float" x="38" y="62" width="50" height="11" uuid="668af5c5-7723-4763-9e65-b1f831bbab1b"/>
+						<textElement verticalAlignment="Middle">
+							<font fontName="DejaVu Serif" size="8"/>
+						</textElement>
+						<textFieldExpression><![CDATA[$F{fecha_inicio}.toString()]]></textFieldExpression>
+					</textField>
+					<textField>
+						<reportElement positionType="Float" x="116" y="62" width="50" height="11" uuid="f1b45408-37b2-46ae-858e-102845b45eb7"/>
+						<textElement verticalAlignment="Middle">
+							<font fontName="DejaVu Serif" size="8"/>
+						</textElement>
+						<textFieldExpression><![CDATA[$F{fecha_cierre}.toString()]]></textFieldExpression>
+					</textField>
+					<staticText>
+						<reportElement positionType="Float" x="7" y="62" width="31" height="11" uuid="ef6bb2fb-afe6-4b39-83c1-8aa3adda0539"/>
+						<textElement verticalAlignment="Middle">
+							<font fontName="DejaVu Serif" size="7" isBold="true"/>
+						</textElement>
+						<text><![CDATA[DESDE:]]></text>
+					</staticText>
+					<staticText>
+						<reportElement positionType="Float" x="85" y="62" width="31" height="11" uuid="b691d92e-10aa-49c1-8d04-6ba94e150852"/>
+						<textElement verticalAlignment="Middle">
+							<font fontName="DejaVu Serif" size="7" isBold="true"/>
+						</textElement>
+						<text><![CDATA[HASTA:]]></text>
+					</staticText>
+					<staticText>
+						<reportElement positionType="Float" x="164" y="62" width="52" height="11" uuid="992ef75f-1173-407e-be2f-f223386d794a"/>
+						<textElement verticalAlignment="Middle">
+							<font fontName="DejaVu Serif" size="7" isBold="true"/>
+						</textElement>
+						<text><![CDATA[Nº CLASE(S):]]></text>
+					</staticText>
+					<textField>
+						<reportElement positionType="Float" x="216" y="62" width="43" height="11" uuid="743442e0-ebe2-47f4-8ab7-d1213d00885d"/>
+						<textElement verticalAlignment="Middle">
+							<font fontName="DejaVu Serif" size="8"/>
+						</textElement>
+						<textFieldExpression><![CDATA[$F{clases}]]></textFieldExpression>
+					</textField>
+					<staticText>
+						<reportElement positionType="Float" x="261" y="62" width="81" height="11" uuid="69aa349b-ba6b-44af-bbba-74acb2854dfa"/>
+						<textElement verticalAlignment="Middle">
+							<font fontName="DejaVu Serif" size="7" isBold="true"/>
+						</textElement>
+						<text><![CDATA[TIEMPO PROBABLE:]]></text>
+					</staticText>
+					<textField>
+						<reportElement positionType="Float" x="342" y="62" width="28" height="11" uuid="17263fa3-76e8-4aad-acea-49a9e70aa9a8"/>
+						<textElement textAlignment="Center" verticalAlignment="Middle">
+							<font fontName="DejaVu Serif" size="8"/>
+						</textElement>
+						<textFieldExpression><![CDATA[$F{tiempo_probable}]]></textFieldExpression>
+					</textField>
+					<staticText>
+						<reportElement positionType="Float" x="475" y="62" width="32" height="11" uuid="d3f0a70e-5764-4e45-86ad-5e2ea91b14e4"/>
+						<textElement verticalAlignment="Middle">
+							<font fontName="DejaVu Serif" size="7" isBold="true"/>
+						</textElement>
+						<text><![CDATA[HORAS]]></text>
+					</staticText>
+					<staticText>
+						<reportElement positionType="Float" x="385" y="62" width="58" height="11" uuid="839fb25e-e8f9-4c60-ba55-1b2f888db1fd"/>
+						<textElement verticalAlignment="Middle">
+							<font fontName="DejaVu Serif" size="7" isBold="true"/>
+						</textElement>
+						<text><![CDATA[TIEMPO REAL:]]></text>
+					</staticText>
+					<textField>
+						<reportElement positionType="Float" x="443" y="62" width="28" height="11" uuid="8c451a29-ecf7-4d6e-9608-927acc700b5c"/>
+						<textElement textAlignment="Center" verticalAlignment="Middle">
+							<font fontName="DejaVu Serif" size="8"/>
+						</textElement>
+						<textFieldExpression><![CDATA[$F{tiempo_real}]]></textFieldExpression>
+					</textField>
+					<line>
+						<reportElement positionType="Float" x="0" y="37" width="531" height="1" uuid="a00f7c4c-52bf-4161-9535-07a4e53070cc"/>
+						<graphicElement>
+							<pen lineWidth="0.75"/>
+						</graphicElement>
+					</line>
+					<line>
+						<reportElement positionType="Float" mode="Transparent" x="0" y="60" width="531" height="1" uuid="94da6a48-5b66-419b-8936-4fcecea2ebf4"/>
+						<graphicElement>
+							<pen lineWidth="0.75"/>
+						</graphicElement>
+					</line>
+					<line>
+						<reportElement positionType="Float" stretchType="RelativeToBandHeight" x="218" y="15" width="1" height="22" uuid="233612b8-70e2-4c42-b43f-6fc2bfe8dd25"/>
+						<graphicElement>
+							<pen lineWidth="0.75"/>
+						</graphicElement>
+					</line>
+					<line>
+						<reportElement positionType="Float" stretchType="RelativeToBandHeight" x="343" y="15" width="1" height="22" uuid="faff77dc-1295-45a5-833b-7c2a54eeff3f"/>
+						<graphicElement>
+							<pen lineWidth="0.75"/>
+						</graphicElement>
+					</line>
+					<line>
+						<reportElement positionType="Float" stretchType="RelativeToBandHeight" x="458" y="15" width="1" height="22" uuid="b4128f8a-6574-4812-a462-3cfdf912828f"/>
+						<graphicElement>
+							<pen lineWidth="0.75"/>
+						</graphicElement>
+					</line>
+					<line>
+						<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="207" y="38" width="1" height="22" uuid="ce8f4605-9763-4256-b6da-0389b5bebb34"/>
+						<graphicElement>
+							<pen lineWidth="0.75"/>
+						</graphicElement>
+					</line>
+					<line>
+						<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="363" y="38" width="1" height="22" uuid="26cc1147-b81c-4352-872a-10b6542b1db6"/>
+						<graphicElement>
+							<pen lineWidth="0.75"/>
+						</graphicElement>
+					</line>
+				</frame>
+				<subreport>
+					<reportElement positionType="Float" isPrintRepeatedValues="false" x="4" y="76" width="531" height="14" isRemoveLineWhenBlank="true" uuid="d9e88184-9317-46c0-b8ff-a25f6ba4204c"/>
+					<subreportParameter name="_type">
+						<subreportParameterExpression><![CDATA[6]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="id_parcelador">
+						<subreportParameterExpression><![CDATA[$F{id}]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "par_contenido_tem_subreport.jasper"]]></subreportExpression>
+				</subreport>
+				<subreport>
+					<reportElement positionType="Float" isPrintRepeatedValues="false" x="4" y="90" width="531" height="14" isRemoveLineWhenBlank="true" uuid="0c3a3e19-0f3d-47be-a1cd-c81b44eae052"/>
+					<subreportParameter name="id_parcelador">
+						<subreportParameterExpression><![CDATA[$F{id}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="_type">
+						<subreportParameterExpression><![CDATA[7]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "par_contenido_tem_subreport.jasper"]]></subreportExpression>
+				</subreport>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="50">
+				<staticText>
+					<reportElement positionType="Float" x="196" y="31" width="147" height="13" uuid="0a4611bc-9e7d-4219-a53b-98440a0775a2"/>
+					<box>
+						<topPen lineWidth="0.25"/>
+					</box>
+					<textElement textAlignment="Center">
+						<font fontName="DejaVu Serif" size="9" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Vo. Bo.  Coordinación]]></text>
+				</staticText>
+			</band>
+		</groupFooter>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="75" splitType="Stretch">
+			<image>
+				<reportElement x="0" y="1" width="72" height="72" uuid="050c12c3-77ad-4902-8576-a0ff82eaa249"/>
+				<imageExpression><![CDATA[$P{R_IMG_LEFT}]]></imageExpression>
+			</image>
+			<textField isStretchWithOverflow="true" pattern="">
+				<reportElement positionType="Float" isPrintRepeatedValues="false" mode="Transparent" x="74" y="38" width="390" height="10" isRemoveLineWhenBlank="true" uuid="d459e1bc-659f-4deb-afe7-a7a1aac81b84"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="DejaVu Serif" size="6" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{R_RESOL}.trim()]]></textFieldExpression>
+			</textField>
+			<textField pattern="EEEEE dd MMMMM yyyy">
+				<reportElement positionType="Float" isPrintRepeatedValues="false" x="74" y="48" width="390" height="10" isRemoveLineWhenBlank="true" uuid="5e471478-f487-4d32-8e1d-ffcbb42bfd1b"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="DejaVu Serif" size="7" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<image>
+				<reportElement x="467" y="1" width="72" height="72" uuid="055bb3e5-f3a2-4788-ab4c-77b839c36ef7"/>
+				<imageExpression><![CDATA[$P{R_IMG_RIGHT}]]></imageExpression>
+			</image>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement isPrintRepeatedValues="false" x="74" y="2" width="390" height="16" uuid="e4d7208d-1cc0-440d-a5b2-08e0e909ffed"/>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font fontName="DejaVu Serif" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{R_TITLE}.trim()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement positionType="Float" isPrintRepeatedValues="false" x="74" y="18" width="390" height="10" isRemoveLineWhenBlank="true" uuid="a3d36d25-2379-4228-9e53-1ea93f7f7a25"/>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font fontName="DejaVu Serif" size="7" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{R_DANE}.trim()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement positionType="Float" isPrintRepeatedValues="false" x="74" y="28" width="390" height="10" isRemoveLineWhenBlank="true" uuid="2042711c-b855-45da-833d-f7e2817cf1f8"/>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font fontName="DejaVu Serif" size="7" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{R_NIT}.trim()]]></textFieldExpression>
+			</textField>
+			<textField pattern="h.mm.ss a">
+				<reportElement positionType="Float" isPrintRepeatedValues="false" x="74" y="58" width="390" height="10" isRemoveLineWhenBlank="true" uuid="4ca50a72-ce42-4ad4-ae2f-d90aae91e172"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="DejaVu Serif" size="7" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="166" splitType="Stretch">
+			<line>
+				<reportElement positionType="Float" x="4" y="29" width="531" height="1" uuid="e2bfe70b-d5be-42ac-9138-0bcec16be7fa"/>
+				<graphicElement>
+					<pen lineWidth="0.75"/>
+				</graphicElement>
+			</line>
+			<subreport>
+				<reportElement positionType="Float" x="4" y="42" width="531" height="14" isRemoveLineWhenBlank="true" uuid="f4209f54-dec9-4f29-8946-7cfcbde5fd73"/>
+				<subreportParameter name="id_parcelador">
+					<subreportParameterExpression><![CDATA[$F{id}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "par_unidades_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement positionType="Float" x="4" y="56" width="531" height="15" isRemoveLineWhenBlank="true" uuid="df350b64-d7ad-4a01-b18f-6bb340900649"/>
+				<subreportParameter name="id_parcelador">
+					<subreportParameterExpression><![CDATA[$F{id}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_type">
+					<subreportParameterExpression><![CDATA[1]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "par_contenido_tem_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement positionType="Float" x="4" y="87" width="531" height="14" isRemoveLineWhenBlank="true" uuid="2af51ddf-6649-4f9c-928e-cff8d4f8c6e6"/>
+				<subreportParameter name="id_parcelador">
+					<subreportParameterExpression><![CDATA[$F{id}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_type">
+					<subreportParameterExpression><![CDATA[3]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_año">
+					<subreportParameterExpression><![CDATA[$F{año}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_id_inst">
+					<subreportParameterExpression><![CDATA[$F{id_inst}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_grado">
+					<subreportParameterExpression><![CDATA[$F{id_grado}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "par_estandar_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement positionType="Float" x="4" y="101" width="531" height="14" isRemoveLineWhenBlank="true" uuid="4051e84b-fac2-40db-be1b-39e0935258d4"/>
+				<subreportParameter name="id_parcelador">
+					<subreportParameterExpression><![CDATA[$F{id}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="_type">
+					<subreportParameterExpression><![CDATA[2]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "par_contenido_tem_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement positionType="Float" x="4" y="115" width="531" height="14" isRemoveLineWhenBlank="true" uuid="fbfa26f6-72d8-419f-a200-042c4050eef8"/>
+				<subreportParameter name="_type">
+					<subreportParameterExpression><![CDATA[3]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="id_parcelador">
+					<subreportParameterExpression><![CDATA[$F{id}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "par_contenido_tem_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement positionType="Float" x="4" y="129" width="531" height="14" isRemoveLineWhenBlank="true" uuid="bbb91ff0-6441-467a-815e-9c809f4a0293"/>
+				<subreportParameter name="_type">
+					<subreportParameterExpression><![CDATA[4]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="id_parcelador">
+					<subreportParameterExpression><![CDATA[$F{id}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "par_contenido_tem_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement positionType="Float" x="4" y="143" width="531" height="14" isRemoveLineWhenBlank="true" uuid="bfb259de-5e79-40b3-81ab-8f3daea832e0"/>
+				<subreportParameter name="_type">
+					<subreportParameterExpression><![CDATA[5]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="id_parcelador">
+					<subreportParameterExpression><![CDATA[$F{id}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "par_contenido_tem_subreport.jasper"]]></subreportExpression>
+			</subreport>
+			<frame>
+				<reportElement positionType="Float" x="4" y="29" width="531" height="14" uuid="69c64d5d-187c-4157-a65a-a275947ed5a6"/>
+				<rectangle>
+					<reportElement positionType="Float" x="0" y="0" width="531" height="14" uuid="47c6be59-5f8c-49ed-8dcb-c0642881c214"/>
+					<graphicElement>
+						<pen lineWidth="0.75"/>
+					</graphicElement>
+				</rectangle>
+				<staticText>
+					<reportElement positionType="Float" x="268" y="0" width="260" height="13" uuid="be903cb3-92da-4885-8184-6a96622399d2"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="DejaVu Serif" size="8" isBold="true"/>
+					</textElement>
+					<text><![CDATA[TEMAS / CONTENIDOS]]></text>
+				</staticText>
+				<staticText>
+					<reportElement positionType="Float" x="3" y="0" width="260" height="13" uuid="8ff520a3-b462-4eee-8fe3-6dd1796c5945"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="DejaVu Serif" size="8" isBold="true"/>
+					</textElement>
+					<text><![CDATA[UNIDADES /  EJES TAMÁTICOS]]></text>
+				</staticText>
+				<line>
+					<reportElement positionType="Float" x="265" y="0" width="1" height="13" uuid="974556d9-575b-4351-85eb-e51599bde5da"/>
+					<graphicElement>
+						<pen lineWidth="0.75"/>
+					</graphicElement>
+				</line>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="4" y="1" width="531" height="14" uuid="4019237b-9014-43c9-bc41-6525e5d6ada9"/>
+				<rectangle>
+					<reportElement positionType="Float" x="0" y="0" width="531" height="14" uuid="cbed3d32-9b66-4ede-b2d0-26429a90256c"/>
+					<graphicElement>
+						<pen lineWidth="0.75"/>
+					</graphicElement>
+				</rectangle>
+				<staticText>
+					<reportElement positionType="Float" x="268" y="0" width="260" height="13" uuid="b7912d72-59bc-4bce-b57e-decd87bc68d4"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="8" isBold="true"/>
+					</textElement>
+					<text><![CDATA[LOGRO(S)]]></text>
+				</staticText>
+				<line>
+					<reportElement positionType="Float" x="265" y="0" width="1" height="14" uuid="1247e1ce-3cd5-433f-bffd-749b8dc5039e"/>
+					<graphicElement>
+						<pen lineWidth="0.75"/>
+					</graphicElement>
+				</line>
+				<staticText>
+					<reportElement positionType="Float" x="3" y="0" width="260" height="13" uuid="8fec0f27-e79c-4c3d-b8b9-434e9ab512a0"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="DejaVu Serif" size="8" isBold="true"/>
+					</textElement>
+					<text><![CDATA[COMPETENCIA(S)]]></text>
+				</staticText>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="4" y="15" width="531" height="14" uuid="b6bde790-c2a9-4527-a16c-4f19f67a92d3"/>
+				<rectangle>
+					<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="0" y="0" width="531" height="14" uuid="e0e95405-1893-4730-8bbe-3e7608b190aa"/>
+					<graphicElement>
+						<pen lineWidth="0.75"/>
+					</graphicElement>
+				</rectangle>
+				<subreport>
+					<reportElement positionType="Float" x="0" y="0" width="265" height="14" uuid="d8036269-c6a0-404c-8699-02e9159f4024"/>
+					<subreportParameter name="id_parcelador">
+						<subreportParameterExpression><![CDATA[$F{id}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="_type">
+						<subreportParameterExpression><![CDATA[1]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "par_cl_subreport.jasper"]]></subreportExpression>
+				</subreport>
+				<subreport>
+					<reportElement positionType="Float" x="266" y="0" width="265" height="14" uuid="447d3478-5e7b-4c9c-a007-36e87fb10373"/>
+					<subreportParameter name="_type">
+						<subreportParameterExpression><![CDATA[2]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="id_parcelador">
+						<subreportParameterExpression><![CDATA[$F{id}]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "par_cl_subreport.jasper"]]></subreportExpression>
+				</subreport>
+				<line>
+					<reportElement positionType="Float" stretchType="ContainerHeight" x="265" y="0" width="1" height="13" uuid="c2edd3f5-c34d-4331-a3b0-809861664cc2"/>
+					<graphicElement>
+						<pen lineWidth="0.75"/>
+					</graphicElement>
+				</line>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="4" y="71" width="531" height="16" uuid="9cf81a80-038d-4f20-a45e-4ce4a5a276a2"/>
+				<rectangle>
+					<reportElement positionType="Float" mode="Transparent" x="0" y="0" width="531" height="16" uuid="d0af81bf-fed3-4298-b330-162603fbfa9e"/>
+					<graphicElement>
+						<pen lineWidth="0.75"/>
+					</graphicElement>
+				</rectangle>
+				<staticText>
+					<reportElement positionType="Float" x="23" y="1" width="484" height="14" uuid="14222bbf-88d4-454b-8391-ea706edc9039"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="DejaVu Serif" size="8" isBold="true"/>
+					</textElement>
+					<text><![CDATA[INDICADORES DE DESEMPEÑO - ESTÁNDARES DE COMPETENCIA]]></text>
+				</staticText>
+			</frame>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="30" splitType="Stretch">
+			<textField isStretchWithOverflow="true">
+				<reportElement positionType="Float" x="16" y="1" width="507" height="21" uuid="60f4683a-0284-4fea-9cb7-bb6a102fcce2"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="DejaVu Serif" size="8" isItalic="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{R_FOOTER}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="542" y="1" width="21" height="10" uuid="184a72c7-f142-4496-b933-89d1fe3009b0"/>
+				<textElement>
+					<font fontName="DejaVu Sans" size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement stretchType="RelativeToBandHeight" x="16" y="22" width="507" height="8" uuid="7829f300-5387-4522-b2ae-d6bf773009d8"/>
+				<textElement textAlignment="Center">
+					<font fontName="DejaVu Serif" size="6" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{R_MARKETING}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

@@ -1,0 +1,161 @@
+<div
+    [class.card-without-border-radius]="themeService.isCardWithoutBorderRadius()"
+    [class.card-with-box-shadow]="themeService.isCardWithBoxShadow()"
+    class="header-area bg-white border-bottom-radius transition"
+    [ngClass]="{'active': isSidebarToggled, 'sticky': isSticky}"
+    [class.component-rtl-enabled]="themeService.isRTLEnabled()"
+    [class.right-sidebar]="themeService.isRightSidebar()"
+    [class.hide-sidebar]="themeService.isHideSidebar()"
+    [class.card-borderd]="themeService.isCardBordered()"
+    [class.dark-header]="themeService.isHeaderDark()"
+>
+    <div class="inner-area d-md-flex align-items-center justify-content-between">
+        <div class="header-left-side d-flex align-items-center">
+            <div
+                class="burger-menu transition position-relative lh-1"
+                [ngClass]="{'active': isSidebarToggled}"
+                (click)="toggle()"
+            >
+                <i class="material-symbols-outlined">
+                    menu
+                </i>
+            </div>
+            <a routerLink="/dashboard" class="logo">
+                <img src="assets/images/logo/logo.svg" alt="logo">
+            </a>
+            <a routerLink="/dashboard" class="logo white-logo">
+                <img src="assets/images/logo/logo.svg" alt="logo">
+            </a>
+        </div>
+        <ul class="header-right-side d-flex align-items-center m-0 p-0 list-unstyled">
+            <li class="position-relative">
+                <button
+                    (click)="toggleTheme()"
+                    class="dark-swtich-btn bg-transparent d-inline-block p-0 border-0 lh-1 position-relative"
+                >
+                    <i class="material-symbols-outlined">
+                        light_mode
+                    </i>
+                </button>
+            </li>
+            <li class="position-relative language-menu">
+                <button
+                    type="button"
+                    (click)="toggleLanguageDropdown()"
+                    class="language-menu-btn lh-1 transition bg-transparent border-0 d-inline-block position-relative"
+                >
+                    <i class="material-symbols-outlined">
+                        translate
+                    </i>
+                </button>
+                @if(isLanguageDropdownOpen) {
+                <div class="language-menu-dropdown bg-white border-radius">
+                    <span class="title fw-semibold text-black d-block">
+                        {{ 'languages.title' | transloco }}
+                    </span>
+                    <ul class="menu-body p-0 mb-0 mt-0 list-unstyled">
+                        <li>
+                            <button
+                                (click)="changeLanguage('es')"
+                              class="d-block w-100 bg-transparent fw-medium border-0 text-start">
+                                <div class="d-flex align-items-center">
+                                    <img src="assets/images/flags/spain.svg" alt="spain">
+                                    {{ 'languages.es' | transloco }}
+                                </div>
+                            </button>
+                        </li>
+                        <li>
+                            <button
+                                (click)="changeLanguage('en')"
+                              class="d-block w-100 bg-transparent fw-medium border-0 text-start">
+                                <div class="d-flex align-items-center">
+                                    <img src="assets/images/flags/usa.svg" alt="usa">
+                                    {{ 'languages.en' | transloco }}
+                                </div>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+                }
+            </li>
+            <li class="position-relative">
+                <button
+                    (click)="toggleFullscreen()"
+                    class="fullscreen-btn bg-transparent transition p-0 border-0 d-inline-block position-relative lh-1"
+                >
+                    <i class="material-symbols-outlined">
+                        {{ isFullscreen ? 'fullscreen_exit' : 'fullscreen' }}
+                    </i>
+                </button>
+            </li>
+            <li class="position-relative profile-menu">
+                <button
+                    type="button"
+                    (click)="toggleProfileDropdown()"
+                    class="profile-menu-btn border-0 bg-transparent position-relative"
+                >
+                    <img [ngSrc]="getCurrentUserAvatar()" class="rounded-circle"
+                         width="40" height="40"
+                         (error)="image.src = fallbackAvatarUrl" #image
+                         alt="user-image">
+                    <span class="fw-semibold text-black">
+                        {{ uActionsService.getCurrentUser()?.firstName || 'User' }}
+                    </span>
+                </button>
+                <div class="profile-menu-dropdown bg-white border-radius" *ngIf="isProfileDropdownOpen">
+                    <div class="admin d-flex align-items-center">
+                        <img [ngSrc]="getCurrentUserAvatar()"
+                              width="40" height="40"
+                             (error)="image.src = fallbackAvatarUrl" #image
+                             class="rounded-circle" alt="admin-image">
+                        <div>
+                            <span class="d-block text-black fw-medium">
+                                {{ uActionsService.getCurrentUser()?.firstName || 'User' }} {{ uActionsService.getCurrentUser()?.lastName || '' }}
+                            </span>
+                            <span class="d-block">
+                                {{ authService.getToken()?.profile?.profile_name || '' }}
+                            </span>
+                        </div>
+                    </div>
+                    <ul class="list p-0 mt-0 mb-0 list-unstyled">
+                        <li>
+                            <a routerLink="/dashboard/profile/user" class="d-block position-relative">
+                                <i class="material-symbols-outlined">
+                                    account_circle
+                                </i>
+                               {{ 'menu.user.profile' | transloco }}
+                            </a>
+                        </li>
+                    </ul>
+                    @if (authService.hasCurrentProfile()) {
+                      <div class="border-top"></div>
+                      <ul class="list p-0 mt-0 mb-0 list-unstyled">
+                          <li>
+                              <a (click)="authService.clearCurrentProfile()"
+                                class="d-block position-relative cursor-pointer">
+                                  <i class="material-symbols-outlined">
+                                    exit_to_app
+                                  </i>
+                                  {{ 'menu.user.returnToAccessPanel' | transloco }}
+                              </a>
+                          </li>
+                      </ul>
+                    }
+                    <div class="border-top"></div>
+                    <ul class="list p-0 mt-0 mb-0 list-unstyled">
+                        <li>
+                            <a (click)="authService.confirmLogout()"
+                              class="d-block position-relative cursor-pointer">
+                                <i class="material-symbols-outlined">
+                                    logout
+                                </i>
+                                {{ 'menu.user.logout' | transloco }}
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+        </ul>
+    </div>
+    <app-navbar />
+</div>

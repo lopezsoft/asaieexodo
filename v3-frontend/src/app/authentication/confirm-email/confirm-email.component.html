@@ -1,0 +1,37 @@
+<div
+    class="auth-wrapper auth-v2"
+    [class.dark-theme]="themeService.isDark()"
+>
+  <div class="auth-inner row m-0">
+    <div class="d-flex col-12 align-items-center justify-content-center p-5 min-vh-100">
+      <div class="auth-form text-center" style="max-width: 480px;">
+        <div class="logo mb-4">
+          <img src="assets/images/logo/logotipo.svg" alt="ASAIE ÉXODO">
+        </div>
+        @if (status() === 'loading') {
+          <div class="spinner-border text-primary mb-3" role="status"></div>
+          <h2 class="fw-semibold mb-2">Verificando correo</h2>
+          <p class="mb-4">{{ statusMessage() }}</p>
+        } @else if (status() === 'success') {
+          <div class="mb-3 text-success">
+            <i class="material-symbols-outlined" style="font-size: 56px;">verified</i>
+          </div>
+          <h2 class="fw-semibold mb-2">Correo confirmado</h2>
+          <p class="mb-4">{{ statusMessage() }}</p>
+          <a routerLink="/auth" class="btn-box d-inline-block px-4 py-2 border-0 border-radius text-decoration-none">
+            Ir a iniciar sesión
+          </a>
+        } @else {
+          <div class="mb-3 text-danger">
+            <i class="material-symbols-outlined" style="font-size: 56px;">error</i>
+          </div>
+          <h2 class="fw-semibold mb-2">No se pudo verificar</h2>
+          <p class="mb-4">{{ statusMessage() }}</p>
+          <a routerLink="/auth" class="btn-box d-inline-block px-4 py-2 border-0 border-radius text-decoration-none">
+            Volver al inicio de sesión
+          </a>
+        }
+      </div>
+    </div>
+  </div>
+</div>

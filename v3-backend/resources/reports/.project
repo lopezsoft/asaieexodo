@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>ASAIE</name>
+	<comment></comment>
+	<projects>
+	</projects>
+	<buildSpec>
+	</buildSpec>
+	<natures>
+	</natures>
+	<linkedResources>
+		<link>
+			<name>par_cl_subreport_1.jasper</name>
+			<type>1</type>
+			<location>D:/wamp/www/SME/reports/par_cl_subreport.jasper</location>
+		</link>
+		<link>
+			<name>par_contenido_tem_subreport_1.jasper</name>
+			<type>1</type>
+			<location>D:/wamp/www/SME/reports/par_contenido_tem_subreport.jasper</location>
+		</link>
+	</linkedResources>
+</projectDescription>

@@ -86,15 +86,17 @@ class GenerateFinalReport
             $db	    = $school->db;
             $year   = $school->year;
 
-            $sql    = GeneralSetting::getGeneralSettingByGrade($school, $Grado);
-            if ($sql){
-                $this->_n_decimales	    = $sql->Ndecimales;
-                $this->_n_promocion	    = $sql->promocion;
-                $this->_n_red		    = $sql->nota_redondeo;
-                $this->_n_final_red	    = $sql->nota_final_redondeo;
-                $this->_n_aplica	    = $sql->aplicar_redondeo_fin_año;
-                $this->_t_año_lectivo	= $sql->t_año_lectivo;
+            $gSettings    = GeneralSetting::getGeneralSettingByGrade($school, $Grado);
+            if (!$gSettings){
+                throw new Exception("No se han configurado los ajustes generales para el grado seleccionado.");
             }
+
+            $this->_n_decimales	    = $gSettings->Ndecimales;
+            $this->_n_promocion	    = $gSettings->promocion;
+            $this->_n_red		    = $gSettings->nota_redondeo;
+            $this->_n_final_red	    = $gSettings->nota_final_redondeo;
+            $this->_n_aplica	    = $gSettings->aplicar_redondeo_fin_año;
+            $this->_t_año_lectivo	= $gSettings->t_año_lectivo;
 
             $finalPeriod = ControlClosingDates::validateFinalPeriod($school, $Grado);
             switch($this->_n_promocion){
@@ -114,7 +116,7 @@ class GenerateFinalReport
             $query  = $this->getEnrollmentQuery($db, $school, $all);
             DB::beginTransaction();
             foreach($query as $row){
-                $this->finalBook($Sede,$Grado,$row->grupo,$year,$row->id_matric,$Jorn, $db);
+                $this->finalBook($Sede,$Grado,$row->grupo,$year,$row->id_matric,$Jorn, $db, $gSettings);
                 $this->sp_update_areasf($row->id_matric, $year, $db);
                 $this->sp_generate_sabanas($row->id_matric,$Grado, $year, $db);
             }
@@ -184,10 +186,10 @@ class GenerateFinalReport
         CallExecute::execute("{$db}sp_libro_final_areas(?, ?)", $param);
     }
 
-    private function finalBook($_id_sede,$_grado,$_grupo,$_year,$_id_matric,$_jorn, $db): void {
+    private function finalBook($_id_sede,$_grado,$_grupo,$_year,$_id_matric,$_jorn, $db, $gSettings): void {
         $table	= $db.$this->getTableNotes($_grado);
         $params = [$_id_matric,$_year,$_grado,"{$_grupo}",$_id_sede,$_jorn,$this->_n_per_div,
-            $this->_n_decimales, $this->_n_promocion];
+            $gSettings->Ndecimales, $gSettings->promocion];
         $query	= CallExecute::execute("{$db}sp_final_book_notes(?, ?, ?, ?, ?, ?, ?, ?, ?)", $params);
 
         $select	= sprintf("SELECT t.hasta FROM %sdesempeños t".
@@ -196,7 +198,7 @@ class GenerateFinalReport
             " WHERE t.year = %s AND t.reprueba = 1".
             " AND t2.id_grado = %s LIMIT 1", $db, $db, $db, $_year, $_grado);
         $select	= DB::select($select);
-        switch($this->_n_promocion){
+        switch($gSettings->promocion){
             case 3 : // Quinto periodo
             case 4 : // Cuarto periodo
                 $cSQLInsert	= "";
@@ -235,13 +237,7 @@ class GenerateFinalReport
                         }
                         $final	= $row->final;
                         $curso	= $this->activeCourse($row->id_curso, $db);
-                        if($this->_n_red > 0 AND $this->_n_aplica > 0){
-                            if (count($select) > 0){
-                                if($final >= $this->_n_red AND $final <= $select[0]->hasta){
-                                    $final = $this->_n_final_red;
-                                }
-                            }
-                        }
+                        $final  = $this->applyYearEndRounding($final, $gSettings, $select);
                         $cSQLInsert .= "(".$_id_matric.",".$curso.",'".$final."','".$just."','".$inj."','".$ret.
                             "','".$_p1."','".$_p2."','".$_p3."','".$_p4."'),";
                     }
@@ -282,13 +278,7 @@ class GenerateFinalReport
                         }
                         $final	= 	$row->final;
                         $curso	= $this->activeCourse($row->id_curso, $db);
-                        if($this->_n_red > 0 AND $this->_n_aplica > 0){
-                            if (count($select) > 0){
-                                if($final >= $this->_n_red AND $final <= $select[0]->hasta){
-                                    $final = $this->_n_final_red;
-                                }
-                            }
-                        }
+                        $final  = $this->applyYearEndRounding($final, $gSettings, $select);
                         $cSQLInsert .= "(".$_id_matric.",".$curso.",'".$final.
                             "','".$row->faltas."','".$row->injustificadas."','".$row->retraso.
                             "','".$_p1."','".$_p2."','".$_p3."','".$_p4."'),";
@@ -309,5 +299,31 @@ class GenerateFinalReport
 
     private function activeCourse($courseId, $db){
         return Courses::getActiveCourse($courseId, $db);
+    }
+
+    /**
+     * Aplicar redondeo final de año
+     * 1. Primero verifica que el estudiante reprueba (nota <= hasta)
+     * 2. Luego verifica que la nota está en el rango de gracia (nota >= nota_redondeo)
+     * 3. Finalmente verifica que la nota es menor al valor de redondeo final
+     * Si cumple todas las condiciones, redondea al valor de nota_final_redondeo
+     *
+     * @param float $final Nota final del estudiante
+     * @param object $gSettings Configuración general del grado
+     * @param array $select Resultado de la consulta de desempeños (contiene el valor 'hasta')
+     * @return float Nota final (redondeada si cumple las condiciones)
+     */
+    private function applyYearEndRounding(float $final, object $gSettings, array $select): float
+    {
+        if ($gSettings->nota_redondeo > 0 && $gSettings->aplicar_redondeo_fin_año > 0 &&
+            $gSettings->nota_final_redondeo > 0) {
+            if (count($select) > 0) {
+                if ($final <= $select[0]->hasta && $final >= $gSettings->nota_redondeo &&
+                    $final < $gSettings->nota_final_redondeo) {
+                    return $gSettings->nota_final_redondeo;
+                }
+            }
+        }
+        return $final;
     }
 }

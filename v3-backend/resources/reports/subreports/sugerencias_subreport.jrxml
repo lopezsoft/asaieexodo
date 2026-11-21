@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="sugerencias_subreport" language="groovy" pageWidth="516" pageHeight="792" columnWidth="516" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="c00a4f93-9852-4c43-b275-ec0552177738">
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="cod_dane" class="java.lang.String"/>
+	<parameter name="id_docente" class="java.lang.Integer"/>
+	<parameter name="año" class="java.lang.Integer"/>
+	<parameter name="periodo" class="java.lang.String"/>
+	<parameter name="id_sugerencia" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[select rtrim(sugerencia) as sugerencia, tipo, periodo, año from sugerencias where cod_dane=$P{cod_dane} and id_docente=$P{id_docente} and periodo=$P{periodo} and  id=$P{id_sugerencia} and tipo between '1' and '2' order by tipo, id]]>
+	</queryString>
+	<field name="sugerencia" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="tipo" class="java.lang.Integer">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="periodo" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="año" class="java.lang.Integer">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="1" splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="11" splitType="Stretch">
+			<staticText>
+				<reportElement x="10" y="0" width="100" height="11" forecolor="#3300CC" uuid="faf1b009-7a7b-4d8a-889d-a9c7bd3efad1"/>
+				<textElement>
+					<font fontName="Arial" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[SUGERENCIA]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="11" splitType="Stretch">
+			<textField isStretchWithOverflow="true">
+				<reportElement positionType="Float" x="3" y="0" width="513" height="11" isRemoveLineWhenBlank="true" uuid="b16a4cbd-9b82-4b8c-bb3d-9ee501fe75e9">
+					<printWhenExpression><![CDATA[new Boolean(!$F{sugerencia}.isEmpty())]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Justified" markup="none">
+					<font fontName="Arial" size="9" isBold="true" isItalic="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{sugerencia}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

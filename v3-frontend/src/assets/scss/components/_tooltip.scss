@@ -1,0 +1,24 @@
+.asaie-custom-tooltip {
+  position: fixed;
+  z-index: $tooltip-z-index;
+  max-width: $tooltip-max-width;
+  padding: $tooltip-padding-y $tooltip-padding-x;
+  border-radius: $tooltip-radius;
+  border: 1px solid $tooltip-border-color;
+  background-color: $tooltip-bg;
+  color: $tooltip-color;
+  font-size: $tooltip-font-size;
+  font-weight: 500;
+  line-height: 1.35;
+  text-align: center;
+  box-shadow: $tooltip-shadow;
+  pointer-events: none;
+  word-wrap: break-word;
+  transition: opacity 0.12s ease-in-out;
+}
+
+.dark-theme .asaie-custom-tooltip,
+body.dark-theme .asaie-custom-tooltip {
+  background-color: $tooltip-dark-bg;
+  color: $tooltip-dark-color;
+}

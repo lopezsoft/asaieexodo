@@ -31,7 +31,6 @@ class SchoolMaster implements CrudInterface
     {
         $params     = self::extractParams($request);
         $records    = $params->records;
-//      $records->id= $id;
 
         return UpdateTable::update($request, $records, $params->table);
     }
@@ -44,7 +43,7 @@ class SchoolMaster implements CrudInterface
 
     protected static function extractParams(Request $request): object
     {
-        $pdbTable   = $request->input('pdbTable') ?? null;
+        $pdbTable   = $request->input('pdbTable');
         $school     = SchoolQueries::getSchool($request->input('schoolId') ?? 0);
         $table      = "{$school->database_name}.{$pdbTable}";
         if(isset($request->withOutDb)) {

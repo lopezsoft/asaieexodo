@@ -49,35 +49,34 @@ class RepresentativeValidatorService
         $startDate          = $control->start_date . ' ' . $control->start_time;
         // Convierte la cadena de fecha y hora a una instancia de Carbon
         $startDateCarbon    = Carbon::createFromFormat('Y-m-d g:i A', $startDate);
-        $startDate          = $startDateCarbon->format('d-m-Y h:i A');
         // Compara con la fecha y hora de finalización
         $dateEnd            = $control->start_date . ' ' . $control->closing_time;
         $dateEndCarbon      = Carbon::createFromFormat('Y-m-d g:i A', $dateEnd);
-        $dateEnd            = $dateEndCarbon->format('d-m-Y h:i A');
 
-        $currentDate        = Carbon::now()->format('Y-m-d g:i A');
-        if($currentDate < $startDate) {
+        $now                = Carbon::now();
+
+        // Antes de iniciar
+        if ($now->lt($startDateCarbon)) {
             throw new Exception(
-                "La fecha y hora de inicio de la jornada no ha llegado.
-                Faltan " . $startDateCarbon->diffForHumans($currentDate).
-                ". Fecha de inicio de la jornada {$startDateCarbon->format('d-m-Y h-i-s A')}", 400);
+                "La fecha y hora de inicio de la jornada no ha llegado. Faltan "
+                . $startDateCarbon->diffForHumans($now)
+                . ". Fecha de inicio de la jornada: " . $startDateCarbon->format('d-m-Y h:i A'), 400);
         }
-        if ($dateEnd > $currentDate) {
-            throw new Exception("La fecha y hora de finalización ya pasó.
-                No se puede iniciar la jornada", 400);
-        }
-        // Compara con la fecha y hora actual
-        if ($dateEndCarbon->isPast()) {
-            throw new Exception("La fecha y hora de finalización ya pasó.
-                No se puede iniciar la jornada", 400);
+
+        // Después de finalizar
+        if ($now->gt($dateEndCarbon)) {
+            throw new Exception(
+                "La jornada finalizó el "
+                . $dateEndCarbon->format('d-m-Y h:i A')
+                . ". No se puede continuar.", 400);
         }
 
         return (object) [
-            'startDate'         => $startDate,
+            'startDate'         => $startDateCarbon->format('d-m-Y h:i A'),
             'startDateCarbon'   => $startDateCarbon->format('Y-m-d g:i A'),
-            'dateEnd'           => $dateEnd,
+            'dateEnd'           => $dateEndCarbon->format('d-m-Y h:i A'),
             'dateEndCarbon'     => $dateEndCarbon->format('Y-m-d g:i A'),
-            'currentDate'       => $currentDate,
+            'currentDate'       => $now->format('Y-m-d g:i A'),
             'control'           => $control,
         ];
     }

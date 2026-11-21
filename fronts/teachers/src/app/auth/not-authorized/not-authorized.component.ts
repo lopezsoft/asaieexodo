@@ -4,6 +4,8 @@ import { takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 
 import { CoreConfigService } from '@core/services/config.service';
+import { HttpServerService } from 'app/utils';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-not-authorized',
@@ -22,7 +24,9 @@ export class NotAuthorizedComponent implements OnInit {
    * @param {CoreConfigService} _coreConfigService
    */
   constructor(
-    private _coreConfigService: CoreConfigService
+    private _coreConfigService: CoreConfigService,
+    public _http: HttpServerService,
+    private _router: Router
   ) {
     this._unsubscribeAll = new Subject();
 
@@ -55,6 +59,15 @@ export class NotAuthorizedComponent implements OnInit {
     this._coreConfigService.config.pipe(takeUntil(this._unsubscribeAll)).subscribe(config => {
       this.coreConfig = config;
     });
+  }
+
+  /**
+   * Logout user
+   */
+  logout(): void {
+    localStorage.removeItem(this._http.getApiJwt());
+    this._http.onClearCurrentUser();
+    this._router.navigate(['/auth/login']);
   }
 
   /**

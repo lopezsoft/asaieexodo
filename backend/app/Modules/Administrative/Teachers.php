@@ -4,6 +4,7 @@ namespace App\Modules\Administrative;
 
 use App\Common\HttpResponseMessages;
 use App\Modules\School\SchoolQueries;
+use App\Queries\AuditTable;
 use App\Queries\InsertTable;
 use App\Services\TableValidationService;
 use Exception;
@@ -34,6 +35,11 @@ class Teachers
             $db	        = $school->db;
             $table      = "{$db}docentes";
             $records    = json_decode($request->records) ?? null;
+            if (!$records || empty($records->documento)) {
+                return HttpResponseMessages::getResponse400([
+                    'message' => 'Los datos del docente o el documento son inválidos.'
+                ]);
+            }
             $teacher    = DB::table($table)
                             ->where('documento', $records->documento)->first();
             if($teacher){
@@ -48,15 +54,37 @@ class Teachers
                     'message' => $validator->errors()->first()
                 ]);
             }
-            $response   = InsertTable::insert($request, $records, $table, false);
-            $teacher    = DB::table($table)
-                ->where('documento', $records->documento)->first();
-            DB::table("{$db}aux_docentes")->insert([
-                'id_docente'    => $teacher->id_docente,
-                'year'          => date('Y')
+
+            DB::beginTransaction();
+
+            // Eliminar posible registro previo en la tabla legacy 'users' del colegio (ej. exalumno/acudiente)
+            // para evitar colisión de clave única 'username' en el trigger 'docentes_after_insert'
+            DB::table("{$db}users")
+                ->where('username', $records->documento)
+                ->delete();
+
+            $primaryKey  = 'id_docente';
+            $teacherData = InsertTable::getTableData($records, $table, $primaryKey);
+            $teacherId   = DB::table($table)->insertGetId($teacherData);
+
+            DB::table("{$db}aux_docentes")->insertOrIgnore([
+                'id_docente' => $teacherId,
+                'year'       => $school->year ?? date('Y'),
             ]);
-            return $response;
+
+            AuditTable::audit($request->ip(), $table, 'INSERT', $teacherData);
+
+            $newTeacher = DB::table($table)
+                ->where($primaryKey, $teacherId)
+                ->first();
+
+            DB::commit();
+
+            return HttpResponseMessages::getResponse([
+                'record' => $newTeacher
+            ]);
         }catch (Exception $e){
+            DB::rollBack();
             return HttpResponseMessages::getResponse500([
                 'message' => $e->getMessage()
             ]);

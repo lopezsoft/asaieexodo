@@ -1,0 +1,10 @@
+		<div class="item-options text-center">
+			<a href="javascript:void(0)" class="btn btn-danger btn-cart" (click)="deleteDataMessage(dataRecord)" rippleEffect>
+				<i class="fas fa-trash-alt fa-cursor"></i>
+				<span class="add-to-cart">{{ 'buttons.delete' | translate }}</span>
+			</a>
+			<a class="btn btn-success btn-cart" href="javascript:void(0)" (click)="editDataMessage(dataRecord)" rippleEffect>
+				<i class="fas fa-pen fa-cursor"></i>
+				<span class="add-to-cart">{{ 'buttons.edit' | translate }}</span>
+			</a>
+		</div>

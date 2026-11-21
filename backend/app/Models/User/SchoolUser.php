@@ -30,7 +30,7 @@ class SchoolUser extends Model
 
     public function school(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(School::class)->where('state', 1)->where('active', 1);
+        return $this->belongsTo(School::class);
     }
     public function getRolesAttribute(): \Illuminate\Database\Eloquent\Collection
     {

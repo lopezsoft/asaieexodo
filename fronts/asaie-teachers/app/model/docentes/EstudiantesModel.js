@@ -5,6 +5,7 @@ Ext.define('Admin.model.docentes.EstudiantesModel',{
     extend  : 'Admin.model.base.BaseModel',
     fieldS  : [
         { name : 'id_matric'},
+		{ name : 'id_student'},
         { name : 'nombres'},
         { name : 'grado'},
         { name : 'grupo'},

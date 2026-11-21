@@ -1,0 +1,201 @@
+<div class="container-fluid py-3">
+  <!-- Encabezado de bienvenida y estado institucional -->
+  <div class="trezo-card bg-white border-radius p-4 mb-4 shadow-sm">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+      <div>
+        <h4 class="mb-1 fw-bold">
+          Bienvenido(a), {{ v3Auth.user()?.fullName || 'Usuario' }}
+        </h4>
+        <p class="mb-0 text-muted">
+          Institución activa:
+          <strong class="text-dark">{{ v3Auth.activeSchoolName() }}</strong>
+          · Rol:
+          <span class="badge text-bg-primary">{{ v3Auth.activeRoleLabel() }}</span>
+          · Año lectivo:
+          <span class="badge text-bg-secondary">{{ v3Auth.academicYear() }}</span>
+        </p>
+      </div>
+
+      @if (statistics(); as stats) {
+        <div class="d-flex align-items-center gap-2">
+          <span
+            class="badge rounded-pill px-3 py-2"
+            [ngClass]="stats.schoolSummary.isActive ? 'text-bg-success' : 'text-bg-danger'"
+            [appCustomTooltip]="'Vigencia de la suscripción institucional'"
+          >
+            <i class="material-symbols-outlined align-middle fs-6 me-1">verified</i>
+            @if (stats.schoolSummary.isActive) {
+              Cuenta activa hasta {{ stats.schoolSummary.subscriptionLockDate }}
+            } @else {
+              Cuenta inactiva
+            }
+          </span>
+          <a
+            routerLink="/admin"
+            class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1"
+            [appCustomTooltip]="'Ir al panel administrativo de la institución'"
+          >
+            <i class="material-symbols-outlined fs-6">apartment</i>
+            <span>Administrativo</span>
+          </a>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Dashboard Ejecutivo (migrado desde ExtJS home/Dashboard.js + charts/) -->
+  @if (canViewExecutiveDashboard()) {
+    @if (loadingStats()) {
+      <div class="trezo-card bg-white border-radius p-5 mb-4 text-center shadow-sm">
+        <div class="spinner-border text-primary" role="status"></div>
+        <p class="mt-2 mb-0 text-muted">
+          Consultando indicadores institucionales del año {{ v3Auth.academicYear() }}...
+        </p>
+      </div>
+    } @else {
+      @if (statistics(); as stats) {
+      <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-xl-4">
+          <div class="v3-kpi-card p-4 h-100 d-flex align-items-center justify-content-between">
+            <div>
+              <span class="text-muted small text-uppercase fw-semibold d-block mb-1">
+                Estudiantes Matriculados ({{ stats.academicYear }})
+              </span>
+              <h2 class="mb-0 fw-bold">{{ stats.kpis.registeredStudents }}</h2>
+            </div>
+            <span class="v3-kpi-icon kpi-primary">
+              <i class="material-symbols-outlined">school</i>
+            </span>
+          </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-4">
+          <div class="v3-kpi-card p-4 h-100 d-flex align-items-center justify-content-between">
+            <div>
+              <span class="text-muted small text-uppercase fw-semibold d-block mb-1">
+                Estudiantes Retirados ({{ stats.academicYear }})
+              </span>
+              <h2 class="mb-0 fw-bold">{{ stats.kpis.retiredStudents }}</h2>
+            </div>
+            <span class="v3-kpi-icon kpi-danger">
+              <i class="material-symbols-outlined">person_off</i>
+            </span>
+          </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-4">
+          <div class="v3-kpi-card p-4 h-100 d-flex align-items-center justify-content-between">
+            <div>
+              <span class="text-muted small text-uppercase fw-semibold d-block mb-1">
+                Docentes Activos
+              </span>
+              <h2 class="mb-0 fw-bold">{{ stats.kpis.activeTeachers }}</h2>
+              <small class="text-muted">
+                {{ stats.kpis.totalCampuses }} sede(s) · {{ stats.kpis.totalGroups }} grupo(s) · {{ stats.kpis.activeStaff }} admin.
+              </small>
+            </div>
+            <span class="v3-kpi-icon kpi-secondary">
+              <i class="material-symbols-outlined">cast_for_education</i>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      @if (isBrowser) {
+        <div class="row g-3 mb-4">
+          <div class="col-lg-4">
+            <div class="trezo-card bg-white border-radius p-4 h-100 shadow-sm">
+              <h6 class="fw-semibold mb-3">Matriculados por año</h6>
+              <apx-chart
+                [series]="registeredChart().series"
+                [chart]="registeredChart().chart"
+                [xaxis]="registeredChart().xaxis"
+                [plotOptions]="registeredChart().plotOptions"
+                [dataLabels]="registeredChart().dataLabels"
+                [colors]="registeredChart().colors"
+              />
+            </div>
+          </div>
+
+          <div class="col-lg-4">
+            <div class="trezo-card bg-white border-radius p-4 h-100 shadow-sm">
+              <h6 class="fw-semibold mb-3">Retirados por año</h6>
+              <apx-chart
+                [series]="retiredChart().series"
+                [chart]="retiredChart().chart"
+                [xaxis]="retiredChart().xaxis"
+                [plotOptions]="retiredChart().plotOptions"
+                [dataLabels]="retiredChart().dataLabels"
+                [colors]="retiredChart().colors"
+              />
+            </div>
+          </div>
+
+          <div class="col-lg-4">
+            <div class="trezo-card bg-white border-radius p-4 h-100 shadow-sm">
+              <h6 class="fw-semibold mb-3">Docentes con carga por año</h6>
+              <apx-chart
+                [series]="teachersChart().series"
+                [chart]="teachersChart().chart"
+                [xaxis]="teachersChart().xaxis"
+                [plotOptions]="teachersChart().plotOptions"
+                [dataLabels]="teachersChart().dataLabels"
+                [colors]="teachersChart().colors"
+              />
+            </div>
+          </div>
+        </div>
+      }
+      }
+    }
+  }
+
+  <!-- Selector de contexto Multi-Colegio / Multi-Rol -->
+  <div class="trezo-card bg-white border-radius p-4 shadow-sm">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+      <div>
+        <h5 class="mb-0 fw-semibold">Mis Instituciones y Roles</h5>
+        <small class="text-muted">
+          Cambia instantáneamente de institución o perfil con firma JWT y aislamiento RLS en PostgreSQL 17.
+        </small>
+      </div>
+    </div>
+
+    <div class="row g-3">
+      @for (membership of v3Auth.memberships(); track membership.schoolId + '-' + membership.role) {
+        <div class="col-md-6 col-xl-4">
+          <div
+            class="border rounded p-3 h-100 d-flex flex-column justify-content-between"
+            [ngClass]="isActiveContext(membership) ? 'border-primary bg-light' : ''"
+          >
+            <div>
+              <div class="d-flex align-items-center justify-content-between gap-2 mb-1">
+                <strong class="text-dark">{{ membership.schoolName }}</strong>
+                @if (isActiveContext(membership)) {
+                  <span class="badge text-bg-success">Activo</span>
+                }
+              </div>
+              <p class="small text-muted mb-2">
+                Rol: {{ getRoleLabel(membership.role) }}
+                @if (membership.schoolDaneCode) {
+                  · DANE {{ membership.schoolDaneCode }}
+                }
+              </p>
+            </div>
+            <div>
+              <button
+                type="button"
+                class="btn btn-sm w-100"
+                [ngClass]="isActiveContext(membership) ? 'btn-outline-secondary' : 'btn-primary'"
+                [disabled]="isActiveContext(membership)"
+                (click)="selectSchoolContext(membership)"
+              >
+                {{ isActiveContext(membership) ? 'Contexto actual' : 'Ingresar con este rol' }}
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>

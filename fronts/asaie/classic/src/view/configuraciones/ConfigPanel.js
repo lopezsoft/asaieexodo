@@ -12,8 +12,8 @@ Ext.define('Admin.view.configuraciones.ConfigPanel',{
 		this.items   		= [
 			{
 				xtype   : 'containerButton',
-				disabled: !isRector,
-				hidden	: !isRector,
+				disabled: isSecretary,
+				hidden	: isSecretary,
 				items   : [
 					{
 						xtype   : 'buttonPanel',
@@ -101,8 +101,8 @@ Ext.define('Admin.view.configuraciones.ConfigPanel',{
 			},
 			{
 				xtype   : 'containerButton',
-				disabled: !isRector,
-				hidden	: !isRector,
+				disabled: isSecretary,
+				hidden	: isSecretary,
 				items   : [
 					{
 						xtype   : 'buttonPanel',
@@ -175,8 +175,8 @@ Ext.define('Admin.view.configuraciones.ConfigPanel',{
 			},
 			{
 				xtype   : 'containerButton',
-				disabled: !isSecretary,
-				hidden	: !isSecretary,
+				disabled: isRector,
+				hidden	: isRector,
 				items   : [
 					{
 						xtype   : 'buttonPanel',

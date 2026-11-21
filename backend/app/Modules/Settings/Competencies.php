@@ -32,6 +32,10 @@ class Competencies
                                     'year'          => $school->year,
                                     'estado'        => 1
                                 ])->get();
+            $observerModule = DB::table("{$school->db}obs_modelos_observador")
+                                ->select('id', 'descripcion', 'estado')
+                                ->where('estado', 1)
+                                ->first();
             return self::getResponse([
                 'competencies'      => $competencies,
                 'ratingScale'       => $ratingScale,
@@ -40,6 +44,7 @@ class Competencies
                 'bulletinSetting'   => $bulletinSetting,
                 'groupGrades'       => $groupGrades,
                 'groupDirectors'    => $groupDirectors,
+                'observerModule'    => $observerModule,
             ]);
         } catch (\Exception $e) {
             return self::getResponse500([

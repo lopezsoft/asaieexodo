@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.4.0.final using JasperReports Library version 6.4.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="acta_grado_carta" pageWidth="612" pageHeight="792" columnWidth="572" leftMargin="20" rightMargin="20" topMargin="10" bottomMargin="10" uuid="33974257-97b3-4498-8fe2-7887b59433ce">
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="34"/>
+	<property name="ireport.y" value="384"/>
+	<property name="ireport.callouts" value="##Mon Jun 08 15:07:41 COT 2015\ncallouts.1.text=Informe plantilla base para crear los dem\u00E1s informes\n\ncallouts.1.bounds=222,563,240,51"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="SME"/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="0"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="1000"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<parameter name="FILTRO_AÑO" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="SQL_PARAM" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="R_TITLE" class="java.lang.String"/>
+	<parameter name="R_DANE" class="java.lang.String"/>
+	<parameter name="R_NIT" class="java.lang.String"/>
+	<parameter name="R_RESOL" class="java.lang.String"/>
+	<parameter name="R_FOOTER" class="java.lang.String"/>
+	<parameter name="R_DATE" class="java.lang.String"/>
+	<parameter name="R_IMG_LEFT" class="java.lang.String"/>
+	<parameter name="R_IMG_RIGHT" class="java.lang.String"/>
+	<parameter name="R_MARKETING" class="java.lang.String"/>
+	<parameter name="R_ESCUDO" class="java.lang.String"/>
+	<parameter name="R_ESCALA" class="java.lang.String"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["D:\\wamp\\www\\SME2017\\reports\\"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="R_MSG_IND" class="java.lang.String" isForPrompting="false">
+		<parameterDescription><![CDATA[Parametro que permite mostrar, o no, los indicadores en desempeño ALTO Y SUPERIOR.]]></parameterDescription>
+		<defaultValueExpression><![CDATA[0]]></defaultValueExpression>
+	</parameter>
+	<parameter name="R_ENCABEZADO" class="java.lang.String"/>
+	<parameter name="R_NOMBRE_INST" class="java.lang.String"/>
+	<parameter name="R_OTORGA" class="java.lang.String"/>
+	<parameter name="R_CONSTANCIA" class="java.lang.String"/>
+	<parameter name="R_TYPE" class="java.lang.Integer"/>
+	<parameter name="R_RESOLUCION" class="java.lang.String"/>
+	<parameter name="R_FIRMA" class="java.lang.String"/>
+	<parameter name="R_FIRMA_REC" class="java.lang.Integer"/>
+	<parameter name="R_FIRMA_SEC" class="java.lang.Integer"/>
+	<parameter name="R_DIPLOMA" class="java.lang.String"/>
+	<parameter name="R_AL_ALUMNO" class="java.lang.String"/>
+	<parameter name="R_COPIA_FOLIO" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[$P!{SQL_PARAM}]]>
+	</queryString>
+	<field name="id_inst" class="java.lang.Integer"/>
+	<field name="id_sede" class="java.lang.Integer"/>
+	<field name="cod_grado" class="java.lang.String"/>
+	<field name="grupo" class="java.lang.String"/>
+	<field name="año" class="java.lang.Integer"/>
+	<field name="id_matric" class="java.lang.Integer"/>
+	<field name="id_folio" class="java.lang.Integer"/>
+	<field name="nro_matricula" class="java.lang.Integer"/>
+	<field name="libro_mat" class="java.lang.Integer"/>
+	<field name="sede" class="java.lang.String"/>
+	<field name="grado" class="java.lang.String"/>
+	<field name="jornada" class="java.lang.String"/>
+	<field name="estudiantes" class="java.lang.String"/>
+	<field name="cod_doc" class="java.lang.Integer"/>
+	<field name="tipo" class="java.lang.String"/>
+	<field name="abrev" class="java.lang.String"/>
+	<field name="sexo" class="java.lang.String"/>
+	<field name="nro_doc_id" class="java.lang.String"/>
+	<field name="estado" class="java.lang.Integer"/>
+	<field name="libro" class="java.lang.Integer"/>
+	<field name="folio" class="java.lang.Integer"/>
+	<field name="dpto" class="java.lang.String"/>
+	<field name="mun" class="java.lang.String"/>
+	<group name="codigo estudiante" isStartNewPage="true" isResetPageNumber="true">
+		<groupExpression><![CDATA[$F{id_matric}]]></groupExpression>
+		<groupHeader>
+			<band height="141">
+				<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement key="" positionType="Float" mode="Transparent" x="0" y="62" width="572" height="11" isRemoveLineWhenBlank="true" uuid="518f9859-46df-4597-9fc0-8fb6eb8c4628"/>
+					<box leftPadding="20" rightPadding="20"/>
+					<textElement textAlignment="Center" verticalAlignment="Top" markup="html">
+						<font fontName="Times New Roman" size="8" isBold="false"/>
+						<paragraph lineSpacing="Proportional"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$P{R_NOMBRE_INST}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="0" y="42" width="572" height="11" isRemoveLineWhenBlank="true" uuid="6c95fa66-82bd-45c4-8182-4abcf82334f6">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					</reportElement>
+					<box leftPadding="20" rightPadding="20"/>
+					<textElement textAlignment="Center" verticalAlignment="Top" markup="html">
+						<font fontName="Arial" size="8" isBold="false" pdfEncoding=""/>
+					</textElement>
+					<textFieldExpression><![CDATA[$P{R_ENCABEZADO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="0" y="80" width="572" height="11" isRemoveLineWhenBlank="true" uuid="5029a7ef-5dd9-4926-a0b3-49a20d1b1508"/>
+					<box leftPadding="20" rightPadding="20"/>
+					<textElement textAlignment="Justified" verticalAlignment="Top" markup="html">
+						<font fontName="Arial" size="8" isBold="false"/>
+						<paragraph lineSpacing="Proportional"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$P{R_RESOLUCION}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="0" y="99" width="572" height="11" isRemoveLineWhenBlank="true" uuid="7f82f72f-bb92-4188-803e-29edc443d63e"/>
+					<box leftPadding="20" rightPadding="20"/>
+					<textElement textAlignment="Center" verticalAlignment="Top" markup="html">
+						<font fontName="Arial" size="8" isBold="false"/>
+						<paragraph lineSpacing="Proportional"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$P{R_OTORGA}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="0" y="115" width="572" height="11" isRemoveLineWhenBlank="true" uuid="b7a932a3-6722-458c-8bf2-483d977c9508"/>
+					<box leftPadding="20" rightPadding="20"/>
+					<textElement textAlignment="Center" verticalAlignment="Top" markup="html">
+						<font fontName="Arial" size="8" isBold="false"/>
+						<paragraph lineSpacing="Proportional"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$P{R_DIPLOMA}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="0" y="130" width="572" height="11" isRemoveLineWhenBlank="true" uuid="ea1ed895-dba5-4789-a900-41eeec2358cf"/>
+					<box leftPadding="20" rightPadding="20"/>
+					<textElement textAlignment="Center" verticalAlignment="Top" markup="html">
+						<font fontName="Arial" size="8" isBold="false"/>
+						<paragraph lineSpacing="Proportional"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$P{R_AL_ALUMNO}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="165" splitType="Stretch">
+				<subreport>
+					<reportElement positionType="Float" x="35" y="153" width="147" height="12" isRemoveLineWhenBlank="true" isPrintWhenDetailOverflows="true" uuid="9da835a9-e142-4106-a03a-e0ae7d311395">
+						<printWhenExpression><![CDATA[$P{R_FIRMA_REC}.equals(1) && $P{R_FIRMA_SEC}.equals(1) ? true : false]]></printWhenExpression>
+					</reportElement>
+					<subreportParameter name="SUBREPORT_DIR">
+						<subreportParameterExpression><![CDATA[$P{SUBREPORT_DIR}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="id_inst">
+						<subreportParameterExpression><![CDATA[$F{id_inst}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="año">
+						<subreportParameterExpression><![CDATA[$F{año}]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "firma_rector_subreport.jasper"]]></subreportExpression>
+				</subreport>
+				<subreport>
+					<reportElement positionType="Float" x="388" y="153" width="147" height="12" isRemoveLineWhenBlank="true" isPrintWhenDetailOverflows="true" uuid="d70b39ef-1a59-433c-a485-78dd26d7959b">
+						<printWhenExpression><![CDATA[$P{R_FIRMA_REC}.equals(1) && $P{R_FIRMA_SEC}.equals(1) ? true : false]]></printWhenExpression>
+					</reportElement>
+					<subreportParameter name="SUBREPORT_DIR">
+						<subreportParameterExpression><![CDATA[$P{SUBREPORT_DIR}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="id_inst">
+						<subreportParameterExpression><![CDATA[$F{id_inst}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="año">
+						<subreportParameterExpression><![CDATA[$F{año}]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "firma_secretaria_subreport.jasper"]]></subreportExpression>
+				</subreport>
+				<subreport>
+					<reportElement positionType="Float" x="213" y="153" width="147" height="12" isRemoveLineWhenBlank="true" isPrintWhenDetailOverflows="true" uuid="2feb0e1d-4961-47a7-9620-a91e85aa6916">
+						<printWhenExpression><![CDATA[$P{R_FIRMA_REC}.equals(1) && $P{R_FIRMA_SEC}.equals(0) ? true : false]]></printWhenExpression>
+					</reportElement>
+					<subreportParameter name="SUBREPORT_DIR">
+						<subreportParameterExpression><![CDATA[$P{SUBREPORT_DIR}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="grupo">
+						<subreportParameterExpression><![CDATA[$F{grupo}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="cod_grado">
+						<subreportParameterExpression><![CDATA[$F{cod_grado}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="id_inst">
+						<subreportParameterExpression><![CDATA[$F{id_inst}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="año">
+						<subreportParameterExpression><![CDATA[$F{año}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="id_sede">
+						<subreportParameterExpression><![CDATA[$F{id_sede}]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "firma_rector_subreport.jasper"]]></subreportExpression>
+				</subreport>
+				<subreport>
+					<reportElement positionType="Float" x="213" y="153" width="147" height="12" isRemoveLineWhenBlank="true" isPrintWhenDetailOverflows="true" uuid="6b168beb-443b-4b1b-8422-a0559a2f9d83">
+						<printWhenExpression><![CDATA[$P{R_FIRMA_REC}.equals(0) && $P{R_FIRMA_SEC}.equals(1) ? true : false]]></printWhenExpression>
+					</reportElement>
+					<subreportParameter name="SUBREPORT_DIR">
+						<subreportParameterExpression><![CDATA[$P{SUBREPORT_DIR}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="id_inst">
+						<subreportParameterExpression><![CDATA[$F{id_inst}]]></subreportParameterExpression>
+					</subreportParameter>
+					<subreportParameter name="año">
+						<subreportParameterExpression><![CDATA[$F{año}]]></subreportParameterExpression>
+					</subreportParameter>
+					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "firma_secretaria_subreport.jasper"]]></subreportExpression>
+				</subreport>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="0" y="10" width="572" height="12" isRemoveLineWhenBlank="true" uuid="76f5782a-761d-43e4-904e-35c9c63a5a76">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					</reportElement>
+					<box leftPadding="20" rightPadding="20"/>
+					<textElement textAlignment="Center" verticalAlignment="Top" markup="html">
+						<font fontName="Arial" size="10" isBold="false"/>
+						<paragraph lineSpacing="Proportional"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$P{R_COPIA_FOLIO}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="0" y="30" width="572" height="12" isRemoveLineWhenBlank="true" uuid="82edcbba-1992-43f4-a426-959d029fc511">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					</reportElement>
+					<box leftPadding="20" rightPadding="20"/>
+					<textElement textAlignment="Center" verticalAlignment="Top" markup="html">
+						<font fontName="Arial" size="10" isBold="false"/>
+						<paragraph lineSpacing="Proportional"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$P{R_CONSTANCIA}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" x="0" y="51" width="572" height="12" isRemoveLineWhenBlank="true" uuid="e9d8aa8a-535d-4a20-a77a-b8d138a4f757">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					</reportElement>
+					<box leftPadding="20" rightPadding="20"/>
+					<textElement textAlignment="Center" verticalAlignment="Top" markup="html">
+						<font fontName="Arial" size="10" isBold="false"/>
+						<paragraph lineSpacing="Proportional"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$P{R_FIRMA}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement positionType="Float" x="0" y="92" width="572" height="19" uuid="3d1eca53-f81f-4371-8d17-fef9540e6b3a"/>
+					<box leftPadding="15" rightPadding="15"/>
+					<textElement textAlignment="Center">
+						<font fontName="Arial" size="16"/>
+					</textElement>
+					<text><![CDATA[FIRMADO]]></text>
+				</staticText>
+			</band>
+		</groupFooter>
+	</group>
+	<background>
+		<band height="752" splitType="Stretch">
+			<image hAlign="Center" vAlign="Middle" isUsingCache="true" isLazy="true">
+				<reportElement positionType="Float" x="0" y="0" width="572" height="752" uuid="705e50a0-11c9-42ec-ade6-9f402738feb2"/>
+				<imageExpression><![CDATA[$P{SUBREPORT_DIR} + "Diplomas/acta grado.jpg"]]></imageExpression>
+			</image>
+		</band>
+	</background>
+	<title>
+		<band splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band height="2" splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="2" splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="43" splitType="Immediate">
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" x="0" y="0" width="572" height="30" uuid="b9cf825d-556a-4bf3-a49e-ff6cf9d850a4"/>
+				<box leftPadding="15" rightPadding="15"/>
+				<textElement textAlignment="Center">
+					<font fontName="Times New Roman" size="26" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{estudiantes}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement positionType="Float" x="0" y="30" width="572" height="13" uuid="7016cf28-6a80-4f4f-add7-bd0d504a7e0d">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box leftPadding="15" rightPadding="15"/>
+				<textElement textAlignment="Center">
+					<font fontName="Arial" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Identificado (a) con "+$F{abrev} +" No. " +$F{nro_doc_id} +" de " +$F{mun} +" - "+$F{dpto}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

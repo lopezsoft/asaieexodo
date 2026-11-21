@@ -12,7 +12,12 @@
       </p>
       <a class="btn btn-primary mb-1 btn-sm-block" routerLink="/auth/login" rippleEffect
         >Ir al inicio</a
-      ><img
+      >
+      <br />
+      <button type="button" class="btn btn-secondary btn-sm-block" (click)="logout()" rippleEffect
+        >Cerrar sesión</button
+      >
+      <img
         class="img-fluid"
         [src]="
           coreConfig.layout.skin === 'dark'

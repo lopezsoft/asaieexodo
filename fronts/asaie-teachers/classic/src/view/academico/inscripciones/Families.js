@@ -36,7 +36,6 @@ Ext.define('Admin.view.academico.inscripciones.Families',{
 				ptype			: 'gridSearch',
 				readonlyIndexes	: ['note'],
 				disableIndexes	: ['pctChange'],
-				mode            : 'local',
 				flex			: 1,
 				autoFocus		: false,
 				independent		: true
@@ -50,26 +49,26 @@ Ext.define('Admin.view.academico.inscripciones.Families',{
                 text        : 'Nº documento',
                 align       : 'right',
                 dataIndex   : 'document',
-                width       : 150
+                width       : 130
             },
             {
                 text    : 'Nombres y apellidos',
                 columns : [
                     {
                         dataIndex   : 'name1',
-                        width       : 100
+                        width       : 150
                     },
                     {
                         dataIndex   : 'name2',
-                        width       : 100
+                        width       : 150
                     },
                     {
                         dataIndex   : 'lastname1',
-                        width       : 100
+                        width       : 150
                     },
                     {
                         dataIndex   : 'lastname2',
-                        width       : 100
+                        width       : 150
                     }
                 ]
             },            

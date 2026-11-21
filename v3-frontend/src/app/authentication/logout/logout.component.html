@@ -1,0 +1,24 @@
+<div
+    class="auth-wrapper auth-v2"
+    [class.dark-theme]="themeService.isDark()"
+>
+  <div class="auth-inner row m-0">
+    <div class="d-flex col-12 align-items-center justify-content-center p-5 min-vh-100">
+      <div class="auth-form text-center" style="max-width: 460px;">
+        <div class="logo mb-4">
+          <img src="assets/images/logo/logotipo.svg" alt="ASAIE ÉXODO">
+        </div>
+        <div class="mb-3 text-primary">
+          <i class="material-symbols-outlined" style="font-size: 56px;">logout</i>
+        </div>
+        <h2 class="fw-semibold mb-2">Sesión cerrada de forma segura</h2>
+        <p class="mb-4">
+          Tu sesión en ASAIE ÉXODO ha sido revocada correctamente. Puedes volver a ingresar en cualquier momento.
+        </p>
+        <a routerLink="/auth" class="btn-box d-inline-block px-4 py-2 border-0 border-radius text-decoration-none">
+          Iniciar sesión nuevamente
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

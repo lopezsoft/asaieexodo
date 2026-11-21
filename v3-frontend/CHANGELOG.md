@@ -3,6 +3,21 @@
 Todos los cambios notables de **v3-frontend** (Angular 20+ para toda la Comunidad Educativa) se documentan en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [3.8.0] - 2026-11-20
+
+### Añadido
+- **Paridad 100% Portal Docente Dedicado (`fronts/asaie-teachers` → `/teacher/*`, 9 vistas Standalone + Signals):**
+  - **Hub Docente (`TeacherHubComponent`):** Calendario oficial de periodos habilitados con ventanas de notas y nivelaciones (`PeriodosDocentesView`), 8 tarjetas de acceso rápido y carga académica con saltos directos a Notas, Nivelaciones y Seguimiento.
+  - **Planilla Avanzada (`TeacherGradebookComponent`):** Columnas dinámicas `N1..N30` con modal de configuración por dimensión (`ConfigColumnView`), filtro por sexo (`Mixto`/`M`/`F`), columnas de asistencia `F.J`/`F.I`/`Ret.`, autoguardado con temporizador, sincronización automática de descriptores, modal de logros y sugerencias por estudiante, e importación/exportación bidireccional de plantillas Excel (`.xlsx`).
+  - **Descriptores Multi-Escala, Sugerencias y Parcelador (`TeacherAchievementsPlanningComponent`):** Generación simultánea por los 4 desempeños nacionales con vista previa, pestaña dedicada de Sugerencias/Observaciones y Parcelador/Plan Semanal con fechas, horas, evaluación e impresión PDF JasperReports (`parcelador_clases`).
+  - **Nivelaciones (`/teacher/levelings`, `TeacherLevelingsComponent`):** Nivelaciones periódicas y recuperaciones de fin de año con detección automática de reprobados, validación contra topes SIEE y actas PDF JasperReports.
+  - **Observador M3/M5 (`/teacher/observer`, `TeacherObserverComponent`):** Ficha integral Modelo 5 (salud, familia, barreras, limitaciones+EPS/DX, PIAR/inclusión), matriz de criterios Modelo 3 (`N/AV/CS/S` P1–P4), anotaciones con impresión PDF (`observador_estudiante`), vista de acudientes y filtrado por grupos del docente.
+  - **Formato de Seguimiento (`/teacher/tracking`, `TeacherTrackingFormatComponent`):** Matriz grupal editable de conectividad y medios de acceso (`PV`, `TV`, `GW`, `GF`, `OT`, `EE`, `IN`, `TV`, `DC`) con indicadores KPI.
+  - **Informes y Boletines Docentes (`/teacher/reports`, `TeacherReportsComponent`):** Generador de boletines en 6 formatos (`Oficio`/`Carta`, grupo o estudiante individual) y los 10 informes oficiales del docente conectados a BullMQ + JasperReports + AWS S3.
+  - **Aula Virtual (`TeacherVirtualClassroomComponent`):** Fecha límite y adjunto S3 en actividades, biblioteca de Material Educativo AWS S3 (`EDUCATIONAL_RESOURCES`), constructor de preguntas con los 4 tipos de evaluación y eliminación de preguntas.
+  - **Mi Perfil y Firma Digital (`/teacher/profile`, `TeacherProfileComponent`):** Edición del perfil docente y carga de firma digital oficial en AWS S3 (`INSTITUTIONAL_SIGNATURES`).
+- **Sidebar y Traducciones:** Nuevos accesos en `full-menu.ts`, `es.json` y `en.json` (`0` atributos `title` nativos, `0` usos de `console.*`).
+
 ## [3.7.0] - 2026-11-20
 
 ### Añadido

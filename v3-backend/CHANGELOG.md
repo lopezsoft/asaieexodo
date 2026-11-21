@@ -3,6 +3,17 @@
 Todos los cambios notables de **v3-backend** (NestJS 11 + Fastify 5 + PostgreSQL 17 Unificado con RLS) se documentan en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [3.13.0] - 2026-11-20
+
+### Añadido
+- **Paridad 100% Portal Docente `asaie-teachers` (`TeacherExtendedController` en `PortalModule`, +19 endpoints bajo `/api/v1/teacher/*`):**
+  - **Calendario y Perfil Docente:** `GET /teacher/periods` (periodos con fechas de inicio/corte de notas y nivelaciones, peso %, estado) y `GET/PATCH /teacher/profile` (autopedición de datos del docente y `signature_url` en AWS S3).
+  - **Columnas Dinámicas `n1..n30` e Ítems:** `GET/POST /teacher/courses/:id/columns`, `DELETE /teacher/columns/:columnId` y `GET/PUT /teacher/courses/:id/grade-items` con recálculo automático ponderado de `final_score` y asignación de `national_scale_id` respetando el `grade_group_id` del curso.
+  - **Descriptores Multi-Escala y Sincronización:** `POST /teacher/achievements/multi-scale`, `GET /teacher/courses/:id/assigned-achievements`, `POST /teacher/grades/assign-achievements`, `DELETE /teacher/grades/assigned-achievements/:linkId` y `POST /teacher/courses/:id/sync-achievements` respetando `grade_group_id`.
+  - **Nivelaciones Periódicas y Finales:** `GET /teacher/levelings/periodic`, `GET /teacher/levelings/final` y `POST /teacher/levelings/save-batch` con validación contra `academic_grading_rules` por grupo de grados (`previousScore <= recoveryScore <= maxRecoveryScore`) y upsert idempotente en `period_recovery_records`.
+  - **Observador M3/M5 y Formato de Seguimiento:** `GET/PUT /teacher/observer/:enrollmentId/extended` (Modelo 5 inclusión/salud/familia y matriz Modelo 3 `N/AV/CS/S`) y `GET/PUT /teacher/tracking-format` (conectividad y medios de acceso por grupo) persistidos bajo RLS en `student_profiles.additional_info` JSONB sin alterar el esquema de PostgreSQL 17.
+- **Pruebas de integración `portal.spec.ts`:** Ampliadas validaciones 401 y pruebas RLS en vivo sobre los nuevos endpoints docentes (**10/10 suites, 34/34 tests aprobados**).
+
 ## [3.12.0] - 2026-11-20
 
 ### Añadido

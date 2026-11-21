@@ -3,6 +3,12 @@
 Todos los cambios notables de **v3-backend** (NestJS 11 + Fastify 5 + PostgreSQL 17 Unificado con RLS) se documentan en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [3.9.0] - 2026-11-20
+
+### Añadido
+- **Módulo Hexagonal `AcademicModule` (`/api/v1/academic/*` — Sprints 4 y 5):** Gestión completa bajo RLS de áreas académicas (`/areas`), asignaturas (`/subjects`), plan de estudios (`/study-plans`), carga académica y traslado masivo de carga docente (`/course-assignments` + `/reassign-teacher`), perfiles de estudiantes (`/students`), familias y vínculos (`/families`, `/students/:id/families`), matrículas anuales, novedades y traslado de grupo (`/enrollments`, `/enrollments/move`, `/enrollments/:id/novelties`), seguimiento de notas reportadas (`/grades/reported-summary`), edición rectoral con auditoría automática (`PATCH /grades/:id`), transferencia de notas (`/grades/transfer`), nivelaciones de periodo (`/recoveries`), cálculo/persistencia de Cuadro de Honor (`/honor-roll/calculate`) y normalización de logros a mayúsculas (`/achievements/uppercase`).
+- **Suite de integración en vivo `academic.spec.ts`:** Verificación de aislamiento RLS, RBAC 401 y flujo end-to-end contra PostgreSQL 17.
+
 ## [3.8.0] - 2026-11-20
 
 ### Añadido

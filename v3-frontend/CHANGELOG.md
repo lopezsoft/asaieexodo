@@ -3,6 +3,12 @@
 Todos los cambios notables de **v3-frontend** (Angular 20+ para toda la Comunidad Educativa) se documentan en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [3.4.0] - 2026-11-20
+
+### Añadido
+- **Módulo Académico Completo (Sprints 4 y 5, `/academic/*`):** Migración completa desde ExtJS (`academico/`, `inscripciones/`, `general/`) hacia Angular 20 Standalone + Signals (`V3AcademicService`, Hub Académico, Currículo y Carga Académica con traslado masivo docente, Inscripciones/Matrículas/Familias/Novedades/S3/Traslado de Estudiantes, Control de Notas/Editor Rectoral/Transferencia/Nivelaciones/Cuadro de Honor/Mayúsculas de Logros, y Centro de 17 Reportes Oficiales JasperReports conectado a BullMQ + AWS S3).
+- **Helper RBAC `V3UnifiedAuthService.hasAnyRole()`** y menú lateral/i18n (`es.json`, `en.json`).
+
 ## [3.3.0] - 2026-11-20
 
 ### Añadido

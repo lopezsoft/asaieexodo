@@ -6,6 +6,7 @@ import { AcademicModule } from './modules/academic/academic.module';
 import { AdministrationModule } from './modules/administration/administration.module';
 import { CatalogsModule } from './modules/catalogs/catalogs.module';
 import { CrmModule } from './modules/crm/crm.module';
+import { ElectionsModule } from './modules/elections/elections.module';
 import { GradingModule } from './modules/grading/grading.module';
 import { IamModule } from './modules/iam/iam.module';
 import { MigrationModule } from './modules/migration/migration.module';
@@ -51,6 +52,7 @@ import { SharedModule } from './shared/shared.module';
     SettingsModule,
     AcademicModule,
     PromotionModule,
+    ElectionsModule,
     TenantModule,
     IamModule,
     GradingModule,

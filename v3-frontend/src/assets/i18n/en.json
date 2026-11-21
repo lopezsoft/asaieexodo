@@ -173,6 +173,13 @@
       "history": "History & Certificates",
       "yearClosing": "Year Closing"
     },
+    "elections": {
+      "title": "School Elections",
+      "hub": "Elections Hub",
+      "control": "Elections & Stations",
+      "candidates": "Candidates & Ballot",
+      "results": "Live Tally"
+    },
     "student": {
       "academicNote": "Academic Grades",
       "academicReport": "Academic Reports",

@@ -165,6 +165,15 @@
       "gradesControl" : "Control de Notas",
       "reports"       : "Centro de Reportes"
     },
+    "promotion": {
+      "title"       : "Promoción",
+      "hub"         : "Panel de Promoción",
+      "finalBook"   : "Libro Final y Actas",
+      "advance"     : "Promoción Anticipada",
+      "returning"   : "Matricular Antiguos",
+      "history"     : "Historial y Certificados",
+      "yearClosing" : "Cierre de Año"
+    },
     "student"   : {
       "academicNote"      : "Notas Académicas",
       "academicReport"    : "Informes Académicos",

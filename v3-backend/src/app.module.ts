@@ -9,6 +9,7 @@ import { CrmModule } from './modules/crm/crm.module';
 import { GradingModule } from './modules/grading/grading.module';
 import { IamModule } from './modules/iam/iam.module';
 import { MigrationModule } from './modules/migration/migration.module';
+import { PromotionModule } from './modules/promotion/promotion.module';
 import { ReportingModule } from './modules/reporting/reporting.module';
 import { SettingsModule } from './modules/settings/settings.module';
 import { StorageModule } from './modules/storage/storage.module';
@@ -49,6 +50,7 @@ import { SharedModule } from './shared/shared.module';
     AdministrationModule,
     SettingsModule,
     AcademicModule,
+    PromotionModule,
     TenantModule,
     IamModule,
     GradingModule,

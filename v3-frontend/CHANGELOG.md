@@ -3,6 +3,15 @@
 Todos los cambios notables de **v3-frontend** (Angular 20+ para toda la Comunidad Educativa) se documentan en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [3.7.0] - 2026-11-20
+
+### Añadido
+- **Portal Docente Completo (Sprint 8, `/teacher/*`):** Migración completa de `docentes/` y `asaie-teachers` (incluyendo Observador Modelo 5) hacia Angular 20 Standalone + Signals (`V3PortalService`, Hub Docente, Planilla Interactiva de Notas con exportación Excel `.xlsx` + Preinformes + Inasistencias, Banco de Logros + Importación interanual + Planes de Clase/Parcelador, Observador Modelos 1–5 y Aula Virtual LMS con Actividades/Evaluaciones/Clases en Vivo).
+- **Portal Estudiantil y Familiar Completo (`/student/*`):** Reemplazo total de los 3 stubs restantes (`AcademicNotesComponent`, `AcademicReportsComponent`, `AcademicActivitiesComponent` con exámenes en línea calificados en servidor y clases en vivo) — completando el 100% de los 8 sprints de migración desde ExtJS.
+
+### Eliminado y Limpiado
+- Migración de `UserContainerComponent` a `V3UnifiedAuthService` + `RouterLink` y eliminación definitiva de los servicios legacy obsoletos (`ApiService`, `AuthService`, `UsersService`, `UserActionsService`) y archivos `.html`/`.scss` vacíos de stubs estudiantiles (`0` usos de `console.*` y `0` atributos nativos `title`).
+
 ## [3.6.0] - 2026-11-20
 
 ### Añadido

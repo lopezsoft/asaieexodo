@@ -3,6 +3,14 @@
 Todos los cambios notables de **v3-backend** (NestJS 11 + Fastify 5 + PostgreSQL 17 Unificado con RLS) se documentan en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [3.12.0] - 2026-11-20
+
+### Añadido
+- **Módulo Hexagonal `PortalModule` (`/api/v1/teacher/*` y `/api/v1/student/*` — Sprint 8):**
+  - **Portal Docente:** Cursos asignados (`/teacher/courses`), planilla interactiva con guardado masivo y auditoría automática respetando cierre de periodo (`GET/PUT /teacher/courses/:id/gradebook`), preinformes (`/pre-reports`), banco de logros e importación interanual (`/achievements`, `/achievements/import`), registro de inasistencias (`/absences`), observador del estudiante con soporte Modelo 1–5 (`/observer`, `/observer/:id/annotations`), planes de clase y parcelador (`/lesson-plans`, `/units`), actividades virtuales y calificación de entregas (`/activities`, `/submissions`), evaluaciones en línea con preguntas/opciones (`/evaluations`, `/questions`, `/attempts`) y clases en vivo (`/live-classes`).
+  - **Portal Estudiante y Familia (100% REST + RLS, cero SQL desde cliente):** Resumen de matrícula y docentes (`/student/overview`), consulta de calificaciones, preinformes y observador (`/student/grades`), actividades virtuales con entrega (`/student/activities`, `POST /:id/submit`), evaluaciones en línea con ocultamiento estricto de `is_correct` y calificación 100% en servidor (`/student/evaluations`, `POST /:id/submit`), y clases en vivo con registro de asistencia (`/student/live-classes`, `POST /:id/join`).
+- **Suite de integración en vivo `portal.spec.ts`:** Verificación de seguridad 401 en los 11 endpoints base de ambos portales y operaciones bajo RLS sobre PostgreSQL 17 (**10/10 suites, 34/34 tests aprobados**).
+
 ## [3.11.0] - 2026-11-20
 
 ### Añadido

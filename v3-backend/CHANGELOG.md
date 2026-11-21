@@ -3,6 +3,19 @@
 Todos los cambios notables de **v3-backend** (NestJS 11 + Fastify 5 + PostgreSQL 17 Unificado con RLS) se documentan en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [3.15.0] - 2026-11-21
+
+### Añadido
+- **Pipeline ETL Histórico Completo en Streaming (`MigrationModule` / `MigrateLegacySchoolEtlUseCase` / `npm run migration:etl`):**
+  - Lector nativo sin dependencias externas `LegacyMysqlCliReader` con backpressure (`readline` + `mysql --batch --quick`) y sanitizador defensivo `etl-sanitizer.helper.ts` para migrar bases de datos reales desde MariaDB/MySQL legacy (`mig-schools-admin` + `mig-schools-*`) hacia PostgreSQL 17 RLS con inserciones masivas `UNNEST`, preservación de hashes Laravel `$2y$` (compatibles con `pgcrypto` + rehash automático a `scrypt`), mapeo completo de catálogos (incluyendo `PPT id=20`), consolidación de matrículas canónicas y auditoría automática de reconciliación origen vs destino.
+  - Validado en vivo con el historial completo `2011–2026` de IE Franjocal Momil (`school_id = 7`): `9,019` usuarios, `9,028` membresías, `6,495` estudiantes, `4,157` familias, `10,472` cursos, `31,607` matrículas canónicas, `184,941` columnas de planilla, `74,779` logros, `1,449,352` calificaciones con `12,388,139` casillas parciales `n1..n30`, `851,854` vínculos de logros, `27,739` promociones y `93,241` rankings en `149.7 segundos`.
+
+### Cambiado
+- **Optimización de Almacenamiento en `academic_grades` (`-81.7%` en disco y `5.4×` más rápido):**
+  - Se incorporan `n1..n30 NUMERIC(5,2) DEFAULT NULL` inline directamente en la tabla particionada `academic_grades` (ocupando `0 bytes` en heap por columna vacía en PostgreSQL) y se elimina la tabla hija `academic_grade_items` (y sus 5 particiones), reduciendo el tamaño real de la base de datos migrada de `3,848 MB` a **`704 MB`** (un `19.5%` más compacta que los `874.2 MB` de MariaDB origen) y llevando la lectura de planillas 2026 (`25 MB`) a **`0.093 ms`** sin `JOINs`.
+  - Refactorizados `listCourseGradeItems` y `saveGradeItemsBatch` en `PostgresTeacherExtendedRepository` con lista blanca estática (`n1..n30`), cálculo ponderado en memoria y actualización atómica sin alterar contratos REST ni frontend.
+  - Actualizada la suite `tenant-rls.spec.ts` para verificar las `133` relaciones (`128` tablas accesibles + `5` particiones protegidas con RLS y `0` columnas sin comentario) — **11/11 suites, 38/38 tests aprobados en vivo**.
+
 ## [3.14.0] - 2026-11-21
 
 ### Añadido

@@ -16,8 +16,8 @@
         </p>
       </div>
 
-      @if (statistics(); as stats) {
-        <div class="d-flex align-items-center gap-2">
+      <div class="d-flex flex-wrap align-items-center gap-2">
+        @if (statistics(); as stats) {
           <span
             class="badge rounded-pill px-3 py-2"
             [ngClass]="stats.schoolSummary.isActive ? 'text-bg-success' : 'text-bg-danger'"
@@ -38,8 +38,27 @@
             <i class="material-symbols-outlined fs-6">apartment</i>
             <span>Administrativo</span>
           </a>
-        </div>
-      }
+        } @else {
+          <a
+            [routerLink]="v3Auth.defaultHomeRoute()"
+            class="btn btn-sm btn-primary d-inline-flex align-items-center gap-1"
+            [appCustomTooltip]="'Abrir el portal principal de su rol activo'"
+          >
+            <i class="material-symbols-outlined fs-6">open_in_new</i>
+            <span>Ir a mi Portal ({{ v3Auth.activeRoleLabel() }})</span>
+          </a>
+        }
+        @if (v3Auth.hasMultipleMemberships()) {
+          <a
+            routerLink="/access-panel"
+            class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1"
+            [appCustomTooltip]="'Abrir el Panel de Accesos para buscar y cambiar de institución o rol'"
+          >
+            <i class="material-symbols-outlined fs-6">apps</i>
+            <span>Panel de Accesos</span>
+          </a>
+        }
+      </div>
     </div>
   </div>
 

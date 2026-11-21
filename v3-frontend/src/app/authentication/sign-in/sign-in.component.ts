@@ -36,7 +36,7 @@ export class SignInComponent implements OnInit {
 
   ngOnInit(): void {
     if (this.v3Auth.isAuthenticated()) {
-      void this.router.navigate(['/dashboard']);
+      void this.router.navigate([this.v3Auth.resolvePostLoginRoute()]);
     }
   }
 
@@ -71,7 +71,9 @@ export class SignInComponent implements OnInit {
           this.messagesService.showSuccess(
             `Bienvenido(a), ${response.data.user.fullName}`,
           );
-          void this.router.navigate(['/dashboard']);
+          void this.router.navigate([
+            this.v3Auth.resolvePostLoginRoute(response.data),
+          ]);
         },
       });
   }

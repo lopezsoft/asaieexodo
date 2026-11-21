@@ -9,7 +9,7 @@ import {
   PLATFORM_ID,
   signal,
 } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import {
   ApexAxisChartSeries,
   ApexChart,
@@ -30,6 +30,7 @@ import { V3CatalogsService } from '../../services/v3-catalogs.service';
 import {
   COMMUNITY_ROLE_LABELS,
   CommunityRole,
+  resolveLandingRouteByRole,
   UnifiedSchoolMembership,
   V3UnifiedAuthService,
 } from '../../services/v3-unified-auth.service';
@@ -50,7 +51,6 @@ const ADMIN_DASHBOARD_ROLES: readonly CommunityRole[] = [
   'RECTOR',
   'COORDINATOR',
   'SECRETARY',
-  'TEACHER',
 ];
 
 @Component({
@@ -66,6 +66,7 @@ export class HomeDashboardComponent implements OnInit {
   private readonly catalogsService = inject(V3CatalogsService);
   private readonly maskService = inject(LoadMaskService);
   private readonly messagesService = inject(MessagesService);
+  private readonly router = inject(Router);
 
   protected readonly isBrowser: boolean;
   protected readonly loadingStats = signal(false);
@@ -165,6 +166,10 @@ export class HomeDashboardComponent implements OnInit {
           this.messagesService.showSuccess(
             `Contexto actualizado: ${response.data.activeSchoolName} (${this.getRoleLabel(response.data.activeRole)})`,
           );
+          const targetRoute = resolveLandingRouteByRole(response.data.activeRole);
+          if (targetRoute !== '/dashboard') {
+            void this.router.navigate([targetRoute]);
+          }
         },
       });
   }

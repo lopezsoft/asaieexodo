@@ -1,4 +1,5 @@
-import { Routes } from '@angular/router';
+import { inject } from '@angular/core';
+import { CanActivateFn, Router, Routes } from '@angular/router';
 import { AuthenticationComponent } from './authentication/authentication.component';
 import { ConfirmEmailComponent } from './authentication/confirm-email/confirm-email.component';
 import { ForgotPasswordComponent } from './authentication/forgot-password/forgot-password.component';
@@ -9,16 +10,34 @@ import { ResetPasswordComponent } from './authentication/reset-password/reset-pa
 import { SignInComponent } from './authentication/sign-in/sign-in.component';
 import { SignUpComponent } from './authentication/sign-up/sign-up.component';
 import { ComingSoonComponent } from './coming-soon/coming-soon.component';
+import { AccessPanelComponent } from './dashboard/access-panel/access-panel.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { HomeDashboardComponent } from './dashboard/home/home-dashboard.component';
 import { authGuard } from './guards/auth.guard';
 import { NotFoundComponent } from './not-found/not-found.component';
+import { V3UnifiedAuthService } from './services/v3-unified-auth.service';
+
+const rootLandingGuard: CanActivateFn = () => {
+  const v3Auth = inject(V3UnifiedAuthService);
+  const router = inject(Router);
+  if (!v3Auth.isAuthenticated()) {
+    return router.createUrlTree(['/auth']);
+  }
+  return router.createUrlTree([v3Auth.resolvePostLoginRoute()]);
+};
 
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: '/dashboard',
     pathMatch: 'full',
+    canActivate: [rootLandingGuard],
+    component: AccessPanelComponent,
+  },
+  {
+    path: 'access-panel',
+    component: DashboardComponent,
+    canActivate: [authGuard],
+    children: [{ path: '', component: AccessPanelComponent }],
   },
   {
     path: 'dashboard',

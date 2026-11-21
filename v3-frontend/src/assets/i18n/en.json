@@ -133,8 +133,10 @@
   "Third Level 1.2": "Third Level 1.2",
   "menu": {
     "dashboard": "Dashboard",
+    "accessPanel": "Access Panel",
     "user": {
       "profile": "My Profile",
+      "user": "User",
       "logout": "Sign Out",
       "returnToAccessPanel": "Access Panel",
       "changeModule": "Switch Module"

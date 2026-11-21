@@ -131,7 +131,8 @@
     "delete"        : "¿Seguro que desea eliminar el registro?"
   },
   "menu" : {
-    "dashboard" : "Dashboard",
+    "dashboard"   : "Dashboard",
+    "accessPanel" : "Panel de Accesos",
     "user"      : {
       "profile"   : "Perfil",
       "user"      : "Usuario",

@@ -2,11 +2,14 @@ import { isPlatformBrowser, NgClass, NgIf, NgOptimizedImage } from '@angular/com
 import {
   Component,
   computed,
+  DestroyRef,
   HostListener,
   Inject,
   inject,
   PLATFORM_ID,
+  signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
@@ -35,6 +38,9 @@ import { ToggleService } from './toggle.service';
 export class HeaderComponent {
   public readonly langService = inject(LanguageService);
   public readonly v3Auth = inject(V3UnifiedAuthService);
+  private readonly destroyRef = inject(DestroyRef);
+
+  readonly isAccessPanelView = signal(false);
 
   isSidebarToggled = false;
   isToggled = false;
@@ -62,15 +68,26 @@ export class HeaderComponent {
     @Inject(PLATFORM_ID) private readonly platformId: object,
     private readonly router: Router,
   ) {
-    this.toggleService.isSidebarToggled$.subscribe((toggled) => {
-      this.isSidebarToggled = toggled;
-    });
-    this.themeService.isToggled$.subscribe((toggled) => {
-      this.isToggled = toggled;
-    });
+    this.isAccessPanelView.set(this.router.url.startsWith('/access-panel'));
+    this.toggleService.isSidebarToggled$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((toggled) => {
+        this.isSidebarToggled = toggled;
+      });
+    this.themeService.isToggled$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((toggled) => {
+        this.isToggled = toggled;
+      });
     this.router.events
-      .pipe(filter((event) => event instanceof NavigationEnd))
-      .subscribe(() => {
+      .pipe(
+        filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((event) => {
+        this.isAccessPanelView.set(
+          event.urlAfterRedirects.startsWith('/access-panel'),
+        );
         if (this.isSidebarToggled) {
           this.toggleService.toggle();
         }

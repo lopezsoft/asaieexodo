@@ -11,7 +11,7 @@
     [class.component-body-bg-color]="themeService.isBodyBG()"
 >
     <div class="logo bg-white">
-        <a routerLink="/dashboard" class="d-flex align-items-center position-relative">
+        <a [routerLink]="v3Auth.hasMultipleMemberships() ? '/access-panel' : v3Auth.defaultHomeRoute()" class="d-flex align-items-center position-relative">
             <img src="assets/images/logo/logotipo.svg" class="transition position-relative" alt="ASAIE ÉXODO">
         </a>
     </div>
@@ -28,78 +28,108 @@
         <div class="sidebar-inner">
             <div class="sidebar-menu">
                 <div class="accordion">
-                  @for (item of menuService.filteredMenu(); track item.id) {
-                    @if (item.subItems && item.subItems.length > 0) {
-                      <div class="accordion-item border-radius border-0">
-                        <button
-                          type="button"
-                          (click)="toggleSubmenu(item.id)"
-                          class="sidebar-menu-link w-100 position-relative border-radius fw-medium transition border-0 bg-transparent text-start d-flex align-items-center justify-content-between"
-                        >
-                          <span class="d-flex align-items-center">
+                  @if (isAccessPanelView()) {
+                    <div class="accordion-item border-radius border-0">
+                      <a
+                        routerLink="/access-panel"
+                        class="sidebar-menu-link w-100 position-relative border-radius fw-medium transition"
+                        routerLinkActive="active"
+                        [routerLinkActiveOptions]="{exact: true}"
+                      >
+                        <i class="material-symbols-outlined">apps</i>
+                        <span class="title lh-1">
+                          {{ 'menu.accessPanel' | transloco }}
+                        </span>
+                      </a>
+                    </div>
+                    <div class="accordion-item border-radius border-0">
+                      <a
+                        routerLink="/profile/user"
+                        class="sidebar-menu-link w-100 position-relative border-radius fw-medium transition"
+                        routerLinkActive="active"
+                      >
+                        <i class="material-symbols-outlined">account_circle</i>
+                        <span class="title lh-1">
+                          {{ 'menu.user.user' | transloco }}
+                        </span>
+                      </a>
+                    </div>
+                  } @else {
+                    @for (item of menuService.filteredMenu(); track item.id) {
+                      @if (item.subItems && item.subItems.length > 0) {
+                        <div class="accordion-item border-radius border-0">
+                          <button
+                            type="button"
+                            (click)="toggleSubmenu(item.id)"
+                            class="sidebar-menu-link w-100 position-relative border-radius fw-medium transition border-0 bg-transparent text-start d-flex align-items-center justify-content-between"
+                          >
+                            <span class="d-flex align-items-center">
+                              <i class="material-symbols-outlined">
+                                {{ item.icon }}
+                              </i>
+                              <span class="title lh-1">
+                                {{ item.translatedName | transloco }}
+                              </span>
+                            </span>
+                            <i class="material-symbols-outlined fs-6">
+                              {{ isSubmenuExpanded(item.id) ? 'expand_less' : 'expand_more' }}
+                            </i>
+                          </button>
+                          @if (isSubmenuExpanded(item.id)) {
+                            <div class="v3-sidebar-sublist">
+                              @for (sub of item.subItems; track sub.id) {
+                                <a
+                                  [routerLink]="sub.link"
+                                  class="sidebar-menu-link w-100 position-relative border-radius fw-medium transition"
+                                  routerLinkActive="active"
+                                  [routerLinkActiveOptions]="{exact: true}"
+                                >
+                                  <i class="material-symbols-outlined">
+                                    {{ sub.icon }}
+                                  </i>
+                                  <span class="title lh-1">
+                                    {{ sub.translatedName | transloco }}
+                                  </span>
+                                </a>
+                              }
+                            </div>
+                          }
+                        </div>
+                      } @else {
+                        <div class="accordion-item border-radius border-0">
+                          <a
+                            [routerLink]="item.link"
+                            [target]="item.isExternal ? '_blank' : ''"
+                            class="sidebar-menu-link w-100 position-relative border-radius fw-medium transition"
+                            [routerLinkActive]="item.isExternal ? '' : 'active'"
+                            [routerLinkActiveOptions]="{exact: true}">
                             <i class="material-symbols-outlined">
                               {{ item.icon }}
                             </i>
                             <span class="title lh-1">
                               {{ item.translatedName | transloco }}
                             </span>
-                          </span>
-                          <i class="material-symbols-outlined fs-6">
-                            {{ isSubmenuExpanded(item.id) ? 'expand_less' : 'expand_more' }}
-                          </i>
-                        </button>
-                        @if (isSubmenuExpanded(item.id)) {
-                          <div class="v3-sidebar-sublist">
-                            @for (sub of item.subItems; track sub.id) {
-                              <a
-                                [routerLink]="sub.link"
-                                class="sidebar-menu-link w-100 position-relative border-radius fw-medium transition"
-                                routerLinkActive="active"
-                                [routerLinkActiveOptions]="{exact: true}"
-                              >
-                                <i class="material-symbols-outlined">
-                                  {{ sub.icon }}
-                                </i>
-                                <span class="title lh-1">
-                                  {{ sub.translatedName | transloco }}
-                                </span>
-                              </a>
-                            }
-                          </div>
-                        }
-                      </div>
-                    } @else {
-                      <div class="accordion-item border-radius border-0">
-                        <a
-                          [routerLink]="item.link"
-                          [target]="item.isExternal ? '_blank' : ''"
-                          class="sidebar-menu-link w-100 position-relative border-radius fw-medium transition"
-                          [routerLinkActive]="item.isExternal ? '' : 'active'"
-                          [routerLinkActiveOptions]="{exact: true}">
-                          <i class="material-symbols-outlined">
-                            {{ item.icon }}
-                          </i>
-                          <span class="title lh-1">
-                            {{ item.translatedName | transloco }}
-                          </span>
-                        </a>
-                      </div>
+                          </a>
+                        </div>
+                      }
                     }
                   }
                   <span class="sub-title d-block fw-medium text-uppercase">
                     <hr class="my-1">
                   </span>
 
-                  <div class="accordion-item border-radius border-0">
-                    <a
-                      routerLink="/dashboard"
-                      class="sidebar-menu-link w-100 position-relative border-radius fw-medium transition cursor-pointer">
-                      <i class="material-symbols-outlined">swap_horiz</i>
-                      <span class="title lh-1">
-                        {{ 'menu.user.changeModule' | transloco }}
-                      </span>
-                    </a>
-                  </div>
+                  @if (!isAccessPanelView() && v3Auth.hasMultipleMemberships()) {
+                    <div class="accordion-item border-radius border-0">
+                      <a
+                        routerLink="/access-panel"
+                        class="sidebar-menu-link w-100 position-relative border-radius fw-medium transition cursor-pointer">
+                        <i class="material-symbols-outlined">swap_horiz</i>
+                        <span class="title lh-1">
+                          {{ 'menu.user.changeModule' | transloco }}
+                        </span>
+                      </a>
+                    </div>
+                  }
                   <div class="accordion-item border-radius border-0">
                       <a
                         (click)="logout()"

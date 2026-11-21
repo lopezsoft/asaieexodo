@@ -19,21 +19,38 @@
             >
                 <i class="material-symbols-outlined">menu</i>
             </div>
-            <a routerLink="/dashboard" class="logo">
+            <a [routerLink]="v3Auth.hasMultipleMemberships() ? '/access-panel' : v3Auth.defaultHomeRoute()" class="logo">
                 <img src="assets/images/logo/logo.svg" alt="ASAIE ÉXODO">
             </a>
-            <a routerLink="/dashboard" class="logo white-logo">
+            <a [routerLink]="v3Auth.hasMultipleMemberships() ? '/access-panel' : v3Auth.defaultHomeRoute()" class="logo white-logo">
                 <img src="assets/images/logo/logo.svg" alt="ASAIE ÉXODO">
             </a>
-            @if (v3Auth.activeSchoolName()) {
+            @if (isAccessPanelView()) {
               <span
-                class="v3-school-pill d-none d-lg-inline-block ms-3"
-                [appCustomTooltip]="'Institución educativa activa: ' + v3Auth.activeSchoolName()"
+                class="v3-school-pill d-none d-lg-inline-block ms-3 text-uppercase"
+                [appCustomTooltip]="'Seleccione la institución educativa y el módulo con el que desea ingresar'"
               >
-                {{ v3Auth.activeSchoolName() }}
+                Panel de Accesos
               </span>
+            } @else if (v3Auth.activeSchoolName()) {
+              @if (v3Auth.hasMultipleMemberships()) {
+                <a
+                  routerLink="/access-panel"
+                  class="v3-school-pill d-none d-lg-inline-block ms-3 text-decoration-none"
+                  [appCustomTooltip]="'Clic para cambiar de institución o módulo (' + v3Auth.activeRoleLabel() + ')'"
+                >
+                  {{ v3Auth.activeSchoolName() }} · {{ v3Auth.activeRoleLabel() }}
+                </a>
+              } @else {
+                <span
+                  class="v3-school-pill d-none d-lg-inline-block ms-3"
+                  [appCustomTooltip]="'Institución educativa activa: ' + v3Auth.activeSchoolName()"
+                >
+                  {{ v3Auth.activeSchoolName() }}
+                </span>
+              }
             }
-            @if (v3Auth.isAuthenticated()) {
+            @if (v3Auth.isAuthenticated() && !isAccessPanelView()) {
               <div class="d-flex align-items-center ms-3 gap-1">
                 <label class="small text-muted d-none d-xl-inline mb-0" for="v3-global-year">Año:</label>
                 <select
@@ -139,23 +156,25 @@
                                 {{ v3Auth.user()?.fullName || 'Usuario' }}
                             </span>
                             <span class="d-block small">
-                                {{ v3Auth.activeRoleLabel() }}
+                                {{ isAccessPanelView() ? 'Panel de Accesos' : v3Auth.activeRoleLabel() }}
                             </span>
                         </div>
                     </div>
                     <ul class="list p-0 mt-0 mb-0 list-unstyled">
                         <li>
-                            <a routerLink="/profile/user" class="d-block position-relative">
+                            <a routerLink="/profile/user" (click)="isProfileDropdownOpen = false" class="d-block position-relative">
                                 <i class="material-symbols-outlined">account_circle</i>
                                 {{ 'menu.user.profile' | transloco }}
                             </a>
                         </li>
-                        <li>
-                            <a routerLink="/dashboard" class="d-block position-relative">
-                                <i class="material-symbols-outlined">swap_horiz</i>
-                                {{ 'menu.user.returnToAccessPanel' | transloco }}
-                            </a>
-                        </li>
+                        @if (v3Auth.hasMultipleMemberships()) {
+                          <li>
+                              <a routerLink="/access-panel" (click)="isProfileDropdownOpen = false" class="d-block position-relative">
+                                  <i class="material-symbols-outlined">swap_horiz</i>
+                                  {{ 'menu.user.returnToAccessPanel' | transloco }}
+                              </a>
+                          </li>
+                        }
                     </ul>
                     <div class="border-top"></div>
                     <ul class="list p-0 mt-0 mb-0 list-unstyled">

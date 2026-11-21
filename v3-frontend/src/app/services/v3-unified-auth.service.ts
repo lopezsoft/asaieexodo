@@ -20,14 +20,32 @@ export type CommunityRole =
 export const COMMUNITY_ROLE_LABELS: Readonly<Record<CommunityRole, string>> = {
   SUPER_ADMIN: 'Super Administrador',
   SCHOOL_ADMIN: 'Administrador Institucional',
-  RECTOR: 'Rector(a)',
-  COORDINATOR: 'Coordinador(a)',
+  RECTOR: 'Rector(a) / Director(a)',
+  COORDINATOR: 'Coordinación',
   SECRETARY: 'Secretaría Académica',
   TEACHER: 'Docente',
   STUDENT: 'Estudiante',
   FAMILY: 'Padre de Familia / Acudiente',
   MONITOR: 'Monitor Académico',
 };
+
+/**
+ * Resuelve la ruta de entrada principal para cada rol educativo tras iniciar sesión
+ * o cambiar de contexto en el Panel de Accesos.
+ */
+export function resolveLandingRouteByRole(
+  role: CommunityRole | null | undefined,
+): string {
+  switch (role) {
+    case 'TEACHER':
+      return '/teacher';
+    case 'STUDENT':
+    case 'FAMILY':
+      return '/student/academic-notes';
+    default:
+      return '/dashboard';
+  }
+}
 
 export interface UnifiedSchoolMembership {
   readonly schoolId: number;
@@ -111,6 +129,12 @@ export class V3UnifiedAuthService {
   readonly user = computed(() => this.sessionSignal()?.user ?? null);
   readonly memberships = computed(
     () => this.sessionSignal()?.user?.memberships ?? [],
+  );
+  readonly hasMultipleMemberships = computed(
+    () => this.memberships().length > 1,
+  );
+  readonly defaultHomeRoute = computed(() =>
+    resolveLandingRouteByRole(this.activeRole()),
   );
 
   constructor() {
@@ -361,6 +385,21 @@ export class V3UnifiedAuthService {
   hasAnyRole(roles: readonly CommunityRole[]): boolean {
     const active = this.activeRole();
     return Boolean(active && roles.includes(active));
+  }
+
+  /**
+   * Si el usuario tiene múltiples colegios o perfiles, lo lleva al Panel de Accesos;
+   * si tiene un único perfil, lo dirige directamente a su módulo correspondiente.
+   */
+  resolvePostLoginRoute(session?: UnifiedAuthenticatedSession | null): string {
+    const current = session ?? this.sessionSignal();
+    if (!current) {
+      return '/auth';
+    }
+    if ((current.user?.memberships?.length ?? 0) > 1) {
+      return '/access-panel';
+    }
+    return resolveLandingRouteByRole(current.activeRole);
   }
 
   private persistSession(session: UnifiedAuthenticatedSession): void {

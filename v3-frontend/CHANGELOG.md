@@ -3,6 +3,16 @@
 Todos los cambios notables de **v3-frontend** (Angular 20+ para toda la Comunidad Educativa) se documentan en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [3.2.0] - 2026-11-20
+
+### Añadido
+- **Fundación UI V3 (Sprint 1):** Selector global de Año Lectivo y colegio activo en `HeaderComponent`, Sidebar jerárquico multi-nivel con RBAC (`roleGuard`), componentes compartidos (`V3DataGridComponent`, `V3ModalDialogComponent`, `V3FileManagerModalComponent`), servicios `V3CatalogsService` y `V3AdministrationService`.
+- **Dashboard Ejecutivo y Perfil V3:** KPIs institucionales y 3 gráficas anuales `ApexCharts` reactivas al año lectivo/colegio, más migración completa de `ProfileComponent` y `ProfileChangeComponent` hacia `/api/v1/auth/*` + AWS S3.
+- **Módulo Administrativo Completo (Sprint 2, `/admin/*`):** Migración desde ExtJS de Hub Administrativo, Datos del Plantel, Sedes Educativas (+ Jornadas y Niveles por sede), Personal Docente (+ documentos S3), Personal Administrativo (+ documentos S3) y Directores de Grupo (+ reporte PDF JasperReports).
+
+### Corregido y Limpiado
+- Eliminación total de 786 archivos de demos Trezo y POS legacy sin uso, migración de interceptores/guards a `V3UnifiedAuthService`, remoción de `withHashLocation()`, endurecimiento de `DebugService` y `CustomTooltipDirective` (0 atributos nativos `title` y 0 `console.*`).
+
 ## [3.1.0] - 2026-11-05
 
 ### Añadido

@@ -3,6 +3,16 @@
 Todos los cambios notables de **v3-backend** (NestJS 11 + Fastify 5 + PostgreSQL 17 Unificado con RLS) se documentan en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [3.7.0] - 2026-11-20
+
+### Añadido
+- **Módulo Hexagonal `CatalogsModule` (`/api/v1/catalogs/*`):** Paquete consolidado de 19 catálogos oficiales MEN/DANE/SIMAT en una sola consulta SQL `json_build_object`, más endpoints geográficos (`/countries`, `/departments`, `/cities`) y contexto académico del colegio (`/school-context`).
+- **Módulo Hexagonal `AdministrationModule` (`/api/v1/admin/*`):** Estadísticas y series históricas para Dashboard Ejecutivo (`/dashboard/statistics`), ficha institucional (`/school`), CRUD de sedes educativas (`/campuses`) con sub-CRUDs de jornadas y niveles, personal docente (`/teachers`), personal administrativo (`/staff`) y directores de grupo por año lectivo (`/group-managers`).
+- **Perfil propio en `IamModule`:** `PATCH /api/v1/auth/me` y `PATCH /api/v1/auth/username` con verificación de contraseña actual.
+
+### Corregido y Endurecido
+- **Auditoría forense 100% remediada:** Guards globales (`RateLimitGuard` en Redis, `JwtAuthGuard` + `auth_sessions`, `RolesGuard`, `TenantContextInterceptor`), cierre de IDOR/bypass en `switch-context` y contraseñas, verificación dual `scrypt` + `bcrypt` heredado (`pgcrypto`), endurecimiento de `NodemailerSmtpMailAdapter`, `AwsS3StorageAdapter`, `JasperReportAdapter`, manejadores de error BullMQ, alineación total de `GradingModule`/`CrmModule`/`StorageModule`/`ReportingModule`/`MigrationModule`, y cierre de RLS forzado + mínimo privilegio en 139 tablas/particiones y `pgvector/pgvector:0.8.1-pg17` + Redis `--requirepass`.
+
 ## [3.6.0] - 2026-11-05
 
 ### Añadido

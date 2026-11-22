@@ -1,13 +1,21 @@
+export type CloudStorageCategory =
+  | 'STUDENT_DOCUMENTS'
+  | 'TEACHER_DOCUMENTS'
+  | 'FAMILY_DOCUMENTS'
+  | 'ADMINISTRATIVE_DOCUMENTS'
+  | 'USER_AVATARS'
+  | 'INSTITUTIONAL_LOGOS'
+  | 'VIRTUAL_ACTIVITIES'
+  | 'OBSERVER_ATTACHMENTS'
+  | 'CRM_ATTACHMENTS'
+  | 'JASPER_REPORTS'
+  | 'GENERAL';
+
 export interface UploadCloudObjectInput {
   readonly storageFolder: string;
-  readonly category:
-    | 'STUDENT_DOCUMENTS'
-    | 'INSTITUTIONAL_LOGOS'
-    | 'VIRTUAL_ACTIVITIES'
-    | 'OBSERVER_ATTACHMENTS'
-    | 'CRM_ATTACHMENTS'
-    | 'JASPER_REPORTS'
-    | 'GENERAL';
+  readonly category: CloudStorageCategory;
+  readonly ownerEntityType?: string | null;
+  readonly ownerEntityId?: bigint | null;
   readonly originalFileName: string;
   readonly mimeType: string;
   readonly contentBuffer: Buffer;
@@ -51,6 +59,8 @@ export abstract class CloudStoragePort {
   abstract buildSchoolObjectKey(params: {
     storageFolder: string;
     category: UploadCloudObjectInput['category'];
+    ownerEntityType?: string | null;
+    ownerEntityId?: bigint | null;
     originalFileName: string;
     academicYear?: number;
     fileUuid?: string;

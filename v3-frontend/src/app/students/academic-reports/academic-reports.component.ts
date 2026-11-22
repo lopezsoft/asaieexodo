@@ -8,6 +8,7 @@ import {
 } from '../../services/v3-portal.service';
 import { V3UnifiedAuthService } from '../../services/v3-unified-auth.service';
 import { V3FileManagerModalComponent } from '../../shared/components/v3-file-manager-modal/v3-file-manager-modal.component';
+import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.directive';
 
 /**
  * Portal Estudiantil y Familiar: Resumen Académico, Docentes del Curso e Informes Digitales
@@ -16,7 +17,7 @@ import { V3FileManagerModalComponent } from '../../shared/components/v3-file-man
 @Component({
   selector: 'app-academic-reports',
   standalone: true,
-  imports: [CommonModule, V3FileManagerModalComponent],
+  imports: [CommonModule, V3FileManagerModalComponent, CustomTooltipDirective],
   template: `
     <div class="container-fluid py-3">
       <div class="breadcrumb-card mb-25 d-md-flex align-items-center justify-content-between">
@@ -26,9 +27,19 @@ import { V3FileManagerModalComponent } from '../../shared/components/v3-file-man
             {{ auth.activeSchoolName() }} · Año lectivo {{ academicYear() }}
           </small>
         </div>
-        <button type="button" class="btn btn-sm btn-outline-primary" (click)="docsModalOpen.set(true)">
-          <i class="material-symbols-outlined fs-6 align-middle me-1">folder_open</i>
-          Documentos Digitales (S3)
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1"
+          [disabled]="!overview()?.studentProfileId"
+          (click)="docsModalOpen.set(true)"
+          [appCustomTooltip]="
+            overview()?.studentProfileId
+              ? 'Consultar expediente y documentos digitales del estudiante'
+              : 'Disponible cuando exista una ficha estudiantil vinculada'
+          "
+        >
+          <i class="material-symbols-outlined fs-6">folder_shared</i>
+          <span>Mis Documentos Digitales</span>
         </button>
       </div>
 
@@ -100,8 +111,13 @@ import { V3FileManagerModalComponent } from '../../shared/components/v3-file-man
 
       <app-v3-file-manager-modal
         [open]="docsModalOpen()"
-        heading="Boletines y Documentos del Estudiante"
+        [heading]="'Documentos Digitales · ' + (overview()?.studentFullName || 'Estudiante')"
+        subtitle="Expediente digital enlazado a tu ficha estudiantil"
         category="STUDENT_DOCUMENTS"
+        ownerEntityType="STUDENT"
+        [ownerEntityId]="overview()?.studentProfileId ?? null"
+        [ownerDisplayName]="overview()?.studentFullName ?? null"
+        [ownerDocumentNumber]="overview()?.documentNumber ?? null"
         [canUpload]="false"
         [canDelete]="false"
         (closed)="docsModalOpen.set(false)"

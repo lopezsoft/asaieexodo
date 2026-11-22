@@ -183,6 +183,8 @@ export class AwsS3StorageAdapter implements CloudStoragePort {
   public buildSchoolObjectKey(params: {
     storageFolder: string;
     category: UploadCloudObjectInput['category'];
+    ownerEntityType?: string | null;
+    ownerEntityId?: bigint | null;
     originalFileName: string;
     academicYear?: number;
     fileUuid?: string;
@@ -197,6 +199,18 @@ export class AwsS3StorageAdapter implements CloudStoragePort {
     const categorySlug = params.category.toLowerCase().replace(/_/g, '-');
     const year = params.academicYear ?? new Date().getFullYear();
     const uuid = params.fileUuid ?? crypto.randomUUID();
+
+    // Segmento de propietario por registro (ej. teacher-42, student-108, family-9)
+    const ownerSlug =
+      params.ownerEntityType &&
+      params.ownerEntityId !== undefined &&
+      params.ownerEntityId !== null
+        ? `${params.ownerEntityType
+            .trim()
+            .toLowerCase()
+            .replace(/[^a-z0-9_-]/g, '-')
+            .replace(/_+/g, '-')}-${String(params.ownerEntityId)}`
+        : null;
 
     const baseNameOnly = path.posix.basename(
       params.originalFileName.replace(/\\/g, '/'),
@@ -214,7 +228,9 @@ export class AwsS3StorageAdapter implements CloudStoragePort {
         .slice(0, 120) || 'document';
 
     const sanitizedFileName = `${baseSafe}.${extension}`;
-    const relativeKey = `${cleanFolder}/${categorySlug}/${year}/${uuid}-${sanitizedFileName}`;
+    const relativeKey = ownerSlug
+      ? `${cleanFolder}/${categorySlug}/${year}/${ownerSlug}/${uuid}-${sanitizedFileName}`
+      : `${cleanFolder}/${categorySlug}/${year}/${uuid}-${sanitizedFileName}`;
     const storageKey = this.mainPath
       ? `${this.mainPath}/${relativeKey}`
       : relativeKey;
@@ -239,6 +255,8 @@ export class AwsS3StorageAdapter implements CloudStoragePort {
     const { storageKey, extension } = this.buildSchoolObjectKey({
       storageFolder: input.storageFolder,
       category: input.category,
+      ownerEntityType: input.ownerEntityType,
+      ownerEntityId: input.ownerEntityId,
       originalFileName: input.originalFileName,
       academicYear: input.academicYear,
     });

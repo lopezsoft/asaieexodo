@@ -8,16 +8,20 @@ import { DomainException } from '../../../../shared/domain/exceptions/domain.exc
 import { ResourceNotFoundException } from '../../../../shared/domain/exceptions/resource-not-found.exception';
 import { SmartLoggerService } from '../../../../shared/infrastructure/logging/smart-logger.service';
 import {
+  ALLOWED_CLOUD_FILE_OWNER_ENTITY_TYPES,
   CLOUD_FILE_REPOSITORY_PORT,
+  CloudFileOwnerEntityType,
   CloudFileRecord,
   ICloudFileRepositoryPort,
+  ListSchoolFilesFilter,
+  RECORD_SCOPED_OWNER_ENTITY_TYPES,
 } from '../../domain/ports/cloud-file.repository.port';
 
 export interface UploadSchoolFileCommand {
   readonly schoolId: bigint;
   readonly uploadedByUserId?: bigint | null;
   readonly category: UploadCloudObjectInput['category'];
-  readonly ownerEntityType?: string | null;
+  readonly ownerEntityType?: CloudFileOwnerEntityType | string | null;
   readonly ownerEntityId?: bigint | null;
   readonly originalFileName: string;
   readonly description?: string | null;
@@ -26,6 +30,14 @@ export interface UploadSchoolFileCommand {
   readonly academicYear?: number;
   readonly isWatermark?: boolean;
   readonly metadata?: Record<string, unknown>;
+}
+
+function isKnownOwnerEntityType(
+  value: string,
+): value is CloudFileOwnerEntityType {
+  return (ALLOWED_CLOUD_FILE_OWNER_ENTITY_TYPES as readonly string[]).includes(
+    value,
+  );
 }
 
 /**
@@ -51,6 +63,12 @@ export class ManageCloudFilesUseCase {
       sizeBytes: command.contentBuffer.byteLength,
     });
 
+    await this.assertValidOwnerBinding(
+      command.schoolId,
+      command.ownerEntityType,
+      command.ownerEntityId,
+    );
+
     const storageFolder =
       await this.cloudFileRepository.resolveSchoolStorageFolder(
         command.schoolId,
@@ -59,6 +77,8 @@ export class ManageCloudFilesUseCase {
     const s3Object = await this.cloudStorage.uploadObject({
       storageFolder,
       category: command.category,
+      ownerEntityType: command.ownerEntityType ?? null,
+      ownerEntityId: command.ownerEntityId ?? null,
       originalFileName: command.originalFileName,
       mimeType: command.mimeType,
       contentBuffer: command.contentBuffer,
@@ -82,6 +102,7 @@ export class ManageCloudFilesUseCase {
         status: 1,
         metadata: {
           ...(command.metadata ?? {}),
+          storageCategory: command.category,
           s3Bucket: s3Object.bucket,
           s3Region: s3Object.region,
           s3ETag: s3Object.eTag,
@@ -114,6 +135,8 @@ export class ManageCloudFilesUseCase {
     schoolId: bigint;
     uploadedByUserId?: bigint | null;
     category: UploadCloudObjectInput['category'];
+    ownerEntityType?: CloudFileOwnerEntityType | string | null;
+    ownerEntityId?: bigint | null;
     originalFileName: string;
     mimeType: string;
     sizeBytes: number;
@@ -128,6 +151,12 @@ export class ManageCloudFilesUseCase {
       sizeBytes: params.sizeBytes,
     });
 
+    await this.assertValidOwnerBinding(
+      params.schoolId,
+      params.ownerEntityType,
+      params.ownerEntityId,
+    );
+
     const storageFolder =
       await this.cloudFileRepository.resolveSchoolStorageFolder(
         params.schoolId,
@@ -136,6 +165,8 @@ export class ManageCloudFilesUseCase {
     const { storageKey, extension } = this.cloudStorage.buildSchoolObjectKey({
       storageFolder,
       category: params.category,
+      ownerEntityType: params.ownerEntityType ?? null,
+      ownerEntityId: params.ownerEntityId ?? null,
       originalFileName: params.originalFileName,
     });
 
@@ -151,8 +182,8 @@ export class ManageCloudFilesUseCase {
     const fileRecord = await this.cloudFileRepository.saveCloudFile({
       schoolId: params.schoolId,
       uploadedByUserId: params.uploadedByUserId ?? null,
-      ownerEntityType: params.category,
-      ownerEntityId: null,
+      ownerEntityType: params.ownerEntityType ?? params.category,
+      ownerEntityId: params.ownerEntityId ?? null,
       fileName: params.originalFileName,
       description: params.description ?? null,
       storagePath: storageKey,
@@ -162,6 +193,7 @@ export class ManageCloudFilesUseCase {
       sizeBytes: params.sizeBytes,
       status: 0,
       metadata: {
+        storageCategory: params.category,
         s3Bucket: presignedUpload.bucket,
         uploadMode: 'PRESIGNED_PUT',
         uploadStatus: 'PENDING',
@@ -249,16 +281,77 @@ export class ManageCloudFilesUseCase {
 
   public async listSchoolFiles(
     schoolId: bigint,
-    ownerEntityType?: string,
-    limit?: number,
-    offset?: number,
+    filter: ListSchoolFilesFilter = {},
   ): Promise<CloudFileRecord[]> {
-    return this.cloudFileRepository.listSchoolFiles(
+    return this.cloudFileRepository.listSchoolFiles(schoolId, filter);
+  }
+
+  public async isEntityOwnedByUser(
+    schoolId: bigint,
+    ownerEntityType: CloudFileOwnerEntityType,
+    ownerEntityId: bigint,
+    userId: bigint,
+    accessMode: 'READ' | 'WRITE',
+  ): Promise<boolean> {
+    return this.cloudFileRepository.isEntityOwnedByUser(
       schoolId,
       ownerEntityType,
-      limit,
-      offset,
+      ownerEntityId,
+      userId,
+      accessMode,
     );
+  }
+
+  private async assertValidOwnerBinding(
+    schoolId: bigint,
+    ownerEntityType?: string | null,
+    ownerEntityId?: bigint | null,
+  ): Promise<void> {
+    if (ownerEntityId !== undefined && ownerEntityId !== null && !ownerEntityType) {
+      throw new DomainException(
+        'OWNER_ENTITY_TYPE_REQUIRED',
+        'Debe especificar el tipo de entidad propietaria cuando se indica un ownerEntityId.',
+      );
+    }
+
+    if (!ownerEntityType) {
+      return;
+    }
+
+    if (!isKnownOwnerEntityType(ownerEntityType)) {
+      throw new DomainException(
+        'INVALID_OWNER_ENTITY_TYPE',
+        `El tipo de entidad propietaria '${ownerEntityType}' no está soportado.`,
+      );
+    }
+
+    if (
+      RECORD_SCOPED_OWNER_ENTITY_TYPES.has(ownerEntityType) &&
+      (ownerEntityId === undefined || ownerEntityId === null)
+    ) {
+      throw new DomainException(
+        'OWNER_ENTITY_ID_REQUIRED',
+        `Los documentos digitales de tipo '${ownerEntityType}' deben estar enlazados a un registro específico (ownerEntityId).`,
+      );
+    }
+
+    if (ownerEntityId !== undefined && ownerEntityId !== null) {
+      if (ownerEntityId <= 0n) {
+        throw new DomainException(
+          'INVALID_OWNER_ENTITY_ID',
+          'El identificador del registro propietario debe ser un entero positivo.',
+        );
+      }
+
+      const exists = await this.cloudFileRepository.ownerEntityExists(
+        schoolId,
+        ownerEntityType,
+        ownerEntityId,
+      );
+      if (!exists) {
+        throw new ResourceNotFoundException(ownerEntityType, ownerEntityId);
+      }
+    }
   }
 
   public async deleteSchoolFile(

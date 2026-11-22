@@ -341,7 +341,12 @@ export class PostgresAdministrationRepository
         filterAllowlist,
       );
       if (filterExpr) {
-        params.push(`%${options.filterValue}%`);
+        // Evitar que buscar "Activo" coincida con "Inactivo" en filtros de columna booleana
+        const pattern =
+          options.filterField === 'isActive'
+            ? `${options.filterValue}%`
+            : `%${options.filterValue}%`;
+        params.push(pattern);
         clauses.push(`${filterExpr} ILIKE $${params.length}`);
       }
     }
@@ -383,9 +388,7 @@ export class PostgresAdministrationRepository
       const clauses: string[] = [];
       const params: unknown[] = [];
 
-      if (options.onlyActive) {
-        clauses.push(`cp.is_active = TRUE`);
-      }
+      this.appendStatusClause(clauses, 'cp', options);
       if (options.search && options.search.length > 0) {
         params.push(`%${options.search}%`);
         clauses.push(
@@ -732,9 +735,7 @@ export class PostgresAdministrationRepository
       const clauses: string[] = [];
       const params: unknown[] = [];
 
-      if (options.onlyActive) {
-        clauses.push(`tp.is_active = TRUE`);
-      }
+      this.appendStatusClause(clauses, 'tp', options);
       if (options.search && options.search.length > 0) {
         params.push(`%${options.search}%`);
         clauses.push(
@@ -991,9 +992,7 @@ export class PostgresAdministrationRepository
       const clauses: string[] = [];
       const params: unknown[] = [];
 
-      if (options.onlyActive) {
-        clauses.push(`s.is_active = TRUE`);
-      }
+      this.appendStatusClause(clauses, 's', options);
       if (options.search && options.search.length > 0) {
         params.push(`%${options.search}%`);
         clauses.push(
@@ -1275,8 +1274,15 @@ export class PostgresAdministrationRepository
       const clauses: string[] = [`ag.academic_year = $1`];
       const params: unknown[] = [academicYear];
 
-      if (options.onlyActive) {
-        clauses.push(`ag.is_active = TRUE`);
+      this.appendStatusClause(clauses, 'ag', options);
+      if (options.campusId !== undefined) {
+        params.push(options.campusId);
+        clauses.push(`ag.campus_id = $${params.length}`);
+      }
+      if (options.assignmentState === 'ASSIGNED') {
+        clauses.push(`ag.homeroom_teacher_id IS NOT NULL`);
+      } else if (options.assignmentState === 'UNASSIGNED') {
+        clauses.push(`ag.homeroom_teacher_id IS NULL`);
       }
       if (options.search && options.search.length > 0) {
         params.push(`%${options.search}%`);
@@ -1710,6 +1716,24 @@ export class PostgresAdministrationRepository
       maxCapacity: Number(row.max_capacity),
       isActive: Boolean(row.is_active),
     };
+  }
+
+  private appendStatusClause(
+    clauses: string[],
+    tableAlias: string,
+    options: GridQueryOptions,
+  ): void {
+    if (options.status === 'ACTIVE') {
+      clauses.push(`${tableAlias}.is_active = TRUE`);
+      return;
+    }
+    if (options.status === 'INACTIVE') {
+      clauses.push(`${tableAlias}.is_active = FALSE`);
+      return;
+    }
+    if (options.status !== 'ALL' && options.onlyActive) {
+      clauses.push(`${tableAlias}.is_active = TRUE`);
+    }
   }
 
   private formatIsoDate(value: Date | string): string {

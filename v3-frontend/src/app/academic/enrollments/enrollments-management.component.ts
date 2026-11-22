@@ -36,6 +36,16 @@ import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.d
 
 type EnrollmentTab = 'students' | 'enrollments' | 'families' | 'move';
 
+interface RecordDocsModalContext {
+  readonly heading: string;
+  readonly subtitle: string;
+  readonly category: 'STUDENT_DOCUMENTS' | 'FAMILY_DOCUMENTS';
+  readonly ownerEntityType: 'STUDENT' | 'FAMILY';
+  readonly ownerEntityId: number;
+  readonly ownerDisplayName: string;
+  readonly ownerDocumentNumber: string | null;
+}
+
 /**
  * Inscripciones, Matrículas, Familias, Novedades, Documentos Digitales y Traslado de Estudiantes
  * (reemplaza InscripcionesView, MatriculasView, FamiliesView, NovedadesView, MoverEstudiantesView).
@@ -108,15 +118,6 @@ type EnrollmentTab = 'students' | 'enrollments' | 'families' | 'move';
                 <button type="button" class="btn btn-outline-primary" (click)="searchStudents()">Buscar</button>
               </div>
               <div class="d-flex flex-wrap align-items-center gap-2">
-                <button
-                  type="button"
-                  class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1"
-                  (click)="openDocsModal('Documentos Digitales de Estudiantes')"
-                  [appCustomTooltip]="'Abrir repositorio documental de estudiantes'"
-                >
-                  <i class="material-symbols-outlined fs-6">cloud_upload</i>
-                  <span>Repositorio Documental</span>
-                </button>
                 @if (canWrite()) {
                   <button
                     type="button"
@@ -149,6 +150,14 @@ type EnrollmentTab = 'students' | 'enrollments' | 'families' | 'move';
                       <td class="small">{{ st.birthDate || '—' }}</td>
                       <td class="small">{{ st.phone || '—' }} · {{ st.email || '—' }}</td>
                       <td class="text-end text-nowrap">
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-secondary me-1"
+                          (click)="openStudentDocsModal(st)"
+                          [appCustomTooltip]="'Documentos digitales de ' + st.fullName"
+                        >
+                          <i class="material-symbols-outlined fs-6">folder_shared</i>
+                        </button>
                         <button
                           type="button"
                           class="btn btn-sm btn-outline-info me-1"
@@ -332,10 +341,10 @@ type EnrollmentTab = 'students' | 'enrollments' | 'families' | 'move';
                         <button
                           type="button"
                           class="btn btn-sm btn-outline-secondary"
-                          (click)="openDocsModal('Documentos de ' + enr.studentFullName)"
-                          [appCustomTooltip]="'Documentos digitales del estudiante'"
+                          (click)="openEnrollmentStudentDocsModal(enr)"
+                          [appCustomTooltip]="'Documentos digitales de ' + enr.studentFullName"
                         >
-                          <i class="material-symbols-outlined fs-6">folder</i>
+                          <i class="material-symbols-outlined fs-6">folder_shared</i>
                         </button>
                       </td>
                     </tr>
@@ -395,6 +404,7 @@ type EnrollmentTab = 'students' | 'enrollments' | 'families' | 'move';
                     <th>Teléfono / Celular</th>
                     <th>Correo</th>
                     <th>Ocupación</th>
+                    <th class="text-end">Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -405,10 +415,20 @@ type EnrollmentTab = 'students' | 'enrollments' | 'families' | 'move';
                       <td class="small">{{ fam.mobilePhone || fam.phone || '—' }}</td>
                       <td class="small">{{ fam.email || '—' }}</td>
                       <td class="small">{{ fam.occupation || '—' }}</td>
+                      <td class="text-end text-nowrap">
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-info"
+                          (click)="openFamilyDocsModal(fam)"
+                          [appCustomTooltip]="'Documentos digitales de ' + fam.fullName"
+                        >
+                          <i class="material-symbols-outlined fs-6">folder_shared</i>
+                        </button>
+                      </td>
                     </tr>
                   } @empty {
                     <tr>
-                      <td colspan="5" class="text-center text-muted py-4">No hay acudientes registrados.</td>
+                      <td colspan="6" class="text-center text-muted py-4">No hay acudientes registrados.</td>
                     </tr>
                   }
                 </tbody>
@@ -698,11 +718,21 @@ type EnrollmentTab = 'students' | 'enrollments' | 'families' | 'move';
                 </div>
                 <small class="text-muted">Doc: {{ lnk.familyDocumentNumber }} · Tel: {{ lnk.familyPhone || '—' }} · {{ lnk.relationshipName }}</small>
               </div>
-              @if (canWrite()) {
-                <button type="button" class="btn btn-sm btn-outline-danger" (click)="unlinkFamily(lnk)" [appCustomTooltip]="'Desvincular acudiente'">
-                  <i class="material-symbols-outlined fs-6">link_off</i>
+              <div class="text-nowrap">
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-info me-1"
+                  (click)="openLinkedFamilyDocsModal(lnk)"
+                  [appCustomTooltip]="'Documentos digitales de ' + lnk.familyFullName"
+                >
+                  <i class="material-symbols-outlined fs-6">folder_shared</i>
                 </button>
-              }
+                @if (canWrite()) {
+                  <button type="button" class="btn btn-sm btn-outline-danger" (click)="unlinkFamily(lnk)" [appCustomTooltip]="'Desvincular acudiente'">
+                    <i class="material-symbols-outlined fs-6">link_off</i>
+                  </button>
+                }
+              </div>
             </li>
           } @empty {
             <li class="list-group-item text-muted text-center">No hay acudientes vinculados.</li>
@@ -710,14 +740,19 @@ type EnrollmentTab = 'students' | 'enrollments' | 'families' | 'move';
         </ul>
       </app-v3-modal-dialog>
 
-      <!-- Modal gestor documental S3 -->
+      <!-- Modal gestor documental S3 enlazado por registro -->
       <app-v3-file-manager-modal
         [open]="docsModalOpen()"
-        [heading]="docsModalHeading()"
-        category="STUDENT_DOCUMENTS"
+        [heading]="docsModalContext()?.heading || 'Documentos Digitales'"
+        [subtitle]="docsModalContext()?.subtitle || 'Expediente digital enlazado al registro seleccionado'"
+        [category]="docsModalContext()?.category || 'STUDENT_DOCUMENTS'"
+        [ownerEntityType]="docsModalContext()?.ownerEntityType ?? null"
+        [ownerEntityId]="docsModalContext()?.ownerEntityId ?? null"
+        [ownerDisplayName]="docsModalContext()?.ownerDisplayName ?? null"
+        [ownerDocumentNumber]="docsModalContext()?.ownerDocumentNumber ?? null"
         [canUpload]="canManageDocs()"
         [canDelete]="canManageDocs()"
-        (closed)="docsModalOpen.set(false)"
+        (closed)="closeDocsModal()"
       ></app-v3-file-manager-modal>
     </div>
   `,
@@ -773,7 +808,7 @@ export class EnrollmentsManagementComponent implements OnInit {
   readonly selectedStudentForFamilies = signal<StudentProfileRecord | null>(null);
   readonly studentFamilies = signal<StudentFamilyLinkRecord[]>([]);
   readonly docsModalOpen = signal(false);
-  readonly docsModalHeading = signal('Documentos Digitales');
+  readonly docsModalContext = signal<RecordDocsModalContext | null>(null);
 
   readonly documentTypeOptions = computed<SearchableSelectOption<number | null>[]>(
     () => [
@@ -1164,9 +1199,61 @@ export class EnrollmentsManagementComponent implements OnInit {
       });
   }
 
-  openDocsModal(heading: string): void {
-    this.docsModalHeading.set(heading);
+  openStudentDocsModal(student: StudentProfileRecord): void {
+    this.docsModalContext.set({
+      heading: `Documentos Digitales · ${student.fullName}`,
+      subtitle: 'Expediente digital enlazado al estudiante seleccionado',
+      category: 'STUDENT_DOCUMENTS',
+      ownerEntityType: 'STUDENT',
+      ownerEntityId: student.id,
+      ownerDisplayName: student.fullName,
+      ownerDocumentNumber: student.documentNumber,
+    });
     this.docsModalOpen.set(true);
+  }
+
+  openEnrollmentStudentDocsModal(enrollment: EnrollmentRecord): void {
+    this.docsModalContext.set({
+      heading: `Documentos Digitales · ${enrollment.studentFullName}`,
+      subtitle: 'Expediente digital enlazado al estudiante matriculado',
+      category: 'STUDENT_DOCUMENTS',
+      ownerEntityType: 'STUDENT',
+      ownerEntityId: enrollment.studentProfileId,
+      ownerDisplayName: enrollment.studentFullName,
+      ownerDocumentNumber: enrollment.studentDocumentNumber,
+    });
+    this.docsModalOpen.set(true);
+  }
+
+  openFamilyDocsModal(family: FamilyProfileRecord): void {
+    this.docsModalContext.set({
+      heading: `Documentos Digitales · ${family.fullName}`,
+      subtitle: 'Expediente digital enlazado al padre de familia / acudiente seleccionado',
+      category: 'FAMILY_DOCUMENTS',
+      ownerEntityType: 'FAMILY',
+      ownerEntityId: family.id,
+      ownerDisplayName: family.fullName,
+      ownerDocumentNumber: family.documentNumber,
+    });
+    this.docsModalOpen.set(true);
+  }
+
+  openLinkedFamilyDocsModal(link: StudentFamilyLinkRecord): void {
+    this.docsModalContext.set({
+      heading: `Documentos Digitales · ${link.familyFullName}`,
+      subtitle: `Expediente digital del acudiente (${link.relationshipName})`,
+      category: 'FAMILY_DOCUMENTS',
+      ownerEntityType: 'FAMILY',
+      ownerEntityId: link.familyProfileId,
+      ownerDisplayName: link.familyFullName,
+      ownerDocumentNumber: link.familyDocumentNumber,
+    });
+    this.docsModalOpen.set(true);
+  }
+
+  closeDocsModal(): void {
+    this.docsModalOpen.set(false);
+    this.docsModalContext.set(null);
   }
 
   renumberFolios(): void {

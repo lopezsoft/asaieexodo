@@ -76,10 +76,48 @@ import { isControlInvalid, markAllAsTouched } from '../../utils/form-validators'
         </div>
         <ol class="breadcrumb list-unstyled mt-0 mb-0 p-0">
           <li class="breadcrumb-item d-inline-block position-relative">
+            <a routerLink="/dashboard" class="d-inline-block position-relative">
+              <i class="material-symbols-outlined">home</i>
+              Inicio
+            </a>
+          </li>
+          <li class="breadcrumb-item d-inline-block position-relative">
             <a routerLink="/admin" class="d-inline-block position-relative">Administrativo</a>
           </li>
           <li class="breadcrumb-item d-inline-block position-relative">Personal Docente</li>
         </ol>
+      </div>
+
+      <div class="v3-admin-filter-strip">
+        <div class="v3-admin-filter-group">
+          <span class="v3-admin-filter-label">Estado</span>
+          <div class="v3-rbac-segment-bar" role="group" aria-label="Filtrar docentes por estado">
+            <button
+              type="button"
+              class="v3-rbac-segment-pill"
+              [class.is-active]="statusFilter() === 'ACTIVE'"
+              (click)="setStatusFilter('ACTIVE')"
+            >
+              <span>Activos</span>
+            </button>
+            <button
+              type="button"
+              class="v3-rbac-segment-pill"
+              [class.is-active]="statusFilter() === 'INACTIVE'"
+              (click)="setStatusFilter('INACTIVE')"
+            >
+              <span>Inactivos</span>
+            </button>
+            <button
+              type="button"
+              class="v3-rbac-segment-pill"
+              [class.is-active]="statusFilter() === 'ALL'"
+              (click)="setStatusFilter('ALL')"
+            >
+              <span>Todos</span>
+            </button>
+          </div>
+        </div>
       </div>
 
       <exodo-grid
@@ -95,20 +133,10 @@ import { isControlInvalid, markAllAsTouched } from '../../utils/form-validators'
         [showPagination]="true"
         [limit]="15"
         [theme]="gridTheme"
-        placeholder="Buscar por documento, nombre o correo..."
+        placeholder="Buscar docente, documento o correo..."
         (loadError)="onGridLoadError()"
       >
         <div header class="v3-exodo-toolbar">
-          <button
-            type="button"
-            class="btn btn-sm btn-outline-info d-inline-flex align-items-center gap-1"
-            (click)="docsModalOpen.set(true)"
-            [appCustomTooltip]="'Abrir documentos digitales del personal docente'"
-          >
-            <i class="material-symbols-outlined fs-6">folder_shared</i>
-            <span>Documentos digitales</span>
-          </button>
-
           <button
             type="button"
             class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1"
@@ -157,8 +185,23 @@ import { isControlInvalid, markAllAsTouched } from '../../utils/form-validators'
               }}
             </td>
             <td class="fw-medium">{{ teacher.fullName }}</td>
-            <td>{{ teacher.email || '—' }}</td>
-            <td>{{ teacher.phone || '—' }}</td>
+            <td>
+              @if (teacher.email || teacher.phone) {
+                <div class="v3-contact-stack">
+                  @if (teacher.email) {
+                    <span class="v3-contact-primary">{{ teacher.email }}</span>
+                  }
+                  @if (teacher.phone) {
+                    <span class="v3-contact-secondary">
+                      <i class="material-symbols-outlined fs-6">call</i>
+                      {{ teacher.phone }}
+                    </span>
+                  }
+                </div>
+              } @else {
+                <span class="text-muted">—</span>
+              }
+            </td>
             <td>{{ teacher.teachingAreaName || '—' }}</td>
             <td>{{ teacher.payScaleName || '—' }}</td>
             <td class="text-center">
@@ -174,7 +217,26 @@ import { isControlInvalid, markAllAsTouched } from '../../utils/form-validators'
               </span>
             </td>
             <td class="text-end text-nowrap">
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-info me-1"
+                (click)="openTeacherDocsModal(teacher)"
+                [appCustomTooltip]="'Documentos digitales de ' + teacher.fullName"
+              >
+                <i class="material-symbols-outlined fs-6">folder_shared</i>
+              </button>
               @if (canWrite()) {
+                <button
+                  type="button"
+                  class="btn btn-sm me-1"
+                  [ngClass]="teacher.isActive ? 'btn-outline-warning' : 'btn-outline-success'"
+                  (click)="toggleTeacherStatus(teacher)"
+                  [appCustomTooltip]="teacher.isActive ? 'Inactivar docente' : 'Reactivar docente'"
+                >
+                  <i class="material-symbols-outlined fs-6">
+                    {{ teacher.isActive ? 'block' : 'check_circle' }}
+                  </i>
+                </button>
                 <button
                   type="button"
                   class="btn btn-sm btn-outline-primary me-1"
@@ -269,6 +331,16 @@ import { isControlInvalid, markAllAsTouched } from '../../utils/form-validators'
                 <label class="form-label">Fecha de nacimiento</label>
                 <input type="date" class="form-control" formControlName="birthDate" />
               </div>
+              @if (!editingTeacher()) {
+                <div class="col-12">
+                  <div class="v3-form-panel v3-form-panel--info d-flex align-items-start gap-2 mb-0">
+                    <i class="material-symbols-outlined text-primary fs-5">badge</i>
+                    <small>
+                      Al registrar el docente se habilita su acceso al portal usando su número de documento como usuario y contraseña inicial (podrá actualizarla en su primer ingreso).
+                    </small>
+                  </div>
+                </div>
+              }
             </div>
           } @else if (wizardStep() === 1) {
             <div class="row g-3">
@@ -389,11 +461,16 @@ import { isControlInvalid, markAllAsTouched } from '../../utils/form-validators'
 
     <app-v3-file-manager-modal
       [open]="docsModalOpen()"
-      heading="Expedientes y Documentos de Docentes"
-      category="GENERAL"
+      [heading]="'Documentos Digitales · ' + (selectedTeacherForDocs()?.fullName || 'Docente')"
+      subtitle="Expediente digital enlazado al docente seleccionado"
+      category="TEACHER_DOCUMENTS"
+      ownerEntityType="TEACHER"
+      [ownerEntityId]="selectedTeacherForDocs()?.id ?? null"
+      [ownerDisplayName]="selectedTeacherForDocs()?.fullName ?? null"
+      [ownerDocumentNumber]="selectedTeacherForDocs()?.documentNumber ?? null"
       [canUpload]="canManageDocs()"
       [canDelete]="canManageDocs()"
-      (closed)="docsModalOpen.set(false)"
+      (closed)="closeTeacherDocsModal()"
     />
   `,
 })
@@ -454,7 +531,9 @@ export class TeachersManagementComponent implements OnInit, AfterViewInit {
   readonly catalogs = signal<GlobalCatalogsBundle | null>(null);
   readonly formModalOpen = signal(false);
   readonly docsModalOpen = signal(false);
+  readonly selectedTeacherForDocs = signal<TeacherProfileRecord | null>(null);
   readonly editingTeacher = signal<TeacherProfileRecord | null>(null);
+  readonly statusFilter = signal<'ACTIVE' | 'INACTIVE' | 'ALL'>('ACTIVE');
 
   readonly documentTypeOptions = computed<SearchableSelectOption<number>[]>(() =>
     (this.catalogs()?.documentTypes ?? []).map((item) => ({
@@ -505,13 +584,22 @@ export class TeachersManagementComponent implements OnInit, AfterViewInit {
     { text: '#', width: '48px', align: 'center', sortable: false },
     { text: 'Documento', dataIndex: 'documentNumber' },
     { text: 'Docente', dataIndex: 'fullName' },
-    { text: 'Correo', dataIndex: 'email' },
-    { text: 'Teléfono', dataIndex: 'phone' },
+    { text: 'Contacto', dataIndex: 'email' },
     { text: 'Área enseñanza', dataIndex: 'teachingAreaName' },
     { text: 'Escalafón', dataIndex: 'payScaleName' },
     { text: 'Estado', dataIndex: 'isActive', align: 'center' },
-    { text: 'Acciones', width: '110px', align: 'right', sortable: false },
+    { text: 'Acciones', width: '175px', align: 'right', sortable: false },
   ];
+
+  openTeacherDocsModal(teacher: TeacherProfileRecord): void {
+    this.selectedTeacherForDocs.set(teacher);
+    this.docsModalOpen.set(true);
+  }
+
+  closeTeacherDocsModal(): void {
+    this.docsModalOpen.set(false);
+    this.selectedTeacherForDocs.set(null);
+  }
 
   private readonly exportColumns: readonly ExodoExportColumn<TeacherProfileRecord>[] = [
     {
@@ -564,13 +652,27 @@ export class TeachersManagementComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.teachersGrid?.onLoad({ paginated: '1' }, false);
+    this.teachersGrid?.onLoad(
+      { paginated: '1', status: this.statusFilter() },
+      false,
+    );
     if (this.isBrowser) {
       this.initLoadTimer = setTimeout(() => {
         this.initLoadTimer = null;
-        this.teachersGrid?.onLoad({ paginated: '1' }, true);
+        this.teachersGrid?.onLoad(
+          { paginated: '1', status: this.statusFilter() },
+          true,
+        );
       });
     }
+  }
+
+  setStatusFilter(status: 'ACTIVE' | 'INACTIVE' | 'ALL'): void {
+    if (this.statusFilter() === status) {
+      return;
+    }
+    this.statusFilter.set(status);
+    this.teachersGrid?.onLoad({ paginated: '1', status }, true);
   }
 
   loadTeachers(): void {
@@ -719,6 +821,64 @@ export class TeachersManagementComponent implements OnInit, AfterViewInit {
         this.loadTeachers();
       },
     });
+  }
+
+  toggleTeacherStatus(teacher: TeacherProfileRecord): void {
+    const nextActive = !teacher.isActive;
+    void this.messages
+      .showConfirm({
+        title: nextActive ? 'Reactivar docente' : 'Inactivar docente',
+        message: nextActive
+          ? `¿Deseas reactivar a "${teacher.fullName}" en el directorio activo?`
+          : `¿Deseas inactivar temporalmente a "${teacher.fullName}"? Podrás reactivarlo luego desde el filtro de inactivos.`,
+      })
+      .then((res) => {
+        if (!res.isConfirmed) {
+          return;
+        }
+        this.maskService.show('messages.processing');
+        this.adminService
+          .updateTeacher(
+            teacher.id,
+            this.buildTeacherPayloadFromRecord(teacher, nextActive),
+          )
+          .pipe(finalize(() => this.maskService.hide()))
+          .subscribe({
+            next: () => {
+              this.messages.showSuccess(
+                nextActive
+                  ? 'Docente reactivado correctamente.'
+                  : 'Docente inactivado correctamente.',
+              );
+              this.loadTeachers();
+            },
+          });
+      });
+  }
+
+  private buildTeacherPayloadFromRecord(
+    teacher: TeacherProfileRecord,
+    isActive: boolean,
+  ): Record<string, unknown> {
+    return {
+      documentTypeId: teacher.documentTypeId || 1,
+      documentNumber: teacher.documentNumber,
+      firstName: teacher.firstName,
+      middleName: teacher.middleName || null,
+      lastName: teacher.lastName,
+      secondLastName: teacher.secondLastName || null,
+      genderId: teacher.genderId || null,
+      birthDate: teacher.birthDate ? teacher.birthDate.slice(0, 10) : null,
+      address: teacher.address || null,
+      phone: teacher.phone || null,
+      email: teacher.email || null,
+      academicDegreeId: teacher.academicDegreeId || null,
+      payScaleId: teacher.payScaleId || null,
+      teachingAreaId: teacher.teachingAreaId || null,
+      appointmentTypeId: teacher.appointmentTypeId || null,
+      positionId: teacher.positionId || null,
+      isActive,
+    };
   }
 
   confirmDeleteTeacher(teacher: TeacherProfileRecord): void {

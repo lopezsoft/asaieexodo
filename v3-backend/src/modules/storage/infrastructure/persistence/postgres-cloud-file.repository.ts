@@ -2,9 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { ResourceNotFoundException } from '../../../../shared/domain/exceptions/resource-not-found.exception';
 import { PostgresRlsService } from '../../../../shared/infrastructure/database/postgres-rls.service';
 import {
+  CloudFileOwnerEntityType,
   CloudFileRecord,
   CreateCloudFileRecordInput,
   ICloudFileRepositoryPort,
+  ListSchoolFilesFilter,
 } from '../../domain/ports/cloud-file.repository.port';
 
 interface CloudFileRow {
@@ -57,6 +59,135 @@ export class PostgresCloudFileRepository implements ICloudFileRepositoryPort {
       row.legacy_db_name ||
       `school_${String(schoolId)}`
     );
+  }
+
+  public async ownerEntityExists(
+    schoolId: bigint,
+    ownerEntityType: CloudFileOwnerEntityType,
+    ownerEntityId: bigint,
+  ): Promise<boolean> {
+    if (ownerEntityType === 'SCHOOL') {
+      return ownerEntityId === schoolId;
+    }
+
+    return this.db.withTenantTransaction(schoolId, async (client) => {
+      let querySql: string;
+      switch (ownerEntityType) {
+        case 'TEACHER':
+          querySql = `SELECT 1 FROM teacher_profiles WHERE school_id = $1 AND id = $2 LIMIT 1`;
+          break;
+        case 'STUDENT':
+          querySql = `SELECT 1 FROM student_profiles WHERE school_id = $1 AND id = $2 LIMIT 1`;
+          break;
+        case 'FAMILY':
+          querySql = `SELECT 1 FROM family_profiles WHERE school_id = $1 AND id = $2 LIMIT 1`;
+          break;
+        case 'ADMINISTRATIVE_STAFF':
+          querySql = `SELECT 1 FROM administrative_staff WHERE school_id = $1 AND id = $2 LIMIT 1`;
+          break;
+        case 'USER':
+          querySql = `SELECT 1 FROM user_school_memberships WHERE school_id = $1 AND user_id = $2 AND is_active = TRUE LIMIT 1`;
+          break;
+        case 'VIRTUAL_ACTIVITY':
+          querySql = `SELECT 1 FROM virtual_activities WHERE school_id = $1 AND id = $2 LIMIT 1`;
+          break;
+        case 'OBSERVER':
+          querySql = `SELECT 1 FROM student_observers WHERE school_id = $1 AND id = $2 LIMIT 1`;
+          break;
+        case 'CRM':
+          querySql = `SELECT 1 FROM crm_conversations WHERE school_id = $1 AND id = $2 LIMIT 1`;
+          break;
+        default:
+          return false;
+      }
+
+      const res = await client.query(querySql, [
+        String(schoolId),
+        String(ownerEntityId),
+      ]);
+      return (res.rowCount ?? 0) > 0;
+    });
+  }
+
+  public async isEntityOwnedByUser(
+    schoolId: bigint,
+    ownerEntityType: CloudFileOwnerEntityType,
+    ownerEntityId: bigint,
+    userId: bigint,
+    accessMode: 'READ' | 'WRITE',
+  ): Promise<boolean> {
+    if (ownerEntityType === 'USER') {
+      return ownerEntityId === userId;
+    }
+
+    return this.db.withTenantTransaction(schoolId, async (client) => {
+      if (ownerEntityType === 'TEACHER') {
+        const res = await client.query(
+          `SELECT 1
+           FROM teacher_profiles
+           WHERE school_id = $1 AND id = $2 AND user_id = $3
+           LIMIT 1`,
+          [String(schoolId), String(ownerEntityId), String(userId)],
+        );
+        return (res.rowCount ?? 0) > 0;
+      }
+
+      if (ownerEntityType === 'ADMINISTRATIVE_STAFF') {
+        const res = await client.query(
+          `SELECT 1
+           FROM administrative_staff
+           WHERE school_id = $1 AND id = $2 AND user_id = $3
+           LIMIT 1`,
+          [String(schoolId), String(ownerEntityId), String(userId)],
+        );
+        return (res.rowCount ?? 0) > 0;
+      }
+
+      if (ownerEntityType === 'FAMILY') {
+        if (accessMode === 'WRITE') {
+          return false;
+        }
+        const res = await client.query(
+          `SELECT 1
+           FROM family_profiles
+           WHERE school_id = $1 AND id = $2 AND user_id = $3
+           LIMIT 1`,
+          [String(schoolId), String(ownerEntityId), String(userId)],
+        );
+        return (res.rowCount ?? 0) > 0;
+      }
+
+      if (ownerEntityType === 'STUDENT') {
+        // Estudiantes y acudientes solo pueden leer su propio expediente, nunca modificar ni eliminar
+        if (accessMode === 'WRITE') {
+          return false;
+        }
+        const res = await client.query(
+          `SELECT 1
+           FROM student_profiles sp
+           WHERE sp.school_id = $1
+             AND sp.id = $2
+             AND (
+               sp.user_id = $3
+               OR EXISTS (
+                 SELECT 1
+                 FROM student_family_links sfl
+                 INNER JOIN family_profiles fp
+                   ON fp.school_id = sfl.school_id
+                  AND fp.id = sfl.family_profile_id
+                 WHERE sfl.school_id = sp.school_id
+                   AND sfl.student_profile_id = sp.id
+                   AND fp.user_id = $3
+               )
+             )
+           LIMIT 1`,
+          [String(schoolId), String(ownerEntityId), String(userId)],
+        );
+        return (res.rowCount ?? 0) > 0;
+      }
+
+      return false;
+    });
   }
 
   public async saveCloudFile(
@@ -157,20 +288,53 @@ export class PostgresCloudFileRepository implements ICloudFileRepositoryPort {
 
   public async listSchoolFiles(
     schoolId: bigint,
-    ownerEntityType?: string,
-    limit = 50,
-    offset = 0,
+    filter: ListSchoolFilesFilter = {},
   ): Promise<CloudFileRecord[]> {
-    const safeLimit = Math.min(Math.max(1, limit), 100);
-    const safeOffset = Math.max(0, offset);
+    const safeLimit = Math.min(Math.max(1, filter.limit ?? 50), 100);
+    const safeOffset = Math.max(0, filter.offset ?? 0);
 
     return this.db.withTenantTransaction(schoolId, async (client) => {
+      const clauses: string[] = ['school_id = $1', 'status = 1'];
       const params: unknown[] = [String(schoolId)];
-      let filterSql = '';
-      if (ownerEntityType) {
-        params.push(ownerEntityType);
-        filterSql = `AND owner_entity_type = $${params.length}`;
+
+      if (
+        filter.ownerEntityType === 'SCHOOL' &&
+        filter.ownerEntityId !== undefined &&
+        filter.category
+      ) {
+        params.push(
+          filter.ownerEntityType,
+          String(filter.ownerEntityId),
+          filter.category,
+        );
+        const typeIdx = params.length - 2;
+        const idIdx = params.length - 1;
+        const catIdx = params.length;
+        clauses.push(
+          `((owner_entity_type = $${typeIdx} AND owner_entity_id = $${idIdx} AND (metadata->>'storageCategory' = $${catIdx} OR metadata->>'storageCategory' IS NULL)) OR (owner_entity_type = $${catIdx} AND owner_entity_id IS NULL))`,
+        );
+      } else {
+        if (filter.ownerEntityType) {
+          params.push(filter.ownerEntityType);
+          clauses.push(`owner_entity_type = $${params.length}`);
+        }
+        if (filter.ownerEntityId !== undefined) {
+          params.push(String(filter.ownerEntityId));
+          clauses.push(`owner_entity_id = $${params.length}`);
+        }
+        if (filter.category) {
+          params.push(filter.category);
+          clauses.push(
+            `(metadata->>'storageCategory' = $${params.length} OR (metadata->>'storageCategory' IS NULL AND owner_entity_type = $${params.length}))`,
+          );
+        }
       }
+
+      if (filter.uploadedByUserId !== undefined) {
+        params.push(String(filter.uploadedByUserId));
+        clauses.push(`uploaded_by_user_id = $${params.length}`);
+      }
+
       params.push(safeLimit, safeOffset);
 
       const res = await client.query<CloudFileRow>(
@@ -178,9 +342,7 @@ export class PostgresCloudFileRepository implements ICloudFileRepositoryPort {
                 owner_entity_id, file_name, description, storage_path, public_url,
                 extension, mime_type, size_bytes, is_watermark, status, metadata, created_at
          FROM cloud_files
-         WHERE school_id = $1
-           AND status = 1
-           ${filterSql}
+         WHERE ${clauses.join(' AND ')}
          ORDER BY created_at DESC
          LIMIT $${params.length - 1} OFFSET $${params.length}`,
         params,

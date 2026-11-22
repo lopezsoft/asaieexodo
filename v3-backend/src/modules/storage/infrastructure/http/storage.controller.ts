@@ -20,7 +20,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   IsBoolean,
   IsIn,
@@ -29,19 +29,24 @@ import {
   IsObject,
   IsOptional,
   IsString,
+  Matches,
   Max,
   MaxLength,
   Min,
 } from 'class-validator';
 import { FastifyRequest } from 'fastify';
 import { ActiveTenantContext } from '../../../../shared/application/context/tenant-context.service';
-import { UploadCloudObjectInput } from '../../../../shared/application/ports/cloud-storage.port';
+import {
+  CloudStorageCategory,
+  UploadCloudObjectInput,
+} from '../../../../shared/application/ports/cloud-storage.port';
 import { TenantAccessDeniedException } from '../../../../shared/domain/exceptions/tenant-access-denied.exception';
 import { CurrentUser } from '../../../../shared/infrastructure/http/decorators/security.decorators';
 import { PositiveBigIntPipe } from '../../../../shared/infrastructure/http/pipes/positive-bigint.pipe';
 import {
   RBAC_PERMISSIONS,
   resolveStorageCategoryWritePermissions,
+  resolveStorageEntityReadPermissions,
 } from '../../../../shared/infrastructure/rbac/rbac-permissions.constants';
 import { RbacPermissionsService } from '../../../../shared/infrastructure/rbac/rbac-permissions.service';
 import {
@@ -49,9 +54,19 @@ import {
   MAX_CLOUD_FILE_SIZE_BYTES,
 } from '../../../../shared/infrastructure/storage/aws-s3-storage.adapter';
 import { ManageCloudFilesUseCase } from '../../application/use-cases/manage-cloud-files.use-case';
+import {
+  ALLOWED_CLOUD_FILE_OWNER_ENTITY_TYPES,
+  CloudFileOwnerEntityType,
+  CloudFileRecord,
+  RECORD_SCOPED_OWNER_ENTITY_TYPES,
+} from '../../domain/ports/cloud-file.repository.port';
 
-const ALLOWED_STORAGE_CATEGORIES: UploadCloudObjectInput['category'][] = [
+const ALLOWED_STORAGE_CATEGORIES: CloudStorageCategory[] = [
   'STUDENT_DOCUMENTS',
+  'TEACHER_DOCUMENTS',
+  'FAMILY_DOCUMENTS',
+  'ADMINISTRATIVE_DOCUMENTS',
+  'USER_AVATARS',
   'INSTITUTIONAL_LOGOS',
   'VIRTUAL_ACTIVITIES',
   'OBSERVER_ATTACHMENTS',
@@ -60,20 +75,43 @@ const ALLOWED_STORAGE_CATEGORIES: UploadCloudObjectInput['category'][] = [
   'GENERAL',
 ];
 
-const STAFF_FILE_VIEW_PERMISSIONS = [
-  RBAC_PERMISSIONS.ADMIN_SCHOOL_VIEW,
-  RBAC_PERMISSIONS.ACADEMIC_ENROLLMENTS_VIEW,
-  RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
-  RBAC_PERMISSIONS.PORTAL_TEACHER_SUPERVISE_READ,
-] as const;
-
 const PUBLIC_SCHOOL_READ_CATEGORIES = new Set<string>([
   'INSTITUTIONAL_LOGOS',
   'VIRTUAL_ACTIVITIES',
+  'SCHOOL',
+  'VIRTUAL_ACTIVITY',
 ]);
+
+const POSITIVE_BIGINT_REGEX = /^[1-9]\d{0,18}$/;
 
 const ALLOWED_MIME_LIST = Array.from(ALLOWED_MIME_TO_EXTENSIONS.keys());
 const MAX_BASE64_LENGTH = Math.ceil((MAX_CLOUD_FILE_SIZE_BYTES * 4) / 3) + 128;
+
+function normalizeOptionalEntityId({ value }: { value: unknown }): unknown {
+  if (value === undefined || value === null || value === '') {
+    return undefined;
+  }
+  return String(value).trim();
+}
+
+function isKnownOwnerEntityType(
+  value: string | null | undefined,
+): value is CloudFileOwnerEntityType {
+  return (
+    Boolean(value) &&
+    (ALLOWED_CLOUD_FILE_OWNER_ENTITY_TYPES as readonly string[]).includes(
+      value as string,
+    )
+  );
+}
+
+function resolveFileStorageCategory(record: CloudFileRecord): string {
+  const metaCategory = record.metadata?.['storageCategory'];
+  if (typeof metaCategory === 'string' && metaCategory.trim().length > 0) {
+    return metaCategory.trim();
+  }
+  return record.ownerEntityType ?? 'GENERAL';
+}
 
 export class UploadSchoolFileRequestDto {
   @ApiProperty({
@@ -83,6 +121,30 @@ export class UploadSchoolFileRequestDto {
   @IsString()
   @IsIn(ALLOWED_STORAGE_CATEGORIES)
   category!: UploadCloudObjectInput['category'];
+
+  @ApiPropertyOptional({
+    example: 'STUDENT',
+    enum: ALLOWED_CLOUD_FILE_OWNER_ENTITY_TYPES,
+    description:
+      'Entidad propietaria del expediente digital (TEACHER, STUDENT, FAMILY, ADMINISTRATIVE_STAFF, SCHOOL, USER, etc.)',
+  })
+  @IsOptional()
+  @IsString()
+  @IsIn(ALLOWED_CLOUD_FILE_OWNER_ENTITY_TYPES)
+  ownerEntityType?: CloudFileOwnerEntityType;
+
+  @ApiPropertyOptional({
+    example: '1024',
+    description:
+      'ID del registro propietario enlazado (obligatorio para TEACHER, STUDENT, FAMILY, ADMINISTRATIVE_STAFF y USER)',
+  })
+  @Transform(normalizeOptionalEntityId)
+  @IsOptional()
+  @IsString()
+  @Matches(POSITIVE_BIGINT_REGEX, {
+    message: 'ownerEntityId debe ser un identificador entero positivo válido.',
+  })
+  ownerEntityId?: string;
 
   @ApiProperty({ example: 'registro-civil-estudiante.pdf' })
   @IsString()
@@ -135,6 +197,24 @@ export class CreatePresignedUploadTicketRequestDto {
   @IsIn(ALLOWED_STORAGE_CATEGORIES)
   category!: UploadCloudObjectInput['category'];
 
+  @ApiPropertyOptional({
+    example: 'TEACHER',
+    enum: ALLOWED_CLOUD_FILE_OWNER_ENTITY_TYPES,
+  })
+  @IsOptional()
+  @IsString()
+  @IsIn(ALLOWED_CLOUD_FILE_OWNER_ENTITY_TYPES)
+  ownerEntityType?: CloudFileOwnerEntityType;
+
+  @ApiPropertyOptional({ example: '42' })
+  @Transform(normalizeOptionalEntityId)
+  @IsOptional()
+  @IsString()
+  @Matches(POSITIVE_BIGINT_REGEX, {
+    message: 'ownerEntityId debe ser un identificador entero positivo válido.',
+  })
+  ownerEntityId?: string;
+
   @ApiProperty({ example: 'guia-matematicas-periodo-1.pdf' })
   @IsString()
   @IsNotEmpty()
@@ -167,7 +247,28 @@ export class ListSchoolFilesQueryDto {
   @ApiPropertyOptional({ enum: ALLOWED_STORAGE_CATEGORIES })
   @IsOptional()
   @IsIn(ALLOWED_STORAGE_CATEGORIES)
-  category?: string;
+  category?: CloudStorageCategory;
+
+  @ApiPropertyOptional({
+    enum: ALLOWED_CLOUD_FILE_OWNER_ENTITY_TYPES,
+    description: 'Filtrar expediente digital por tipo de entidad propietaria',
+  })
+  @IsOptional()
+  @IsIn(ALLOWED_CLOUD_FILE_OWNER_ENTITY_TYPES)
+  ownerEntityType?: CloudFileOwnerEntityType;
+
+  @ApiPropertyOptional({
+    example: '42',
+    description:
+      'ID del registro propietario (obligatorio al filtrar TEACHER, STUDENT, FAMILY, ADMINISTRATIVE_STAFF o USER)',
+  })
+  @Transform(normalizeOptionalEntityId)
+  @IsOptional()
+  @IsString()
+  @Matches(POSITIVE_BIGINT_REGEX, {
+    message: 'ownerEntityId debe ser un identificador entero positivo válido.',
+  })
+  ownerEntityId?: string;
 
   @ApiPropertyOptional({ example: 50 })
   @IsOptional()
@@ -185,6 +286,15 @@ export class ListSchoolFilesQueryDto {
   offset?: number;
 }
 
+interface MultipartPartLike {
+  readonly type: 'file' | 'field';
+  readonly fieldname: string;
+  readonly filename?: string;
+  readonly mimetype?: string;
+  readonly value?: unknown;
+  toBuffer?: () => Promise<Buffer>;
+}
+
 @ApiTags('Cloud Storage & AWS S3 Files')
 @ApiBearerAuth('jwt-auth')
 @Controller('storage/files')
@@ -197,14 +307,24 @@ export class StorageController {
   @Post('upload')
   @ApiOperation({
     summary:
-      'Subir archivo institucional (Base64) a AWS S3 y registrar en cloud_files (RLS + RBAC por categoría)',
+      'Subir archivo institucional (Base64) a AWS S3 enlazado a un registro específico (RLS + RBAC)',
   })
   @ApiResponse({ status: 201, description: 'Archivo almacenado en AWS S3.' })
   public async uploadFile(
     @CurrentUser() principal: ActiveTenantContext,
     @Body() dto: UploadSchoolFileRequestDto,
   ): Promise<Record<string, unknown>> {
-    await this.assertCategoryWriteAccess(principal, dto.category);
+    const ownerEntityId = this.parseAndValidateOwnerParams(
+      dto.ownerEntityType,
+      dto.ownerEntityId,
+    );
+
+    await this.assertFileWriteAccess(
+      principal,
+      dto.category,
+      dto.ownerEntityType ?? null,
+      ownerEntityId,
+    );
 
     const cleanBase64 = (
       dto.base64Content.includes(',')
@@ -228,6 +348,8 @@ export class StorageController {
       schoolId: principal.schoolId,
       uploadedByUserId: principal.userId,
       category: dto.category,
+      ownerEntityType: dto.ownerEntityType ?? null,
+      ownerEntityId,
       originalFileName: dto.originalFileName,
       description: dto.description ?? null,
       mimeType: dto.mimeType,
@@ -243,55 +365,156 @@ export class StorageController {
   @ApiConsumes('multipart/form-data')
   @ApiOperation({
     summary:
-      'Subir archivo binario mediante multipart/form-data a AWS S3 (Fastify Multipart + RBAC por categoría)',
+      'Subir archivo binario mediante multipart/form-data a AWS S3 enlazado al registro propietario (Fastify Multipart + RBAC)',
   })
   @ApiQuery({
     name: 'category',
     enum: ALLOWED_STORAGE_CATEGORIES,
     required: false,
   })
+  @ApiQuery({
+    name: 'ownerEntityType',
+    enum: ALLOWED_CLOUD_FILE_OWNER_ENTITY_TYPES,
+    required: false,
+  })
+  @ApiQuery({ name: 'ownerEntityId', type: String, required: false })
+  @ApiQuery({ name: 'description', type: String, required: false })
   public async uploadMultipartFile(
     @CurrentUser() principal: ActiveTenantContext,
     @Req() request: FastifyRequest,
-    @Query('category') categoryQuery?: UploadCloudObjectInput['category'],
+    @Query('category') categoryQuery?: string,
+    @Query('ownerEntityType') ownerEntityTypeQuery?: string,
+    @Query('ownerEntityId') ownerEntityIdQuery?: string,
+    @Query('description') descriptionQuery?: string,
   ): Promise<Record<string, unknown>> {
-    const category: UploadCloudObjectInput['category'] =
-      categoryQuery && ALLOWED_STORAGE_CATEGORIES.includes(categoryQuery)
-        ? categoryQuery
-        : 'GENERAL';
-
-    await this.assertCategoryWriteAccess(principal, category);
-
     const multipartReq = request as FastifyRequest & {
+      parts?: () => AsyncIterableIterator<MultipartPartLike>;
       file?: () => Promise<{
         filename: string;
         mimetype: string;
         toBuffer: () => Promise<Buffer>;
+        fields?: Record<string, { value?: unknown } | undefined>;
       }>;
     };
 
-    if (typeof multipartReq.file !== 'function') {
+    const formFields = new Map<string, string>();
+    let uploadedFile: {
+      filename: string;
+      mimetype: string;
+      buffer: Buffer;
+    } | null = null;
+
+    if (typeof multipartReq.parts === 'function') {
+      for await (const part of multipartReq.parts()) {
+        if (part.type === 'file') {
+          if (!uploadedFile && typeof part.toBuffer === 'function') {
+            const buffer = await part.toBuffer();
+            uploadedFile = {
+              filename: part.filename ?? 'documento',
+              mimetype: part.mimetype ?? 'application/octet-stream',
+              buffer,
+            };
+          } else if (typeof part.toBuffer === 'function') {
+            // Drenar partes adicionales para no bloquear el stream Fastify
+            await part.toBuffer();
+          }
+        } else if (part.type === 'field') {
+          formFields.set(part.fieldname, String(part.value ?? '').trim());
+        }
+      }
+    } else if (typeof multipartReq.file === 'function') {
+      const part = await multipartReq.file();
+      if (part) {
+        const buffer = await part.toBuffer();
+        uploadedFile = {
+          filename: part.filename,
+          mimetype: part.mimetype,
+          buffer,
+        };
+        if (part.fields) {
+          for (const [key, fieldObj] of Object.entries(part.fields)) {
+            if (fieldObj && 'value' in fieldObj && fieldObj.value !== undefined) {
+              formFields.set(key, String(fieldObj.value).trim());
+            }
+          }
+        }
+      }
+    } else {
       throw new BadRequestException(
         'El servidor no recibió una petición multipart/form-data válida.',
       );
     }
 
-    const uploadedPart = await multipartReq.file();
-    if (!uploadedPart) {
+    if (!uploadedFile) {
       throw new BadRequestException(
         'No se adjuntó ningún archivo en la petición.',
       );
     }
 
-    const buffer = await uploadedPart.toBuffer();
+    const rawCategory = (
+      formFields.get('category') ||
+      categoryQuery ||
+      'GENERAL'
+    ).trim();
+    if (
+      !(ALLOWED_STORAGE_CATEGORIES as readonly string[]).includes(rawCategory)
+    ) {
+      throw new BadRequestException(
+        `La categoría de almacenamiento '${rawCategory}' no es válida.`,
+      );
+    }
+    const category = rawCategory as CloudStorageCategory;
+
+    const rawOwnerEntityType = (
+      formFields.get('ownerEntityType') ||
+      ownerEntityTypeQuery ||
+      ''
+    ).trim();
+    let ownerEntityType: CloudFileOwnerEntityType | undefined;
+    if (rawOwnerEntityType) {
+      if (!isKnownOwnerEntityType(rawOwnerEntityType)) {
+        throw new BadRequestException(
+          `El tipo de entidad propietaria '${rawOwnerEntityType}' no es válido.`,
+        );
+      }
+      ownerEntityType = rawOwnerEntityType;
+    }
+
+    const rawOwnerEntityId = (
+      formFields.get('ownerEntityId') ||
+      ownerEntityIdQuery ||
+      ''
+    ).trim();
+    const ownerEntityId = this.parseAndValidateOwnerParams(
+      ownerEntityType,
+      rawOwnerEntityId || undefined,
+    );
+
+    const rawDescription = (
+      formFields.get('description') ||
+      descriptionQuery ||
+      ''
+    ).trim();
+    const description =
+      rawDescription.length > 0 ? rawDescription.slice(0, 255) : null;
+
+    await this.assertFileWriteAccess(
+      principal,
+      category,
+      ownerEntityType ?? null,
+      ownerEntityId,
+    );
 
     const record = await this.manageCloudFilesUseCase.uploadSchoolFile({
       schoolId: principal.schoolId,
       uploadedByUserId: principal.userId,
       category,
-      originalFileName: uploadedPart.filename,
-      mimeType: uploadedPart.mimetype,
-      contentBuffer: buffer,
+      ownerEntityType: ownerEntityType ?? null,
+      ownerEntityId,
+      originalFileName: uploadedFile.filename,
+      description,
+      mimeType: uploadedFile.mimetype,
+      contentBuffer: uploadedFile.buffer,
     });
 
     return { success: true, data: record };
@@ -306,13 +529,25 @@ export class StorageController {
     @CurrentUser() principal: ActiveTenantContext,
     @Body() dto: CreatePresignedUploadTicketRequestDto,
   ): Promise<Record<string, unknown>> {
-    await this.assertCategoryWriteAccess(principal, dto.category);
+    const ownerEntityId = this.parseAndValidateOwnerParams(
+      dto.ownerEntityType,
+      dto.ownerEntityId,
+    );
+
+    await this.assertFileWriteAccess(
+      principal,
+      dto.category,
+      dto.ownerEntityType ?? null,
+      ownerEntityId,
+    );
 
     const result =
       await this.manageCloudFilesUseCase.createPresignedUploadTicket({
         schoolId: principal.schoolId,
         uploadedByUserId: principal.userId,
         category: dto.category,
+        ownerEntityType: dto.ownerEntityType ?? null,
+        ownerEntityId,
         originalFileName: dto.originalFileName,
         mimeType: dto.mimeType,
         sizeBytes: dto.sizeBytes,
@@ -339,9 +574,13 @@ export class StorageController {
     );
 
     if (metadata.uploadedByUserId !== String(principal.userId)) {
-      await this.assertCategoryWriteAccess(
+      await this.assertFileWriteAccess(
         principal,
-        metadata.ownerEntityType ?? 'GENERAL',
+        resolveFileStorageCategory(metadata),
+        isKnownOwnerEntityType(metadata.ownerEntityType)
+          ? metadata.ownerEntityType
+          : null,
+        metadata.ownerEntityId ? BigInt(metadata.ownerEntityId) : null,
       );
     }
 
@@ -354,33 +593,73 @@ export class StorageController {
 
   @Get()
   @ApiOperation({
-    summary: 'Listar archivos activos en la nube (AWS S3) de la institución del JWT',
+    summary:
+      'Listar archivos activos en la nube (AWS S3) filtrados por registro propietario y/o categoría',
   })
   public async listSchoolFiles(
     @CurrentUser() principal: ActiveTenantContext,
     @Query() query: ListSchoolFilesQueryDto,
   ): Promise<Record<string, unknown>> {
+    const ownerEntityId = this.parseAndValidateOwnerParams(
+      query.ownerEntityType,
+      query.ownerEntityId,
+    );
+
+    // Si se consulta el expediente digital de una entidad concreta, validar autorización específica por registro
+    if (query.ownerEntityType) {
+      const canReadEntity = await this.canReadEntityFiles(
+        principal,
+        query.ownerEntityType,
+        ownerEntityId,
+        query.category ?? query.ownerEntityType,
+      );
+      if (!canReadEntity) {
+        throw new TenantAccessDeniedException(
+          'No tienes autorización para consultar los documentos digitales de este registro.',
+        );
+      }
+
+      const files = await this.manageCloudFilesUseCase.listSchoolFiles(
+        principal.schoolId,
+        {
+          category: query.category,
+          ownerEntityType: query.ownerEntityType,
+          ownerEntityId: ownerEntityId ?? undefined,
+          limit: query.limit,
+          offset: query.offset,
+        },
+      );
+      return { success: true, total: files.length, data: files };
+    }
+
+    // Consultas generales por categoría (ej. VIRTUAL_ACTIVITIES, INSTITUTIONAL_LOGOS, JASPER_REPORTS)
+    const categoryKey = query.category ?? 'GENERAL';
     const hasStaffView = await this.rbacPermissions.hasAnyPermission(
       principal.schoolId,
       principal.userId,
       principal.activeRole,
-      STAFF_FILE_VIEW_PERMISSIONS,
+      resolveStorageEntityReadPermissions(categoryKey),
     );
 
     const allFiles = await this.manageCloudFilesUseCase.listSchoolFiles(
       principal.schoolId,
-      query.category,
-      query.limit,
-      query.offset,
+      {
+        category: query.category,
+        limit: query.limit,
+        offset: query.offset,
+      },
     );
 
     const files = hasStaffView
       ? allFiles
-      : allFiles.filter(
-          (f) =>
-            f.uploadedByUserId === String(principal.userId) ||
-            PUBLIC_SCHOOL_READ_CATEGORIES.has(f.ownerEntityType ?? ''),
-        );
+      : allFiles.filter((file) => {
+          const storageCategory = resolveFileStorageCategory(file);
+          return (
+            file.uploadedByUserId === String(principal.userId) ||
+            PUBLIC_SCHOOL_READ_CATEGORIES.has(storageCategory) ||
+            PUBLIC_SCHOOL_READ_CATEGORIES.has(file.ownerEntityType ?? '')
+          );
+        });
 
     return { success: true, total: files.length, data: files };
   }
@@ -400,18 +679,8 @@ export class StorageController {
       fileId,
     );
 
-    const hasStaffView = await this.rbacPermissions.hasAnyPermission(
-      principal.schoolId,
-      principal.userId,
-      principal.activeRole,
-      STAFF_FILE_VIEW_PERMISSIONS,
-    );
-
-    if (
-      !hasStaffView &&
-      metadata.uploadedByUserId !== String(principal.userId) &&
-      !PUBLIC_SCHOOL_READ_CATEGORIES.has(metadata.ownerEntityType ?? '')
-    ) {
+    const canRead = await this.canReadSpecificFile(principal, metadata);
+    if (!canRead) {
       throw new TenantAccessDeniedException(
         'No tienes autorización para descargar este archivo privado.',
       );
@@ -427,7 +696,7 @@ export class StorageController {
   @Delete(':fileId')
   @ApiOperation({
     summary:
-      'Eliminar archivo de cloud_files y AWS S3 bajo RLS del JWT y permisos RBAC por categoría',
+      'Eliminar archivo de cloud_files y AWS S3 bajo RLS del JWT y permisos RBAC por entidad/categoría',
   })
   @ApiParam({ name: 'fileId', example: 1 })
   public async deleteFile(
@@ -439,9 +708,14 @@ export class StorageController {
       fileId,
       true,
     );
-    await this.assertCategoryWriteAccess(
+
+    await this.assertFileWriteAccess(
       principal,
-      metadata.ownerEntityType ?? 'GENERAL',
+      resolveFileStorageCategory(metadata),
+      isKnownOwnerEntityType(metadata.ownerEntityType)
+        ? metadata.ownerEntityType
+        : null,
+      metadata.ownerEntityId ? BigInt(metadata.ownerEntityId) : null,
     );
 
     const result = await this.manageCloudFilesUseCase.deleteSchoolFile(
@@ -451,17 +725,169 @@ export class StorageController {
     return { success: true, data: result };
   }
 
-  private async assertCategoryWriteAccess(
+  private parseAndValidateOwnerParams(
+    ownerEntityType?: CloudFileOwnerEntityType,
+    rawOwnerEntityId?: string,
+  ): bigint | null {
+    if (rawOwnerEntityId && !ownerEntityType) {
+      throw new BadRequestException(
+        'Debe especificar ownerEntityType cuando se proporciona ownerEntityId.',
+      );
+    }
+
+    if (
+      ownerEntityType &&
+      RECORD_SCOPED_OWNER_ENTITY_TYPES.has(ownerEntityType) &&
+      !rawOwnerEntityId
+    ) {
+      throw new BadRequestException(
+        `Los documentos digitales de tipo '${ownerEntityType}' requieren un ownerEntityId válido.`,
+      );
+    }
+
+    if (!rawOwnerEntityId) {
+      return null;
+    }
+
+    if (!POSITIVE_BIGINT_REGEX.test(rawOwnerEntityId)) {
+      throw new BadRequestException(
+        'ownerEntityId debe ser un identificador entero positivo válido.',
+      );
+    }
+
+    return BigInt(rawOwnerEntityId);
+  }
+
+  private async assertFileWriteAccess(
     principal: ActiveTenantContext,
     category: string,
+    ownerEntityType: CloudFileOwnerEntityType | null,
+    ownerEntityId: bigint | null,
   ): Promise<void> {
-    const requiredPerms = resolveStorageCategoryWritePermissions(category);
+    // Todo usuario autenticado puede subir/actualizar su propia foto de perfil
+    if (
+      ownerEntityType === 'USER' &&
+      ownerEntityId !== null &&
+      ownerEntityId === principal.userId
+    ) {
+      return;
+    }
+
+    // Un docente puede gestionar su propia firma o soportes en su propio perfil docente
+    if (ownerEntityType === 'TEACHER' && ownerEntityId !== null) {
+      const hasTeacherDocsPerm = await this.rbacPermissions.hasAnyPermission(
+        principal.schoolId,
+        principal.userId,
+        principal.activeRole,
+        [RBAC_PERMISSIONS.STORAGE_TEACHER_DOCUMENTS_WRITE],
+      );
+      if (hasTeacherDocsPerm) {
+        return;
+      }
+
+      const hasOwnTeacherPortal = await this.rbacPermissions.hasAnyPermission(
+        principal.schoolId,
+        principal.userId,
+        principal.activeRole,
+        [RBAC_PERMISSIONS.PORTAL_TEACHER_OWN],
+      );
+      if (hasOwnTeacherPortal) {
+        const ownsProfile =
+          await this.manageCloudFilesUseCase.isEntityOwnedByUser(
+            principal.schoolId,
+            'TEACHER',
+            ownerEntityId,
+            principal.userId,
+            'WRITE',
+          );
+        if (ownsProfile) {
+          return;
+        }
+      }
+
+      throw new TenantAccessDeniedException(
+        'No tienes permiso para subir o eliminar documentos digitales de este docente.',
+      );
+    }
+
+    const permissionScopeKey = ownerEntityType ?? category;
+    const requiredPerms =
+      resolveStorageCategoryWritePermissions(permissionScopeKey);
     await this.rbacPermissions.assertAnyPermission(
       principal.schoolId,
       principal.userId,
       principal.activeRole,
       requiredPerms,
-      `No tienes permiso para subir o eliminar archivos en la categoría '${category}'.`,
+      `No tienes permiso para subir o eliminar archivos en '${permissionScopeKey}'.`,
+    );
+  }
+
+  private async canReadEntityFiles(
+    principal: ActiveTenantContext,
+    ownerEntityType: CloudFileOwnerEntityType,
+    ownerEntityId: bigint | null,
+    category: string,
+  ): Promise<boolean> {
+    if (
+      PUBLIC_SCHOOL_READ_CATEGORIES.has(ownerEntityType) ||
+      PUBLIC_SCHOOL_READ_CATEGORIES.has(category)
+    ) {
+      return true;
+    }
+
+    const hasStaffRead = await this.rbacPermissions.hasAnyPermission(
+      principal.schoolId,
+      principal.userId,
+      principal.activeRole,
+      resolveStorageEntityReadPermissions(ownerEntityType),
+    );
+    if (hasStaffRead) {
+      return true;
+    }
+
+    if (ownerEntityId !== null) {
+      return this.manageCloudFilesUseCase.isEntityOwnedByUser(
+        principal.schoolId,
+        ownerEntityType,
+        ownerEntityId,
+        principal.userId,
+        'READ',
+      );
+    }
+
+    return false;
+  }
+
+  private async canReadSpecificFile(
+    principal: ActiveTenantContext,
+    metadata: CloudFileRecord,
+  ): Promise<boolean> {
+    const storageCategory = resolveFileStorageCategory(metadata);
+    if (
+      PUBLIC_SCHOOL_READ_CATEGORIES.has(storageCategory) ||
+      PUBLIC_SCHOOL_READ_CATEGORIES.has(metadata.ownerEntityType ?? '')
+    ) {
+      return true;
+    }
+
+    if (metadata.uploadedByUserId === String(principal.userId)) {
+      return true;
+    }
+
+    if (isKnownOwnerEntityType(metadata.ownerEntityType)) {
+      return this.canReadEntityFiles(
+        principal,
+        metadata.ownerEntityType,
+        metadata.ownerEntityId ? BigInt(metadata.ownerEntityId) : null,
+        storageCategory,
+      );
+    }
+
+    return this.rbacPermissions.hasAnyPermission(
+      principal.schoolId,
+      principal.userId,
+      principal.activeRole,
+      resolveStorageEntityReadPermissions(storageCategory),
     );
   }
 }

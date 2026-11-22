@@ -185,23 +185,43 @@ export function resolveReportTemplatePermissions(
 }
 
 /**
- * Resuelve los permisos válidos (OR) para subir o eliminar un archivo según su categoría S3.
+ * Resuelve los permisos válidos (OR) para subir o eliminar un archivo según su categoría S3
+ * o el tipo de entidad propietaria (`ownerEntityType`).
  */
 export function resolveStorageCategoryWritePermissions(
-  category: UploadCloudObjectInput['category'] | string,
+  categoryOrEntityType: UploadCloudObjectInput['category'] | string,
 ): RbacPermissionCode[] {
-  switch (category) {
+  switch (categoryOrEntityType) {
     case 'INSTITUTIONAL_LOGOS':
+    case 'SCHOOL':
       return [RBAC_PERMISSIONS.STORAGE_INSTITUTIONAL_BRANDING_WRITE];
     case 'STUDENT_DOCUMENTS':
+    case 'STUDENT':
+    case 'FAMILY_DOCUMENTS':
+    case 'FAMILY':
       return [RBAC_PERMISSIONS.STORAGE_STUDENT_DOCUMENTS_WRITE];
+    case 'TEACHER_DOCUMENTS':
+    case 'TEACHER':
+      return [RBAC_PERMISSIONS.STORAGE_TEACHER_DOCUMENTS_WRITE];
+    case 'ADMINISTRATIVE_DOCUMENTS':
+    case 'ADMINISTRATIVE_STAFF':
+      return [
+        RBAC_PERMISSIONS.STORAGE_TEACHER_DOCUMENTS_WRITE,
+        RBAC_PERMISSIONS.ADMIN_STAFF_WRITE,
+      ];
+    case 'USER_AVATARS':
+    case 'USER':
+      return [RBAC_PERMISSIONS.IAM_MEMBERSHIPS_MANAGE];
     case 'VIRTUAL_ACTIVITIES':
+    case 'VIRTUAL_ACTIVITY':
     case 'OBSERVER_ATTACHMENTS':
+    case 'OBSERVER':
       return [
         RBAC_PERMISSIONS.STORAGE_ACADEMIC_RESOURCES_WRITE,
         RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
       ];
     case 'CRM_ATTACHMENTS':
+    case 'CRM':
       return [RBAC_PERMISSIONS.CRM_COMMUNICATIONS_USE];
     case 'JASPER_REPORTS':
       return [
@@ -217,6 +237,78 @@ export function resolveStorageCategoryWritePermissions(
         RBAC_PERMISSIONS.STORAGE_INSTITUTIONAL_BRANDING_WRITE,
         RBAC_PERMISSIONS.STORAGE_STUDENT_DOCUMENTS_WRITE,
         RBAC_PERMISSIONS.STORAGE_ACADEMIC_RESOURCES_WRITE,
+      ];
+  }
+}
+
+/**
+ * Resuelve los permisos válidos (OR) de personal institucional para consultar/descargar
+ * expedientes digitales según su entidad propietaria o categoría S3.
+ */
+export function resolveStorageEntityReadPermissions(
+  entityTypeOrCategory: string,
+): RbacPermissionCode[] {
+  switch (entityTypeOrCategory) {
+    case 'TEACHER':
+    case 'TEACHER_DOCUMENTS':
+      return [
+        RBAC_PERMISSIONS.ADMIN_TEACHERS_VIEW,
+        RBAC_PERMISSIONS.ADMIN_TEACHERS_WRITE,
+        RBAC_PERMISSIONS.STORAGE_TEACHER_DOCUMENTS_WRITE,
+        RBAC_PERMISSIONS.ADMIN_SCHOOL_VIEW,
+      ];
+    case 'ADMINISTRATIVE_STAFF':
+    case 'ADMINISTRATIVE_DOCUMENTS':
+      return [
+        RBAC_PERMISSIONS.ADMIN_STAFF_VIEW,
+        RBAC_PERMISSIONS.ADMIN_STAFF_WRITE,
+        RBAC_PERMISSIONS.STORAGE_TEACHER_DOCUMENTS_WRITE,
+        RBAC_PERMISSIONS.ADMIN_SCHOOL_VIEW,
+      ];
+    case 'STUDENT':
+    case 'STUDENT_DOCUMENTS':
+      return [
+        RBAC_PERMISSIONS.ACADEMIC_ENROLLMENTS_VIEW,
+        RBAC_PERMISSIONS.ACADEMIC_ENROLLMENTS_WRITE,
+        RBAC_PERMISSIONS.STORAGE_STUDENT_DOCUMENTS_WRITE,
+        RBAC_PERMISSIONS.ADMIN_SCHOOL_VIEW,
+        RBAC_PERMISSIONS.PORTAL_TEACHER_SUPERVISE_READ,
+      ];
+    case 'FAMILY':
+    case 'FAMILY_DOCUMENTS':
+      return [
+        RBAC_PERMISSIONS.ACADEMIC_ENROLLMENTS_VIEW,
+        RBAC_PERMISSIONS.ACADEMIC_ENROLLMENTS_WRITE,
+        RBAC_PERMISSIONS.STORAGE_STUDENT_DOCUMENTS_WRITE,
+        RBAC_PERMISSIONS.ADMIN_SCHOOL_VIEW,
+      ];
+    case 'USER':
+    case 'USER_AVATARS':
+      return [
+        RBAC_PERMISSIONS.IAM_MEMBERSHIPS_VIEW,
+        RBAC_PERMISSIONS.IAM_MEMBERSHIPS_MANAGE,
+        RBAC_PERMISSIONS.ADMIN_SCHOOL_VIEW,
+      ];
+    case 'OBSERVER':
+    case 'OBSERVER_ATTACHMENTS':
+      return [
+        RBAC_PERMISSIONS.PORTAL_TEACHER_OBSERVER_WRITE,
+        RBAC_PERMISSIONS.PORTAL_TEACHER_SUPERVISE_READ,
+        RBAC_PERMISSIONS.ACADEMIC_ENROLLMENTS_VIEW,
+        RBAC_PERMISSIONS.ADMIN_SCHOOL_VIEW,
+      ];
+    case 'CRM':
+    case 'CRM_ATTACHMENTS':
+      return [
+        RBAC_PERMISSIONS.CRM_COMMUNICATIONS_USE,
+        RBAC_PERMISSIONS.CRM_TICKETS_MANAGE,
+        RBAC_PERMISSIONS.ADMIN_SCHOOL_VIEW,
+      ];
+    default:
+      return [
+        RBAC_PERMISSIONS.ADMIN_SCHOOL_VIEW,
+        RBAC_PERMISSIONS.ACADEMIC_ENROLLMENTS_VIEW,
+        RBAC_PERMISSIONS.PORTAL_TEACHER_SUPERVISE_READ,
       ];
   }
 }

@@ -246,7 +246,12 @@ import { isControlInvalid, markAllAsTouched } from '../../utils/form-validators'
     <app-v3-file-manager-modal
       [open]="openDocumentsModal()"
       heading="Logos, Escudos y Documentos del Plantel"
+      subtitle="Activos digitales institucionales vinculados al plantel"
       category="INSTITUTIONAL_LOGOS"
+      ownerEntityType="SCHOOL"
+      [ownerEntityId]="schoolId()"
+      [ownerDisplayName]="schoolProfile()?.name ?? null"
+      [ownerDocumentNumber]="schoolProfile()?.daneCode ?? null"
       [canUpload]="canManageBrandingFiles()"
       [canDelete]="canManageBrandingFiles()"
       (closed)="openDocumentsModal.set(false)"
@@ -311,6 +316,7 @@ export class SchoolInformationComponent implements OnInit {
     return (items ?? []).map((item) => ({ value: item.id, label: item.name }));
   }
 
+  readonly schoolId = computed(() => this.v3Auth.activeSchoolId());
   readonly canEditSchool = computed(() =>
     this.v3Auth.hasPermission('admin.school.write'),
   );

@@ -193,10 +193,34 @@ describe('Sprint 1 & 2 — Catalogs, Dashboard Statistics, Own Profile & Adminis
       payload: {
         name: `Sede Test Editada ${uniqueSuffix}`,
         zoneId: 1,
-        isActive: true,
+        isActive: false,
       },
     });
     expect(updateCampusRes.statusCode).toBe(200);
+
+    // 3b. Verificar filtro paginado por estado en Sedes Educativas (ACTIVE / INACTIVE / ALL)
+    const activeCampusRes = await fastify.inject({
+      method: 'GET',
+      url: `/api/v1/admin/campuses?paginated=1&status=ACTIVE&query=${uniqueSuffix}`,
+      headers: authHeaders,
+    });
+    expect(activeCampusRes.statusCode).toBe(200);
+    expect(JSON.parse(activeCampusRes.body).dataRecords.total).toBe(0);
+
+    const inactiveCampusRes = await fastify.inject({
+      method: 'GET',
+      url: `/api/v1/admin/campuses?paginated=1&status=INACTIVE&query=${uniqueSuffix}`,
+      headers: authHeaders,
+    });
+    expect(inactiveCampusRes.statusCode).toBe(200);
+    expect(JSON.parse(inactiveCampusRes.body).dataRecords.total).toBe(1);
+
+    const allCampusRes = await fastify.inject({
+      method: 'GET',
+      url: `/api/v1/admin/campuses?paginated=1&status=ALL&query=${uniqueSuffix}`,
+      headers: authHeaders,
+    });
+    expect(JSON.parse(allCampusRes.body).dataRecords.total).toBe(1);
 
     // 4. CRUD Docente
     const createTeacherRes = await fastify.inject({
@@ -223,7 +247,71 @@ describe('Sprint 1 & 2 — Catalogs, Dashboard Statistics, Own Profile & Adminis
     expect(listTeachersRes.statusCode).toBe(200);
     expect(JSON.parse(listTeachersRes.body).data.total).toBeGreaterThanOrEqual(1);
 
-    // 5. CRUD Personal Administrativo
+    // 4b. Verificar filtro paginado por estado (ACTIVE / INACTIVE / ALL) en docentes
+    const activeBeforeDeactivate = await fastify.inject({
+      method: 'GET',
+      url: `/api/v1/admin/teachers?paginated=1&status=ACTIVE&query=${uniqueSuffix}`,
+      headers: authHeaders,
+    });
+    expect(activeBeforeDeactivate.statusCode).toBe(200);
+    expect(JSON.parse(activeBeforeDeactivate.body).dataRecords.total).toBe(1);
+
+    const inactiveBeforeDeactivate = await fastify.inject({
+      method: 'GET',
+      url: `/api/v1/admin/teachers?paginated=1&status=INACTIVE&query=${uniqueSuffix}`,
+      headers: authHeaders,
+    });
+    expect(inactiveBeforeDeactivate.statusCode).toBe(200);
+    expect(JSON.parse(inactiveBeforeDeactivate.body).dataRecords.total).toBe(0);
+
+    const deactivateTeacherRes = await fastify.inject({
+      method: 'PATCH',
+      url: `/api/v1/admin/teachers/${createdTeacherId}`,
+      headers: authHeaders,
+      payload: {
+        documentTypeId: 1,
+        documentNumber: `99${uniqueSuffix}`,
+        firstName: 'Ana',
+        lastName: 'Docente',
+        email: `ana.${uniqueSuffix}@colegio.edu.co`,
+        isActive: false,
+      },
+    });
+    expect(deactivateTeacherRes.statusCode).toBe(200);
+
+    const activeAfterDeactivate = await fastify.inject({
+      method: 'GET',
+      url: `/api/v1/admin/teachers?paginated=1&status=ACTIVE&query=${uniqueSuffix}`,
+      headers: authHeaders,
+    });
+    expect(JSON.parse(activeAfterDeactivate.body).dataRecords.total).toBe(0);
+
+    const inactiveAfterDeactivate = await fastify.inject({
+      method: 'GET',
+      url: `/api/v1/admin/teachers?paginated=1&status=INACTIVE&query=${uniqueSuffix}`,
+      headers: authHeaders,
+    });
+    expect(JSON.parse(inactiveAfterDeactivate.body).dataRecords.total).toBe(1);
+    expect(
+      JSON.parse(inactiveAfterDeactivate.body).dataRecords.data[0].isActive,
+    ).toBe(false);
+
+    const allAfterDeactivate = await fastify.inject({
+      method: 'GET',
+      url: `/api/v1/admin/teachers?paginated=1&status=ALL&query=${uniqueSuffix}`,
+      headers: authHeaders,
+    });
+    expect(JSON.parse(allAfterDeactivate.body).dataRecords.total).toBe(1);
+
+    // Verificar también que el filtro de columna 'isActive=Activo' NO incluya registros 'Inactivo'
+    const colActiveFilterRes = await fastify.inject({
+      method: 'GET',
+      url: `/api/v1/admin/teachers?paginated=1&status=ALL&query=${uniqueSuffix}&field=isActive&value=Activo`,
+      headers: authHeaders,
+    });
+    expect(JSON.parse(colActiveFilterRes.body).dataRecords.total).toBe(0);
+
+    // 5. CRUD Personal Administrativo + filtro por estado (ACTIVE / INACTIVE / ALL)
     const createStaffRes = await fastify.inject({
       method: 'POST',
       url: '/api/v1/admin/staff',
@@ -234,11 +322,50 @@ describe('Sprint 1 & 2 — Catalogs, Dashboard Statistics, Own Profile & Adminis
         firstName: 'Luis',
         lastName: 'Secretario',
         email: `luis.${uniqueSuffix}@colegio.edu.co`,
-        isActive: true,
+        isActive: false,
       },
     });
     expect(createStaffRes.statusCode).toBe(201);
     const createdStaffId = JSON.parse(createStaffRes.body).data.id as number;
+
+    const activeStaffRes = await fastify.inject({
+      method: 'GET',
+      url: `/api/v1/admin/staff?paginated=1&status=ACTIVE&query=${uniqueSuffix}`,
+      headers: authHeaders,
+    });
+    expect(activeStaffRes.statusCode).toBe(200);
+    expect(JSON.parse(activeStaffRes.body).dataRecords.total).toBe(0);
+
+    const inactiveStaffRes = await fastify.inject({
+      method: 'GET',
+      url: `/api/v1/admin/staff?paginated=1&status=INACTIVE&query=${uniqueSuffix}`,
+      headers: authHeaders,
+    });
+    expect(inactiveStaffRes.statusCode).toBe(200);
+    expect(JSON.parse(inactiveStaffRes.body).dataRecords.total).toBe(1);
+
+    // 5b. Verificar filtros combinados en Directores de Grupo (status + assignmentState + campusId)
+    const inactiveGroupsRes = await fastify.inject({
+      method: 'GET',
+      url: `/api/v1/admin/group-managers?paginated=1&academicYear=2026&status=INACTIVE&campusId=${createdCampusId}`,
+      headers: authHeaders,
+    });
+    expect(inactiveGroupsRes.statusCode).toBe(200);
+    expect(JSON.parse(inactiveGroupsRes.body).dataRecords.total).toBe(0);
+
+    const unassignedGroupsRes = await fastify.inject({
+      method: 'GET',
+      url: `/api/v1/admin/group-managers?paginated=1&academicYear=2026&status=ACTIVE&assignmentState=UNASSIGNED`,
+      headers: authHeaders,
+    });
+    expect(unassignedGroupsRes.statusCode).toBe(200);
+    const unassignedRows = JSON.parse(unassignedGroupsRes.body).dataRecords
+      .data as Array<{ homeroomTeacherId: number | null; isActive: boolean }>;
+    expect(
+      unassignedRows.every(
+        (g) => g.isActive === true && g.homeroomTeacherId === null,
+      ),
+    ).toBe(true);
 
     // 6. Limpieza ordenada de registros creados en la prueba
     const delStaffRes = await fastify.inject({
@@ -268,5 +395,5 @@ describe('Sprint 1 & 2 — Catalogs, Dashboard Statistics, Own Profile & Adminis
       url: '/api/v1/auth/logout',
       headers: authHeaders,
     });
-  });
+  }, 20_000);
 });

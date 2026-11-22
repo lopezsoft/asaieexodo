@@ -9,9 +9,16 @@ import {
   OnInit,
   PLATFORM_ID,
   signal,
+  untracked,
   ViewChild,
 } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import {
   ColumnContract,
@@ -25,6 +32,7 @@ import { environment } from '../../../environments/environment';
 import { CustomizerSettingsService } from '../../customizer-settings/customizer-settings.service';
 import { LoadMaskService } from '../../services/common/load-mask.service';
 import { MessagesService } from '../../services/messages.service';
+import { V3AcademicService } from '../../services/v3-academic.service';
 import {
   GroupManagerRecord,
   TeacherProfileRecord,
@@ -56,6 +64,7 @@ import { markAllAsTouched } from '../../utils/form-validators';
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     ReactiveFormsModule,
     RouterLink,
     ExodolibsModule,
@@ -72,10 +81,71 @@ import { markAllAsTouched } from '../../utils/form-validators';
         </div>
         <ol class="breadcrumb list-unstyled mt-0 mb-0 p-0">
           <li class="breadcrumb-item d-inline-block position-relative">
+            <a routerLink="/dashboard" class="d-inline-block position-relative">
+              <i class="material-symbols-outlined">home</i>
+              Inicio
+            </a>
+          </li>
+          <li class="breadcrumb-item d-inline-block position-relative">
             <a routerLink="/admin" class="d-inline-block position-relative">Administrativo</a>
           </li>
           <li class="breadcrumb-item d-inline-block position-relative">Directores de Grupo</li>
         </ol>
+      </div>
+
+      <div class="v3-admin-filter-strip">
+        <div class="v3-admin-filter-group">
+          <span class="v3-admin-filter-label">Vista rápida</span>
+          <div class="v3-rbac-segment-bar" role="group" aria-label="Filtrar grupos por estado y asignación">
+            <button
+              type="button"
+              class="v3-rbac-segment-pill"
+              [class.is-active]="viewFilter() === 'ACTIVE'"
+              (click)="setViewFilter('ACTIVE')"
+            >
+              <span>Activos</span>
+            </button>
+            <button
+              type="button"
+              class="v3-rbac-segment-pill"
+              [class.is-active]="viewFilter() === 'UNASSIGNED'"
+              (click)="setViewFilter('UNASSIGNED')"
+            >
+              <span>Sin director</span>
+            </button>
+            <button
+              type="button"
+              class="v3-rbac-segment-pill"
+              [class.is-active]="viewFilter() === 'INACTIVE'"
+              (click)="setViewFilter('INACTIVE')"
+            >
+              <span>Inactivos</span>
+            </button>
+            <button
+              type="button"
+              class="v3-rbac-segment-pill"
+              [class.is-active]="viewFilter() === 'ALL'"
+              (click)="setViewFilter('ALL')"
+            >
+              <span>Todos</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="v3-admin-filter-group v3-admin-filter-select">
+          <span class="v3-admin-filter-label">Sede</span>
+          <div class="flex-grow-1">
+            <app-v3-searchable-select
+              size="sm"
+              [ngModel]="selectedCampusFilterId"
+              (ngModelChange)="onCampusFilterChange($event)"
+              [options]="campusOptions()"
+              [clearable]="true"
+              placeholder="Todas las sedes..."
+              searchPlaceholder="Buscar sede..."
+            />
+          </div>
+        </div>
       </div>
 
       <exodo-grid
@@ -91,15 +161,15 @@ import { markAllAsTouched } from '../../utils/form-validators';
         [showPagination]="true"
         [limit]="15"
         [theme]="gridTheme"
-        placeholder="Buscar por sede, grado, grupo o docente..."
+        placeholder="Buscar grupo, grado, sede o docente..."
         (loadError)="onGridLoadError()"
       >
         <div header class="v3-exodo-toolbar">
           <button
             type="button"
             class="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1"
-            (click)="enqueueGroupDirectorsReport()"
-            [appCustomTooltip]="'Generar reporte PDF de directores de grupo'"
+            (click)="downloadGroupDirectorsReport()"
+            [appCustomTooltip]="'Descargar informe oficial en PDF de directores de grupo'"
           >
             <i class="material-symbols-outlined fs-6">picture_as_pdf</i>
             <span>Reporte PDF</span>
@@ -149,7 +219,15 @@ import { markAllAsTouched } from '../../utils/form-validators';
             <td>{{ group.shiftName }}</td>
             <td class="fw-medium">{{ group.gradeName }}</td>
             <td class="text-center">{{ group.groupCode }}</td>
-            <td>{{ group.homeroomTeacherName || 'Sin asignar' }}</td>
+            <td>
+              @if (group.homeroomTeacherName) {
+                <span class="fw-medium">{{ group.homeroomTeacherName }}</span>
+              } @else {
+                <span class="badge rounded-pill bg-warning-subtle text-warning-emphasis">
+                  Sin director
+                </span>
+              }
+            </td>
             <td class="text-center">{{ group.maxCapacity }}</td>
             <td class="text-center">
               <span
@@ -175,12 +253,13 @@ import { markAllAsTouched } from '../../utils/form-validators';
                 </button>
                 <button
                   type="button"
-                  class="btn btn-sm btn-outline-secondary me-1"
+                  class="btn btn-sm me-1"
+                  [ngClass]="group.isActive ? 'btn-outline-warning' : 'btn-outline-success'"
                   (click)="toggleActiveState(group)"
-                  [appCustomTooltip]="group.isActive ? 'Inactivar grupo' : 'Activar grupo'"
+                  [appCustomTooltip]="group.isActive ? 'Inactivar grupo' : 'Reactivar grupo'"
                 >
                   <i class="material-symbols-outlined fs-6">
-                    {{ group.isActive ? 'toggle_on' : 'toggle_off' }}
+                    {{ group.isActive ? 'block' : 'check_circle' }}
                   </i>
                 </button>
                 <button
@@ -207,41 +286,57 @@ import { markAllAsTouched } from '../../utils/form-validators';
     >
       <form [formGroup]="groupForm" (ngSubmit)="saveGroup()">
         <div class="row g-3">
-          <div class="col-12 col-md-6">
-            <label class="form-label">Sede educativa *</label>
-            <app-v3-searchable-select
-              formControlName="campusId"
-              [options]="campusOptions()"
-              [clearable]="true"
-              placeholder="Seleccione..."
-              searchPlaceholder="Buscar sede..."
-            />
-          </div>
-          <div class="col-12 col-md-6">
-            <label class="form-label">Jornada *</label>
-            <app-v3-searchable-select
-              formControlName="shiftId"
-              [options]="shiftOptions()"
-              [clearable]="true"
-              placeholder="Seleccione..."
-              searchPlaceholder="Buscar jornada..."
-            />
-          </div>
+          @if (editingGroup(); as currentGroup) {
+            <div class="col-12">
+              <div class="v3-form-panel v3-form-panel--info d-flex align-items-start gap-2 mb-0">
+                <i class="material-symbols-outlined text-primary fs-5">school</i>
+                <div>
+                  <div class="fw-semibold">
+                    {{ currentGroup.gradeName }} · Grupo {{ currentGroup.groupCode }}
+                  </div>
+                  <small class="text-muted">
+                    {{ currentGroup.campusName }} · Jornada {{ currentGroup.shiftName }} · Año {{ currentGroup.academicYear }}
+                  </small>
+                </div>
+              </div>
+            </div>
+          } @else {
+            <div class="col-12 col-md-6">
+              <label class="form-label">Sede educativa *</label>
+              <app-v3-searchable-select
+                formControlName="campusId"
+                [options]="campusOptions()"
+                [clearable]="true"
+                placeholder="Seleccione..."
+                searchPlaceholder="Buscar sede..."
+              />
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label">Jornada *</label>
+              <app-v3-searchable-select
+                formControlName="shiftId"
+                [options]="shiftOptions()"
+                [clearable]="true"
+                placeholder="Seleccione..."
+                searchPlaceholder="Buscar jornada..."
+              />
+            </div>
 
-          <div class="col-12 col-md-6">
-            <label class="form-label">Grado *</label>
-            <app-v3-searchable-select
-              formControlName="gradeId"
-              [options]="gradeOptions()"
-              [clearable]="true"
-              placeholder="Seleccione..."
-              searchPlaceholder="Buscar grado..."
-            />
-          </div>
-          <div class="col-12 col-md-6">
-            <label class="form-label">Código de grupo *</label>
-            <input type="text" class="form-control" formControlName="groupCode" placeholder="Ej. 01, A, B" />
-          </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label">Grado *</label>
+              <app-v3-searchable-select
+                formControlName="gradeId"
+                [options]="gradeOptions()"
+                [clearable]="true"
+                placeholder="Seleccione..."
+                searchPlaceholder="Buscar grado..."
+              />
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label">Código de grupo *</label>
+              <input type="text" class="form-control" formControlName="groupCode" placeholder="Ej. 01, A, B" />
+            </div>
+          }
 
           <div class="col-12 col-md-6">
             <label class="form-label">Cupo máximo</label>
@@ -290,6 +385,7 @@ export class GroupManagersComponent implements OnInit, AfterViewInit {
 
   protected readonly v3Auth = inject(V3UnifiedAuthService);
   private readonly fb = inject(FormBuilder);
+  private readonly academicService = inject(V3AcademicService);
   private readonly adminService = inject(V3AdministrationService);
   private readonly catalogsService = inject(V3CatalogsService);
   private readonly themeService = inject(CustomizerSettingsService);
@@ -308,6 +404,8 @@ export class GroupManagersComponent implements OnInit, AfterViewInit {
   readonly schoolContext = signal<SchoolAcademicContextCatalogs | null>(null);
   readonly formModalOpen = signal(false);
   readonly editingGroup = signal<GroupManagerRecord | null>(null);
+  readonly viewFilter = signal<'ACTIVE' | 'UNASSIGNED' | 'INACTIVE' | 'ALL'>('ACTIVE');
+  selectedCampusFilterId: number | null = null;
 
   readonly campusOptions = computed(() => this.toNamedOptions(this.schoolContext()?.campuses));
   readonly shiftOptions = computed(() => this.toNamedOptions(this.schoolContext()?.shifts));
@@ -385,7 +483,7 @@ export class GroupManagersComponent implements OnInit, AfterViewInit {
     effect(() => {
       const year = this.v3Auth.academicYear();
       if (this.viewReady && this.v3Auth.isAuthenticated() && year) {
-        this.loadGroupManagers(year);
+        untracked(() => this.loadGroupManagers(year));
       }
     });
   }
@@ -402,7 +500,7 @@ export class GroupManagersComponent implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {
     this.viewReady = true;
     const year = this.v3Auth.academicYear();
-    this.groupManagersGrid?.onLoad({ academicYear: year, paginated: '1' }, false);
+    this.groupManagersGrid?.onLoad(this.buildGridBaseParams(year), false);
     if (this.isBrowser) {
       this.initLoadTimer = setTimeout(() => {
         this.initLoadTimer = null;
@@ -413,8 +511,40 @@ export class GroupManagersComponent implements OnInit, AfterViewInit {
     }
   }
 
+  setViewFilter(view: 'ACTIVE' | 'UNASSIGNED' | 'INACTIVE' | 'ALL'): void {
+    if (this.viewFilter() === view) {
+      return;
+    }
+    this.viewFilter.set(view);
+    this.loadGroupManagers();
+  }
+
+  onCampusFilterChange(campusId: number | null | undefined): void {
+    const parsed = campusId !== null && campusId !== undefined ? Number(campusId) : null;
+    this.selectedCampusFilterId =
+      parsed !== null && Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+    this.loadGroupManagers();
+  }
+
   loadGroupManagers(year = this.v3Auth.academicYear()): void {
-    this.groupManagersGrid?.onLoad({ academicYear: year, paginated: '1' }, true);
+    this.groupManagersGrid?.onLoad(this.buildGridBaseParams(year), true);
+  }
+
+  private buildGridBaseParams(
+    year = this.v3Auth.academicYear(),
+  ): Record<string, string | number> {
+    const view = this.viewFilter();
+    const status =
+      view === 'INACTIVE' ? 'INACTIVE' : view === 'ALL' ? 'ALL' : 'ACTIVE';
+    return {
+      academicYear: year,
+      paginated: '1',
+      status,
+      ...(view === 'UNASSIGNED' ? { assignmentState: 'UNASSIGNED' } : {}),
+      ...(this.selectedCampusFilterId !== null && this.selectedCampusFilterId > 0
+        ? { campusId: this.selectedCampusFilterId }
+        : {}),
+    };
   }
 
   exportCurrentPage(): void {
@@ -501,15 +631,30 @@ export class GroupManagersComponent implements OnInit, AfterViewInit {
   }
 
   toggleActiveState(group: GroupManagerRecord): void {
-    this.adminService
-      .updateGroupManager(group.id, { isActive: !group.isActive })
-      .subscribe({
-        next: () => {
-          this.messages.showSuccess(
-            group.isActive ? 'Grupo marcado como inactivo.' : 'Grupo reactivado.',
-          );
-          this.loadGroupManagers();
-        },
+    const nextActive = !group.isActive;
+    void this.messages
+      .showConfirm({
+        title: nextActive ? 'Reactivar grupo' : 'Inactivar grupo',
+        message: nextActive
+          ? `¿Deseas reactivar el grupo ${group.gradeName} - ${group.groupCode} (${group.campusName})?`
+          : `¿Deseas inactivar el grupo ${group.gradeName} - ${group.groupCode} (${group.campusName})? Podrás reactivarlo luego desde la vista de inactivos.`,
+      })
+      .then((res) => {
+        if (!res.isConfirmed) {
+          return;
+        }
+        this.maskService.show('messages.processing');
+        this.adminService
+          .updateGroupManager(group.id, { isActive: nextActive })
+          .pipe(finalize(() => this.maskService.hide()))
+          .subscribe({
+            next: () => {
+              this.messages.showSuccess(
+                nextActive ? 'Grupo reactivado.' : 'Grupo marcado como inactivo.',
+              );
+              this.loadGroupManagers();
+            },
+          });
       });
   }
 
@@ -534,21 +679,31 @@ export class GroupManagersComponent implements OnInit, AfterViewInit {
       });
   }
 
-  enqueueGroupDirectorsReport(): void {
+  downloadGroupDirectorsReport(): void {
+    const year = this.v3Auth.academicYear();
     this.maskService.show('messages.processing');
-    this.adminService
-      .enqueueJasperReport({
+    this.academicService
+      .downloadDirectReport({
         templateName: 'dir_grupo',
         outputFormat: 'pdf',
         parameters: {
-          P_YEAR: this.v3Auth.academicYear(),
+          P_YEAR: year,
         },
       })
       .pipe(finalize(() => this.maskService.hide()))
       .subscribe({
-        next: (job) => {
+        next: (response) => {
+          this.academicService.triggerBrowserBlobDownload(
+            response,
+            `directores-grupo-${year}.pdf`,
+          );
           this.messages.showSuccess(
-            `Reporte encolado (Job #${job.jobId}). Estará disponible al finalizar el procesamiento.`,
+            'Informe PDF de directores de grupo descargado correctamente.',
+          );
+        },
+        error: () => {
+          this.messages.showError(
+            'No fue posible generar el PDF de directores de grupo.',
           );
         },
       });

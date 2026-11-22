@@ -190,16 +190,47 @@ export interface GroupManagerRecord {
   readonly isActive: boolean;
 }
 
+export type CloudFileOwnerEntityType =
+  | 'TEACHER'
+  | 'STUDENT'
+  | 'FAMILY'
+  | 'ADMINISTRATIVE_STAFF'
+  | 'SCHOOL'
+  | 'USER'
+  | 'VIRTUAL_ACTIVITY'
+  | 'OBSERVER'
+  | 'CRM';
+
+export interface ListSchoolFilesParams {
+  readonly category?: string;
+  readonly ownerEntityType?: CloudFileOwnerEntityType | null;
+  readonly ownerEntityId?: number | string | null;
+  readonly limit?: number;
+  readonly offset?: number;
+}
+
+export interface CloudFileOwnerRef {
+  readonly ownerEntityType?: CloudFileOwnerEntityType | null;
+  readonly ownerEntityId?: number | string | null;
+}
+
 export interface CloudFileRecord {
   readonly id: string;
+  readonly schoolId?: string;
   readonly fileUuid: string;
+  readonly uploadedByUserId?: string | null;
+  readonly ownerEntityType: string | null;
+  readonly ownerEntityId: string | null;
   readonly fileName: string;
   readonly mimeType: string;
+  readonly extension?: string | null;
   readonly sizeBytes: number;
-  readonly storageKey: string;
+  readonly storagePath: string;
+  readonly storageKey?: string;
   readonly publicUrl: string | null;
-  readonly category: string;
+  readonly category?: string;
   readonly description: string | null;
+  readonly metadata?: Record<string, unknown>;
   readonly createdAt: string;
 }
 
@@ -495,11 +526,34 @@ export class V3AdministrationService {
       .pipe(map((res) => res.data));
   }
 
-  // Archivos S3 (reemplazo de FilesView.js de ExtJS)
-  listSchoolFiles(category?: string): Observable<CloudFileRecord[]> {
-    let params = new HttpParams().set('limit', '100');
-    if (category) {
-      params = params.set('category', category);
+  // Archivos S3 enlazados por entidad/registro (reemplazo de FilesView.js de ExtJS)
+  listSchoolFiles(
+    filter?: string | ListSchoolFilesParams,
+  ): Observable<CloudFileRecord[]> {
+    const normalized: ListSchoolFilesParams =
+      typeof filter === 'string' ? { category: filter } : (filter ?? {});
+    let params = new HttpParams().set(
+      'limit',
+      String(normalized.limit ?? 100),
+    );
+    if (normalized.offset !== undefined) {
+      params = params.set('offset', String(normalized.offset));
+    }
+    if (normalized.category) {
+      params = params.set('category', normalized.category);
+    }
+    if (normalized.ownerEntityType) {
+      params = params.set('ownerEntityType', normalized.ownerEntityType);
+    }
+    if (
+      normalized.ownerEntityId !== undefined &&
+      normalized.ownerEntityId !== null &&
+      String(normalized.ownerEntityId).trim() !== ''
+    ) {
+      params = params.set(
+        'ownerEntityId',
+        String(normalized.ownerEntityId).trim(),
+      );
     }
     return this.http
       .get<ApiEnvelope<CloudFileRecord[]>>(
@@ -513,13 +567,25 @@ export class V3AdministrationService {
     file: File,
     category: string,
     description?: string,
+    owner?: CloudFileOwnerRef,
   ): Observable<CloudFileRecord> {
     const formData = new FormData();
-    formData.append('file', file, file.name);
+    // Enviar metadatos antes del binario garantiza lectura inmediata en @fastify/multipart
     formData.append('category', category);
+    if (owner?.ownerEntityType) {
+      formData.append('ownerEntityType', owner.ownerEntityType);
+    }
+    if (
+      owner?.ownerEntityId !== undefined &&
+      owner?.ownerEntityId !== null &&
+      String(owner.ownerEntityId).trim() !== ''
+    ) {
+      formData.append('ownerEntityId', String(owner.ownerEntityId).trim());
+    }
     if (description?.trim()) {
       formData.append('description', description.trim());
     }
+    formData.append('file', file, file.name);
     return this.http
       .post<ApiEnvelope<CloudFileRecord>>(
         `${environment.APIURL}/storage/files/upload-multipart`,
@@ -532,10 +598,24 @@ export class V3AdministrationService {
     fileId: string,
   ): Observable<{ downloadUrl: string; expiresInSeconds: number }> {
     return this.http
-      .get<ApiEnvelope<{ downloadUrl: string; expiresInSeconds: number }>>(
-        `${environment.APIURL}/storage/files/${fileId}/presigned-url`,
-      )
-      .pipe(map((res) => res.data));
+      .get<
+        ApiEnvelope<{
+          file?: CloudFileRecord;
+          presignedDownload?: { url: string; expiresInSeconds: number };
+          downloadUrl?: string;
+          expiresInSeconds?: number;
+        }>
+      >(`${environment.APIURL}/storage/files/${fileId}/presigned-url`)
+      .pipe(
+        map((res) => ({
+          downloadUrl:
+            res.data.presignedDownload?.url ?? res.data.downloadUrl ?? '',
+          expiresInSeconds:
+            res.data.presignedDownload?.expiresInSeconds ??
+            res.data.expiresInSeconds ??
+            900,
+        })),
+      );
   }
 
   deleteSchoolFile(fileId: string): Observable<{ deleted: boolean }> {

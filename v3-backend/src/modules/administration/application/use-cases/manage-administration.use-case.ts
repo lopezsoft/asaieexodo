@@ -221,6 +221,9 @@ export class ManageAdministrationUseCase {
       sortField: options?.sortField?.trim() || undefined,
       sortDirection: options?.sortDirection === 'DESC' ? 'DESC' : 'ASC',
       onlyActive: options?.onlyActive,
+      status: options?.status,
+      campusId: options?.campusId,
+      assignmentState: options?.assignmentState,
       limit: Math.min(Math.max(options?.limit ?? 100, 1), 500),
       offset: Math.max(options?.offset ?? 0, 0),
     };

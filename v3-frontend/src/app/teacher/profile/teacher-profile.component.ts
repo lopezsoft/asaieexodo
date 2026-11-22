@@ -138,8 +138,13 @@ import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.d
 
       <app-v3-file-manager-modal
         [open]="signatureModalOpen()"
-        heading="Firma Digital del Docente"
-        category="GENERAL"
+        [heading]="'Firma y Documentos · ' + (profile()?.fullName || 'Docente')"
+        subtitle="Expediente digital vinculado a tu perfil docente"
+        category="TEACHER_DOCUMENTS"
+        ownerEntityType="TEACHER"
+        [ownerEntityId]="profile()?.id ?? null"
+        [ownerDisplayName]="profile()?.fullName ?? null"
+        [ownerDocumentNumber]="profile()?.documentNumber ?? null"
         (closed)="signatureModalOpen.set(false)"
         (fileUploaded)="onSignatureUploaded($event)"
       />
@@ -212,7 +217,8 @@ export class TeacherProfileComponent implements OnInit {
   }
 
   onSignatureUploaded(file: CloudFileRecord): void {
-    this.form.signatureUrl = file.publicUrl || file.storageKey;
+    this.form.signatureUrl =
+      file.publicUrl || file.storagePath || file.storageKey || '';
     this.signatureModalOpen.set(false);
     this.saveProfile();
   }

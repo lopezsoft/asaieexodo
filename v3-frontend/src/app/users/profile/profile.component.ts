@@ -175,11 +175,23 @@ export class ProfileComponent implements OnInit {
     this.selectedFileName.set(file.name);
     this.uploadingAvatar.set(true);
     this.adminService
-      .uploadSchoolFileMultipart(file, 'USER_AVATARS', 'Foto de perfil de usuario')
+      .uploadSchoolFileMultipart(
+        file,
+        'USER_AVATARS',
+        'Foto de perfil de usuario',
+        {
+          ownerEntityType: 'USER',
+          ownerEntityId: this.v3Auth.user()?.id ?? null,
+        },
+      )
       .pipe(finalize(() => this.uploadingAvatar.set(false)))
       .subscribe({
         next: (uploaded) => {
-          const avatarUrl = uploaded.publicUrl || uploaded.storageKey;
+          const avatarUrl =
+            uploaded.publicUrl ||
+            uploaded.storagePath ||
+            uploaded.storageKey ||
+            '';
           this.profileForm.patchValue({ avatarUrl });
           this.avatarPreview.set(uploaded.publicUrl || fallbackAvatarUrl());
           this.profileForm.markAsDirty();

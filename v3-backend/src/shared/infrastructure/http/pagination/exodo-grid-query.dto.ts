@@ -109,6 +109,11 @@ export class ExodoGridQueryDto {
   @IsString()
   @MaxLength(10)
   onlyActive?: string;
+
+  @ApiPropertyOptional({ enum: ['ACTIVE', 'INACTIVE', 'ALL'], example: 'ACTIVE' })
+  @IsOptional()
+  @IsIn(['ACTIVE', 'INACTIVE', 'ALL'])
+  status?: 'ACTIVE' | 'INACTIVE' | 'ALL';
 }
 
 /**
@@ -122,4 +127,19 @@ export class AcademicYearExodoGridQueryDto extends ExodoGridQueryDto {
   @Min(2000)
   @Max(2100)
   academicYear?: number;
+
+  @ApiPropertyOptional({ example: 1, minimum: 1 })
+  @IsOptional()
+  @Transform(toOptionalNumber)
+  @IsInt()
+  @Min(1)
+  campusId?: number;
+
+  @ApiPropertyOptional({
+    enum: ['ALL', 'ASSIGNED', 'UNASSIGNED'],
+    example: 'UNASSIGNED',
+  })
+  @IsOptional()
+  @IsIn(['ALL', 'ASSIGNED', 'UNASSIGNED'])
+  assignmentState?: 'ALL' | 'ASSIGNED' | 'UNASSIGNED';
 }

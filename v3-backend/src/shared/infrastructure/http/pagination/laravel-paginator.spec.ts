@@ -128,4 +128,22 @@ describe('Laravel Paginator & ExodoGrid Query Normalization', () => {
     expect(resolveSafeSqlColumn('toString', allowlist)).toBeNull();
     expect(resolveSafeSqlColumn(undefined, allowlist)).toBeNull();
   });
+
+  it('normaliza filtros administrativos status, campusId y assignmentState para la grilla', () => {
+    const normalized = normalizeExodoGridQuery({
+      page: 2,
+      limit: 20,
+      status: 'INACTIVE',
+      campusId: 2,
+      assignmentState: 'UNASSIGNED',
+    });
+
+    expect(normalized.isLaravelPagination).toBe(true);
+    expect(normalized.page).toBe(2);
+    expect(normalized.limit).toBe(20);
+    expect(normalized.offset).toBe(20);
+    expect(normalized.status).toBe('INACTIVE');
+    expect(normalized.campusId).toBe(2);
+    expect(normalized.assignmentState).toBe('UNASSIGNED');
+  });
 });

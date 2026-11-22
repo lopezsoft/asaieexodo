@@ -1,4 +1,7 @@
-import { ExodoGridQueryDto } from './exodo-grid-query.dto';
+import {
+  AcademicYearExodoGridQueryDto,
+  ExodoGridQueryDto,
+} from './exodo-grid-query.dto';
 
 export interface LaravelPaginatorLink {
   readonly url: string | null;
@@ -35,6 +38,9 @@ export interface GridQueryOptions {
   readonly sortField?: string;
   readonly sortDirection?: 'ASC' | 'DESC';
   readonly onlyActive?: boolean;
+  readonly status?: 'ACTIVE' | 'INACTIVE' | 'ALL';
+  readonly campusId?: number;
+  readonly assignmentState?: 'ALL' | 'ASSIGNED' | 'UNASSIGNED';
   readonly limit: number;
   readonly offset: number;
 }
@@ -49,7 +55,7 @@ export interface NormalizedExodoGridQuery extends GridQueryOptions {
  * value, sort, dir, page, limit, skip) o por selectores legados (limit, offset, onlyActive).
  */
 export function normalizeExodoGridQuery(
-  dto: ExodoGridQueryDto,
+  dto: ExodoGridQueryDto | AcademicYearExodoGridQueryDto,
   defaultLimit = 15,
   maxLimit = 500,
 ): NormalizedExodoGridQuery {
@@ -80,6 +86,8 @@ export function normalizeExodoGridQuery(
     page = Math.floor(offset / limit) + 1;
   }
 
+  const academicFilters = dto as AcademicYearExodoGridQueryDto;
+
   return {
     isLaravelPagination,
     page,
@@ -91,6 +99,9 @@ export function normalizeExodoGridQuery(
     sortField: dto.sort?.trim() || undefined,
     sortDirection: dto.dir === 'desc' ? 'DESC' : 'ASC',
     onlyActive: dto.onlyActive === 'true',
+    status: academicFilters.status,
+    campusId: academicFilters.campusId,
+    assignmentState: academicFilters.assignmentState,
   };
 }
 

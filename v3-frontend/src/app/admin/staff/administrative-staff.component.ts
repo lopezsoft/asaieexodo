@@ -76,10 +76,48 @@ import { isControlInvalid, markAllAsTouched } from '../../utils/form-validators'
         </div>
         <ol class="breadcrumb list-unstyled mt-0 mb-0 p-0">
           <li class="breadcrumb-item d-inline-block position-relative">
+            <a routerLink="/dashboard" class="d-inline-block position-relative">
+              <i class="material-symbols-outlined">home</i>
+              Inicio
+            </a>
+          </li>
+          <li class="breadcrumb-item d-inline-block position-relative">
             <a routerLink="/admin" class="d-inline-block position-relative">Administrativo</a>
           </li>
           <li class="breadcrumb-item d-inline-block position-relative">Personal Administrativo</li>
         </ol>
+      </div>
+
+      <div class="v3-admin-filter-strip">
+        <div class="v3-admin-filter-group">
+          <span class="v3-admin-filter-label">Estado</span>
+          <div class="v3-rbac-segment-bar" role="group" aria-label="Filtrar funcionarios por estado">
+            <button
+              type="button"
+              class="v3-rbac-segment-pill"
+              [class.is-active]="statusFilter() === 'ACTIVE'"
+              (click)="setStatusFilter('ACTIVE')"
+            >
+              <span>Activos</span>
+            </button>
+            <button
+              type="button"
+              class="v3-rbac-segment-pill"
+              [class.is-active]="statusFilter() === 'INACTIVE'"
+              (click)="setStatusFilter('INACTIVE')"
+            >
+              <span>Inactivos</span>
+            </button>
+            <button
+              type="button"
+              class="v3-rbac-segment-pill"
+              [class.is-active]="statusFilter() === 'ALL'"
+              (click)="setStatusFilter('ALL')"
+            >
+              <span>Todos</span>
+            </button>
+          </div>
+        </div>
       </div>
 
       <exodo-grid
@@ -95,20 +133,10 @@ import { isControlInvalid, markAllAsTouched } from '../../utils/form-validators'
         [showPagination]="true"
         [limit]="15"
         [theme]="gridTheme"
-        placeholder="Buscar por documento, nombre o correo..."
+        placeholder="Buscar funcionario, documento o correo..."
         (loadError)="onGridLoadError()"
       >
         <div header class="v3-exodo-toolbar">
-          <button
-            type="button"
-            class="btn btn-sm btn-outline-info d-inline-flex align-items-center gap-1"
-            (click)="docsModalOpen.set(true)"
-            [appCustomTooltip]="'Abrir repositorio digital de documentos administrativos'"
-          >
-            <i class="material-symbols-outlined fs-6">folder_shared</i>
-            <span>Documentos digitales</span>
-          </button>
-
           <button
             type="button"
             class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1"
@@ -157,8 +185,23 @@ import { isControlInvalid, markAllAsTouched } from '../../utils/form-validators'
               }}
             </td>
             <td class="fw-medium">{{ staff.fullName }}</td>
-            <td>{{ staff.email || '—' }}</td>
-            <td>{{ staff.phone || '—' }}</td>
+            <td>
+              @if (staff.email || staff.phone) {
+                <div class="v3-contact-stack">
+                  @if (staff.email) {
+                    <span class="v3-contact-primary">{{ staff.email }}</span>
+                  }
+                  @if (staff.phone) {
+                    <span class="v3-contact-secondary">
+                      <i class="material-symbols-outlined fs-6">call</i>
+                      {{ staff.phone }}
+                    </span>
+                  }
+                </div>
+              } @else {
+                <span class="text-muted">—</span>
+              }
+            </td>
             <td>{{ staff.hierarchyLevelName || '—' }}</td>
             <td>{{ staff.appointmentTypeName || '—' }}</td>
             <td class="text-center">
@@ -174,7 +217,26 @@ import { isControlInvalid, markAllAsTouched } from '../../utils/form-validators'
               </span>
             </td>
             <td class="text-end text-nowrap">
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-info me-1"
+                (click)="openStaffDocsModal(staff)"
+                [appCustomTooltip]="'Documentos digitales de ' + staff.fullName"
+              >
+                <i class="material-symbols-outlined fs-6">folder_shared</i>
+              </button>
               @if (canWrite()) {
+                <button
+                  type="button"
+                  class="btn btn-sm me-1"
+                  [ngClass]="staff.isActive ? 'btn-outline-warning' : 'btn-outline-success'"
+                  (click)="toggleStaffStatus(staff)"
+                  [appCustomTooltip]="staff.isActive ? 'Inactivar funcionario' : 'Reactivar funcionario'"
+                >
+                  <i class="material-symbols-outlined fs-6">
+                    {{ staff.isActive ? 'block' : 'check_circle' }}
+                  </i>
+                </button>
                 <button
                   type="button"
                   class="btn btn-sm btn-outline-primary me-1"
@@ -325,6 +387,27 @@ import { isControlInvalid, markAllAsTouched } from '../../utils/form-validators'
                 />
               </div>
               <div class="col-12 col-md-6">
+                <label class="form-label">Cargo / Acceso al sistema</label>
+                <app-v3-searchable-select
+                  formControlName="assignedRole"
+                  [options]="staffRoleOptions"
+                  [clearable]="true"
+                  [placeholder]="
+                    editingStaff()
+                      ? 'Conservar acceso actual...'
+                      : 'Seleccione cargo...'
+                  "
+                  searchPlaceholder="Buscar cargo..."
+                />
+                <small class="text-muted d-block mt-1">
+                  {{
+                    editingStaff()
+                      ? 'Solo selecciona un cargo si deseas actualizar su rol principal.'
+                      : 'Define el acceso inicial; los permisos finos se ajustan en Roles y Permisos.'
+                  }}
+                </small>
+              </div>
+              <div class="col-12 col-md-6">
                 <div class="v3-form-switch-box">
                   <div class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" id="staffActive" formControlName="isActive" />
@@ -373,11 +456,16 @@ import { isControlInvalid, markAllAsTouched } from '../../utils/form-validators'
 
     <app-v3-file-manager-modal
       [open]="docsModalOpen()"
-      heading="Documentos de Personal Administrativo"
-      category="GENERAL"
-      [canUpload]="canWrite()"
-      [canDelete]="canWrite()"
-      (closed)="docsModalOpen.set(false)"
+      [heading]="'Documentos Digitales · ' + (selectedStaffForDocs()?.fullName || 'Funcionario')"
+      subtitle="Expediente digital enlazado al funcionario administrativo seleccionado"
+      category="ADMINISTRATIVE_DOCUMENTS"
+      ownerEntityType="ADMINISTRATIVE_STAFF"
+      [ownerEntityId]="selectedStaffForDocs()?.id ?? null"
+      [ownerDisplayName]="selectedStaffForDocs()?.fullName ?? null"
+      [ownerDocumentNumber]="selectedStaffForDocs()?.documentNumber ?? null"
+      [canUpload]="canManageDocs()"
+      [canDelete]="canManageDocs()"
+      (closed)="closeStaffDocsModal()"
     />
   `,
 })
@@ -402,8 +490,18 @@ export class AdministrativeStaffComponent implements OnInit, AfterViewInit {
   readonly catalogs = signal<GlobalCatalogsBundle | null>(null);
   readonly formModalOpen = signal(false);
   readonly docsModalOpen = signal(false);
+  readonly selectedStaffForDocs = signal<AdministrativeStaffRecord | null>(null);
   readonly editingStaff = signal<AdministrativeStaffRecord | null>(null);
   readonly wizardStep = signal(0);
+  readonly statusFilter = signal<'ACTIVE' | 'INACTIVE' | 'ALL'>('ACTIVE');
+
+  readonly staffRoleOptions: readonly SearchableSelectOption<string>[] = [
+    { value: 'SECRETARY', label: 'Secretaría Académica' },
+    { value: 'COORDINATOR', label: 'Coordinación' },
+    { value: 'RECTOR', label: 'Rectoría / Dirección' },
+    { value: 'SCHOOL_ADMIN', label: 'Administrador del Plantel' },
+    { value: 'MONITOR', label: 'Personal de Apoyo / Monitor' },
+  ];
 
   readonly staffWizardSteps = computed<readonly V3WizardStep[]>(() => [
     {
@@ -468,6 +566,13 @@ export class AdministrativeStaffComponent implements OnInit, AfterViewInit {
     this.v3Auth.hasPermission('admin.staff.write'),
   );
 
+  readonly canManageDocs = computed(() =>
+    this.v3Auth.hasAnyPermission([
+      'storage.teacher_documents.write',
+      'admin.staff.write',
+    ]),
+  );
+
   get gridTheme(): 'dark' | 'glacial' {
     return this.themeService.isDark() ? 'dark' : 'glacial';
   }
@@ -480,13 +585,22 @@ export class AdministrativeStaffComponent implements OnInit, AfterViewInit {
     { text: '#', width: '48px', align: 'center', sortable: false },
     { text: 'Documento', dataIndex: 'documentNumber' },
     { text: 'Funcionario', dataIndex: 'fullName' },
-    { text: 'Correo', dataIndex: 'email' },
-    { text: 'Teléfono', dataIndex: 'phone' },
+    { text: 'Contacto', dataIndex: 'email' },
     { text: 'Nivel jerárquico', dataIndex: 'hierarchyLevelName' },
     { text: 'Vinculación', dataIndex: 'appointmentTypeName' },
     { text: 'Estado', dataIndex: 'isActive', align: 'center' },
-    { text: 'Acciones', width: '110px', align: 'right', sortable: false },
+    { text: 'Acciones', width: '175px', align: 'right', sortable: false },
   ];
+
+  openStaffDocsModal(staff: AdministrativeStaffRecord): void {
+    this.selectedStaffForDocs.set(staff);
+    this.docsModalOpen.set(true);
+  }
+
+  closeStaffDocsModal(): void {
+    this.docsModalOpen.set(false);
+    this.selectedStaffForDocs.set(null);
+  }
 
   private readonly exportColumns: readonly ExodoExportColumn<AdministrativeStaffRecord>[] =
     [
@@ -529,6 +643,7 @@ export class AdministrativeStaffComponent implements OnInit, AfterViewInit {
       careerTypeId: [null],
       appointmentTypeId: [null],
       workplaceLocationId: [null],
+      assignedRole: ['SECRETARY'],
       isActive: [true],
     });
   }
@@ -538,13 +653,27 @@ export class AdministrativeStaffComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.staffGrid?.onLoad({ paginated: '1' }, false);
+    this.staffGrid?.onLoad(
+      { paginated: '1', status: this.statusFilter() },
+      false,
+    );
     if (this.isBrowser) {
       this.initLoadTimer = setTimeout(() => {
         this.initLoadTimer = null;
-        this.staffGrid?.onLoad({ paginated: '1' }, true);
+        this.staffGrid?.onLoad(
+          { paginated: '1', status: this.statusFilter() },
+          true,
+        );
       });
     }
+  }
+
+  setStatusFilter(status: 'ACTIVE' | 'INACTIVE' | 'ALL'): void {
+    if (this.statusFilter() === status) {
+      return;
+    }
+    this.statusFilter.set(status);
+    this.staffGrid?.onLoad({ paginated: '1', status }, true);
   }
 
   loadStaff(): void {
@@ -583,6 +712,7 @@ export class AdministrativeStaffComponent implements OnInit, AfterViewInit {
       careerTypeId: null,
       appointmentTypeId: null,
       workplaceLocationId: null,
+      assignedRole: 'SECRETARY',
       isActive: true,
     });
     this.formModalOpen.set(true);
@@ -606,6 +736,7 @@ export class AdministrativeStaffComponent implements OnInit, AfterViewInit {
       careerTypeId: staff.careerTypeId,
       appointmentTypeId: staff.appointmentTypeId,
       workplaceLocationId: staff.workplaceLocationId,
+      assignedRole: null,
       isActive: staff.isActive,
     });
     this.formModalOpen.set(true);
@@ -669,6 +800,7 @@ export class AdministrativeStaffComponent implements OnInit, AfterViewInit {
       careerTypeId: raw.careerTypeId || null,
       appointmentTypeId: raw.appointmentTypeId || null,
       workplaceLocationId: raw.workplaceLocationId || null,
+      ...(raw.assignedRole ? { assignedRole: raw.assignedRole } : {}),
       isActive: Boolean(raw.isActive),
     };
 
@@ -689,6 +821,62 @@ export class AdministrativeStaffComponent implements OnInit, AfterViewInit {
         this.loadStaff();
       },
     });
+  }
+
+  toggleStaffStatus(staff: AdministrativeStaffRecord): void {
+    const nextActive = !staff.isActive;
+    void this.messages
+      .showConfirm({
+        title: nextActive ? 'Reactivar funcionario' : 'Inactivar funcionario',
+        message: nextActive
+          ? `¿Deseas reactivar a "${staff.fullName}" en el directorio activo?`
+          : `¿Deseas inactivar temporalmente a "${staff.fullName}"? Podrás reactivarlo luego desde el filtro de inactivos.`,
+      })
+      .then((res) => {
+        if (!res.isConfirmed) {
+          return;
+        }
+        this.maskService.show('messages.processing');
+        this.adminService
+          .updateAdministrativeStaff(
+            staff.id,
+            this.buildStaffPayloadFromRecord(staff, nextActive),
+          )
+          .pipe(finalize(() => this.maskService.hide()))
+          .subscribe({
+            next: () => {
+              this.messages.showSuccess(
+                nextActive
+                  ? 'Funcionario reactivado correctamente.'
+                  : 'Funcionario inactivado correctamente.',
+              );
+              this.loadStaff();
+            },
+          });
+      });
+  }
+
+  private buildStaffPayloadFromRecord(
+    staff: AdministrativeStaffRecord,
+    isActive: boolean,
+  ): Record<string, unknown> {
+    return {
+      documentTypeId: staff.documentTypeId || 1,
+      documentNumber: staff.documentNumber,
+      firstName: staff.firstName,
+      middleName: staff.middleName || null,
+      lastName: staff.lastName,
+      secondLastName: staff.secondLastName || null,
+      genderId: staff.genderId || null,
+      birthDate: staff.birthDate ? staff.birthDate.slice(0, 10) : null,
+      phone: staff.phone || null,
+      email: staff.email || null,
+      hierarchyLevelId: staff.hierarchyLevelId || null,
+      careerTypeId: staff.careerTypeId || null,
+      appointmentTypeId: staff.appointmentTypeId || null,
+      workplaceLocationId: staff.workplaceLocationId || null,
+      isActive,
+    };
   }
 
   confirmDeleteStaff(staff: AdministrativeStaffRecord): void {

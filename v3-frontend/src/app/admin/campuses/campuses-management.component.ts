@@ -82,10 +82,48 @@ import { isControlInvalid, markAllAsTouched } from '../../utils/form-validators'
         </div>
         <ol class="breadcrumb list-unstyled mt-0 mb-0 p-0">
           <li class="breadcrumb-item d-inline-block position-relative">
+            <a routerLink="/dashboard" class="d-inline-block position-relative">
+              <i class="material-symbols-outlined">home</i>
+              Inicio
+            </a>
+          </li>
+          <li class="breadcrumb-item d-inline-block position-relative">
             <a routerLink="/admin" class="d-inline-block position-relative">Administrativo</a>
           </li>
           <li class="breadcrumb-item d-inline-block position-relative">Sedes Educativas</li>
         </ol>
+      </div>
+
+      <div class="v3-admin-filter-strip">
+        <div class="v3-admin-filter-group">
+          <span class="v3-admin-filter-label">Estado</span>
+          <div class="v3-rbac-segment-bar" role="group" aria-label="Filtrar sedes por estado">
+            <button
+              type="button"
+              class="v3-rbac-segment-pill"
+              [class.is-active]="statusFilter() === 'ALL'"
+              (click)="setStatusFilter('ALL')"
+            >
+              <span>Todas</span>
+            </button>
+            <button
+              type="button"
+              class="v3-rbac-segment-pill"
+              [class.is-active]="statusFilter() === 'ACTIVE'"
+              (click)="setStatusFilter('ACTIVE')"
+            >
+              <span>Activas</span>
+            </button>
+            <button
+              type="button"
+              class="v3-rbac-segment-pill"
+              [class.is-active]="statusFilter() === 'INACTIVE'"
+              (click)="setStatusFilter('INACTIVE')"
+            >
+              <span>Inactivas</span>
+            </button>
+          </div>
+        </div>
       </div>
 
       <exodo-grid
@@ -101,7 +139,7 @@ import { isControlInvalid, markAllAsTouched } from '../../utils/form-validators'
         [showPagination]="true"
         [limit]="15"
         [theme]="gridTheme"
-        placeholder="Buscar por nombre, DANE o ciudad..."
+        placeholder="Buscar sede, DANE o ciudad..."
         (loadError)="onGridLoadError()"
       >
         <div header class="v3-exodo-toolbar">
@@ -148,9 +186,28 @@ import { isControlInvalid, markAllAsTouched } from '../../utils/form-validators'
             <td>{{ campus.cityName || '—' }}</td>
             <td>{{ campus.zoneName || '—' }}</td>
             <td class="text-center">
-              {{ campus.shiftsCount }} / {{ campus.levelsCount }}
+              <button
+                type="button"
+                class="v3-campus-stat-btn"
+                (click)="openRelationsModal(campus)"
+                [appCustomTooltip]="'Configurar jornadas y niveles de ' + campus.name"
+              >
+                <i class="material-symbols-outlined fs-6">tune</i>
+                <span>{{ campus.shiftsCount }} jor. · {{ campus.levelsCount }} niv.</span>
+              </button>
             </td>
-            <td class="text-center">{{ campus.isMainCampus ? 'Sí' : 'No' }}</td>
+            <td class="text-center">
+              <span
+                class="badge rounded-pill"
+                [ngClass]="
+                  campus.isMainCampus
+                    ? 'bg-primary-transparent text-primary'
+                    : 'bg-secondary-subtle text-secondary'
+                "
+              >
+                {{ campus.isMainCampus ? 'Principal' : 'Anexa' }}
+              </span>
+            </td>
             <td class="text-center">
               <span
                 class="badge rounded-pill"
@@ -356,7 +413,7 @@ import { isControlInvalid, markAllAsTouched } from '../../utils/form-validators'
                 class="flex-grow-1"
                 size="sm"
                 [(ngModel)]="selectedShiftId"
-                [options]="shiftOptions()"
+                [options]="availableShiftOptions()"
                 [clearable]="true"
                 placeholder="Seleccionar jornada..."
                 searchPlaceholder="Buscar jornada..."
@@ -400,7 +457,7 @@ import { isControlInvalid, markAllAsTouched } from '../../utils/form-validators'
                 class="flex-grow-1"
                 size="sm"
                 [(ngModel)]="selectedLevelId"
-                [options]="educationLevelOptions()"
+                [options]="availableEducationLevelOptions()"
                 [clearable]="true"
                 placeholder="Seleccionar nivel..."
                 searchPlaceholder="Buscar nivel educativo..."
@@ -438,7 +495,11 @@ import { isControlInvalid, markAllAsTouched } from '../../utils/form-validators'
       </div>
 
       <div modal-footer>
-        <button type="button" class="btn btn-sm btn-secondary" (click)="relationsModalOpen.set(false)">
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-secondary"
+          (click)="relationsModalOpen.set(false)"
+        >
           Cerrar
         </button>
       </div>
@@ -472,6 +533,7 @@ export class CampusesManagementComponent implements OnInit, AfterViewInit {
   readonly formModalOpen = signal(false);
   readonly editingCampus = signal<CampusRecord | null>(null);
   readonly wizardStep = signal(0);
+  readonly statusFilter = signal<'ALL' | 'ACTIVE' | 'INACTIVE'>('ALL');
 
   readonly campusWizardSteps = computed<readonly V3WizardStep[]>(() => [
     {
@@ -505,6 +567,16 @@ export class CampusesManagementComponent implements OnInit, AfterViewInit {
   readonly educationLevelOptions = computed(() =>
     this.toNamedOptions(this.schoolContext()?.educationLevels)
   );
+  readonly availableShiftOptions = computed(() => {
+    const linked = new Set(this.campusShifts().map((item) => item.shiftId));
+    return this.shiftOptions().filter((opt) => !linked.has(opt.value));
+  });
+  readonly availableEducationLevelOptions = computed(() => {
+    const linked = new Set(
+      this.campusLevels().map((item) => item.educationLevelId),
+    );
+    return this.educationLevelOptions().filter((opt) => !linked.has(opt.value));
+  });
 
   private toNamedOptions(
     items?: readonly { id: number; name: string }[]
@@ -580,13 +652,27 @@ export class CampusesManagementComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.campusesGrid?.onLoad({ paginated: '1' }, false);
+    this.campusesGrid?.onLoad(
+      { paginated: '1', status: this.statusFilter() },
+      false,
+    );
     if (this.isBrowser) {
       this.initLoadTimer = setTimeout(() => {
         this.initLoadTimer = null;
-        this.campusesGrid?.onLoad({ paginated: '1' }, true);
+        this.campusesGrid?.onLoad(
+          { paginated: '1', status: this.statusFilter() },
+          true,
+        );
       });
     }
+  }
+
+  setStatusFilter(status: 'ALL' | 'ACTIVE' | 'INACTIVE'): void {
+    if (this.statusFilter() === status) {
+      return;
+    }
+    this.statusFilter.set(status);
+    this.campusesGrid?.onLoad({ paginated: '1', status }, true);
   }
 
   loadCampuses(): void {

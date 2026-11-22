@@ -593,7 +593,8 @@ export class TeacherVirtualClassroomComponent implements OnInit {
   }
 
   onResourceUploaded(file: CloudFileRecord): void {
-    this.actForm.resourceUrl = file.publicUrl || file.storageKey;
+    this.actForm.resourceUrl =
+      file.publicUrl || file.storagePath || file.storageKey || '';
     this.messages.showSuccess(`Material "${file.fileName}" listo para adjuntar a la actividad.`);
   }
 

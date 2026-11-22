@@ -178,7 +178,11 @@ import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.d
     <app-v3-file-manager-modal
       [open]="watermarksOpen()"
       heading="Marcas de Agua y Firmas Escaneadas (AWS S3)"
+      subtitle="Activos documentales vinculados a la institución activa"
       category="INSTITUTIONAL_LOGOS"
+      ownerEntityType="SCHOOL"
+      [ownerEntityId]="v3Auth.activeSchoolId()"
+      [ownerDisplayName]="v3Auth.activeSchoolName()"
       [canUpload]="canManageBrandFiles()"
       [canDelete]="canManageBrandFiles()"
       (closed)="watermarksOpen.set(false)"

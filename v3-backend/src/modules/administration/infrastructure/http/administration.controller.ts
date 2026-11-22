@@ -175,6 +175,9 @@ export class AdministrationController {
         page: normalized.page,
         perPage: normalized.limit,
         basePath: '/api/v1/admin/campuses',
+        queryParams: normalized.status
+          ? { status: normalized.status }
+          : undefined,
       });
     }
     const data = await this.adminUseCase.listCampuses(principal.schoolId);
@@ -358,6 +361,9 @@ export class AdministrationController {
         page: normalized.page,
         perPage: normalized.limit,
         basePath: '/api/v1/admin/teachers',
+        queryParams: normalized.status
+          ? { status: normalized.status }
+          : undefined,
       });
     }
     return { success: true, data };
@@ -437,6 +443,9 @@ export class AdministrationController {
         page: normalized.page,
         perPage: normalized.limit,
         basePath: '/api/v1/admin/staff',
+        queryParams: normalized.status
+          ? { status: normalized.status }
+          : undefined,
       });
     }
     return { success: true, data };
@@ -529,7 +538,16 @@ export class AdministrationController {
         page: normalized.page,
         perPage: normalized.limit,
         basePath: '/api/v1/admin/group-managers',
-        queryParams: { academicYear: parsedYear },
+        queryParams: {
+          academicYear: parsedYear,
+          ...(normalized.status ? { status: normalized.status } : {}),
+          ...(normalized.campusId !== undefined
+            ? { campusId: normalized.campusId }
+            : {}),
+          ...(normalized.assignmentState
+            ? { assignmentState: normalized.assignmentState }
+            : {}),
+        },
       });
     }
     const data = await this.adminUseCase.listGroupManagers(

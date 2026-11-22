@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { finalize } from 'rxjs';
 import { LoadMaskService } from '../../services/common/load-mask.service';
 import { MessagesService } from '../../services/messages.service';
@@ -15,143 +16,45 @@ import {
 } from '../../services/v3-unified-auth.service';
 import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.directive';
 
+interface SchoolMembershipGroup {
+  readonly schoolId: number;
+  readonly schoolName: string;
+  readonly memberships: UnifiedSchoolMembership[];
+}
+
+const ROLE_DISPLAY_ORDER: Readonly<Record<CommunityRole, number>> = {
+  RECTOR: 1,
+  SCHOOL_ADMIN: 2,
+  SECRETARY: 3,
+  COORDINATOR: 4,
+  TEACHER: 5,
+  MONITOR: 6,
+  STUDENT: 7,
+  FAMILY: 8,
+  SUPER_ADMIN: 9,
+};
+
+/**
+ * Normaliza cadenas para realizar búsquedas rápidas sin sensibilidad a tildes o mayúsculas.
+ */
+function normalizeText(value: string): string {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim();
+}
+
 /**
  * Panel de Accesos Multi-Colegio y Multi-Rol.
- * Permite a usuarios con múltiples perfiles (Rector, Coordinador, Secretaría,
- * Docente, Estudiante, Acudiente) o vinculados a varios colegios seleccionar
+ * Permite a usuarios con múltiples perfiles o vinculados a varios colegios seleccionar
  * con cuál institución y módulo desean trabajar, firmando el nuevo contexto JWT + RLS.
  */
 @Component({
   selector: 'app-access-panel',
   standalone: true,
-  imports: [CommonModule, FormsModule, CustomTooltipDirective],
-  template: `
-    <div class="container-fluid py-3">
-      <div class="trezo-card bg-white border-radius p-4 shadow-sm mb-4">
-        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
-          <div>
-            <p class="text-uppercase small fw-semibold text-muted mb-1">
-              Estimado usuario, usted tiene acceso a:
-            </p>
-            <h5 class="mb-0 fw-bold">
-              Panel de Accesos Multi-Institución
-            </h5>
-          </div>
-          <div class="d-flex flex-wrap gap-2">
-            <span class="badge text-bg-light border text-dark">
-              {{ uniqueSchoolsCount() }} institución(es)
-            </span>
-            <span class="badge text-bg-primary">
-              {{ v3Auth.memberships().length }} acceso(s) habilitado(s)
-            </span>
-          </div>
-        </div>
-
-        <!-- Búsqueda instantánea por institución, DANE o módulo -->
-        <div class="row g-2 align-items-center">
-          <div class="col-lg-6">
-            <div class="input-group">
-              <span class="input-group-text bg-light border-end-0">
-                <i class="material-symbols-outlined fs-5 text-muted">search</i>
-              </span>
-              <input
-                type="search"
-                class="form-control border-start-0"
-                [ngModel]="searchTerm()"
-                (ngModelChange)="searchTerm.set($event)"
-                placeholder="Búsqueda por colegio, código DANE o módulo..."
-              />
-              @if (searchTerm()) {
-                <button
-                  type="button"
-                  class="btn btn-outline-secondary"
-                  (click)="searchTerm.set('')"
-                  [appCustomTooltip]="'Limpiar búsqueda'"
-                >
-                  <i class="material-symbols-outlined fs-6 align-middle">close</i>
-                </button>
-              }
-            </div>
-          </div>
-
-          @if (availableRoles().length > 1) {
-            <div class="col-lg-6 d-flex flex-wrap gap-1 justify-content-lg-end">
-              <button
-                type="button"
-                class="btn btn-sm"
-                [ngClass]="selectedRoleFilter() === 'ALL' ? 'btn-primary' : 'btn-outline-secondary'"
-                (click)="selectedRoleFilter.set('ALL')"
-              >
-                Todos ({{ v3Auth.memberships().length }})
-              </button>
-              @for (role of availableRoles(); track role) {
-                <button
-                  type="button"
-                  class="btn btn-sm"
-                  [ngClass]="selectedRoleFilter() === role ? 'btn-primary' : 'btn-outline-secondary'"
-                  (click)="selectedRoleFilter.set(role)"
-                >
-                  {{ getRoleLabel(role) }}
-                </button>
-              }
-            </div>
-          }
-        </div>
-      </div>
-
-      <!-- Grilla de 3 columnas con las tarjetas de acceso (colegio + módulo) -->
-      <div class="row g-3">
-        @for (membership of filteredMemberships(); track membership.schoolId + '-' + membership.role) {
-          <div class="col-md-6 col-xl-4">
-            <button
-              type="button"
-              class="v3-hub-card w-100 text-start p-3 h-100 border bg-white d-flex align-items-center gap-3 position-relative"
-              [class.border-primary]="isActiveContext(membership)"
-              (click)="enterMembership(membership)"
-              [appCustomTooltip]="'Ingresar a ' + membership.schoolName + ' como ' + getRoleLabel(membership.role)"
-            >
-              <span class="v3-kpi-icon flex-shrink-0" [ngClass]="getRoleAccent(membership.role)">
-                <i class="material-symbols-outlined">{{ getRoleIcon(membership.role) }}</i>
-              </span>
-
-              <div class="flex-grow-1 overflow-hidden">
-                <div class="d-flex align-items-center justify-content-between gap-2 mb-1">
-                  <span class="fw-bold text-uppercase small text-truncate text-dark">
-                    {{ membership.schoolName }}
-                  </span>
-                  @if (isActiveContext(membership)) {
-                    <span class="badge text-bg-success flex-shrink-0">Actual</span>
-                  }
-                </div>
-                <div class="small text-muted">
-                  MÓDULO:
-                  <strong class="text-primary text-uppercase">
-                    {{ getRoleLabel(membership.role) }}
-                  </strong>
-                </div>
-                @if (membership.schoolDaneCode) {
-                  <div class="small text-muted font-monospace mt-1">
-                    DANE {{ membership.schoolDaneCode }}
-                  </div>
-                }
-              </div>
-
-              <i class="material-symbols-outlined text-muted flex-shrink-0">chevron_right</i>
-            </button>
-          </div>
-        } @empty {
-          <div class="col-12">
-            <div class="trezo-card bg-white border-radius p-5 text-center shadow-sm">
-              <i class="material-symbols-outlined fs-1 text-muted">search_off</i>
-              <p class="mt-2 mb-0 text-muted">
-                No se encontraron instituciones o módulos que coincidan con "{{ searchTerm() }}".
-              </p>
-            </div>
-          </div>
-        }
-      </div>
-    </div>
-  `,
+  imports: [CommonModule, FormsModule, TranslocoPipe, CustomTooltipDirective],
+  templateUrl: './access-panel.component.html',
 })
 export class AccessPanelComponent implements OnInit {
   protected readonly v3Auth = inject(V3UnifiedAuthService);
@@ -162,92 +65,169 @@ export class AccessPanelComponent implements OnInit {
 
   readonly searchTerm = signal('');
   readonly selectedRoleFilter = signal<'ALL' | CommunityRole>('ALL');
+  readonly isLoadingProfile = signal(false);
+  readonly enteringMembershipKey = signal<string | null>(null);
+  readonly skeletonPlaceholders = [0, 1, 2, 3, 4, 5];
+  readonly todayLabel: string = new Intl.DateTimeFormat('es-CO', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  }).format(new Date());
+
+  readonly totalMembershipsCount = computed(() => this.v3Auth.memberships().length);
 
   readonly uniqueSchoolsCount = computed(
     () => new Set(this.v3Auth.memberships().map((m) => m.schoolId)).size,
   );
 
+  readonly hasActiveFilters = computed(
+    () =>
+      this.searchTerm().trim().length > 0 || this.selectedRoleFilter() !== 'ALL',
+  );
+
+  readonly roleCounts = computed<Partial<Record<CommunityRole, number>>>(() => {
+    const counts: Partial<Record<CommunityRole, number>> = {};
+    for (const membership of this.v3Auth.memberships()) {
+      counts[membership.role] = (counts[membership.role] ?? 0) + 1;
+    }
+    return counts;
+  });
+
   readonly availableRoles = computed<CommunityRole[]>(() => {
     const roles = new Set<CommunityRole>();
-    for (const m of this.v3Auth.memberships()) {
-      roles.add(m.role);
+    for (const membership of this.v3Auth.memberships()) {
+      roles.add(membership.role);
     }
-    return Array.from(roles);
+    return Array.from(roles).sort(
+      (a, b) => (ROLE_DISPLAY_ORDER[a] ?? 99) - (ROLE_DISPLAY_ORDER[b] ?? 99),
+    );
   });
 
   readonly filteredMemberships = computed(() => {
-    const query = this.searchTerm().trim().toLowerCase();
+    const query = normalizeText(this.searchTerm());
     const roleFilter = this.selectedRoleFilter();
 
-    return this.v3Auth.memberships().filter((m) => {
-      if (roleFilter !== 'ALL' && m.role !== roleFilter) {
+    return this.v3Auth.memberships().filter((membership) => {
+      if (roleFilter !== 'ALL' && membership.role !== roleFilter) {
         return false;
       }
       if (!query) {
         return true;
       }
-      const roleLabel = this.getRoleLabel(m.role).toLowerCase();
+      const roleLabel = normalizeText(this.getRoleLabel(membership.role));
+      const schoolName = normalizeText(membership.schoolName);
+      const daneCode = normalizeText(membership.schoolDaneCode ?? '');
+      const rawRole = normalizeText(membership.role);
+
       return (
-        m.schoolName.toLowerCase().includes(query) ||
-        (m.schoolDaneCode ?? '').toLowerCase().includes(query) ||
+        schoolName.includes(query) ||
+        daneCode.includes(query) ||
         roleLabel.includes(query) ||
-        m.role.toLowerCase().includes(query)
+        rawRole.includes(query)
       );
     });
   });
 
+  readonly schoolGroups = computed<SchoolMembershipGroup[]>(() => {
+    const grouped = new Map<number, SchoolMembershipGroup>();
+
+    for (const membership of this.filteredMemberships()) {
+      let group = grouped.get(membership.schoolId);
+      if (!group) {
+        group = {
+          schoolId: membership.schoolId,
+          schoolName: membership.schoolName,
+          memberships: [],
+        };
+        grouped.set(membership.schoolId, group);
+      }
+      group.memberships.push(membership);
+    }
+
+    const groups = Array.from(grouped.values());
+    for (const group of groups) {
+      group.memberships.sort(
+        (a, b) =>
+          (ROLE_DISPLAY_ORDER[a.role] ?? 99) - (ROLE_DISPLAY_ORDER[b.role] ?? 99),
+      );
+    }
+    return groups;
+  });
+
+  readonly useSchoolRowGrouping = computed(
+    () =>
+      this.selectedRoleFilter() === 'ALL' &&
+      this.schoolGroups().some((group) => group.memberships.length > 1),
+  );
+
   ngOnInit(): void {
     if (this.v3Auth.isAuthenticated()) {
-      this.v3Auth.fetchAuthenticatedProfile().subscribe();
+      this.isLoadingProfile.set(true);
+      this.v3Auth
+        .fetchAuthenticatedProfile()
+        .pipe(finalize(() => this.isLoadingProfile.set(false)))
+        .subscribe({
+          error: () => {
+            // El interceptor global gestiona notificaciones HTTP si falla la recarga silenciosa.
+          },
+        });
     }
+  }
+
+  membershipKey(membership: UnifiedSchoolMembership): string {
+    return `${membership.schoolId}-${membership.role}`;
+  }
+
+  isEntering(membership: UnifiedSchoolMembership): boolean {
+    return this.enteringMembershipKey() === this.membershipKey(membership);
+  }
+
+  getRoleCount(role: CommunityRole): number {
+    return this.roleCounts()[role] ?? 0;
+  }
+
+  getSelectedRoleLabel(): string {
+    const filter = this.selectedRoleFilter();
+    return filter === 'ALL' ? '' : this.getRoleLabel(filter);
   }
 
   getRoleLabel(role: CommunityRole): string {
     return COMMUNITY_ROLE_LABELS[role] ?? role;
   }
 
-  getRoleIcon(role: CommunityRole): string {
+  getRoleIconClass(role: CommunityRole): string {
     switch (role) {
       case 'SUPER_ADMIN':
-        return 'admin_panel_settings';
+        return 'fas fa-user-shield';
       case 'SCHOOL_ADMIN':
       case 'RECTOR':
-        return 'account_balance';
       case 'SECRETARY':
-        return 'badge';
+        return 'fas fa-school';
       case 'COORDINATOR':
-        return 'laptop_mac';
+        return 'fas fa-laptop';
       case 'TEACHER':
-        return 'cast_for_education';
+        return 'fas fa-chalkboard-teacher';
       case 'STUDENT':
-        return 'school';
+        return 'fas fa-user-graduate';
       case 'FAMILY':
-        return 'family_restroom';
+        return 'fas fa-users';
       case 'MONITOR':
-        return 'support_agent';
+        return 'fas fa-headset';
       default:
-        return 'domain';
+        return 'fas fa-building';
     }
   }
 
-  getRoleAccent(role: CommunityRole): string {
+  getRoleVariantClass(role: CommunityRole): string {
     switch (role) {
-      case 'RECTOR':
-      case 'SCHOOL_ADMIN':
-      case 'SUPER_ADMIN':
-        return 'kpi-primary';
-      case 'SECRETARY':
-        return 'kpi-info';
-      case 'COORDINATOR':
-        return 'kpi-secondary';
       case 'TEACHER':
-        return 'kpi-purple';
+        return 'role-teacher';
       case 'STUDENT':
-        return 'kpi-success';
+        return 'role-student';
       case 'FAMILY':
-        return 'kpi-warning';
+        return 'role-family';
       default:
-        return 'kpi-primary';
+        return 'role-academic';
     }
   }
 
@@ -258,11 +238,31 @@ export class AccessPanelComponent implements OnInit {
     );
   }
 
-  enterMembership(membership: UnifiedSchoolMembership): void {
-    const targetRoute = resolveLandingRouteByRole(membership.role);
+  onSearchKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Escape' && this.searchTerm()) {
+      event.preventDefault();
+      this.searchTerm.set('');
+    }
+  }
 
+  clearFilters(): void {
+    this.searchTerm.set('');
+    this.selectedRoleFilter.set('ALL');
+  }
+
+  enterMembership(membership: UnifiedSchoolMembership): void {
+    if (this.enteringMembershipKey()) {
+      return;
+    }
+
+    const key = this.membershipKey(membership);
+    this.enteringMembershipKey.set(key);
+
+    const targetRoute = resolveLandingRouteByRole(membership.role);
     if (this.isActiveContext(membership)) {
-      void this.router.navigate([targetRoute]);
+      void this.router
+        .navigate([targetRoute])
+        .finally(() => this.enteringMembershipKey.set(null));
       return;
     }
 
@@ -273,7 +273,12 @@ export class AccessPanelComponent implements OnInit {
         membership.role,
         this.v3Auth.academicYear(),
       )
-      .pipe(finalize(() => this.loadMask.hide()))
+      .pipe(
+        finalize(() => {
+          this.loadMask.hide();
+          this.enteringMembershipKey.set(null);
+        }),
+      )
       .subscribe({
         next: (response) => {
           this.catalogsService.invalidateCache();

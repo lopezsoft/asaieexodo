@@ -1,5 +1,12 @@
 import { NgClass } from '@angular/common';
-import { Component, DestroyRef, inject, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  DestroyRef,
+  HostListener,
+  inject,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   NavigationEnd,
@@ -11,8 +18,10 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { NgScrollbarModule } from 'ngx-scrollbar';
 import { filter } from 'rxjs/operators';
 import { CustomizerSettingsService } from '../../customizer-settings/customizer-settings.service';
+import { Menu } from '../../interfaces/menu';
 import { MenuService } from '../../services/menu.service';
 import { V3UnifiedAuthService } from '../../services/v3-unified-auth.service';
+import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.directive';
 import { ToggleService } from '../header/toggle.service';
 
 @Component({
@@ -23,6 +32,7 @@ import { ToggleService } from '../header/toggle.service';
     RouterLink,
     NgClass,
     TranslocoPipe,
+    CustomTooltipDirective,
   ],
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.scss',
@@ -34,10 +44,24 @@ export class SidebarComponent {
   private readonly destroyRef = inject(DestroyRef);
 
   public menuItems = this.menuService.filteredMenu;
-  public readonly expandedMenus = signal<Record<number, boolean>>({ 10: true });
+  public readonly currentUrl = signal(this.router.url);
+  public readonly activeFlyoutMenuId = signal<number | null>(null);
   public readonly isAccessPanelView = signal(
     this.router.url.startsWith('/access-panel'),
   );
+  public readonly activeFlyoutMenu = computed<Menu | null>(() => {
+    const targetId = this.activeFlyoutMenuId();
+    if (targetId === null) {
+      return null;
+    }
+    return (
+      this.menuService
+        .filteredMenu()
+        .find((item) => item.id === targetId && Boolean(item.subItems?.length)) ??
+      null
+    );
+  });
+
   isSidebarToggled = false;
   isToggled = false;
 
@@ -61,9 +85,11 @@ export class SidebarComponent {
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((event) => {
+        this.currentUrl.set(event.urlAfterRedirects);
         this.isAccessPanelView.set(
           event.urlAfterRedirects.startsWith('/access-panel'),
         );
+        this.activeFlyoutMenuId.set(null);
       });
   }
 
@@ -71,18 +97,43 @@ export class SidebarComponent {
     this.toggleService.toggle();
   }
 
-  toggleSubmenu(menuId: number): void {
-    this.expandedMenus.update((state) => ({
-      ...state,
-      [menuId]: !state[menuId],
-    }));
+  toggleFlyout(menuId: number): void {
+    this.activeFlyoutMenuId.update((current) =>
+      current === menuId ? null : menuId,
+    );
   }
 
-  isSubmenuExpanded(menuId: number): boolean {
-    return Boolean(this.expandedMenus()[menuId]);
+  closeFlyout(): void {
+    this.activeFlyoutMenuId.set(null);
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscapeKey(): void {
+    if (this.activeFlyoutMenuId() !== null) {
+      this.closeFlyout();
+    }
+  }
+
+  isMenuGroupActive(item: Menu): boolean {
+    if (this.activeFlyoutMenuId() === item.id) {
+      return true;
+    }
+    const url = this.currentUrl();
+    const matchesLink = (link: string | undefined): boolean =>
+      Boolean(
+        link &&
+          (url === link ||
+            url.startsWith(`${link}/`) ||
+            url.startsWith(`${link}?`)),
+      );
+    if (matchesLink(item.link)) {
+      return true;
+    }
+    return Boolean(item.subItems?.some((sub) => matchesLink(sub.link)));
   }
 
   logout(): void {
+    this.closeFlyout();
     this.v3Auth.logout(true);
   }
 }

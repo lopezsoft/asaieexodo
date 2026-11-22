@@ -21,6 +21,14 @@ export interface V3GridColumn<TItem = Record<string, unknown>> {
   readonly formatter?: (row: TItem) => string;
 }
 
+function normalizeGridText(value: string): string {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim();
+}
+
 /**
  * Grilla de datos empresarial V3 (reemplaza ExtJS CustomGrid + Search + Pagination + Export).
  */
@@ -39,25 +47,25 @@ export interface V3GridColumn<TItem = Record<string, unknown>> {
         </div>
         <div class="d-flex flex-wrap align-items-center gap-2">
           @if (searchable) {
-            <div class="input-group input-group-sm" style="width: 260px;">
-              <span class="input-group-text bg-white">
-                <i class="material-symbols-outlined fs-6">search</i>
-              </span>
+            <div class="v3-grid-search">
+              <i class="material-symbols-outlined v3-grid-search-icon" aria-hidden="true">search</i>
               <input
-                type="text"
-                class="form-control"
+                type="search"
+                class="v3-grid-search-input"
                 [placeholder]="searchPlaceholder"
+                [attr.aria-label]="searchPlaceholder"
                 [ngModel]="searchTerm()"
                 (ngModelChange)="onSearchChange($event)"
+                (keydown.escape)="onSearchEscape($event)"
               />
               @if (searchTerm()) {
                 <button
                   type="button"
-                  class="btn btn-outline-secondary"
+                  class="v3-grid-search-clear"
                   (click)="onSearchChange('')"
                   [appCustomTooltip]="'Limpiar búsqueda'"
                 >
-                  <i class="material-symbols-outlined fs-6">close</i>
+                  <i class="material-symbols-outlined">close</i>
                 </button>
               }
             </div>
@@ -89,12 +97,12 @@ export interface V3GridColumn<TItem = Record<string, unknown>> {
       </div>
 
       @if (loading) {
-        <div class="text-center py-5">
+        <div class="v3-grid-empty">
           <div class="spinner-border text-primary" role="status"></div>
           <p class="mt-2 mb-0 text-muted">Cargando información...</p>
         </div>
       } @else if (pagedRows().length === 0) {
-        <div class="text-center py-5 border rounded bg-light">
+        <div class="v3-grid-empty">
           <i class="material-symbols-outlined fs-1 text-muted">inbox</i>
           <p class="mt-2 mb-0 text-muted">{{ emptyMessage }}</p>
         </div>
@@ -147,14 +155,13 @@ export interface V3GridColumn<TItem = Record<string, unknown>> {
           </table>
         </div>
 
-        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-3 pt-2 border-top">
+        <div class="v3-grid-pagination d-flex flex-wrap align-items-center justify-content-between gap-2 mt-3 pt-2">
           <small class="text-muted">
             Mostrando {{ pagedRows().length }} de {{ filteredRows().length }} registro(s)
           </small>
           <div class="d-flex align-items-center gap-2">
             <select
-              class="form-select form-select-sm"
-              style="width: auto;"
+              class="form-select form-select-sm v3-grid-page-size"
               [ngModel]="pageSize()"
               (ngModelChange)="onPageSizeChange($event)"
               [appCustomTooltip]="'Registros por página'"
@@ -221,14 +228,14 @@ export class V3DataGridComponent<TItem extends object = Record<string, unknown>>
   readonly currentPage = signal(1);
 
   readonly filteredRows = computed(() => {
-    const query = this.searchTerm().trim().toLowerCase();
+    const query = normalizeGridText(this.searchTerm());
     const list = this.rowsSignal();
     if (!query) {
       return list;
     }
     return list.filter((row) =>
       this.columns.some((col) =>
-        this.formatCell(row, col).toLowerCase().includes(query),
+        normalizeGridText(this.formatCell(row, col)).includes(query),
       ),
     );
   });
@@ -246,6 +253,13 @@ export class V3DataGridComponent<TItem extends object = Record<string, unknown>>
   onSearchChange(value: string): void {
     this.searchTerm.set(value);
     this.currentPage.set(1);
+  }
+
+  onSearchEscape(event: Event): void {
+    if (this.searchTerm()) {
+      event.preventDefault();
+      this.onSearchChange('');
+    }
   }
 
   onPageSizeChange(size: number): void {

@@ -88,7 +88,11 @@ export class HeaderComponent {
         this.isAccessPanelView.set(
           event.urlAfterRedirects.startsWith('/access-panel'),
         );
-        if (this.isSidebarToggled) {
+        if (
+          isPlatformBrowser(this.platformId) &&
+          window.innerWidth < 1200 &&
+          this.isSidebarToggled
+        ) {
           this.toggleService.toggle();
         }
       });
@@ -112,7 +116,7 @@ export class HeaderComponent {
       document.documentElement.scrollTop ||
       document.body.scrollTop ||
       0;
-    this.isSticky = scrollPosition >= 50;
+    this.isSticky = scrollPosition >= 24;
   }
 
   toggleLanguageDropdown(): void {

@@ -4,6 +4,7 @@ export interface Menu {
   id: number;
   name: string;
   translatedName: string;
+  railTranslatedName?: string;
   icon: string;
   link: string;
   isExternal?: boolean;

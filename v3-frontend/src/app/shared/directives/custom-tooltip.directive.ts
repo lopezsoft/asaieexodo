@@ -104,7 +104,7 @@ export class CustomTooltipDirective implements OnChanges, OnDestroy {
     const tooltipRect = tooltip.getBoundingClientRect();
     const viewportWidth = this.document.defaultView?.innerWidth ?? 1280;
     const viewportHeight = this.document.defaultView?.innerHeight ?? 720;
-    const offset = 8;
+    const offset = 10;
     const margin = 8;
 
     let resolvedPosition = this.tooltipPosition;
@@ -153,9 +153,30 @@ export class CustomTooltipDirective implements OnChanges, OnDestroy {
       Math.max(margin, viewportWidth - tooltipRect.width - margin),
     );
 
+    for (const pos of ['top', 'bottom', 'left', 'right'] as const) {
+      this.renderer.removeClass(tooltip, `asaie-custom-tooltip--${pos}`);
+    }
     this.renderer.addClass(tooltip, `asaie-custom-tooltip--${resolvedPosition}`);
     this.renderer.setStyle(tooltip, 'top', `${clampedTop}px`);
     this.renderer.setStyle(tooltip, 'left', `${clampedLeft}px`);
+
+    if (resolvedPosition === 'top' || resolvedPosition === 'bottom') {
+      const hostCenterX = hostRect.left + hostRect.width / 2;
+      const minArrowX = Math.min(14, tooltipRect.width / 2);
+      const arrowX = Math.min(
+        Math.max(minArrowX, hostCenterX - clampedLeft),
+        Math.max(minArrowX, tooltipRect.width - minArrowX),
+      );
+      tooltip.style.setProperty('--asaie-tooltip-arrow-pos', `${arrowX}px`);
+    } else {
+      const hostCenterY = hostRect.top + hostRect.height / 2;
+      const minArrowY = Math.min(12, tooltipRect.height / 2);
+      const arrowY = Math.min(
+        Math.max(minArrowY, hostCenterY - clampedTop),
+        Math.max(minArrowY, tooltipRect.height - minArrowY),
+      );
+      tooltip.style.setProperty('--asaie-tooltip-arrow-pos', `${arrowY}px`);
+    }
   }
 
   private destroyTooltipElement(): void {

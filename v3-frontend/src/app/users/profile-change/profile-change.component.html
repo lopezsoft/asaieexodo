@@ -15,50 +15,137 @@
   </ol>
 </div>
 
+<section class="v3-hero-banner v3-hero-banner--compact mb-4" aria-label="Cambio de usuario">
+  <div class="v3-hero-inner">
+    <div class="v3-hero-copy">
+      <span class="v3-hero-eyebrow">
+        <i class="material-symbols-outlined" aria-hidden="true">alternate_email</i>
+        <span>Seguridad de Cuenta</span>
+      </span>
+      <h4 class="v3-hero-title">{{ 'profileChange.title' | transloco }}</h4>
+      <p class="v3-hero-subtitle">
+        Actualiza el identificador con el que inicias sesión en ASAIE ÉXODO.
+        @if (v3Auth.user()?.username) {
+          <span>Usuario actual: &#64;{{ v3Auth.user()?.username }}</span>
+        }
+      </p>
+    </div>
+
+    <div class="v3-hero-actions">
+      <a
+        routerLink="/profile/user"
+        class="v3-hero-glass-btn"
+        [appCustomTooltip]="'Volver a tu perfil personal'"
+      >
+        <i class="material-symbols-outlined" aria-hidden="true">arrow_back</i>
+        <span>Volver al perfil</span>
+      </a>
+    </div>
+  </div>
+
+  <svg class="v3-hero-wave" viewBox="0 0 220 76" fill="none" aria-hidden="true">
+    <path
+      d="M6 68H54C74 68 82 22 106 22C130 22 138 68 158 68H214"
+      stroke="currentColor"
+      stroke-width="2.2"
+      stroke-linecap="round"
+    />
+  </svg>
+</section>
+
 <section class="users-change-username">
-  <div class="trezo-card bg-white border-radius p-4 shadow-sm">
-    <h5 class="mb-3 fw-semibold">{{ 'profileChange.title' | transloco | uppercase }}</h5>
+  <div class="trezo-card bg-white border-radius p-3 p-md-4 shadow-sm">
+    <div class="v3-card-header-bar">
+      <div class="v3-card-header-main">
+        <span class="v3-kpi-icon kpi-primary v3-kpi-icon--sm">
+          <i class="material-symbols-outlined" aria-hidden="true">manage_accounts</i>
+        </span>
+        <div>
+          <h5>Credenciales de acceso</h5>
+          <p>El nuevo usuario debe contener al menos 3 caracteres sin espacios</p>
+        </div>
+      </div>
+    </div>
+
     <form [formGroup]="changeForm" (ngSubmit)="onSubmit()">
       <div class="row g-3">
-        <div class="col-md-4">
-          <label class="form-label">{{ 'profileChange.currentUsername' | transloco }}</label>
-          <input type="text" class="form-control" formControlName="currentUsername" />
+        <div class="col-12 col-md-4">
+          <label class="form-label" for="change-current-username">
+            {{ 'profileChange.currentUsername' | transloco }}
+          </label>
+          <div class="v3-input-wrap">
+            <i class="material-symbols-outlined v3-input-icon" aria-hidden="true">person_outline</i>
+            <input
+              id="change-current-username"
+              type="text"
+              class="form-control"
+              formControlName="currentUsername"
+            />
+          </div>
         </div>
 
-        <div class="col-md-4">
-          <label class="form-label">Nuevo nombre de usuario *</label>
-          <input
-            type="text"
-            class="form-control"
-            formControlName="newUsername"
-            placeholder="Ej. rector.institucion"
-          />
-          @if (changeForm.get('newUsername')?.invalid && changeForm.get('newUsername')?.touched) {
-            <small class="text-danger">
-              Ingresa un usuario válido (mín. 3 caracteres, sin espacios).
-            </small>
+        <div class="col-12 col-md-4">
+          <label class="form-label" for="change-new-username">
+            Nuevo nombre de usuario <span class="v3-required-mark">*</span>
+          </label>
+          <div class="v3-input-wrap">
+            <i class="material-symbols-outlined v3-input-icon" aria-hidden="true">alternate_email</i>
+            <input
+              id="change-new-username"
+              type="text"
+              class="form-control"
+              [class.is-invalid]="
+                changeForm.get('newUsername')?.invalid &&
+                changeForm.get('newUsername')?.touched
+              "
+              formControlName="newUsername"
+              placeholder="Ej. rector.institucion"
+            />
+          </div>
+          @if (
+            changeForm.get('newUsername')?.invalid &&
+            changeForm.get('newUsername')?.touched
+          ) {
+            <span class="v3-field-error">
+              <i class="material-symbols-outlined" aria-hidden="true">error</i>
+              <span>Ingresa un usuario válido (mín. 3 caracteres, sin espacios).</span>
+            </span>
           }
         </div>
 
-        <div class="col-md-4">
-          <label class="form-label">Contraseña actual (verificación) *</label>
-          <input
-            type="password"
-            class="form-control"
-            formControlName="currentPassword"
-            placeholder="Confirma tu contraseña actual"
-          />
+        <div class="col-12 col-md-4">
+          <label class="form-label" for="change-current-password">
+            Contraseña actual (verificación) <span class="v3-required-mark">*</span>
+          </label>
+          <div class="v3-input-wrap has-trailing">
+            <i class="material-symbols-outlined v3-input-icon" aria-hidden="true">lock</i>
+            <input
+              id="change-current-password"
+              [type]="showCurrentPassword() ? 'text' : 'password'"
+              class="form-control"
+              formControlName="currentPassword"
+              placeholder="Confirma tu contraseña actual"
+            />
+            <button
+              type="button"
+              class="v3-input-action"
+              (click)="showCurrentPassword.set(!showCurrentPassword())"
+              [appCustomTooltip]="showCurrentPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+            >
+              <i class="material-symbols-outlined" aria-hidden="true">
+                {{ showCurrentPassword() ? 'visibility_off' : 'visibility' }}
+              </i>
+            </button>
+          </div>
         </div>
       </div>
 
-      <div class="mt-4">
-        <app-footer-form
-          [disabled]="changeForm.invalid"
-          [showSaveAndCreate]="false"
-          (saveAndCloseEvent)="onSubmit()"
-          (cancelEvent)="onCancel()"
-        />
-      </div>
+      <app-footer-form
+        [disabled]="changeForm.invalid"
+        [showSaveAndCreate]="false"
+        (saveAndCloseEvent)="onSubmit()"
+        (cancelEvent)="onCancel()"
+      />
     </form>
   </div>
 </section>

@@ -1,1360 +1,658 @@
-.sidebar-area {
-    overflow: hidden;
-    position: fixed;
-    height: 100vh;
-    width: 260px;
-    z-index: 6;
-    left: 0;
-    top: 0;
+@keyframes railFlyoutIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
 
-    .logo {
-        border-bottom: 1px solid var(--borderColor);
-        padding: 19px 25px 5px;
+.sidebar-area.asaie-canva-rail {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  width: var(--asaie-sidebar-width);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  background: var(--asaie-rail-bg);
+  border-right: 1px solid var(--asaie-rail-border);
+  color: var(--asaie-rail-text);
+  box-shadow: var(--asaie-rail-shadow);
+  overflow: hidden;
+
+  .rail-brand {
+    height: var(--asaie-header-height);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 0;
+
+    .rail-brand-group {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .rail-brand-title {
+      display: none;
+      font-size: 0.92rem;
+      font-weight: 800;
+      letter-spacing: 0.03em;
+      color: var(--asaie-rail-text);
+      white-space: nowrap;
+    }
+
+    .rail-mobile-close {
+      width: 36px;
+      height: 36px;
+      border: 0;
+      border-radius: 50%;
+      flex-shrink: 0;
+      background-color: var(--asaie-rail-hover-bg);
+      color: var(--asaie-rail-text);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.2s ease, color 0.2s ease;
+
+      i {
+        font-size: 20px;
+      }
+
+      &:hover {
+        color: var(--asaie-rail-hover-text);
+      }
+    }
+
+    .rail-brand-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      flex-shrink: 0;
+      background-color: var(--asaie-rail-brand-bg);
+      box-shadow: var(--asaie-rail-brand-shadow);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.22s ease, background-color 0.22s ease;
+
+      &:hover {
+        transform: translateY(-1px) scale(1.04);
+      }
+
+      .rail-brand-mark {
+        width: 26px;
+        height: 26px;
+
+        .rail-mark-wing {
+          fill: var(--infoColor);
+        }
+
+        .rail-mark-right {
+          fill: var(--secondaryColor);
+        }
+
+        .rail-mark-wave {
+          fill: var(--asaie-rail-hover-text);
+        }
+      }
+    }
+  }
+
+  .rail-scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+    width: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+
+    &::-webkit-scrollbar {
+      width: 0;
+      height: 0;
+    }
+  }
+
+  .rail-nav {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+    padding: 6px 0 10px;
+  }
+
+  .rail-footer {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+    padding: 6px 0 14px;
+
+    .rail-divider {
+      width: 44px;
+      height: 1px;
+      margin: 4px auto 6px;
+      background-color: var(--asaie-rail-divider);
+    }
+  }
+
+  .rail-item {
+    appearance: none;
+    position: relative;
+    border: 0;
+    background: transparent;
+    width: 100%;
+    padding: 5px 8px;
+    border-radius: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    color: var(--asaie-rail-text-muted);
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.2s ease, background-color 0.2s ease;
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 12px;
+      width: 3px;
+      height: 26px;
+      border-radius: 0 3px 3px 0;
+      background-color: var(--asaie-rail-indicator);
+      opacity: 0;
+      transform: scaleY(0.5);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .rail-item-icon {
+      position: relative;
+      width: 40px;
+      height: 40px;
+      flex-shrink: 0;
+      border-radius: 11px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition:
+        background-color 0.22s ease,
+        background 0.22s ease,
+        color 0.22s ease,
+        box-shadow 0.22s ease,
+        transform 0.22s ease;
+
+      i {
+        font-size: 21px;
+        line-height: 1;
+      }
+
+      .rail-sub-dot {
         position: absolute;
-        z-index: 2;
-        right: 0;
-        left: 0;
-        top: 0;
-
-        a {
-            transition: unset;
-
-            img {
-              left: 0;
-              max-height: 36px;
-            }
-            span {
-                margin-left: 8px;
-                font-size: 24px;
-                top: 1px;
-            }
-        }
+        top: 6px;
+        right: 6px;
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background-color: var(--asaie-rail-indicator);
+        opacity: 0.9;
+      }
     }
-    .burger-menu {
-        top: 23px;
-        z-index: 3;
-        opacity: 0;
-        right: 25px;
-        cursor: pointer;
-        position: absolute;
-        visibility: hidden;
 
-        span {
-            height: 1px;
-            width: 25px;
-            margin: 6px 0;
-        }
-        &.active {
-            opacity: 1;
-            visibility: visible;
-
-            span {
-                &.top-bar {
-                    transform: rotate(45deg);
-                    transform-origin: 10% 10%;
-                }
-                &.middle-bar {
-                    opacity: 0;
-                }
-                &.bottom-bar {
-                    transform: rotate(-45deg);
-                    transform-origin: 10% 90%;
-                    margin-top: 5px;
-                }
-            }
-        }
+    .rail-item-label {
+      color: inherit;
     }
-    .sidebar-inner {
-        padding: {
-            top: 89px;
-            left: 25px;
-            right: 25px;
-            bottom: 20px;
-        };
-        .sidebar-menu {
-            .sub-title {
-                font-size: 12px;
-                color: #8695AA;
-                margin-bottom: 8px;
-                position: relative;
 
-                &:not(:first-child) {
-                    margin-top: 22px;
-                }
-            }
-            .accordion {
-                .accordion-item {
-                    background-color: transparent;
-                    color: var(--blackColor);
-                    white-space: nowrap;
-                    margin-bottom: 5px;
-
-                    .accordion-button {
-                        display: flex;
-                        align-items: center;
-                        color: var(--blackColor);
-                        font-size: var(--fontSize);
-                        background-color: transparent;
-                        padding: {
-                            bottom: 9px;
-                            right: 30px;
-                            left: 14px;
-                            top: 9px;
-                        };
-                        i {
-                            transition: var(--transition);
-                            color: var(--bodyColor);
-                            margin-right: 7px;
-                            font-size: 22px;
-                            line-height: 1;
-                        }
-                        .trezo-badge {
-                            padding: 0;
-                            width: 20px;
-                            height: 20px;
-                            font-size: 11px;
-                            line-height: 20px;
-                            color: var(--orangeColor);
-                            background-color: #FFF5ED;
-                            margin: {
-                                left: auto;
-                                right: 0;
-                            };
-                            &.style-two {
-                                color: #00b69b;
-                                background: rgba(0, 182, 155, 0.07);
-                            }
-                            &.style-three {
-                                color: #ee368c;
-                                background: rgba(238, 54, 140, 0.1);
-                            }
-                        }
-                        &::after {
-                            display: none;
-                        }
-                        &::before {
-                            top: 50%;
-                            right: 8px;
-                            content: "\ea6e";
-                            position: absolute;
-                            color: var(--bodyColor);
-                            transform: translateY(-50%);
-                            transition: var(--transition);
-                            font: {
-                                size: 19px;
-                                family: remixicon;
-                            };
-                        }
-                        &.open, &:hover {
-                            color: var(--blackColor);
-                            background-color: #F6F7F9;
-
-                            i {
-                                color: var(--blackColor);
-                            }
-                            &::before {
-                                color: var(--blackColor);
-                            }
-                        }
-                        &.open {
-                            &::before {
-                                content: "\ea4e";
-                            }
-                        }
-                    }
-                    &:has(.active) .accordion-button {
-                        color: var(--blackColor);
-                        background-color: #F6F7F9;
-
-                        i {
-                            color: var(--blackColor);
-                        }
-                        &::before {
-                            color: var(--blackColor);
-                        }
-                    }
-                    .accordion-collapse {
-                        display: none;
-
-                        .accordion-body {
-                            padding: 4px 0 0;
-
-                            .accordion-button {
-                                color: var(--bodyColor);
-                                font-size: var(--fontSize);
-                                padding: {
-                                    bottom: 10px;
-                                    right: 10px;
-                                    left: 38px;
-                                    top: 9px;
-                                };
-                                &::after {
-                                    top: 50%;
-                                    left: 18px;
-                                    width: 10px;
-                                    content: '';
-                                    height: 10px;
-                                    transition: .3s;
-                                    border-radius: 50%;
-                                    position: absolute;
-                                    display: inline-block;
-                                    transform: translateY(-50%);
-                                    background: unset !important;
-                                    border: 1px solid var(--bodyColor);
-                                }
-                                &:hover, &.active {
-                                    background-color: #ECF0FF;
-                                    color: var(--primaryColor);
-
-                                    &::after {
-                                        border-color: var(--primaryColor);
-                                    }
-                                }
-                                .trezo-badge {
-                                    top: 50%;
-                                    padding: 0;
-                                    right: 34px;
-                                    width: 20px;
-                                    height: 20px;
-                                    font-size: 11px;
-                                    line-height: 20px;
-                                    position: absolute;
-                                    color: var(--orangeColor);
-                                    transform: translateY(-50%);
-                                    background-color: #FFF5ED;
-
-                                    &.style-two {
-                                        color: #00b69b;
-                                        background: rgba(0, 182, 155, 0.07);
-                                    }
-                                    &.style-three {
-                                        color: #ee368c;
-                                        background: rgba(238, 54, 140, 0.1);
-                                    }
-                                }
-                            }
-                            .accordion-collapse {
-                                .accordion-body {
-                                    padding: {
-                                        left: 20px;
-                                        top: 6px;
-                                    };
-                                }
-                            }
-                            .sidebar-sub-menu {
-                                .sidemenu-item {
-                                    margin-bottom: 4px;
-
-                                    .sidemenu-link {
-                                        color: var(--bodyColor);
-                                        font-size: var(--fontSize);
-                                        padding: {
-                                            bottom: 10px;
-                                            right: 10px;
-                                            left: 38px;
-                                            top: 9px;
-                                        };
-                                        &::after {
-                                            top: 50%;
-                                            left: 18px;
-                                            width: 10px;
-                                            content: '';
-                                            height: 10px;
-                                            transition: .3s;
-                                            border-radius: 50%;
-                                            position: absolute;
-                                            transform: translateY(-50%);
-                                            border: 1px solid var(--bodyColor);
-                                        }
-                                        &:hover, &.active {
-                                            background-color: #ECF0FF;
-                                            color: var(--primaryColor);
-
-                                            &::after {
-                                                border-color: var(--primaryColor);
-                                            }
-                                        }
-                                        .trezo-badge {
-                                            top: -1px;
-                                            padding: 2px 6px;
-                                            margin-left: 5px;
-                                            border-radius: 3px;
-                                            line-height: initial;
-                                            color: var(--orangeColor);
-                                            background-color: #FFE8D4;
-                                            font: {
-                                                size: 10px;
-                                                weight: normal;
-                                            };
-                                            &::before {
-                                                top: 50%;
-                                                left: -3px;
-                                                width: 6px;
-                                                height: 6px;
-                                                content: '';
-                                                position: absolute;
-                                                background: #FFE8D4;
-                                                transform: translateY(-50%) rotate(45deg);
-                                            }
-                                            &.style-two {
-                                                color: var(--successColor);
-                                                background-color: #D8FFC8;
-
-                                                &::before {
-                                                    background: #D8FFC8;
-                                                }
-                                            }
-                                            &.style-three {
-                                                color: var(--purpleColor);
-                                                background-color: #eae0f3;
-
-                                                &::before {
-                                                    background: #eae0f3;
-                                                }
-                                            }
-                                        }
-                                    }
-                                    &:last-child {
-                                        margin-bottom: 0;
-                                    }
-                                }
-                            }
-                        }
-                        &.open {
-                            display: block;
-                        }
-                    }
-                }
-                .sidebar-menu-link {
-                    font-size: var(--fontSize);
-                    color: var(--blackColor);
-                    align-items: center;
-                    display: flex;
-                    padding: {
-                        bottom: 9px;
-                        right: 10px;
-                        left: 10px;
-                        top: 9px;
-                    };
-                    i {
-                        transition: var(--transition);
-                        color: var(--bodyColor);
-                        margin-right: 6px;
-                        font-size: 22px;
-                        line-height: 1;
-                    }
-                    &:hover, &.active {
-                        color: var(--primaryColor);
-                        background-color: #F6F7F9;
-
-                        i {
-                            color: var(--primaryColor);
-                        }
-                    }
-                }
-            }
-        }
+    .rail-label-short {
+      display: block;
+      width: 100%;
+      font-size: 0.66rem;
+      font-weight: 500;
+      line-height: 1.2;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
+
+    .rail-label-full,
+    .rail-item-chevron {
+      display: none;
+    }
+
+    &:hover:not(.active):not(.is-logout) {
+      color: var(--asaie-rail-text);
+
+      .rail-item-icon {
+        background-color: var(--asaie-rail-hover-bg);
+        color: var(--asaie-rail-hover-text);
+        transform: translateY(-1px);
+      }
+    }
+
+    &.is-logout:hover {
+      color: var(--asaie-rail-danger);
+
+      .rail-item-icon {
+        background-color: var(--asaie-rail-danger-hover-bg);
+        color: var(--asaie-rail-danger);
+        transform: translateY(-1px);
+      }
+    }
+
+    &.is-flyout-open:not(.active) {
+      color: var(--asaie-rail-hover-text);
+
+      .rail-item-icon {
+        background-color: var(--asaie-rail-hover-bg);
+        color: var(--asaie-rail-hover-text);
+      }
+    }
+
+    &.active {
+      color: var(--asaie-rail-active-label);
+
+      &::before {
+        opacity: 1;
+        transform: scaleY(1);
+      }
+
+      .rail-item-icon {
+        background: var(--asaie-rail-active-bg);
+        color: var(--asaie-rail-active-icon);
+        box-shadow: var(--asaie-rail-active-shadow);
+
+        .rail-sub-dot {
+          background-color: var(--asaie-rail-active-icon);
+        }
+      }
+
+      .rail-item-label {
+        font-weight: 700;
+        color: var(--asaie-rail-active-label);
+      }
+    }
+  }
+
+  &.right-sidebar {
+    left: auto;
+    right: 0;
+    border-right: 0;
+    border-left: 1px solid var(--asaie-rail-border);
+
+    .rail-item::before {
+      left: auto;
+      right: 0;
+      border-radius: 3px 0 0 3px;
+    }
+  }
+
+  &.component-rtl-enabled {
+    left: auto;
+    right: 0;
+    direction: rtl;
+    border-right: 0;
+    border-left: 1px solid var(--asaie-rail-border);
+
+    .rail-item::before {
+      left: auto;
+      right: 0;
+      border-radius: 3px 0 0 3px;
+    }
+
     &.right-sidebar {
-        left: auto;
-        right: 0;
+      left: 0;
+      right: auto;
+      border-left: 0;
+      border-right: 1px solid var(--asaie-rail-border);
+
+      .rail-item::before {
+        right: auto;
+        left: 0;
+        border-radius: 0 3px 3px 0;
+      }
     }
-    &.component-dark-theme {
-        .sidebar-inner {
-            .sidebar-menu {
-                .accordion {
-                    .accordion-item {
-                        color: var(--whiteColor);
-
-                        .accordion-button {
-                            color: var(--whiteColor);
-
-                            .trezo-badge {
-                                background-color: rgba(255, 255, 255, 0.08);
-
-                                &.style-two {
-                                    background: rgba(255, 255, 255, 0.08);
-                                }
-                                &.style-three {
-                                    background: rgba(255, 255, 255, 0.08);
-                                }
-                            }
-                            &.open, &:hover {
-                                color: var(--whiteColor);
-                                background-color: #15203c;
-
-                                i {
-                                    color: var(--whiteColor);
-                                }
-                                &::before {
-                                    color: var(--whiteColor);
-                                }
-                            }
-                        }
-                        &:has(.active) .accordion-button {
-                            color: var(--whiteColor);
-                            background-color: #15203c;
-
-                            i {
-                                color: var(--whiteColor);
-                            }
-                            &::before {
-                                color: var(--whiteColor);
-                            }
-                        }
-                        .accordion-collapse {
-                            .accordion-body {
-                                .accordion-button {
-                                    .trezo-badge {
-                                        background-color: rgba(255, 255, 255, 0.08);
-
-                                        &::before {
-                                            background-color: rgba(255, 255, 255, 0.08);
-                                        }
-                                        &.style-two {
-                                            background: rgba(255, 255, 255, 0.08);
-
-                                            &::before {
-                                                background-color: rgba(255, 255, 255, 0.08);
-                                            }
-                                        }
-                                    }
-                                    &:hover, &.active {
-                                        background-color: #15203c;
-                                    }
-                                }
-                                .sidebar-sub-menu {
-                                    .sidemenu-item {
-                                        .sidemenu-link {
-                                            .trezo-badge {
-                                                background-color: rgba(255, 255, 255, 0.08);
-
-                                                &::before {
-                                                    background-color: rgba(255, 255, 255, 0.08);
-                                                }
-                                                &.style-two {
-                                                    background: rgba(255, 255, 255, 0.08);
-
-                                                    &::before {
-                                                        background-color: rgba(255, 255, 255, 0.08);
-                                                    }
-                                                }
-                                            }
-                                            &:hover, &.active {
-                                                background-color: #15203c;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    .sidebar-menu-link {
-                        color: var(--whiteColor);
-
-                        &:hover, &.active {
-                            color: var(--primaryColor);
-                            background-color: #15203c;
-                        }
-                    }
-                }
-            }
-        }
-    }
-    &.dark-sidebar {
-        --borderColor: #172036;
-        color: var(--bodyColor);
-        --bodyColor: #8695AA;
-
-        a {
-            color: var(--whiteColor);
-
-            &:hover {
-                color: var(--primaryColor);
-            }
-        }
-        .text-black {
-            color: var(--whiteColor) !important;
-        }
-        &.bg-white, .bg-white {
-            background-color: #0C1427 !important;
-        }
-        .bg-black {
-            background-color: var(--whiteColor) !important;
-        }
-        .sidebar-inner {
-            .sidebar-menu {
-                .accordion {
-                    .accordion-item {
-                        color: var(--whiteColor);
-
-                        .accordion-button {
-                            color: var(--whiteColor);
-
-                            .trezo-badge {
-                                background-color: rgba(255, 255, 255, 0.08);
-
-                                &.style-two {
-                                    background: rgba(255, 255, 255, 0.08);
-                                }
-                                &.style-three {
-                                    background: rgba(255, 255, 255, 0.08);
-                                }
-                            }
-                            &.open, &:hover {
-                                color: var(--whiteColor);
-                                background-color: #15203c;
-
-                                i {
-                                    color: var(--whiteColor);
-                                }
-                                &::before {
-                                    color: var(--whiteColor);
-                                }
-                            }
-                        }
-                        &:has(.active) .accordion-button {
-                            color: var(--whiteColor);
-                            background-color: #15203c;
-
-                            i {
-                                color: var(--whiteColor);
-                            }
-                            &::before {
-                                color: var(--whiteColor);
-                            }
-                        }
-                        .accordion-collapse {
-                            .accordion-body {
-                                .accordion-button {
-                                    .trezo-badge {
-                                        background-color: rgba(255, 255, 255, 0.08);
-
-                                        &::before {
-                                            background-color: rgba(255, 255, 255, 0.08);
-                                        }
-                                        &.style-two {
-                                            background: rgba(255, 255, 255, 0.08);
-
-                                            &::before {
-                                                background-color: rgba(255, 255, 255, 0.08);
-                                            }
-                                        }
-                                    }
-                                    &:hover, &.active {
-                                        background-color: #15203c;
-                                    }
-                                }
-                                .sidebar-sub-menu {
-                                    .sidemenu-item {
-                                        .sidemenu-link {
-                                            .trezo-badge {
-                                                background-color: rgba(255, 255, 255, 0.08);
-
-                                                &::before {
-                                                    background-color: rgba(255, 255, 255, 0.08);
-                                                }
-                                                &.style-two {
-                                                    background: rgba(255, 255, 255, 0.08);
-
-                                                    &::before {
-                                                        background-color: rgba(255, 255, 255, 0.08);
-                                                    }
-                                                }
-                                            }
-                                            &:hover, &.active {
-                                                background-color: #15203c;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    .sidebar-menu-link {
-                        color: var(--whiteColor);
-
-                        &:hover, &.active {
-                            color: var(--primaryColor);
-                            background-color: #15203c;
-                        }
-                    }
-                }
-            }
-        }
-    }
-    &.card-borderd {
-        border: {
-            right: 1px solid var(--borderColor) !important;
-        };
-    }
-    &.card-with-box-shadow {
-        box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px !important;
-    }
-    &.component-rtl-enabled {
-        text-align: start;
-        direction: rtl;
-        left: auto;
-        right: 0;
-
-        .logo {
-            a {
-                img {
-                    left: auto;
-                    right: 0;
-                }
-                span {
-                    margin: {
-                        left: 0;
-                        right: 8px;
-                    };
-                }
-            }
-        }
-        .burger-menu {
-            right: auto;
-            left: 25px;
-        }
-        .sidebar-inner {
-            text-align: start;
-            direction: rtl;
-
-            .sidebar-menu {
-                .accordion {
-                    .accordion-item {
-                        .accordion-button {
-                            padding: {
-                                right: 14px;
-                                left: 30px;
-                            };
-                            i {
-                                margin: {
-                                    right: 0;
-                                    left: 7px;
-                                };
-                            }
-                            .trezo-badge {
-                                margin: {
-                                    left: 0;
-                                    right: auto;
-                                };
-                            }
-                            &::before {
-                                content: "\ea64";
-                                right: auto;
-                                left: 8px;
-                            }
-                            &.open {
-                                &::before {
-                                    content: "\ea4e";
-                                }
-                            }
-                        }
-                        .accordion-collapse {
-                            .accordion-body {
-                                .accordion-button {
-                                    padding: {
-                                        left: 10px;
-                                        right: 38px;
-                                    };
-                                    &::after {
-                                        left: auto;
-                                        right: 18px;
-                                    }
-                                    .trezo-badge {
-                                        right: auto;
-                                        left: 34px;
-                                    }
-                                }
-                                .accordion-collapse {
-                                    .accordion-body {
-                                        padding: {
-                                            left: 0;
-                                            right: 20px;
-                                        };
-                                    }
-                                }
-                                .sidebar-sub-menu {
-                                    .sidemenu-item {
-                                        .sidemenu-link {
-                                            padding: {
-                                                left: 10px;
-                                                right: 38px;
-                                            };
-                                            &::after {
-                                                left: auto;
-                                                right: 18px;
-                                            }
-                                            .trezo-badge {
-                                                margin: {
-                                                    left: 0;
-                                                    right: 5px;
-                                                };
-                                                &::before {
-                                                    left: auto;
-                                                    right: -3px;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    .sidebar-menu-link {
-                        padding: {
-                            right: 14px;
-                            left: 30px;
-                        };
-                        i {
-                            margin: {
-                                right: 0;
-                                left: 6px;
-                            };
-                        }
-                    }
-                }
-            }
-        }
-        &.right-sidebar {
-            left: 0;
-            right: auto;
-        }
-    }
-    &.component-body-bg-color {
-        background-color: #F6F7F9 !important;
-
-        .logo {
-            background-color: #F6F7F9 !important;
-        }
-        .sidebar-inner {
-            .sidebar-menu {
-                .accordion {
-                    .accordion-item {
-                        .accordion-button {
-                            &.open, &:hover {
-                                background-color: var(--whiteColor);
-                            }
-                        }
-                        &:has(.active) .accordion-button {
-                            background-color: var(--whiteColor);
-                        }
-                        .accordion-collapse {
-                            .accordion-body {
-                                .accordion-button {
-                                    &:hover, &.active {
-                                        background-color: var(--whiteColor);
-                                    }
-                                }
-                                .sidebar-sub-menu {
-                                    .sidemenu-item {
-                                        .sidemenu-link {
-                                            &:hover, &.active {
-                                                background-color: var(--whiteColor);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    .sidebar-menu-link {
-                        &:hover, &.active {
-                            background-color: var(--whiteColor);
-                        }
-                    }
-                }
-            }
-        }
-        &.component-dark-theme, &.dark-sidebar {
-            background-color: #0A0E19 !important;
-
-            .logo {
-                background-color: #0A0E19 !important;
-            }
-            .sidebar-inner {
-                .sidebar-menu {
-                    .accordion {
-                        .accordion-item {
-                            .accordion-button {
-                                &.open, &:hover {
-                                    background-color: #15203c;
-                                }
-                            }
-                            &:has(.active) .accordion-button {
-                                background-color: #15203c;
-                            }
-                            .accordion-collapse {
-                                .accordion-body {
-                                    .accordion-button {
-                                        &:hover, &.active {
-                                            background-color: #15203c;
-                                        }
-                                    }
-                                    .sidebar-sub-menu {
-                                        .sidemenu-item {
-                                            .sidemenu-link {
-                                                &:hover, &.active {
-                                                    background-color: #15203c;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        .sidebar-menu-link {
-                            &:hover, &.active {
-                                background-color: #15203c;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
+  }
 }
+
+.rail-flyout-backdrop {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: var(--asaie-sidebar-width);
+  right: 0;
+  z-index: 8;
+  background-color: var(--asaie-flyout-backdrop-bg);
+}
+
+.rail-flyout-panel {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: var(--asaie-sidebar-width);
+  width: var(--asaie-flyout-width);
+  max-width: calc(100vw - var(--asaie-sidebar-width));
+  z-index: 9;
+  background-color: var(--asaie-flyout-bg);
+  border-right: 1px solid var(--asaie-flyout-border);
+  box-shadow: var(--asaie-flyout-shadow);
+  display: flex;
+  flex-direction: column;
+  animation: railFlyoutIn 0.2s cubic-bezier(0.22, 1, 0.36, 1) both;
+
+  &.right-sidebar,
+  &.component-rtl-enabled {
+    left: auto;
+    right: var(--asaie-sidebar-width);
+    border-right: 0;
+    border-left: 1px solid var(--asaie-flyout-border);
+  }
+
+  .rail-flyout-header {
+    height: var(--asaie-header-height);
+    flex-shrink: 0;
+    padding: 0 14px 0 16px;
+    border-bottom: 1px solid var(--asaie-flyout-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+
+    .rail-flyout-header-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 9px;
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background-color: var(--asaie-header-icon-hover-bg);
+      color: var(--primaryColor);
+
+      i {
+        font-size: 18px;
+      }
+    }
+
+    h6 {
+      font-size: 0.88rem;
+      color: var(--asaie-header-text);
+    }
+
+    .rail-flyout-close {
+      width: 30px;
+      height: 30px;
+      border: 0;
+      border-radius: 50%;
+      flex-shrink: 0;
+      background: transparent;
+      color: var(--asaie-header-muted);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.2s ease, color 0.2s ease;
+
+      i {
+        font-size: 18px;
+      }
+
+      &:hover {
+        background-color: var(--asaie-header-icon-hover-bg);
+        color: var(--primaryColor);
+      }
+    }
+  }
+
+  .rail-flyout-scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+
+  .rail-flyout-list {
+    padding: 12px 10px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .rail-flyout-link {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border-radius: 9px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--asaie-header-text);
+    text-decoration: none;
+    transition: background-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 20%;
+      bottom: 20%;
+      width: 3px;
+      border-radius: 0 3px 3px 0;
+      background-color: var(--asaie-rail-indicator);
+      opacity: 0;
+      transition: opacity 0.18s ease;
+    }
+
+    i {
+      font-size: 19px;
+      color: var(--asaie-header-muted);
+      flex-shrink: 0;
+      transition: color 0.18s ease;
+    }
+
+    &:hover {
+      background-color: var(--asaie-rail-hover-bg);
+      color: var(--asaie-rail-hover-text);
+
+      i {
+        color: var(--asaie-rail-hover-text);
+      }
+    }
+
+    &.active {
+      background-color: var(--asaie-rail-hover-bg);
+      color: var(--asaie-rail-active-label);
+      font-weight: 600;
+
+      &::before {
+        opacity: 1;
+      }
+
+      i {
+        color: var(--asaie-rail-active-label);
+      }
+    }
+  }
+}
+
 ::ng-deep {
-    .sidebar-area {
-        .ng-scrollbar {
-            height: 100vh;
+  .sidebar-area.asaie-canva-rail {
+    .ng-scrollbar {
+      height: 100%;
 
-            .ng-scroll-content {
-                padding-right: 0 !important;
-            }
-            scrollbar-x {
-                display: none !important;
-            }
-        }
-        &.component-rtl-enabled {
-            .ng-scrollbar {
-                width: 100% !important;
+      .ng-scroll-content {
+        padding-right: 0 !important;
+      }
 
-                .ng-scroll-content {
-                    padding: 0;
-                    width: 100% !important;
-
-                    .ng-scrollbar-sticky {
-                        right: auto;
-                        left: 0;
-                    }
-                }
-            }
-        }
+      scrollbar-x {
+        display: none !important;
+      }
     }
+  }
 }
 
-/* Max width 767px */
-@media only screen and (max-width : 767px) {
+@media only screen and (max-width: 1199.98px) {
+  .sidebar-area.asaie-canva-rail {
+    width: min(286px, 85vw);
+    left: -100%;
+    border-radius: 0 20px 20px 0;
+    transition: left 0.26s cubic-bezier(0.22, 1, 0.36, 1),
+      right 0.26s cubic-bezier(0.22, 1, 0.36, 1);
 
-    .sidebar-area {
-        width: 250px;
-        left: -100%;
-
-        .logo {
-            padding: 18px;
-        }
-        .burger-menu {
-            top: 20px;
-            right: 18px;
-        }
-        .sidebar-inner {
-            padding: {
-                top: 84px;
-                left: 18px;
-                right: 18px;
-                bottom: 18px;
-            };
-            .sidebar-menu {
-                .sub-title {
-                    &:not(:first-child) {
-                        margin-top: 15px;
-                    }
-                }
-                .accordion {
-                    .accordion-item {
-                        .accordion-button {
-                            font-size: 13px;
-                            padding: {
-                                bottom: 8px;
-                                right: 25px;
-                                top: 8px;
-                            };
-                            i {
-                                font-size: 18px;
-                            }
-                            .trezo-badge {
-                                width: 18px;
-                                height: 18px;
-                                font-size: 11px;
-                                line-height: 18px;
-                            }
-                            &::before {
-                                right: 8px;
-                            }
-                        }
-                        .accordion-collapse {
-                            .accordion-body {
-                                .accordion-button {
-                                    font-size: 13px;
-                                    padding: {
-                                        bottom: 7px;
-                                        right: 10px;
-                                        left: 35px;
-                                        top: 7px;
-                                    };
-                                    &::after {
-                                        left: 16px;
-                                    }
-                                    .trezo-badge {
-                                        right: 28px;
-                                        width: 18px;
-                                        height: 18px;
-                                        font-size: 11px;
-                                        line-height: 18px;
-                                    }
-                                }
-                                .accordion-collapse {
-                                    .accordion-body {
-                                        padding-left: 10px;
-                                    }
-                                }
-                                .sidebar-sub-menu {
-                                    .sidemenu-item {
-                                        .sidemenu-link {
-                                            font-size: 13px;
-                                            padding: {
-                                                bottom: 7px;
-                                                right: 10px;
-                                                left: 35px;
-                                                top: 7px;
-                                            };
-                                            &::after {
-                                                left: 16px;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    .sidebar-menu-link {
-                        font-size: 13px;
-                        padding: {
-                            bottom: 8px;
-                            right: 10px;
-                            top: 8px;
-                        };
-                        i {
-                            font-size: 18px;
-                        }
-                    }
-                }
-            }
-        }
-        &.active {
-            left: 0;
-        }
-        &.right-sidebar {
-            left: auto;
-            right: -100%;
-
-            &.active {
-                right: 0;
-            }
-        }
-        &.component-rtl-enabled {
-            right: -100%;
-
-            .burger-menu {
-                left: 18px;
-                right: auto;
-            }
-            .sidebar-inner {
-                .sidebar-menu {
-                    .accordion {
-                        .accordion-item {
-                            .accordion-button {
-                                padding: {
-                                    left: 25px;
-                                    right: 14px;
-                                };
-                                &::before {
-                                    right: auto;
-                                    left: 8px;
-                                }
-                            }
-                            .accordion-collapse {
-                                .accordion-body {
-                                    .accordion-button {
-                                        padding: {
-                                            left: 10px;
-                                            right: 35px;
-                                        };
-                                        &::after {
-                                            left: auto;
-                                            right: 16px;
-                                        }
-                                        .trezo-badge {
-                                            right: auto;
-                                            left: 28px;
-                                        }
-                                    }
-                                    .accordion-collapse {
-                                        .accordion-body {
-                                            padding: {
-                                                left: 0;
-                                                right: 10px;
-                                            };
-                                        }
-                                    }
-                                    .sidebar-sub-menu {
-                                        .sidemenu-item {
-                                            .sidemenu-link {
-                                                padding: {
-                                                    left: 10px;
-                                                    right: 35px;
-                                                };
-                                                &::after {
-                                                    left: auto;
-                                                    right: 16px;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        .sidebar-menu-link {
-                            padding: {
-                                left: 25px;
-                                right: 14px;
-                            };
-                        }
-                    }
-                }
-            }
-            &.active {
-                left: auto;
-                right: 0;
-            }
-            &.right-sidebar {
-                left: -100%;
-                right: auto;
-
-                &.active {
-                    right: auto;
-                    left: 0;
-                }
-            }
-        }
+    &.active {
+      left: 0;
     }
 
-}
+    .rail-brand {
+      justify-content: space-between;
+      padding: 0 14px 0 18px;
+      border-bottom: 1px solid var(--asaie-rail-divider);
 
-/* Min width 576px to Max width 767px */
-@media only screen and (min-width : 576px) and (max-width : 767px) {}
+      .rail-brand-title {
+        display: block;
+      }
+    }
 
-/* Min width 768px to Max width 991px */
-@media only screen and (min-width : 768px) and (max-width : 991px) {
+    .rail-nav,
+    .rail-footer {
+      padding: 10px 12px;
+      gap: 4px;
+    }
 
-    .sidebar-area {
+    .rail-footer {
+      padding-bottom: 16px;
+
+      .rail-divider {
+        width: 100%;
+        margin: 2px 0 6px;
+      }
+    }
+
+    .rail-item {
+      flex-direction: row;
+      justify-content: flex-start;
+      gap: 12px;
+      min-height: 46px;
+      padding: 6px 12px;
+      border-radius: 12px;
+
+      &::before {
+        top: 10px;
+        bottom: 10px;
+        height: auto;
+      }
+
+      .rail-label-short {
+        display: none;
+      }
+
+      .rail-label-full {
+        display: block;
+        flex: 1 1 auto;
+        font-size: 0.88rem;
+        font-weight: 500;
+        line-height: 1.3;
+        text-align: left;
+      }
+
+      .rail-item-chevron {
+        display: inline-flex;
+        font-size: 19px;
+        color: var(--asaie-rail-text-muted);
+        margin-left: auto;
+      }
+
+      &:hover:not(.active):not(.is-logout) {
+        background-color: var(--asaie-rail-hover-bg);
+      }
+
+      &.active {
+        background-color: var(--asaie-rail-hover-bg);
+
+        .rail-label-full {
+          font-weight: 700;
+          color: var(--asaie-rail-active-label);
+        }
+
+        .rail-item-chevron {
+          color: var(--asaie-rail-active-label);
+        }
+      }
+    }
+
+    &.right-sidebar {
+      left: auto;
+      right: -100%;
+      border-radius: 20px 0 0 20px;
+
+      &.active {
+        right: 0;
+      }
+    }
+
+    &.component-rtl-enabled {
+      right: -100%;
+      left: auto;
+      border-radius: 20px 0 0 20px;
+
+      &.active {
+        right: 0;
+        left: auto;
+      }
+
+      &.right-sidebar {
         left: -100%;
+        right: auto;
+        border-radius: 0 20px 20px 0;
 
         &.active {
-            left: 0;
+          left: 0;
+          right: auto;
         }
-        &.right-sidebar {
-            left: auto;
-            right: -100%;
-
-            &.active {
-                right: 0;
-            }
-        }
-        &.component-rtl-enabled {
-            right: -100%;
-
-            &.active {
-                left: auto;
-                right: 0;
-            }
-            &.right-sidebar {
-                right: auto;
-                left: -100%;
-
-                &.active {
-                    right: auto;
-                    left: 0;
-                }
-            }
-        }
+      }
     }
+  }
 
+  .rail-flyout-backdrop {
+    left: 0;
+    z-index: 10;
+  }
+
+  .rail-flyout-panel {
+    left: 0;
+    width: min(286px, 85vw);
+    max-width: 85vw;
+    z-index: 11;
+    border-radius: 0 20px 20px 0;
+
+    &.right-sidebar,
+    &.component-rtl-enabled {
+      right: 0;
+      border-radius: 20px 0 0 20px;
+    }
+  }
 }
 
-/* Min width 992px to Max width 1199px */
-@media only screen and (min-width : 992px) and (max-width : 1199px) {
+@media (prefers-reduced-motion: reduce) {
+  .rail-flyout-panel {
+    animation: none !important;
+  }
 
-    .sidebar-area {
-        left: -100%;
-
-        &.active {
-            left: 0;
-        }
-        &.right-sidebar {
-            left: auto;
-            right: -100%;
-
-            &.active {
-                right: 0;
-            }
-        }
-        &.component-rtl-enabled {
-            right: -100%;
-
-            &.active {
-                left: auto;
-                right: 0;
-            }
-            &.right-sidebar {
-                right: auto;
-                left: -100%;
-
-                &.active {
-                    right: auto;
-                    left: 0;
-                }
-            }
-        }
-    }
-
+  .sidebar-area.asaie-canva-rail .rail-brand .rail-brand-btn,
+  .sidebar-area.asaie-canva-rail .rail-item,
+  .sidebar-area.asaie-canva-rail .rail-item::before,
+  .sidebar-area.asaie-canva-rail .rail-item .rail-item-icon,
+  .rail-flyout-panel .rail-flyout-link,
+  .rail-flyout-panel .rail-flyout-link::before {
+    transition: none !important;
+  }
 }
-
-/* Min width 1200px */
-@media (min-width: 1200px) {
-
-    .sidebar-area {
-        &.active, &.hide-sidebar {
-            width: 100px;
-
-            .logo {
-                a {
-                    img {
-                        left: 11px;
-                    }
-                    span {
-                        opacity: 0;
-                    }
-                }
-            }
-            .burger-menu {
-                opacity: 0;
-                visibility: hidden;
-            }
-            .sidebar-inner {
-                .sidebar-menu {
-                    .sub-title {
-                        font-size: 0;
-                        height: 18px;
-
-                        &::before {
-                            top: 50%;
-                            width: 50px;
-                            content: '';
-                            height: 1px;
-                            position: absolute;
-                            transform: translateY(-50%);
-                            background: var(--borderColor);
-                        }
-                    }
-                    .accordion {
-                        .accordion-item {
-                            .accordion-button {
-                                padding: 9px 6px 9px 14px;
-
-                                .title {
-                                    transition: var(--transition);
-                                    opacity: 0;
-                                    width: 0;
-                                }
-                                .trezo-badge {
-                                    display: none !important;
-                                }
-                                &::before {
-                                    display: none;
-                                }
-                            }
-                            .accordion-collapse {
-                                .accordion-body {
-                                    display: none;
-                                }
-                            }
-                        }
-                        .sidebar-menu-link {
-                            padding: 9px 6px 9px 14px;
-
-                            .title {
-                                transition: var(--transition);
-                                opacity: 0;
-                                width: 0;
-                            }
-                        }
-                    }
-                }
-            }
-            &:hover {
-                width: 260px;
-
-                .logo {
-                    a {
-                        img {
-                            left: 0;
-                        }
-                        span {
-                            opacity: 1;
-                        }
-                    }
-                }
-                .burger-menu {
-                    opacity: 1;
-                    visibility: visible;
-                }
-                .sidebar-inner {
-                    .sidebar-menu {
-                        .sub-title {
-                            font-size: 12px;
-
-                            &::before {
-                                display: none;
-                            }
-                        }
-                        .accordion {
-                            .accordion-item {
-                                .accordion-button {
-                                    padding: {
-                                        right: 30px;
-                                        left: 14px;
-                                    };
-                                    .title {
-                                        opacity: 1;
-                                        width: auto;
-                                    }
-                                    .trezo-badge {
-                                        display: inline-block !important;
-                                    }
-                                    &::before {
-                                        display: inline-block;
-                                    }
-                                }
-                                .accordion-collapse {
-                                    .accordion-body {
-                                        display: block;
-                                    }
-                                }
-                            }
-                            .sidebar-menu-link {
-                                padding: {
-                                    right: 10px;
-                                    left: 10px;
-                                };
-                                .title {
-                                    opacity: 1;
-                                    width: auto;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        &.hide-sidebar {
-            .burger-menu {
-                display: none !important;
-            }
-        }
-        &.component-rtl-enabled {
-            &.active, &.hide-sidebar {
-                .logo {
-                    a {
-                        img {
-                            left: auto;
-                            right: 11px;
-                        }
-                    }
-                }
-                .sidebar-inner {
-                    .sidebar-menu {
-                        .accordion {
-                            .accordion-item {
-                                .accordion-button {
-                                    padding: {
-                                        left: 6px;
-                                        right: 14px;
-                                    };
-                                }
-                            }
-                            .sidebar-menu-link {
-                                padding: {
-                                    left: 6px;
-                                    right: 14px;
-                                };
-                            }
-                        }
-                    }
-                }
-                &:hover {
-                    .logo {
-                        a {
-                            img {
-                                left: auto;
-                                right: 0;
-                            }
-                        }
-                    }
-                    .sidebar-inner {
-                        .sidebar-menu {
-                            .accordion {
-                                .accordion-item {
-                                    .accordion-button {
-                                        padding: {
-                                            right: 14px;
-                                            left: 30px;
-                                        };
-                                    }
-                                }
-                                .sidebar-menu-link {
-                                    padding: {
-                                        right: 14px;
-                                        left: 30px;
-                                    };
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-}
-
-/* Min width 1200px to Max width 1399px */
-@media only screen and (min-width: 1200px) and (max-width: 1399px) {
-
-    .sidebar-area {
-        width: 240px;
-
-        &.active, &.hide-sidebar {
-            width: 100px;
-
-            &:hover {
-                width: 240px;
-            }
-        }
-    }
-
-}
-
-/* Min width 1600px */
-@media only screen and (min-width: 1600px) {}

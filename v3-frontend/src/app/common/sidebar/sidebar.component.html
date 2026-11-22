@@ -1,5 +1,5 @@
-<div
-    class="sidebar-area bg-white transition"
+<aside
+    class="sidebar-area asaie-canva-rail transition"
     [ngClass]="{'active': isSidebarToggled}"
     [class.card-borderd]="themeService.isCardBordered()"
     [class.dark-sidebar]="themeService.isSidebarDark()"
@@ -10,138 +10,236 @@
     [class.card-with-box-shadow]="themeService.isCardWithBoxShadow()"
     [class.component-body-bg-color]="themeService.isBodyBG()"
 >
-    <div class="logo bg-white">
-        <a [routerLink]="v3Auth.hasMultipleMemberships() ? '/access-panel' : v3Auth.defaultHomeRoute()" class="d-flex align-items-center position-relative">
-            <img src="assets/images/logo/logotipo.svg" class="transition position-relative" alt="ASAIE ÉXODO">
-        </a>
+    <div class="rail-brand">
+        <div class="rail-brand-group">
+            <a
+                [routerLink]="v3Auth.hasMultipleMemberships() ? '/access-panel' : v3Auth.defaultHomeRoute()"
+                (click)="closeFlyout()"
+                class="rail-brand-btn"
+                [appCustomTooltip]="'ASAIE ÉXODO — Inicio'"
+                tooltipPosition="right"
+            >
+                <svg
+                    class="rail-brand-mark"
+                    viewBox="0 18 375 320"
+                    width="26"
+                    height="26"
+                    aria-hidden="true"
+                >
+                    <path
+                        class="rail-mark-wing"
+                        d="M 175.757812 22.363281 C 200.652344 26.554688 210.34375 46.800781 222.273438 67.46875 L 296.257812 195.644531 C 277.730469 169.421875 251.058594 149.679688 220.019531 139.753906 C 180.246094 127.035156 136.960938 131.605469 100.722656 152.351562 Z"
+                    />
+                    <path
+                        class="rail-mark-right"
+                        d="M 188.277344 188.328125 C 205.355469 177.460938 216.921875 159.757812 220.019531 139.75 C 251.058594 149.679688 277.730469 169.421875 296.257812 195.644531 L 309.875 219.234375 L 319.871094 236.550781 L 375 332.058594 C 247.265625 320.179688 237.679688 216.488281 158.136719 198.902344 C 168.746094 197.75 179.070312 194.1875 188.277344 188.328125 Z"
+                    />
+                    <path
+                        class="rail-mark-wave"
+                        d="M 0 326.851562 C 60.894531 221.363281 38.042969 211.960938 158.136719 198.902344 C 194.71875 206.992188 216.707031 234.15625 241.296875 259.964844 C 148.636719 193.480469 125.960938 343.140625 0 326.851562 Z"
+                    />
+                </svg>
+            </a>
+            <span class="rail-brand-title">ASAIE ÉXODO</span>
+        </div>
+
+        <button
+            type="button"
+            class="rail-mobile-close d-xl-none"
+            (click)="toggle()"
+            [appCustomTooltip]="'Cerrar menú'"
+            tooltipPosition="bottom"
+        >
+            <i class="material-symbols-outlined" aria-hidden="true">close</i>
+        </button>
     </div>
-    <div
-        (click)="toggle()"
-        class="burger-menu transition"
-        [ngClass]="{'active': isSidebarToggled}"
-    >
-        <span class="top-bar transition d-block bg-black"></span>
-        <span class="middle-bar transition d-block bg-black"></span>
-        <span class="bottom-bar transition d-block bg-black"></span>
-    </div>
-    <ng-scrollbar visibility="hover">
-        <div class="sidebar-inner">
-            <div class="sidebar-menu">
-                <div class="accordion">
-                  @if (isAccessPanelView()) {
-                    <div class="accordion-item border-radius border-0">
-                      <a
-                        routerLink="/access-panel"
-                        class="sidebar-menu-link w-100 position-relative border-radius fw-medium transition"
-                        routerLinkActive="active"
-                        [routerLinkActiveOptions]="{exact: true}"
-                      >
-                        <i class="material-symbols-outlined">apps</i>
-                        <span class="title lh-1">
-                          {{ 'menu.accessPanel' | transloco }}
-                        </span>
-                      </a>
-                    </div>
-                    <div class="accordion-item border-radius border-0">
-                      <a
-                        routerLink="/profile/user"
-                        class="sidebar-menu-link w-100 position-relative border-radius fw-medium transition"
-                        routerLinkActive="active"
-                      >
-                        <i class="material-symbols-outlined">account_circle</i>
-                        <span class="title lh-1">
-                          {{ 'menu.user.user' | transloco }}
-                        </span>
-                      </a>
-                    </div>
-                  } @else {
-                    @for (item of menuService.filteredMenu(); track item.id) {
-                      @if (item.subItems && item.subItems.length > 0) {
-                        <div class="accordion-item border-radius border-0">
-                          <button
+
+    <div class="rail-scroll">
+        <nav class="rail-nav" aria-label="Navegación principal">
+            @if (isAccessPanelView()) {
+                <a
+                    routerLink="/access-panel"
+                    class="rail-item"
+                    routerLinkActive="active"
+                    [routerLinkActiveOptions]="{ exact: true }"
+                    (click)="closeFlyout()"
+                    [appCustomTooltip]="'Panel de Accesos Multi-Institución'"
+                    tooltipPosition="right"
+                >
+                    <span class="rail-item-icon">
+                        <i class="material-symbols-outlined" aria-hidden="true">home</i>
+                    </span>
+                    <span class="rail-item-label rail-label-short">
+                        {{ 'menu.accessPanelRail' | transloco }}
+                    </span>
+                    <span class="rail-item-label rail-label-full">
+                        {{ 'menu.accessPanel' | transloco }}
+                    </span>
+                </a>
+
+                <a
+                    routerLink="/profile/user"
+                    class="rail-item"
+                    routerLinkActive="active"
+                    (click)="closeFlyout()"
+                    [appCustomTooltip]="'Perfil y configuración de usuario'"
+                    tooltipPosition="right"
+                >
+                    <span class="rail-item-icon">
+                        <i class="material-symbols-outlined" aria-hidden="true">person</i>
+                    </span>
+                    <span class="rail-item-label rail-label-short">
+                        {{ 'menu.user.user' | transloco }}
+                    </span>
+                    <span class="rail-item-label rail-label-full">
+                        {{ 'menu.user.user' | transloco }}
+                    </span>
+                </a>
+            } @else {
+                @for (item of menuService.filteredMenu(); track item.id) {
+                    @if (item.subItems && item.subItems.length > 0) {
+                        <button
                             type="button"
-                            (click)="toggleSubmenu(item.id)"
-                            class="sidebar-menu-link w-100 position-relative border-radius fw-medium transition border-0 bg-transparent text-start d-flex align-items-center justify-content-between"
-                          >
-                            <span class="d-flex align-items-center">
-                              <i class="material-symbols-outlined">
-                                {{ item.icon }}
-                              </i>
-                              <span class="title lh-1">
-                                {{ item.translatedName | transloco }}
-                              </span>
+                            class="rail-item"
+                            [class.active]="isMenuGroupActive(item)"
+                            [class.is-flyout-open]="activeFlyoutMenuId() === item.id"
+                            (click)="toggleFlyout(item.id)"
+                            [appCustomTooltip]="item.translatedName | transloco"
+                            tooltipPosition="right"
+                        >
+                            <span class="rail-item-icon">
+                                <i class="material-symbols-outlined" aria-hidden="true">
+                                    {{ item.icon }}
+                                </i>
+                                <span class="rail-sub-dot" aria-hidden="true"></span>
                             </span>
-                            <i class="material-symbols-outlined fs-6">
-                              {{ isSubmenuExpanded(item.id) ? 'expand_less' : 'expand_more' }}
+                            <span class="rail-item-label rail-label-short">
+                                {{ (item.railTranslatedName || item.translatedName) | transloco }}
+                            </span>
+                            <span class="rail-item-label rail-label-full">
+                                {{ item.translatedName | transloco }}
+                            </span>
+                            <i class="material-symbols-outlined rail-item-chevron" aria-hidden="true">
+                                chevron_right
                             </i>
-                          </button>
-                          @if (isSubmenuExpanded(item.id)) {
-                            <div class="v3-sidebar-sublist">
-                              @for (sub of item.subItems; track sub.id) {
-                                <a
-                                  [routerLink]="sub.link"
-                                  class="sidebar-menu-link w-100 position-relative border-radius fw-medium transition"
-                                  routerLinkActive="active"
-                                  [routerLinkActiveOptions]="{exact: true}"
-                                >
-                                  <i class="material-symbols-outlined">
-                                    {{ sub.icon }}
-                                  </i>
-                                  <span class="title lh-1">
-                                    {{ sub.translatedName | transloco }}
-                                  </span>
-                                </a>
-                              }
-                            </div>
-                          }
-                        </div>
-                      } @else {
-                        <div class="accordion-item border-radius border-0">
-                          <a
+                        </button>
+                    } @else {
+                        <a
                             [routerLink]="item.link"
                             [target]="item.isExternal ? '_blank' : ''"
-                            class="sidebar-menu-link w-100 position-relative border-radius fw-medium transition"
+                            class="rail-item"
                             [routerLinkActive]="item.isExternal ? '' : 'active'"
-                            [routerLinkActiveOptions]="{exact: true}">
-                            <i class="material-symbols-outlined">
-                              {{ item.icon }}
-                            </i>
-                            <span class="title lh-1">
-                              {{ item.translatedName | transloco }}
+                            [routerLinkActiveOptions]="{ exact: true }"
+                            (click)="closeFlyout()"
+                            [appCustomTooltip]="item.translatedName | transloco"
+                            tooltipPosition="right"
+                        >
+                            <span class="rail-item-icon">
+                                <i class="material-symbols-outlined" aria-hidden="true">
+                                    {{ item.icon }}
+                                </i>
                             </span>
-                          </a>
-                        </div>
-                      }
+                            <span class="rail-item-label rail-label-short">
+                                {{ (item.railTranslatedName || item.translatedName) | transloco }}
+                            </span>
+                            <span class="rail-item-label rail-label-full">
+                                {{ item.translatedName | transloco }}
+                            </span>
+                        </a>
                     }
-                  }
-                  <span class="sub-title d-block fw-medium text-uppercase">
-                    <hr class="my-1">
-                  </span>
+                }
+            }
+        </nav>
+    </div>
 
-                  @if (!isAccessPanelView() && v3Auth.hasMultipleMemberships()) {
-                    <div class="accordion-item border-radius border-0">
-                      <a
-                        routerLink="/access-panel"
-                        class="sidebar-menu-link w-100 position-relative border-radius fw-medium transition cursor-pointer">
-                        <i class="material-symbols-outlined">swap_horiz</i>
-                        <span class="title lh-1">
-                          {{ 'menu.user.changeModule' | transloco }}
-                        </span>
-                      </a>
-                    </div>
-                  }
-                  <div class="accordion-item border-radius border-0">
-                      <a
-                        (click)="logout()"
-                        class="sidebar-menu-link w-100 position-relative border-radius fw-medium transition cursor-pointer">
-                          <i class="material-symbols-outlined">logout</i>
-                          <span class="title lh-1">
-                              {{ 'menu.user.logout' | transloco }}
-                          </span>
-                      </a>
-                  </div>
-                </div>
+    <div class="rail-footer">
+        <div class="rail-divider"></div>
+
+        @if (!isAccessPanelView() && v3Auth.hasMultipleMemberships()) {
+            <a
+                routerLink="/access-panel"
+                (click)="closeFlyout()"
+                class="rail-item"
+                [appCustomTooltip]="'Cambiar de institución o módulo'"
+                tooltipPosition="right"
+            >
+                <span class="rail-item-icon">
+                    <i class="material-symbols-outlined" aria-hidden="true">swap_horiz</i>
+                </span>
+                <span class="rail-item-label rail-label-short">
+                    {{ 'menu.user.changeModuleRail' | transloco }}
+                </span>
+                <span class="rail-item-label rail-label-full">
+                    {{ 'menu.user.changeModule' | transloco }}
+                </span>
+            </a>
+        }
+
+        <button
+            type="button"
+            (click)="logout()"
+            class="rail-item is-logout"
+            [appCustomTooltip]="'Cerrar sesión'"
+            tooltipPosition="right"
+        >
+            <span class="rail-item-icon">
+                <i class="material-symbols-outlined" aria-hidden="true">logout</i>
+            </span>
+            <span class="rail-item-label rail-label-short">
+                {{ 'menu.user.logoutRail' | transloco }}
+            </span>
+            <span class="rail-item-label rail-label-full">
+                {{ 'menu.user.logout' | transloco }}
+            </span>
+        </button>
+    </div>
+</aside>
+
+@if (activeFlyoutMenu(); as flyout) {
+    <div class="rail-flyout-backdrop" (click)="closeFlyout()"></div>
+    <aside
+        class="rail-flyout-panel"
+        [class.right-sidebar]="themeService.isRightSidebar()"
+        [class.component-rtl-enabled]="themeService.isRTLEnabled()"
+        aria-label="Submenú del módulo"
+        role="navigation"
+    >
+        <div class="rail-flyout-header">
+            <div class="d-flex align-items-center gap-2 min-w-0">
+                <span class="rail-flyout-header-icon">
+                    <i class="material-symbols-outlined" aria-hidden="true">{{ flyout.icon }}</i>
+                </span>
+                <h6 class="mb-0 fw-bold text-truncate">
+                    {{ flyout.translatedName | transloco }}
+                </h6>
             </div>
+            <button
+                type="button"
+                class="rail-flyout-close"
+                (click)="closeFlyout()"
+                [appCustomTooltip]="'Cerrar submenú'"
+                tooltipPosition="bottom"
+            >
+                <i class="material-symbols-outlined d-xl-none" aria-hidden="true">arrow_back</i>
+                <i class="material-symbols-outlined d-none d-xl-inline-flex" aria-hidden="true">close</i>
+            </button>
         </div>
-    </ng-scrollbar>
-</div>
+
+        <ng-scrollbar visibility="hover" class="rail-flyout-scroll">
+            <div class="rail-flyout-list">
+                @for (sub of flyout.subItems; track sub.id) {
+                    <a
+                        [routerLink]="sub.link"
+                        routerLinkActive="active"
+                        [routerLinkActiveOptions]="{ exact: true }"
+                        (click)="closeFlyout()"
+                        class="rail-flyout-link"
+                    >
+                        <i class="material-symbols-outlined" aria-hidden="true">{{ sub.icon }}</i>
+                        <span>{{ sub.translatedName | transloco }}</span>
+                    </a>
+                }
+            </div>
+        </ng-scrollbar>
+    </aside>
+}

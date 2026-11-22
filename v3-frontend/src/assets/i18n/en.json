@@ -134,15 +134,19 @@
   "menu": {
     "dashboard": "Dashboard",
     "accessPanel": "Access Panel",
+    "accessPanelRail": "Access",
     "user": {
       "profile": "My Profile",
       "user": "User",
       "logout": "Sign Out",
+      "logoutRail": "Logout",
       "returnToAccessPanel": "Access Panel",
-      "changeModule": "Switch Module"
+      "changeModule": "Switch Module",
+      "changeModuleRail": "Switch"
     },
     "admin": {
       "title": "Administration",
+      "railTitle": "Admin",
       "hub": "Admin Hub",
       "school": "School Profile",
       "campuses": "Campuses",
@@ -152,6 +156,7 @@
     },
     "settings": {
       "title": "Settings",
+      "railTitle": "Settings",
       "hub": "Settings Hub",
       "structure": "Academic Structure",
       "evaluation": "Evaluation & SIEE",
@@ -177,13 +182,16 @@
     },
     "elections": {
       "title": "School Elections",
+      "railTitle": "Elections",
       "hub": "Elections Hub",
       "control": "Elections & Stations",
       "candidates": "Candidates & Ballot",
-      "results": "Live Tally"
+      "results": "Live Tally",
+      "votingBooth": "Voting Booth"
     },
     "teacher": {
       "title": "Teacher Portal",
+      "railTitle": "Teacher",
       "hub": "Teacher Hub",
       "gradebook": "Gradebook",
       "planning": "Descriptors & Lesson Plans",
@@ -358,5 +366,28 @@
     "guestAccount": "ASAIE ÉXODO User",
     "unlockButton": "Unlock workspace",
     "switchAccount": "Switch account or sign in"
+  },
+  "accessPanel": {
+    "headerSubtitle": "ACCESS PANEL",
+    "bannerBadge": "ASAIE ÉXODO Unified Portal",
+    "greetingTitle": "DEAR USER, YOU HAVE ACCESS TO:",
+    "bannerSubtitle": "Select the educational institution and module you want to work with.",
+    "availableSectionTitle": "Available institutions & modules",
+    "institutionSingular": "institution",
+    "institutionsCount": "institutions",
+    "accessSingular": "access",
+    "accessesCount": "accesses",
+    "searchPlaceholder": "Search by school, DANE code, or module...",
+    "clearSearch": "Clear search",
+    "filterAll": "All",
+    "showingResults": "Showing {{shown}} of {{total}}",
+    "emptyAccessTitle": "No assigned institutions",
+    "emptyAccessDescription": "Your account does not have active schools or modules yet. Please contact your school administrator.",
+    "noMatchesTitle": "No matches found",
+    "noMatchesDescription": "We could not find schools or modules matching \"{{query}}\".",
+    "clearFilters": "Clear filters",
+    "activeBadge": "Current",
+    "moduleLabel": "MODULE",
+    "cardTooltipPrefix": "Enter"
   }
 }

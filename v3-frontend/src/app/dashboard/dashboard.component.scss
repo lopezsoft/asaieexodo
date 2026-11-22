@@ -1,341 +1,174 @@
-// Main Content
 .main-content {
-    overflow: hidden;
-    min-height: 100vh;
-    padding: {
-        top: 95px;
-        left: 285px;
-        right: 25px;
-    };
-    &.active, &.hide-sidebar {
-        padding-left: 125px;
+  overflow: hidden;
+  min-height: 100vh;
+  padding: var(--asaie-header-height) 0 0 var(--asaie-sidebar-width);
+
+  &.active,
+  &.hide-sidebar {
+    padding-left: var(--asaie-sidebar-collapsed-width);
+  }
+
+  &.right-sidebar {
+    padding: var(--asaie-header-height) var(--asaie-sidebar-width) 0 0;
+
+    &.active,
+    &.hide-sidebar {
+      padding-right: var(--asaie-sidebar-collapsed-width);
     }
-    &.right-sidebar {
-        padding: {
-            left: 25px;
-            right: 285px;
-        };
-        &.active, &.hide-sidebar {
-            padding-right: 125px;
-        }
-    }
+  }
 }
 
-// RTL
+.main-content-body {
+  padding: 20px 24px 28px;
+  width: 100%;
+  min-width: 0;
+}
+
 ::ng-deep {
-    .rtl-enabled {
-        .main-content {
-            padding: {
-                left: 25px;
-                right: 285px;
-            };
-            &.active, &.hide-sidebar {
-                padding: {
-                    left: 25px;
-                    right: 125px;
-                };
-            }
-            &.right-sidebar {
-                padding: {
-                    left: 285px;
-                    right: 25px;
-                };
-                &.active, &.hide-sidebar {
-                    padding: {
-                        left: 125px;
-                        right: 25px;
-                    };
-                }
-            }
+  .rtl-enabled {
+    .main-content {
+      padding: var(--asaie-header-height) var(--asaie-sidebar-width) 0 0;
+
+      &.active,
+      &.hide-sidebar {
+        padding-left: 0;
+        padding-right: var(--asaie-sidebar-collapsed-width);
+      }
+
+      &.right-sidebar {
+        padding: var(--asaie-header-height) 0 0 var(--asaie-sidebar-width);
+
+        &.active,
+        &.hide-sidebar {
+          padding-left: var(--asaie-sidebar-collapsed-width);
+          padding-right: 0;
         }
+      }
     }
+  }
 }
 
-// With Navbar
 .with-navbar {
+  app-sidebar {
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  .main-content {
+    max-width: 1345px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 136px 0 0 !important;
+  }
+}
+
+@media only screen and (max-width: 1199px) {
+  .main-content {
+    padding: var(--asaie-header-height) 0 0 0;
+
+    &.active,
+    &.hide-sidebar {
+      padding-left: 0;
+    }
+
+    &.right-sidebar {
+      padding: var(--asaie-header-height) 0 0 0;
+
+      &.active,
+      &.hide-sidebar {
+        padding-right: 0;
+      }
+    }
+  }
+
+  ::ng-deep {
+    .rtl-enabled {
+      .main-content {
+        padding: var(--asaie-header-height) 0 0 0;
+
+        &.active,
+        &.hide-sidebar,
+        &.right-sidebar,
+        &.right-sidebar.active,
+        &.right-sidebar.hide-sidebar {
+          padding-left: 0;
+          padding-right: 0;
+        }
+      }
+    }
+  }
+
+  .with-navbar {
     app-sidebar {
-        opacity: 0;
-        visibility: hidden;
+      opacity: 1;
+      visibility: visible;
     }
+
     .main-content {
-        max-width: 1345px;
-        margin: {
-            left: auto;
-            right: auto;
-        };
-        padding: {
-            top: 162px;
-            left: 25px !important;
-            right: 25px !important;
-        };
+      max-width: 100%;
+      padding: var(--asaie-header-height) 0 0 0 !important;
     }
+  }
 }
 
-/* Max width 767px */
-@media only screen and (max-width : 767px) {
-
-    // Main Content
-    .main-content {
-        padding: {
-            top: 143px;
-            left: 15px;
-            right: 15px;
-        };
-        &.active, &.hide-sidebar {
-            padding-left: 15px;
-        }
-        &.right-sidebar {
-            padding: {
-                left: 15px;
-                right: 15px;
-            };
-            &.active, &.hide-sidebar {
-                padding-right: 15px;
-            }
-        }
-    }
-
-    // RTL
-    ::ng-deep {
-        .rtl-enabled {
-            .main-content {
-                padding: {
-                    left: 15px;
-                    right: 15px;
-                };
-                &.active, &.hide-sidebar {
-                    padding: {
-                        left: 15px;
-                        right: 15px;
-                    };
-                }
-                &.right-sidebar {
-                    padding: {
-                        left: 15px;
-                        right: 15px;
-                    };
-                    &.active, &.hide-sidebar {
-                        padding: {
-                            left: 15px;
-                            right: 15px;
-                        };
-                    }
-                }
-            }
-        }
-    }
-
-    // With Navbar
-    .with-navbar {
-        app-sidebar {
-            opacity: 1;
-            visibility: visible;
-        }
-        .main-content {
-            max-width: 100%;
-            padding: {
-                top: 143px;
-                left: 15px !important;
-                right: 15px !important;
-            };
-        }
-    }
-    
+@media only screen and (max-width: 767px) {
+  .main-content-body {
+    padding: 16px;
+  }
 }
 
-/* Min width 576px to Max width 767px */
-@media only screen and (min-width : 576px) and (max-width : 767px) {}
-
-/* Min width 768px to Max width 991px */
-@media only screen and (min-width : 768px) and (max-width : 991px) {
-
-    // Main Content
-    .main-content {
-        padding: {
-            left: 25px;
-            right: 25px;
-        };
-        &.active, &.hide-sidebar {
-            padding-left: 25px;
-        }
-        &.right-sidebar {
-            padding-right: 25px;
-            
-            &.active, &.hide-sidebar {
-                padding-right: 25px;
-            }
-        }
-    }
-
-    // RTL
-    ::ng-deep {
-        .rtl-enabled {
-            .main-content {
-                padding-right: 25px;
-    
-                &.active, &.hide-sidebar {
-                    padding: {
-                        left: 25px;
-                        right: 25px;
-                    };
-                }
-                &.right-sidebar {
-                    padding: {
-                        left: 25px;
-                        right: 25px;
-                    };
-                    &.active, &.hide-sidebar {
-                        padding: {
-                            left: 25px;
-                            right: 25px;
-                        };
-                    }
-                }
-            }
-        }
-    }
-
-    // With Navbar
-    .with-navbar {
-        app-sidebar {
-            opacity: 1;
-            visibility: visible;
-        }
-        .main-content {
-            max-width: 100%;
-            padding-top: 95px;
-        }
-    }
-
-}
-
-/* Min width 992px to Max width 1199px */
-@media only screen and (min-width : 992px) and (max-width : 1199px) {
-
-    // Main Content
-    .main-content {
-        padding: {
-            left: 25px;
-            right: 25px;
-        };
-        &.active, &.hide-sidebar {
-            padding-left: 25px;
-        }
-        &.right-sidebar {
-            padding-right: 25px;
-
-            &.active, &.hide-sidebar {
-                padding-right: 25px;
-            }
-        }
-    }
-
-    // RTL
-    ::ng-deep {
-        .rtl-enabled {
-            .main-content {
-                padding-right: 25px;
-                
-                &.active, &.hide-sidebar {
-                    padding: {
-                        left: 25px;
-                        right: 25px;
-                    };
-                }
-                &.right-sidebar {
-                    padding: {
-                        left: 25px;
-                        right: 25px;
-                    };
-                    &.active, &.hide-sidebar {
-                        padding: {
-                            left: 25px;
-                            right: 25px;
-                        };
-                    }
-                }
-            }
-        }
-    }
-
-    // With Navbar
-    .with-navbar {
-        .main-content {
-            max-width: 100%;
-        }
-    }
-
-}
-
-/* Min width 1200px to Max width 1399px */
 @media only screen and (min-width: 1200px) and (max-width: 1399px) {
+  .main-content {
+    padding-left: var(--asaie-sidebar-width-lg);
 
-    // Main Content
-    .main-content {
-        padding-left: 265px;
-        
-        &.active, &.hide-sidebar {
-            padding-left: 125px;
+    &.active,
+    &.hide-sidebar {
+      padding-left: var(--asaie-sidebar-collapsed-width);
+    }
+
+    &.right-sidebar {
+      padding-left: 0;
+      padding-right: var(--asaie-sidebar-width-lg);
+
+      &.active,
+      &.hide-sidebar {
+        padding-left: 0;
+        padding-right: var(--asaie-sidebar-collapsed-width);
+      }
+    }
+  }
+
+  ::ng-deep {
+    .rtl-enabled {
+      .main-content {
+        padding-left: 0;
+        padding-right: var(--asaie-sidebar-width-lg);
+
+        &.active,
+        &.hide-sidebar {
+          padding-left: 0;
+          padding-right: var(--asaie-sidebar-collapsed-width);
         }
+
         &.right-sidebar {
-            padding-right: 265px;
+          padding-left: var(--asaie-sidebar-width-lg);
+          padding-right: 0;
 
-            &.active, &.hide-sidebar {
-                padding: {
-                    right: 125px;
-                    left: 25px;
-                };
-            }
+          &.active,
+          &.hide-sidebar {
+            padding-left: var(--asaie-sidebar-collapsed-width);
+            padding-right: 0;
+          }
         }
+      }
     }
-
-    // RTL
-    ::ng-deep {
-        .rtl-enabled {
-            .main-content {
-                padding: {
-                    left: 25px;
-                    right: 265px;
-                };
-                &.active, &.hide-sidebar {
-                    padding: {
-                        left: 25px;
-                        right: 125px;
-                    };
-                }
-                &.right-sidebar {
-                    padding: {
-                        left: 265px;
-                        right: 25px;
-                    };
-                    &.active, &.hide-sidebar {
-                        padding: {
-                            left: 125px;
-                            right: 25px;
-                        };
-                    }
-                }
-            }
-        }
-    }
-
-    // With Navbar
-    .with-navbar {
-        .main-content {
-            max-width: 100%;
-        }
-    }
-
+  }
 }
 
-/* Min width 1600px */
 @media only screen and (min-width: 1600px) {
-
-    // With Navbar
-    .with-navbar {
-        .main-content {
-            max-width: 1595px;
-        }
+  .with-navbar {
+    .main-content {
+      max-width: 1595px;
     }
-
+  }
 }

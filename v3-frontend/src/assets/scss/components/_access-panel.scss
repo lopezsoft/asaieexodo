@@ -1,0 +1,615 @@
+// =============================================================================
+// ASAIE EXODO V3 - Panel de Accesos Multi-Institucion y Multi-Rol
+// Utiliza exclusivamente tokens $access-* / $shell-* definidos en _variables.scss.
+// =============================================================================
+
+@keyframes accessPanelFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes accessCardRise {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes accessShimmer {
+  0% {
+    background-position: -240px 0;
+  }
+  100% {
+    background-position: calc(240px + 100%) 0;
+  }
+}
+
+.access-panel {
+  --access-surface: #{$shell-surface-light};
+  --access-border: #{rgba($shell-backdrop-color, 0.05)};
+  --access-shadow: 0 2px 14px -4px #{rgba($shell-backdrop-color, 0.06)},
+    0 1px 3px #{rgba($shell-backdrop-color, 0.04)};
+  --access-shadow-hover: 0 12px 28px -10px #{rgba($access-brand-blue, 0.18)},
+    0 2px 8px -2px #{rgba($shell-backdrop-color, 0.06)};
+  --access-school-color: #{$access-card-school-light};
+  --access-muted: #{$shell-text-muted-light};
+  --access-brand: #{$access-brand-blue};
+  --access-brand-accent: #{$access-brand-blue-hover};
+  --access-search-bg: #{$access-search-bg-light};
+  --access-search-border: #{$access-search-border-light};
+  --access-chip-bg: #{$access-chip-bg-light};
+  --access-icon-tint: #{rgba($access-brand-blue, 0.08)};
+
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+}
+
+.access-search-card {
+  background-color: var(--access-surface);
+  border: 1px solid var(--access-border);
+  border-radius: 14px;
+  padding: 1rem 1.25rem;
+  box-shadow: var(--access-shadow);
+  animation: accessPanelFadeIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.access-search-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  .access-search-icon {
+    position: absolute;
+    left: 1rem;
+    font-size: 1.18rem;
+    color: var(--access-muted);
+    pointer-events: none;
+    transition: color 0.2s ease;
+  }
+
+  .access-search-input {
+    width: 100%;
+    height: 42px;
+    padding: 0.5rem 2.75rem 0.5rem 2.8rem;
+    border-radius: 999px;
+    border: 1px solid var(--access-search-border);
+    background-color: var(--access-search-bg);
+    color: var(--access-school-color);
+    font-size: 0.875rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+
+    &::placeholder {
+      color: var(--access-muted);
+    }
+
+    &:focus {
+      outline: none;
+      border-color: var(--access-brand-accent);
+      background-color: var(--access-surface);
+      box-shadow: 0 0 0 3px #{rgba($access-brand-blue-hover, 0.14)};
+
+      & + .access-search-clear,
+      & ~ .access-search-icon {
+        color: var(--access-brand);
+      }
+    }
+  }
+
+  &:focus-within .access-search-icon {
+    color: var(--access-brand);
+  }
+
+  .access-search-clear {
+    position: absolute;
+    right: 0.45rem;
+    width: 30px;
+    height: 30px;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--access-muted);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease, color 0.2s ease;
+
+    i {
+      font-size: 1.1rem;
+    }
+
+    &:hover {
+      background-color: var(--access-chip-bg);
+      color: var(--access-school-color);
+    }
+  }
+}
+
+.access-grid-section-label {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  margin-bottom: 0.9rem;
+
+  .access-section-heading {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--access-school-color);
+
+    i {
+      font-size: 1.05rem;
+      color: var(--access-brand);
+    }
+  }
+
+  .access-section-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.18rem 0.62rem;
+    border-radius: 999px;
+    background-color: var(--access-surface);
+    border: 1px solid var(--access-border);
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--access-brand);
+  }
+}
+
+.access-role-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem 1rem;
+  margin-top: 0.85rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--access-border);
+}
+
+.access-filter-pills {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.access-filter-pill {
+  appearance: none;
+  border: 1px solid transparent;
+  background-color: var(--access-chip-bg);
+  color: var(--access-muted);
+  border-radius: 999px;
+  padding: 0.32rem 0.8rem;
+  font-size: 0.76rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: all 0.2s ease;
+
+  .pill-count {
+    font-size: 0.7rem;
+    padding: 0.05rem 0.42rem;
+    border-radius: 999px;
+    background-color: #{rgba($shell-backdrop-color, 0.08)};
+    color: inherit;
+  }
+
+  &:hover {
+    color: var(--access-brand);
+    background-color: #{rgba($access-brand-blue, 0.1)};
+  }
+
+  &.is-selected {
+    background-color: var(--access-brand);
+    color: #{$shell-surface-light};
+    box-shadow: 0 4px 12px -4px #{rgba($access-brand-blue, 0.48)};
+
+    .pill-count {
+      background-color: #{rgba($shell-surface-light, 0.22)};
+    }
+  }
+}
+
+.access-results-meta {
+  font-size: 0.76rem;
+  color: var(--access-muted);
+  white-space: nowrap;
+}
+
+.access-school-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 0.95rem;
+}
+
+.access-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.9rem;
+
+  @media (max-width: 1199.98px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @media (max-width: 767.98px) {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.75rem;
+  }
+}
+
+.access-module-card {
+  appearance: none;
+  position: relative;
+  width: 100%;
+  min-height: 82px;
+  padding: 0.95rem 1.15rem;
+  border-radius: 12px;
+  border: 1px solid var(--access-border);
+  background-color: var(--access-surface);
+  box-shadow: var(--access-shadow);
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 0.95rem;
+  overflow: hidden;
+  transition:
+    transform 0.24s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.24s ease,
+    border-color 0.24s ease,
+    background-color 0.24s ease;
+  animation: accessCardRise 0.38s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(var(--card-delay, 0) * 32ms);
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 16%;
+    bottom: 16%;
+    width: 3px;
+    border-radius: 0 3px 3px 0;
+    background-color: var(--access-brand);
+    opacity: 0;
+    transform: scaleY(0.5);
+    transition: opacity 0.22s ease, transform 0.22s ease;
+  }
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    border-color: #{rgba($access-brand-blue, 0.16)};
+    box-shadow: var(--access-shadow-hover);
+
+    &::before {
+      opacity: 1;
+      transform: scaleY(1);
+    }
+
+    .access-card-icon {
+      transform: scale(1.06);
+      background-color: #{rgba($access-brand-blue, 0.12)};
+    }
+
+    .access-card-arrow {
+      opacity: 1;
+      transform: translateX(3px);
+      color: var(--access-brand);
+    }
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px #{rgba($access-brand-blue-hover, 0.25)}, var(--access-shadow-hover);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  &.is-active-context {
+    border-color: #{rgba($access-brand-blue, 0.22)};
+
+    &::before {
+      opacity: 1;
+      transform: scaleY(1);
+      background-color: var(--access-brand-accent);
+    }
+  }
+
+  &.is-entering {
+    opacity: 0.78;
+    pointer-events: none;
+  }
+}
+
+.access-card-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--access-icon-tint);
+  color: var(--access-brand);
+  font-size: 1.55rem;
+  transition: transform 0.24s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.24s ease;
+
+  &.role-academic {
+    color: #{$access-brand-blue};
+    background-color: #{rgba($access-brand-blue, 0.09)};
+  }
+
+  &.role-teacher {
+    color: #{$access-accent-indigo};
+    background-color: #{rgba($access-accent-indigo, 0.09)};
+  }
+
+  &.role-student {
+    color: #{$access-accent-teal};
+    background-color: #{rgba($access-accent-teal, 0.09)};
+  }
+
+  &.role-family {
+    color: #{$access-accent-amber};
+    background-color: #{rgba($access-accent-amber, 0.1)};
+  }
+}
+
+.access-card-content {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.22rem;
+}
+
+.access-card-school-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.access-card-school {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  line-height: 1.32;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  color: var(--access-school-color);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-word;
+}
+
+.access-active-badge {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  background-color: #{rgba($access-active-green, 0.12)};
+  color: #{$access-active-green};
+
+  .active-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: #{$access-active-green};
+  }
+}
+
+.access-card-module {
+  font-size: 0.74rem;
+  line-height: 1.35;
+  text-transform: uppercase;
+  color: var(--access-muted);
+
+  strong {
+    font-weight: 700;
+    color: var(--access-brand);
+  }
+}
+
+.access-card-meta {
+  font-size: 0.7rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  color: var(--access-muted);
+  opacity: 0.85;
+}
+
+.access-card-trailing {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.access-card-arrow {
+  font-size: 1.2rem;
+  color: var(--access-muted);
+  opacity: 0.35;
+  transition: opacity 0.22s ease, transform 0.22s ease, color 0.22s ease;
+}
+
+.access-card-spinner {
+  width: 1.05rem;
+  height: 1.05rem;
+  color: var(--access-brand);
+}
+
+.access-empty-card {
+  background-color: var(--access-surface);
+  border: 1px solid var(--access-border);
+  border-radius: 12px;
+  padding: 2.75rem 1.5rem;
+  box-shadow: var(--access-shadow);
+  text-align: center;
+  animation: accessPanelFadeIn 0.3s ease both;
+
+  .access-empty-icon {
+    width: 58px;
+    height: 58px;
+    margin: 0 auto 0.9rem;
+    border-radius: 16px;
+    background-color: var(--access-chip-bg);
+    color: var(--access-brand);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    i {
+      font-size: 1.8rem;
+    }
+  }
+
+  h6 {
+    margin: 0 0 0.35rem;
+    font-size: 0.98rem;
+    font-weight: 700;
+    color: var(--access-school-color);
+  }
+
+  p {
+    margin: 0 auto 1rem;
+    max-width: 440px;
+    font-size: 0.85rem;
+    color: var(--access-muted);
+  }
+}
+
+.access-skeleton-card {
+  height: 84px;
+  border-radius: 10px;
+  background-color: var(--access-surface);
+  border: 1px solid var(--access-border);
+  padding: 0.95rem 1.15rem;
+  display: flex;
+  align-items: center;
+  gap: 0.95rem;
+  box-shadow: var(--access-shadow);
+
+  .skeleton-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    flex-shrink: 0;
+  }
+
+  .skeleton-lines {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+  }
+
+  .skeleton-line {
+    height: 12px;
+    border-radius: 6px;
+
+    &.w-80 {
+      width: 80%;
+    }
+
+    &.w-55 {
+      width: 55%;
+      height: 10px;
+    }
+  }
+
+  .skeleton-icon,
+  .skeleton-line {
+    background: linear-gradient(
+      90deg,
+      #{rgba($shell-backdrop-color, 0.06)} 25%,
+      #{rgba($shell-backdrop-color, 0.12)} 50%,
+      #{rgba($shell-backdrop-color, 0.06)} 75%
+    );
+    background-size: 240px 100%;
+    animation: accessShimmer 1.35s infinite linear;
+  }
+}
+
+body.dark-theme .access-panel {
+  --access-surface: #{$access-card-surface-dark};
+  --access-border: #{$shell-border-dark};
+  --access-shadow: 0 4px 18px -6px #{rgba($shell-backdrop-color, 0.6)};
+  --access-shadow-hover: 0 14px 30px -10px #{rgba($shell-backdrop-color, 0.85)};
+  --access-school-color: #{$access-card-school-dark};
+  --access-muted: #{$shell-text-muted-dark};
+  --access-brand: #{$access-brand-blue-dark};
+  --access-brand-accent: #{$access-brand-blue-dark};
+  --access-search-bg: #{$access-search-bg-dark};
+  --access-search-border: #{$access-search-border-dark};
+  --access-chip-bg: #{$access-chip-bg-dark};
+  --access-icon-tint: #{rgba($access-brand-blue-dark, 0.14)};
+
+  .access-filter-pill.is-selected {
+    color: #{$shell-canvas-bg-dark};
+  }
+
+  .access-card-icon {
+    &.role-academic {
+      color: #{$access-brand-blue-dark};
+      background-color: #{rgba($access-brand-blue-dark, 0.14)};
+    }
+  }
+
+  .access-skeleton-card {
+    .skeleton-icon,
+    .skeleton-line {
+      background: linear-gradient(
+        90deg,
+        #{rgba($shell-surface-light, 0.05)} 25%,
+        #{rgba($shell-surface-light, 0.11)} 50%,
+        #{rgba($shell-surface-light, 0.05)} 75%
+      );
+      background-size: 240px 100%;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .access-search-card,
+  .access-module-card,
+  .access-empty-card {
+    animation: none !important;
+  }
+
+  .access-module-card,
+  .access-card-icon,
+  .access-card-arrow,
+  .access-search-input {
+    transition: none !important;
+  }
+
+  .access-skeleton-card {
+    .skeleton-icon,
+    .skeleton-line {
+      animation: none !important;
+    }
+  }
+}

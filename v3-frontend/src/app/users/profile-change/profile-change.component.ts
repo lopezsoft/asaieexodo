@@ -1,5 +1,4 @@
-import { UpperCasePipe } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { finalize } from 'rxjs';
@@ -13,18 +12,19 @@ import { markAllAsTouched } from '../../utils/form-validators';
 @Component({
   selector: 'app-profile-change',
   standalone: true,
-  imports: [UpperCasePipe, FooterFormComponent, ...SHARED_IMPORTS],
+  imports: [FooterFormComponent, ...SHARED_IMPORTS],
   templateUrl: './profile-change.component.html',
   styleUrls: ['./profile-change.component.scss'],
 })
 export class ProfileChangeComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
-  private readonly v3Auth = inject(V3UnifiedAuthService);
+  protected readonly v3Auth = inject(V3UnifiedAuthService);
   private readonly maskService = inject(LoadMaskService);
   private readonly messages = inject(MessagesService);
 
   readonly changeForm: FormGroup;
+  readonly showCurrentPassword = signal(false);
 
   constructor() {
     this.changeForm = this.fb.group({

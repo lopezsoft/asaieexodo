@@ -1,66 +1,94 @@
-<div class="container-fluid py-3">
-  <!-- Encabezado de bienvenida y estado institucional -->
-  <div class="trezo-card bg-white border-radius p-4 mb-4 shadow-sm">
-    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
-      <div>
-        <h4 class="mb-1 fw-bold">
-          Bienvenido(a), {{ v3Auth.user()?.fullName || 'Usuario' }}
+<div>
+  <!-- Banner ejecutivo de bienvenida y estado institucional -->
+  <section class="v3-hero-banner mb-4" aria-label="Resumen institucional">
+    <div class="v3-hero-inner">
+      <div class="v3-hero-copy">
+        <span class="v3-hero-eyebrow">
+          <i class="material-symbols-outlined" aria-hidden="true">school</i>
+          <span>Resumen institucional &middot; Año lectivo {{ v3Auth.academicYear() }}</span>
+        </span>
+
+        <h4 class="v3-hero-title">
+          Bienvenido(a), {{ v3Auth.user()?.firstName || v3Auth.user()?.fullName || 'Usuario' }}
         </h4>
-        <p class="mb-0 text-muted">
-          Institución activa:
-          <strong class="text-dark">{{ v3Auth.activeSchoolName() }}</strong>
-          · Rol:
-          <span class="badge text-bg-primary">{{ v3Auth.activeRoleLabel() }}</span>
-          · Año lectivo:
-          <span class="badge text-bg-secondary">{{ v3Auth.academicYear() }}</span>
+
+        <p class="v3-hero-subtitle">
+          {{ v3Auth.activeSchoolName() }}
         </p>
+
+        <div class="v3-hero-meta-row mt-1">
+          <span class="v3-hero-glass-pill">
+            <i class="material-symbols-outlined" aria-hidden="true">badge</i>
+            <span>{{ v3Auth.activeRoleLabel() }}</span>
+          </span>
+
+          @if (statistics(); as stats) {
+            <span
+              class="v3-hero-glass-pill"
+              [ngClass]="stats.schoolSummary.isActive ? 'is-success' : 'is-danger'"
+              [appCustomTooltip]="'Vigencia de la suscripción institucional'"
+            >
+              <i class="material-symbols-outlined" aria-hidden="true">verified</i>
+              <span>
+                @if (stats.schoolSummary.isActive) {
+                  Cuenta activa hasta {{ stats.schoolSummary.subscriptionLockDate }}
+                } @else {
+                  Cuenta inactiva
+                }
+              </span>
+            </span>
+          }
+        </div>
       </div>
 
-      <div class="d-flex flex-wrap align-items-center gap-2">
+      <div class="v3-hero-actions">
         @if (statistics(); as stats) {
-          <span
-            class="badge rounded-pill px-3 py-2"
-            [ngClass]="stats.schoolSummary.isActive ? 'text-bg-success' : 'text-bg-danger'"
-            [appCustomTooltip]="'Vigencia de la suscripción institucional'"
-          >
-            <i class="material-symbols-outlined align-middle fs-6 me-1">verified</i>
-            @if (stats.schoolSummary.isActive) {
-              Cuenta activa hasta {{ stats.schoolSummary.subscriptionLockDate }}
-            } @else {
-              Cuenta inactiva
-            }
-          </span>
           <a
             routerLink="/admin"
-            class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1"
+            class="v3-hero-glass-btn is-primary"
             [appCustomTooltip]="'Ir al panel administrativo de la institución'"
           >
-            <i class="material-symbols-outlined fs-6">apartment</i>
+            <i class="material-symbols-outlined" aria-hidden="true">apartment</i>
             <span>Administrativo</span>
           </a>
         } @else {
           <a
             [routerLink]="v3Auth.defaultHomeRoute()"
-            class="btn btn-sm btn-primary d-inline-flex align-items-center gap-1"
+            class="v3-hero-glass-btn is-primary"
             [appCustomTooltip]="'Abrir el portal principal de su rol activo'"
           >
-            <i class="material-symbols-outlined fs-6">open_in_new</i>
+            <i class="material-symbols-outlined" aria-hidden="true">open_in_new</i>
             <span>Ir a mi Portal ({{ v3Auth.activeRoleLabel() }})</span>
           </a>
         }
+
         @if (v3Auth.hasMultipleMemberships()) {
           <a
             routerLink="/access-panel"
-            class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1"
+            class="v3-hero-glass-btn"
             [appCustomTooltip]="'Abrir el Panel de Accesos para buscar y cambiar de institución o rol'"
           >
-            <i class="material-symbols-outlined fs-6">apps</i>
+            <i class="material-symbols-outlined" aria-hidden="true">apps</i>
             <span>Panel de Accesos</span>
           </a>
         }
       </div>
     </div>
-  </div>
+
+    <svg
+      class="v3-hero-wave"
+      viewBox="0 0 220 76"
+      fill="none"
+      aria-hidden="true"
+    >
+      <path
+        d="M6 68H54C74 68 82 22 106 22C130 22 138 68 158 68H214"
+        stroke="currentColor"
+        stroke-width="2.2"
+        stroke-linecap="round"
+      />
+    </svg>
+  </section>
 
   <!-- Dashboard Ejecutivo (migrado desde ExtJS home/Dashboard.js + charts/) -->
   @if (canViewExecutiveDashboard()) {
@@ -73,110 +101,160 @@
       </div>
     } @else {
       @if (statistics(); as stats) {
-      <div class="row g-3 mb-4">
-        <div class="col-sm-6 col-xl-4">
-          <div class="v3-kpi-card p-4 h-100 d-flex align-items-center justify-content-between">
-            <div>
-              <span class="text-muted small text-uppercase fw-semibold d-block mb-1">
-                Estudiantes Matriculados ({{ stats.academicYear }})
-              </span>
-              <h2 class="mb-0 fw-bold">{{ stats.kpis.registeredStudents }}</h2>
-            </div>
-            <span class="v3-kpi-icon kpi-primary">
-              <i class="material-symbols-outlined">school</i>
-            </span>
-          </div>
-        </div>
-
-        <div class="col-sm-6 col-xl-4">
-          <div class="v3-kpi-card p-4 h-100 d-flex align-items-center justify-content-between">
-            <div>
-              <span class="text-muted small text-uppercase fw-semibold d-block mb-1">
-                Estudiantes Retirados ({{ stats.academicYear }})
-              </span>
-              <h2 class="mb-0 fw-bold">{{ stats.kpis.retiredStudents }}</h2>
-            </div>
-            <span class="v3-kpi-icon kpi-danger">
-              <i class="material-symbols-outlined">person_off</i>
-            </span>
-          </div>
-        </div>
-
-        <div class="col-sm-6 col-xl-4">
-          <div class="v3-kpi-card p-4 h-100 d-flex align-items-center justify-content-between">
-            <div>
-              <span class="text-muted small text-uppercase fw-semibold d-block mb-1">
-                Docentes Activos
-              </span>
-              <h2 class="mb-0 fw-bold">{{ stats.kpis.activeTeachers }}</h2>
-              <small class="text-muted">
-                {{ stats.kpis.totalCampuses }} sede(s) · {{ stats.kpis.totalGroups }} grupo(s) · {{ stats.kpis.activeStaff }} admin.
-              </small>
-            </div>
-            <span class="v3-kpi-icon kpi-secondary">
-              <i class="material-symbols-outlined">cast_for_education</i>
-            </span>
-          </div>
-        </div>
-      </div>
-
-      @if (isBrowser) {
         <div class="row g-3 mb-4">
-          <div class="col-lg-4">
-            <div class="trezo-card bg-white border-radius p-4 h-100 shadow-sm">
-              <h6 class="fw-semibold mb-3">Matriculados por año</h6>
-              <apx-chart
-                [series]="registeredChart().series"
-                [chart]="registeredChart().chart"
-                [xaxis]="registeredChart().xaxis"
-                [plotOptions]="registeredChart().plotOptions"
-                [dataLabels]="registeredChart().dataLabels"
-                [colors]="registeredChart().colors"
-              />
-            </div>
+          <div class="col-sm-6 col-xl-3">
+            <article class="v3-kpi-metric-card">
+              <div>
+                <div class="v3-kpi-metric-top">
+                  <span class="v3-kpi-icon kpi-primary">
+                    <i class="material-symbols-outlined" aria-hidden="true">school</i>
+                  </span>
+                  <span class="v3-kpi-metric-tag">Año {{ stats.academicYear }}</span>
+                </div>
+                <h2 class="v3-kpi-metric-value">{{ stats.kpis.registeredStudents }}</h2>
+                <p class="v3-kpi-metric-label">Estudiantes Matriculados</p>
+              </div>
+              <div class="v3-kpi-metric-footer">
+                <span>Matrícula vigente</span>
+                <strong>{{ stats.kpis.totalCampuses }} sede(s)</strong>
+              </div>
+            </article>
           </div>
 
-          <div class="col-lg-4">
-            <div class="trezo-card bg-white border-radius p-4 h-100 shadow-sm">
-              <h6 class="fw-semibold mb-3">Retirados por año</h6>
-              <apx-chart
-                [series]="retiredChart().series"
-                [chart]="retiredChart().chart"
-                [xaxis]="retiredChart().xaxis"
-                [plotOptions]="retiredChart().plotOptions"
-                [dataLabels]="retiredChart().dataLabels"
-                [colors]="retiredChart().colors"
-              />
-            </div>
+          <div class="col-sm-6 col-xl-3">
+            <article class="v3-kpi-metric-card">
+              <div>
+                <div class="v3-kpi-metric-top">
+                  <span class="v3-kpi-icon kpi-danger">
+                    <i class="material-symbols-outlined" aria-hidden="true">person_off</i>
+                  </span>
+                  <span class="v3-kpi-metric-tag">Año {{ stats.academicYear }}</span>
+                </div>
+                <h2 class="v3-kpi-metric-value">{{ stats.kpis.retiredStudents }}</h2>
+                <p class="v3-kpi-metric-label">Estudiantes Retirados</p>
+              </div>
+              <div class="v3-kpi-metric-footer">
+                <span>Novedades de retiro</span>
+                <strong>Ciclo activo</strong>
+              </div>
+            </article>
           </div>
 
-          <div class="col-lg-4">
-            <div class="trezo-card bg-white border-radius p-4 h-100 shadow-sm">
-              <h6 class="fw-semibold mb-3">Docentes con carga por año</h6>
-              <apx-chart
-                [series]="teachersChart().series"
-                [chart]="teachersChart().chart"
-                [xaxis]="teachersChart().xaxis"
-                [plotOptions]="teachersChart().plotOptions"
-                [dataLabels]="teachersChart().dataLabels"
-                [colors]="teachersChart().colors"
-              />
-            </div>
+          <div class="col-sm-6 col-xl-3">
+            <article class="v3-kpi-metric-card">
+              <div>
+                <div class="v3-kpi-metric-top">
+                  <span class="v3-kpi-icon kpi-secondary">
+                    <i class="material-symbols-outlined" aria-hidden="true">cast_for_education</i>
+                  </span>
+                  <span class="v3-kpi-metric-tag">Planta docente</span>
+                </div>
+                <h2 class="v3-kpi-metric-value">{{ stats.kpis.activeTeachers }}</h2>
+                <p class="v3-kpi-metric-label">Docentes Activos</p>
+              </div>
+              <div class="v3-kpi-metric-footer">
+                <span>Personal admin.</span>
+                <strong>{{ stats.kpis.activeStaff }}</strong>
+              </div>
+            </article>
+          </div>
+
+          <div class="col-sm-6 col-xl-3">
+            <article class="v3-kpi-metric-card">
+              <div>
+                <div class="v3-kpi-metric-top">
+                  <span class="v3-kpi-icon kpi-info">
+                    <i class="material-symbols-outlined" aria-hidden="true">groups</i>
+                  </span>
+                  <span class="v3-kpi-metric-tag">Estructura</span>
+                </div>
+                <h2 class="v3-kpi-metric-value">{{ stats.kpis.totalGroups }}</h2>
+                <p class="v3-kpi-metric-label">Grupos Activos</p>
+              </div>
+              <div class="v3-kpi-metric-footer">
+                <span>Sedes educativas</span>
+                <strong>{{ stats.kpis.totalCampuses }}</strong>
+              </div>
+            </article>
           </div>
         </div>
-      }
+
+        @if (isBrowser) {
+          <section class="v3-section-tint mb-4" aria-label="Histórico institucional">
+            <div class="v3-section-tint-header">
+              <div class="v3-section-tint-title-group">
+                <span class="v3-kpi-icon kpi-primary v3-kpi-icon--sm">
+                  <i class="material-symbols-outlined" aria-hidden="true">bar_chart</i>
+                </span>
+                <div>
+                  <h6>Histórico institucional</h6>
+                  <small>Evolución anual de matrícula, retiros y planta docente</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="row g-3">
+              <div class="col-lg-4">
+                <div class="trezo-card bg-white border-radius p-4 h-100 shadow-sm">
+                  <h6 class="fw-semibold mb-3">Matriculados por año</h6>
+                  <apx-chart
+                    [series]="registeredChart().series"
+                    [chart]="registeredChart().chart"
+                    [xaxis]="registeredChart().xaxis"
+                    [plotOptions]="registeredChart().plotOptions"
+                    [dataLabels]="registeredChart().dataLabels"
+                    [colors]="registeredChart().colors"
+                  />
+                </div>
+              </div>
+
+              <div class="col-lg-4">
+                <div class="trezo-card bg-white border-radius p-4 h-100 shadow-sm">
+                  <h6 class="fw-semibold mb-3">Retirados por año</h6>
+                  <apx-chart
+                    [series]="retiredChart().series"
+                    [chart]="retiredChart().chart"
+                    [xaxis]="retiredChart().xaxis"
+                    [plotOptions]="retiredChart().plotOptions"
+                    [dataLabels]="retiredChart().dataLabels"
+                    [colors]="retiredChart().colors"
+                  />
+                </div>
+              </div>
+
+              <div class="col-lg-4">
+                <div class="trezo-card bg-white border-radius p-4 h-100 shadow-sm">
+                  <h6 class="fw-semibold mb-3">Docentes con carga por año</h6>
+                  <apx-chart
+                    [series]="teachersChart().series"
+                    [chart]="teachersChart().chart"
+                    [xaxis]="teachersChart().xaxis"
+                    [plotOptions]="teachersChart().plotOptions"
+                    [dataLabels]="teachersChart().dataLabels"
+                    [colors]="teachersChart().colors"
+                  />
+                </div>
+              </div>
+            </div>
+          </section>
+        }
       }
     }
   }
 
   <!-- Selector de contexto Multi-Colegio / Multi-Rol -->
-  <div class="trezo-card bg-white border-radius p-4 shadow-sm">
-    <div class="d-flex align-items-center justify-content-between mb-3">
-      <div>
-        <h5 class="mb-0 fw-semibold">Mis Instituciones y Roles</h5>
-        <small class="text-muted">
-          Cambia instantáneamente de institución o perfil con firma JWT y aislamiento RLS en PostgreSQL 17.
-        </small>
+  <section class="v3-section-tint" aria-label="Mis Instituciones y Roles">
+    <div class="v3-section-tint-header">
+      <div class="v3-section-tint-title-group">
+        <span class="v3-kpi-icon kpi-primary v3-kpi-icon--sm">
+          <i class="material-symbols-outlined" aria-hidden="true">domain</i>
+        </span>
+        <div>
+          <h5>Mis Instituciones y Roles</h5>
+          <small>
+            Cambia instantáneamente de institución o perfil con firma JWT y aislamiento RLS en PostgreSQL 17.
+          </small>
+        </div>
       </div>
     </div>
 
@@ -184,37 +262,49 @@
       @for (membership of v3Auth.memberships(); track membership.schoolId + '-' + membership.role) {
         <div class="col-md-6 col-xl-4">
           <div
-            class="border rounded p-3 h-100 d-flex flex-column justify-content-between"
-            [ngClass]="isActiveContext(membership) ? 'border-primary bg-light' : ''"
+            class="v3-hub-card p-3 h-100 d-flex flex-column justify-content-between"
+            [class.is-active-context]="isActiveContext(membership)"
+            (click)="selectSchoolContext(membership)"
+            [appCustomTooltip]="isActiveContext(membership) ? 'Institución y perfil activo en esta sesión' : 'Cambiar a ' + membership.schoolName + ' (' + getRoleLabel(membership.role) + ')'"
           >
             <div>
-              <div class="d-flex align-items-center justify-content-between gap-2 mb-1">
-                <strong class="text-dark">{{ membership.schoolName }}</strong>
+              <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
+                <div class="d-flex align-items-center gap-2 min-w-0">
+                  <span class="v3-kpi-icon kpi-primary v3-kpi-icon--sm">
+                    <i class="material-symbols-outlined fs-5">apartment</i>
+                  </span>
+                  <div class="min-w-0">
+                    <strong class="text-dark d-block text-truncate small text-uppercase">
+                      {{ membership.schoolName }}
+                    </strong>
+                    <span class="small text-muted d-block">
+                      {{ getRoleLabel(membership.role) }}
+                    </span>
+                  </div>
+                </div>
                 @if (isActiveContext(membership)) {
-                  <span class="badge text-bg-success">Activo</span>
+                  <span class="badge text-bg-success flex-shrink-0">Activo</span>
                 }
               </div>
-              <p class="small text-muted mb-2">
-                Rol: {{ getRoleLabel(membership.role) }}
-                @if (membership.schoolDaneCode) {
-                  · DANE {{ membership.schoolDaneCode }}
-                }
-              </p>
+              @if (membership.schoolDaneCode) {
+                <p class="small text-muted font-monospace mb-2">
+                  DANE {{ membership.schoolDaneCode }}
+                </p>
+              }
             </div>
-            <div>
-              <button
-                type="button"
-                class="btn btn-sm w-100"
-                [ngClass]="isActiveContext(membership) ? 'btn-outline-secondary' : 'btn-primary'"
-                [disabled]="isActiveContext(membership)"
-                (click)="selectSchoolContext(membership)"
-              >
+            <div class="pt-2 border-top d-flex align-items-center justify-content-between small fw-semibold">
+              <span [ngClass]="isActiveContext(membership) ? 'text-success' : 'text-primary'">
                 {{ isActiveContext(membership) ? 'Contexto actual' : 'Ingresar con este rol' }}
-              </button>
+              </span>
+              @if (!isActiveContext(membership)) {
+                <i class="material-symbols-outlined fs-6 text-primary v3-hub-arrow" aria-hidden="true">
+                  arrow_forward
+                </i>
+              }
             </div>
           </div>
         </div>
       }
     </div>
-  </div>
+  </section>
 </div>

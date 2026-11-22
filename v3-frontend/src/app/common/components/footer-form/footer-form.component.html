@@ -1,28 +1,41 @@
-<div class="w-100 mt-3">
-  <div class="d-flex justify-content-end gap-2">
-    <button type="button" class="btn btn-danger" (click)="cancelEvent.emit()" [disabled]="loading">
-      <i class="fas fa-undo"></i>
-      {{ 'buttons.cancel' | transloco }}
-    </button>
+<div class="v3-form-actions w-100 mt-4">
+  <button
+    type="button"
+    class="btn btn-v3-ghost"
+    (click)="cancelEvent.emit()"
+    [disabled]="loading"
+  >
+    <i class="material-symbols-outlined fs-6" aria-hidden="true">close</i>
+    <span>{{ 'buttons.cancel' | transloco }}</span>
+  </button>
 
-    @if (showSaveAndCreate) {
-      <button type="button" class="btn btn-success" (click)="saveAndCreateEvent.emit()" [disabled]="disabled || loading">
-        @if (loading) {
-          <i class="fas fa-spinner fa-spin"></i>
-        } @else {
-          <i class="fas fa-save"></i>
-        }
-        {{ 'buttons.saveAndCreate' | transloco }}
-      </button>
-    }
-
-    <button type="button" class="btn btn-primary" (click)="saveAndCloseEvent.emit()" [disabled]="disabled || loading">
+  @if (showSaveAndCreate) {
+    <button
+      type="button"
+      class="btn btn-success"
+      (click)="saveAndCreateEvent.emit()"
+      [disabled]="disabled || loading"
+    >
       @if (loading) {
-        <i class="fas fa-spinner fa-spin"></i>
+        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
       } @else {
-        <i class="fas fa-save"></i>
+        <i class="material-symbols-outlined fs-6" aria-hidden="true">library_add</i>
       }
-      {{ 'buttons.saveAndClose' | transloco }}
+      <span>{{ 'buttons.saveAndCreate' | transloco }}</span>
     </button>
-  </div>
+  }
+
+  <button
+    type="button"
+    class="btn btn-primary"
+    (click)="saveAndCloseEvent.emit()"
+    [disabled]="disabled || loading"
+  >
+    @if (loading) {
+      <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+    } @else {
+      <i class="material-symbols-outlined fs-6" aria-hidden="true">check_circle</i>
+    }
+    <span>{{ 'buttons.saveAndClose' | transloco }}</span>
+  </button>
 </div>

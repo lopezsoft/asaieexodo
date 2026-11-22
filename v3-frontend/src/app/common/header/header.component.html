@@ -1,7 +1,7 @@
 <div
     [class.card-without-border-radius]="themeService.isCardWithoutBorderRadius()"
     [class.card-with-box-shadow]="themeService.isCardWithBoxShadow()"
-    class="header-area bg-white border-bottom-radius transition"
+    class="header-area transition"
     [ngClass]="{'active': isSidebarToggled, 'sticky': isSticky}"
     [class.component-rtl-enabled]="themeService.isRTLEnabled()"
     [class.right-sidebar]="themeService.isRightSidebar()"
@@ -9,154 +9,204 @@
     [class.card-borderd]="themeService.isCardBordered()"
     [class.dark-header]="themeService.isHeaderDark()"
 >
-    <div class="inner-area d-md-flex align-items-center justify-content-between">
+    <div class="inner-area d-flex align-items-center justify-content-between h-100">
         <div class="header-left-side d-flex align-items-center">
-            <div
-                class="burger-menu transition position-relative lh-1"
+            <button
+                type="button"
+                class="burger-menu d-xl-none border-0 bg-transparent transition position-relative lh-1"
                 [ngClass]="{'active': isSidebarToggled}"
                 (click)="toggle()"
                 [appCustomTooltip]="'Mostrar u ocultar menú lateral'"
+                tooltipPosition="bottom"
             >
                 <i class="material-symbols-outlined">menu</i>
-            </div>
-            <a [routerLink]="v3Auth.hasMultipleMemberships() ? '/access-panel' : v3Auth.defaultHomeRoute()" class="logo">
+            </button>
+
+            <a
+                [routerLink]="v3Auth.hasMultipleMemberships() ? '/access-panel' : v3Auth.defaultHomeRoute()"
+                class="logo d-xl-none"
+            >
                 <img src="assets/images/logo/logo.svg" alt="ASAIE ÉXODO">
             </a>
-            <a [routerLink]="v3Auth.hasMultipleMemberships() ? '/access-panel' : v3Auth.defaultHomeRoute()" class="logo white-logo">
-                <img src="assets/images/logo/logo.svg" alt="ASAIE ÉXODO">
-            </a>
-            @if (isAccessPanelView()) {
-              <span
-                class="v3-school-pill d-none d-lg-inline-block ms-3 text-uppercase"
-                [appCustomTooltip]="'Seleccione la institución educativa y el módulo con el que desea ingresar'"
-              >
-                Panel de Accesos
-              </span>
-            } @else if (v3Auth.activeSchoolName()) {
-              @if (v3Auth.hasMultipleMemberships()) {
-                <a
-                  routerLink="/access-panel"
-                  class="v3-school-pill d-none d-lg-inline-block ms-3 text-decoration-none"
-                  [appCustomTooltip]="'Clic para cambiar de institución o módulo (' + v3Auth.activeRoleLabel() + ')'"
-                >
-                  {{ v3Auth.activeSchoolName() }} · {{ v3Auth.activeRoleLabel() }}
-                </a>
-              } @else {
-                <span
-                  class="v3-school-pill d-none d-lg-inline-block ms-3"
-                  [appCustomTooltip]="'Institución educativa activa: ' + v3Auth.activeSchoolName()"
-                >
-                  {{ v3Auth.activeSchoolName() }}
-                </span>
-              }
-            }
-            @if (v3Auth.isAuthenticated() && !isAccessPanelView()) {
-              <div class="d-flex align-items-center ms-3 gap-1">
-                <label class="small text-muted d-none d-xl-inline mb-0" for="v3-global-year">Año:</label>
-                <select
-                  id="v3-global-year"
-                  class="form-select form-select-sm v3-year-selector"
-                  [ngModel]="v3Auth.academicYear()"
-                  (ngModelChange)="onAcademicYearChange($event)"
-                  [appCustomTooltip]="'Cambiar año lectivo de trabajo'"
-                >
-                  @for (yr of availableAcademicYears(); track yr) {
-                    <option [ngValue]="yr">{{ yr }}</option>
-                  }
-                </select>
-              </div>
+
+            @if (!isAccessPanelView()) {
+                @if (v3Auth.activeSchoolName()) {
+                    @if (v3Auth.hasMultipleMemberships()) {
+                        <a
+                            routerLink="/access-panel"
+                            class="v3-school-pill d-none d-lg-inline-block text-decoration-none"
+                            [appCustomTooltip]="'Clic para cambiar de institución o módulo (' + v3Auth.activeRoleLabel() + ')'"
+                        >
+                            {{ v3Auth.activeSchoolName() }} · {{ v3Auth.activeRoleLabel() }}
+                        </a>
+                    } @else {
+                        <span
+                            class="v3-school-pill d-none d-lg-inline-block"
+                            [appCustomTooltip]="'Institución educativa activa: ' + v3Auth.activeSchoolName()"
+                        >
+                            {{ v3Auth.activeSchoolName() }}
+                        </span>
+                    }
+                }
+
+                @if (v3Auth.isAuthenticated()) {
+                    <div class="d-flex align-items-center ms-2 ms-lg-3 gap-1">
+                        <label class="small text-muted d-none d-xl-inline mb-0" for="v3-global-year">
+                            Año:
+                        </label>
+                        <select
+                            id="v3-global-year"
+                            class="form-select form-select-sm v3-year-selector"
+                            [ngModel]="v3Auth.academicYear()"
+                            (ngModelChange)="onAcademicYearChange($event)"
+                            [appCustomTooltip]="'Cambiar año lectivo de trabajo'"
+                        >
+                            @for (yr of availableAcademicYears(); track yr) {
+                                <option [ngValue]="yr">{{ yr }}</option>
+                            }
+                        </select>
+                    </div>
+                }
             }
         </div>
+
         <ul class="header-right-side d-flex align-items-center m-0 p-0 list-unstyled">
-            <li class="position-relative">
-                <button
-                    type="button"
-                    (click)="toggleTheme()"
-                    [appCustomTooltip]="themeService.isDark() ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'"
-                    class="dark-swtich-btn bg-transparent d-inline-block p-0 border-0 lh-1 position-relative"
-                >
-                    <i class="material-symbols-outlined">light_mode</i>
-                </button>
-            </li>
-            <li class="position-relative language-menu">
-                <button
-                    type="button"
-                    (click)="toggleLanguageDropdown()"
-                    [appCustomTooltip]="'Cambiar idioma'"
-                    class="language-menu-btn lh-1 transition bg-transparent border-0 d-inline-block position-relative"
-                >
-                    <i class="material-symbols-outlined">translate</i>
-                </button>
-                @if(isLanguageDropdownOpen) {
-                <div class="language-menu-dropdown bg-white border-radius">
-                    <span class="title fw-semibold text-black d-block">
-                        {{ 'languages.title' | transloco }}
-                    </span>
-                    <ul class="menu-body p-0 mb-0 mt-0 list-unstyled">
-                        <li>
-                            <button
-                                type="button"
-                                (click)="changeLanguage('es')"
-                                class="d-block w-100 bg-transparent fw-medium border-0 text-start">
-                                <div class="d-flex align-items-center">
-                                    <img src="assets/images/flags/spain.svg" alt="Español">
-                                    {{ 'languages.es' | transloco }}
-                                </div>
-                            </button>
-                        </li>
-                        <li>
-                            <button
-                                type="button"
-                                (click)="changeLanguage('en')"
-                                class="d-block w-100 bg-transparent fw-medium border-0 text-start">
-                                <div class="d-flex align-items-center">
-                                    <img src="assets/images/flags/usa.svg" alt="English">
-                                    {{ 'languages.en' | transloco }}
-                                </div>
-                            </button>
-                        </li>
-                    </ul>
+            <li class="header-utility-group">
+                <div class="v3-header-utility-pill">
+                    <button
+                        type="button"
+                        (click)="toggleTheme()"
+                        [appCustomTooltip]="themeService.isDark() ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'"
+                        tooltipPosition="bottom"
+                        class="header-action-btn dark-swtich-btn bg-transparent border-0 lh-1 position-relative"
+                    >
+                        <i class="material-symbols-outlined">
+                            {{ themeService.isDark() ? 'light_mode' : 'dark_mode' }}
+                        </i>
+                    </button>
+
+                    <div class="position-relative language-menu">
+                        <button
+                            type="button"
+                            (click)="toggleLanguageDropdown()"
+                            [appCustomTooltip]="'Cambiar idioma'"
+                            tooltipPosition="bottom"
+                            class="header-action-btn language-menu-btn lh-1 transition bg-transparent border-0 position-relative"
+                        >
+                            <i class="material-symbols-outlined">translate</i>
+                        </button>
+                        @if (isLanguageDropdownOpen) {
+                            <div class="language-menu-dropdown border-radius">
+                                <span class="title fw-semibold d-block">
+                                    {{ 'languages.title' | transloco }}
+                                </span>
+                                <ul class="menu-body p-0 mb-0 mt-0 list-unstyled">
+                                    <li>
+                                        <button
+                                            type="button"
+                                            (click)="changeLanguage('es')"
+                                            class="d-block w-100 bg-transparent fw-medium border-0 text-start"
+                                        >
+                                            <div class="d-flex align-items-center">
+                                                <img src="assets/images/flags/spain.svg" alt="Español">
+                                                {{ 'languages.es' | transloco }}
+                                            </div>
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button
+                                            type="button"
+                                            (click)="changeLanguage('en')"
+                                            class="d-block w-100 bg-transparent fw-medium border-0 text-start"
+                                        >
+                                            <div class="d-flex align-items-center">
+                                                <img src="assets/images/flags/usa.svg" alt="English">
+                                                {{ 'languages.en' | transloco }}
+                                            </div>
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="d-none d-md-inline-flex">
+                        <button
+                            type="button"
+                            (click)="toggleFullscreen()"
+                            [appCustomTooltip]="isFullscreen ? 'Salir de pantalla completa' : 'Pantalla completa'"
+                            tooltipPosition="bottom"
+                            class="header-action-btn fullscreen-btn bg-transparent transition border-0 position-relative lh-1"
+                        >
+                            <i class="material-symbols-outlined">
+                                {{ isFullscreen ? 'fullscreen_exit' : 'fullscreen' }}
+                            </i>
+                        </button>
+                    </div>
                 </div>
-                }
             </li>
-            <li class="position-relative">
-                <button
-                    type="button"
-                    (click)="toggleFullscreen()"
-                    [appCustomTooltip]="isFullscreen ? 'Salir de pantalla completa' : 'Pantalla completa'"
-                    class="fullscreen-btn bg-transparent transition p-0 border-0 d-inline-block position-relative lh-1"
-                >
-                    <i class="material-symbols-outlined">
-                        {{ isFullscreen ? 'fullscreen_exit' : 'fullscreen' }}
-                    </i>
-                </button>
-            </li>
+
+            <li class="header-divider d-none d-sm-block" aria-hidden="true"></li>
+
             <li class="position-relative profile-menu">
                 <button
                     type="button"
                     (click)="toggleProfileDropdown()"
+                    [appCustomTooltip]="'Opciones de cuenta y sesión'"
+                    tooltipPosition="bottom"
                     class="profile-menu-btn border-0 bg-transparent position-relative"
                 >
-                    <img [ngSrc]="getCurrentUserAvatar()" class="rounded-circle"
-                         width="40" height="40"
-                         (error)="image.src = fallbackAvatarUrl" #image
-                         alt="Avatar de usuario">
-                    <span class="fw-semibold text-black">
-                        {{ v3Auth.user()?.firstName || 'Usuario' }}
-                    </span>
+                    <div class="user-text-stack d-none d-sm-flex flex-column text-end">
+                        <span class="user-full-name">
+                            {{ v3Auth.user()?.fullName || 'Usuario' }}
+                        </span>
+                        <span class="user-context-row">
+                            @if (!isAccessPanelView() && v3Auth.activeSchoolName()) {
+                                <span class="user-school-caption">{{ v3Auth.activeSchoolName() }}</span>
+                            }
+                            <span class="user-role-chip">
+                                {{ isAccessPanelView() ? ('accessPanel.headerSubtitle' | transloco) : v3Auth.activeRoleLabel() }}
+                            </span>
+                        </span>
+                    </div>
+                    <div class="profile-avatar-wrap position-relative flex-shrink-0">
+                        <img
+                            [ngSrc]="getCurrentUserAvatar()"
+                            class="rounded-circle"
+                            width="40"
+                            height="40"
+                            (error)="image.src = fallbackAvatarUrl"
+                            #image
+                            alt="Avatar de usuario"
+                        >
+                        <span class="avatar-online-dot"></span>
+                    </div>
+                    <i
+                        class="material-symbols-outlined profile-chevron d-none d-sm-inline-flex"
+                        [class.is-open]="isProfileDropdownOpen"
+                        aria-hidden="true"
+                    >
+                        expand_more
+                    </i>
                 </button>
-                <div class="profile-menu-dropdown bg-white border-radius" *ngIf="isProfileDropdownOpen">
+
+                <div class="profile-menu-dropdown border-radius" *ngIf="isProfileDropdownOpen">
                     <div class="admin d-flex align-items-center">
-                        <img [ngSrc]="getCurrentUserAvatar()"
-                              width="40" height="40"
-                             (error)="adminImage.src = fallbackAvatarUrl" #adminImage
-                             class="rounded-circle" alt="Avatar">
-                        <div>
-                            <span class="d-block text-black fw-medium">
+                        <img
+                            [ngSrc]="getCurrentUserAvatar()"
+                            width="34"
+                            height="34"
+                            (error)="adminImage.src = fallbackAvatarUrl"
+                            #adminImage
+                            class="rounded-circle"
+                            alt="Avatar"
+                        >
+                        <div class="min-w-0">
+                            <span class="d-block admin-name fw-semibold text-truncate">
                                 {{ v3Auth.user()?.fullName || 'Usuario' }}
                             </span>
-                            <span class="d-block small">
-                                {{ isAccessPanelView() ? 'Panel de Accesos' : v3Auth.activeRoleLabel() }}
+                            <span class="d-block admin-subtitle text-truncate">
+                                {{ isAccessPanelView() ? ('accessPanel.headerSubtitle' | transloco) : v3Auth.activeRoleLabel() }}
                             </span>
                         </div>
                     </div>
@@ -167,20 +217,19 @@
                                 {{ 'menu.user.profile' | transloco }}
                             </a>
                         </li>
-                        @if (v3Auth.hasMultipleMemberships()) {
-                          <li>
-                              <a routerLink="/access-panel" (click)="isProfileDropdownOpen = false" class="d-block position-relative">
-                                  <i class="material-symbols-outlined">swap_horiz</i>
-                                  {{ 'menu.user.returnToAccessPanel' | transloco }}
-                              </a>
-                          </li>
+                        @if (!isAccessPanelView() && v3Auth.hasMultipleMemberships()) {
+                            <li>
+                                <a routerLink="/access-panel" (click)="isProfileDropdownOpen = false" class="d-block position-relative">
+                                    <i class="material-symbols-outlined">swap_horiz</i>
+                                    {{ 'menu.user.returnToAccessPanel' | transloco }}
+                                </a>
+                            </li>
                         }
                     </ul>
                     <div class="border-top"></div>
                     <ul class="list p-0 mt-0 mb-0 list-unstyled">
                         <li>
-                            <a (click)="logout()"
-                              class="d-block position-relative cursor-pointer">
+                            <a (click)="logout()" class="d-block position-relative cursor-pointer">
                                 <i class="material-symbols-outlined">logout</i>
                                 {{ 'menu.user.logout' | transloco }}
                             </a>

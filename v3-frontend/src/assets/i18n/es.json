@@ -252,18 +252,22 @@
     "delete"        : "¿Seguro que desea eliminar el registro?"
   },
   "menu" : {
-    "dashboard"   : "Dashboard",
-    "accessPanel" : "Panel de Accesos",
+    "dashboard"       : "Dashboard",
+    "accessPanel"     : "Panel de Accesos",
+    "accessPanelRail" : "Accesos",
     "user"      : {
       "profile"   : "Perfil",
       "user"      : "Usuario",
-      "logout"    : "Cerrar sesión",
+      "logout"        : "Cerrar sesión",
+      "logoutRail"    : "Salir",
       "profileChange" : "Cambiar nombre de usuario",
       "returnToAccessPanel" : "Ir al panel de acceso",
-      "changeModule"        : "Cambiar de módulo"
+      "changeModule"        : "Cambiar de módulo",
+      "changeModuleRail"    : "Módulos"
     },
     "admin": {
       "title"         : "Administrativo",
+      "railTitle"     : "Admin",
       "hub"           : "Panel Administrativo",
       "school"        : "Datos del Plantel",
       "campuses"      : "Sedes Educativas",
@@ -273,6 +277,7 @@
     },
     "settings": {
       "title"      : "Configuraciones",
+      "railTitle"  : "Ajustes",
       "hub"        : "Panel de Configuraciones",
       "structure"  : "Estructura Académica",
       "evaluation" : "Evaluación y SIEE",
@@ -297,14 +302,17 @@
       "yearClosing" : "Cierre de Año"
     },
     "elections": {
-      "title"      : "Elecciones Escolares",
-      "hub"        : "Panel Electoral",
-      "control"    : "Jornadas y Mesas",
-      "candidates" : "Candidatos y Tarjetón",
-      "results"    : "Escrutinio en Vivo"
+      "title"       : "Elecciones Escolares",
+      "railTitle"   : "Elecciones",
+      "hub"         : "Panel Electoral",
+      "control"     : "Jornadas y Mesas",
+      "candidates"  : "Candidatos y Tarjetón",
+      "results"     : "Escrutinio en Vivo",
+      "votingBooth" : "Cabina de Votación"
     },
     "teacher": {
       "title"            : "Portal Docente",
+      "railTitle"        : "Docente",
       "hub"              : "Panel Docente",
       "gradebook"        : "Planilla de Notas",
       "planning"         : "Descriptores y Parcelador",
@@ -326,6 +334,29 @@
       "teachers"          : "Docentes",
       "family"            : "Familiares"
     }
+  },
+  "accessPanel": {
+    "headerSubtitle": "PANEL DE ACCESOS",
+    "bannerBadge": "Portal Unificado ASAIE ÉXODO",
+    "greetingTitle": "ESTIMADO USUARIO, USTED TIENE ACCESO A:",
+    "bannerSubtitle": "Selecciona la institución educativa y el módulo con el que deseas trabajar.",
+    "availableSectionTitle": "Instituciones y módulos habilitados",
+    "institutionSingular": "institución",
+    "institutionsCount": "instituciones",
+    "accessSingular": "acceso",
+    "accessesCount": "accesos",
+    "searchPlaceholder": "Búsqueda por institución educativa, código DANE o módulo...",
+    "clearSearch": "Limpiar búsqueda",
+    "filterAll": "Todos",
+    "showingResults": "Mostrando {{shown}} de {{total}}",
+    "emptyAccessTitle": "No tienes instituciones asignadas",
+    "emptyAccessDescription": "Tu cuenta aún no tiene módulos o instituciones activas vinculadas. Comunícate con el administrador de tu plantel.",
+    "noMatchesTitle": "Sin coincidencias para tu búsqueda",
+    "noMatchesDescription": "No se encontraron instituciones o módulos que coincidan con \"{{query}}\".",
+    "clearFilters": "Limpiar filtros",
+    "activeBadge": "Actual",
+    "moduleLabel": "MÓDULO",
+    "cardTooltipPrefix": "Ingresar a"
   },
   "notFound" : {
     "title"   : "Página no encontrada",

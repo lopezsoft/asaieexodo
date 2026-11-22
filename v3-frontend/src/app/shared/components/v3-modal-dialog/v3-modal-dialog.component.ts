@@ -33,7 +33,9 @@ import { CustomTooltipDirective } from '../../directives/custom-tooltip.directiv
           <div class="v3-modal-header">
             <div class="d-flex align-items-center gap-2">
               @if (icon) {
-                <i class="material-symbols-outlined text-primary">{{ icon }}</i>
+                <span class="v3-modal-icon">
+                  <i class="material-symbols-outlined">{{ icon }}</i>
+                </span>
               }
               <div>
                 <h5>{{ heading }}</h5>
@@ -44,12 +46,12 @@ import { CustomTooltipDirective } from '../../directives/custom-tooltip.directiv
             </div>
             <button
               type="button"
-              class="btn btn-sm btn-outline-secondary rounded-circle d-inline-flex align-items-center justify-content-center"
-              style="width: 32px; height: 32px;"
+              class="v3-modal-close-btn"
               (click)="closed.emit()"
               [appCustomTooltip]="'Cerrar ventana'"
+              tooltipPosition="left"
             >
-              <i class="material-symbols-outlined fs-6">close</i>
+              <i class="material-symbols-outlined">close</i>
             </button>
           </div>
           <div class="v3-modal-body">

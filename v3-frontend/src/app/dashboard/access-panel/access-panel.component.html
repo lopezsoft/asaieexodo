@@ -1,0 +1,290 @@
+<div class="access-panel">
+  <!-- Banner ejecutivo institucional de bienvenida -->
+  <section
+    class="v3-hero-banner v3-hero-banner--compact"
+    aria-label="Panel de Accesos"
+  >
+    <div class="v3-hero-inner">
+      <div class="v3-hero-copy">
+        <span class="v3-hero-eyebrow">
+          <i class="material-symbols-outlined" aria-hidden="true">grid_view</i>
+          <span>{{ 'accessPanel.bannerBadge' | transloco }}</span>
+        </span>
+        <h1 class="v3-hero-title">
+          {{ 'accessPanel.greetingTitle' | transloco }}
+        </h1>
+        <p class="v3-hero-subtitle">
+          {{ 'accessPanel.bannerSubtitle' | transloco }}
+        </p>
+      </div>
+
+      <div class="v3-hero-meta-row">
+        <span class="v3-hero-glass-pill">
+          <i class="material-symbols-outlined" aria-hidden="true">domain</i>
+          <span>
+            {{ uniqueSchoolsCount() }}
+            {{
+              (uniqueSchoolsCount() === 1
+                ? 'accessPanel.institutionSingular'
+                : 'accessPanel.institutionsCount') | transloco
+            }}
+          </span>
+        </span>
+        <span class="v3-hero-glass-pill">
+          <i class="material-symbols-outlined" aria-hidden="true">verified_user</i>
+          <span>
+            {{ totalMembershipsCount() }}
+            {{
+              (totalMembershipsCount() === 1
+                ? 'accessPanel.accessSingular'
+                : 'accessPanel.accessesCount') | transloco
+            }}
+          </span>
+        </span>
+        <span class="v3-hero-glass-pill">
+          <i class="material-symbols-outlined" aria-hidden="true">calendar_today</i>
+          <span>{{ todayLabel }}</span>
+        </span>
+      </div>
+    </div>
+
+    <svg
+      class="v3-hero-wave"
+      viewBox="0 0 220 76"
+      fill="none"
+      aria-hidden="true"
+    >
+      <path
+        d="M6 68H54C74 68 82 22 106 22C130 22 138 68 158 68H214"
+        stroke="currentColor"
+        stroke-width="2.2"
+        stroke-linecap="round"
+      />
+    </svg>
+  </section>
+
+  <!-- Barra de búsqueda pill y filtros rápidos por rol -->
+  <section class="access-search-card" aria-label="Filtros de acceso">
+    <div class="access-search-field">
+      <i class="material-symbols-outlined access-search-icon" aria-hidden="true">search</i>
+      <input
+        type="search"
+        class="access-search-input"
+        [ngModel]="searchTerm()"
+        (ngModelChange)="searchTerm.set($event)"
+        (keydown)="onSearchKeydown($event)"
+        [placeholder]="'accessPanel.searchPlaceholder' | transloco"
+        [attr.aria-label]="'accessPanel.searchPlaceholder' | transloco"
+      />
+      @if (searchTerm()) {
+        <button
+          type="button"
+          class="access-search-clear"
+          (click)="searchTerm.set('')"
+          [appCustomTooltip]="'accessPanel.clearSearch' | transloco"
+        >
+          <i class="material-symbols-outlined">close</i>
+        </button>
+      }
+    </div>
+
+    @if (availableRoles().length > 1) {
+      <div class="access-role-filters">
+        <div class="access-filter-pills">
+          <button
+            type="button"
+            class="access-filter-pill"
+            [class.is-selected]="selectedRoleFilter() === 'ALL'"
+            (click)="selectedRoleFilter.set('ALL')"
+          >
+            <span>{{ 'accessPanel.filterAll' | transloco }}</span>
+            <span class="pill-count">{{ totalMembershipsCount() }}</span>
+          </button>
+
+          @for (role of availableRoles(); track role) {
+            <button
+              type="button"
+              class="access-filter-pill"
+              [class.is-selected]="selectedRoleFilter() === role"
+              (click)="selectedRoleFilter.set(role)"
+            >
+              <span>{{ getRoleLabel(role) }}</span>
+              <span class="pill-count">{{ getRoleCount(role) }}</span>
+            </button>
+          }
+        </div>
+
+        @if (hasActiveFilters()) {
+          <span class="access-results-meta">
+            {{
+              'accessPanel.showingResults'
+                | transloco
+                  : {
+                      shown: filteredMemberships().length,
+                      total: totalMembershipsCount()
+                    }
+            }}
+          </span>
+        }
+      </div>
+    }
+  </section>
+
+  <!-- Estados de carga, vacío y grilla de instituciones / módulos -->
+  @if (isLoadingProfile() && totalMembershipsCount() === 0) {
+    <div class="access-cards-grid" aria-busy="true">
+      @for (item of skeletonPlaceholders; track item) {
+        <div class="access-skeleton-card">
+          <div class="skeleton-icon"></div>
+          <div class="skeleton-lines">
+            <div class="skeleton-line w-80"></div>
+            <div class="skeleton-line w-55"></div>
+          </div>
+        </div>
+      }
+    </div>
+  } @else if (totalMembershipsCount() === 0) {
+    <div class="access-empty-card">
+      <div class="access-empty-icon">
+        <i class="material-symbols-outlined" aria-hidden="true">domain_disabled</i>
+      </div>
+      <h6>{{ 'accessPanel.emptyAccessTitle' | transloco }}</h6>
+      <p>{{ 'accessPanel.emptyAccessDescription' | transloco }}</p>
+    </div>
+  } @else if (filteredMemberships().length === 0) {
+    <div class="access-empty-card">
+      <div class="access-empty-icon">
+        <i class="material-symbols-outlined" aria-hidden="true">search_off</i>
+      </div>
+      <h6>{{ 'accessPanel.noMatchesTitle' | transloco }}</h6>
+      <p>
+        {{
+          'accessPanel.noMatchesDescription'
+            | transloco
+              : {
+                  query: searchTerm().trim() || getSelectedRoleLabel()
+                }
+        }}
+      </p>
+      <button
+        type="button"
+        class="btn btn-sm btn-primary px-3"
+        (click)="clearFilters()"
+      >
+        {{ 'accessPanel.clearFilters' | transloco }}
+      </button>
+    </div>
+  } @else {
+    <section
+      class="v3-section-tint"
+      [attr.aria-label]="'accessPanel.availableSectionTitle' | transloco"
+    >
+      <div class="access-grid-section-label">
+        <span class="access-section-heading">
+          <i class="material-symbols-outlined" aria-hidden="true">workspaces</i>
+          <span>{{ 'accessPanel.availableSectionTitle' | transloco }}</span>
+        </span>
+        <span class="access-section-badge">
+          {{ filteredMemberships().length }} / {{ totalMembershipsCount() }}
+        </span>
+      </div>
+
+      @if (useSchoolRowGrouping()) {
+        <div class="access-school-groups">
+          @for (group of schoolGroups(); track group.schoolId) {
+            <div class="access-cards-grid">
+              @for (
+                membership of group.memberships;
+                track membershipKey(membership);
+                let idx = $index
+              ) {
+                <ng-container
+                  *ngTemplateOutlet="
+                    accessCardTpl;
+                    context: { $implicit: membership, index: idx }
+                  "
+                />
+              }
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="access-cards-grid">
+          @for (
+            membership of filteredMemberships();
+            track membershipKey(membership);
+            let idx = $index
+          ) {
+            <ng-container
+              *ngTemplateOutlet="
+                accessCardTpl;
+                context: { $implicit: membership, index: idx }
+              "
+            />
+          }
+        </div>
+      }
+    </section>
+  }
+</div>
+
+<ng-template #accessCardTpl let-membership let-idx="index">
+  <button
+    type="button"
+    class="access-module-card"
+    [class.is-active-context]="isActiveContext(membership)"
+    [class.is-entering]="isEntering(membership)"
+    [style.--card-delay]="idx < 12 ? idx : 12"
+    [disabled]="enteringMembershipKey() !== null"
+    (click)="enterMembership(membership)"
+    [appCustomTooltip]="
+      ('accessPanel.cardTooltipPrefix' | transloco) +
+      ' ' +
+      membership.schoolName +
+      ' (' +
+      getRoleLabel(membership.role) +
+      ')'
+    "
+  >
+    <span class="access-card-icon" [ngClass]="getRoleVariantClass(membership.role)">
+      <i [class]="getRoleIconClass(membership.role)" aria-hidden="true"></i>
+    </span>
+
+    <div class="access-card-content">
+      <div class="access-card-school-row">
+        <span class="access-card-school">
+          {{ membership.schoolName }}
+        </span>
+        @if (isActiveContext(membership)) {
+          <span class="access-active-badge">
+            <span class="active-dot"></span>
+            {{ 'accessPanel.activeBadge' | transloco }}
+          </span>
+        }
+      </div>
+
+      <div class="access-card-module">
+        {{ 'accessPanel.moduleLabel' | transloco }}:
+        <strong>{{ getRoleLabel(membership.role) }}</strong>
+      </div>
+
+      @if (membership.schoolDaneCode) {
+        <div class="access-card-meta">DANE {{ membership.schoolDaneCode }}</div>
+      }
+    </div>
+
+    <span class="access-card-trailing">
+      @if (isEntering(membership)) {
+        <span
+          class="spinner-border spinner-border-sm access-card-spinner"
+          role="status"
+          aria-hidden="true"
+        ></span>
+      } @else {
+        <i class="material-symbols-outlined access-card-arrow" aria-hidden="true">
+          arrow_forward
+        </i>
+      }
+    </span>
+  </button>
+</ng-template>

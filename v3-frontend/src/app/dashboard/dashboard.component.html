@@ -8,6 +8,13 @@
     <!-- Sidebar -->
     <app-sidebar />
 
+    <!-- Backdrop móvil / tablet -->
+    <div
+        class="v3-sidebar-backdrop"
+        [class.visible]="isSidebarToggled"
+        (click)="closeSidebarOnBackdrop()"
+    ></div>
+
     <!-- Main Content -->
     <div
         [class.right-sidebar]="themeService.isRightSidebar()"
@@ -20,9 +27,9 @@
         <app-header />
 
         <!-- Router Outlet -->
-        <router-outlet />
-
-        <div class="flex-grow-1"></div>
+        <main class="main-content-body flex-grow-1">
+            <router-outlet />
+        </main>
 
         <!-- Footer -->
         <app-footer />

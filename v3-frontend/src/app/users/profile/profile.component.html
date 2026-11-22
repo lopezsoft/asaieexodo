@@ -15,103 +15,440 @@
   </ol>
 </div>
 
-<div class="row g-4">
-  <div class="col-lg-8">
-    <div class="trezo-card bg-white border-radius p-4 shadow-sm">
-      <h5 class="mb-3 fw-semibold">{{ 'profile.title' | transloco | uppercase }}</h5>
-
-      <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom">
+<!-- Banner compacto de perfil de cuenta -->
+<section class="v3-hero-banner v3-hero-banner--compact mb-4" aria-label="Resumen de perfil">
+  <div class="v3-hero-inner">
+    <div class="d-flex align-items-center gap-3 min-w-0 flex-grow-1">
+      <div class="v3-hero-avatar-box">
         <img
           [src]="avatarPreview()"
           (error)="avatarPreview.set(fallbackAvatarUrl())"
           alt="Avatar de usuario"
-          class="rounded-circle border"
-          width="72"
-          height="72"
+          class="v3-hero-avatar-img"
         />
-        <div>
-          <label class="form-label small fw-semibold d-block mb-1">Foto de perfil (AWS S3)</label>
-          <input
-            type="file"
-            accept="image/png,image/jpeg,image/webp"
-            class="form-control form-control-sm"
-            [disabled]="uploadingAvatar()"
-            (change)="onAvatarFileSelected($event)"
-          />
+        <button
+          type="button"
+          class="v3-avatar-edit-btn"
+          [disabled]="uploadingAvatar()"
+          (click)="avatarFileInput.click()"
+          [appCustomTooltip]="'Cambiar foto de perfil'"
+        >
+          @if (uploadingAvatar()) {
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+          } @else {
+            <i class="material-symbols-outlined" aria-hidden="true">photo_camera</i>
+          }
+        </button>
+      </div>
+
+      <div class="v3-hero-copy">
+        <span class="v3-hero-eyebrow">
+          <i class="material-symbols-outlined" aria-hidden="true">manage_accounts</i>
+          <span>Cuenta Institucional</span>
+        </span>
+        <h4 class="v3-hero-title text-truncate">
+          {{ v3Auth.user()?.fullName || 'Usuario' }}
+        </h4>
+        <p class="v3-hero-subtitle">
+          @if (v3Auth.user()?.username) {
+            <span>&#64;{{ v3Auth.user()?.username }}</span>
+          }
+          @if (v3Auth.activeSchoolName()) {
+            <span> &middot; {{ v3Auth.activeSchoolName() }}</span>
+          }
+        </p>
+      </div>
+    </div>
+
+    <div class="v3-hero-actions">
+      @if (v3Auth.activeRoleLabel()) {
+        <span class="v3-hero-glass-pill">
+          <i class="material-symbols-outlined" aria-hidden="true">verified_user</i>
+          <span>{{ v3Auth.activeRoleLabel() }}</span>
+        </span>
+      }
+      <a
+        routerLink="/profile/change"
+        class="v3-hero-glass-btn"
+        [appCustomTooltip]="'Actualizar tu nombre de usuario de acceso'"
+      >
+        <i class="material-symbols-outlined" aria-hidden="true">alternate_email</i>
+        <span>Cambiar usuario</span>
+      </a>
+    </div>
+  </div>
+
+  <svg class="v3-hero-wave" viewBox="0 0 220 76" fill="none" aria-hidden="true">
+    <path
+      d="M6 68H54C74 68 82 22 106 22C130 22 138 68 158 68H214"
+      stroke="currentColor"
+      stroke-width="2.2"
+      stroke-linecap="round"
+    />
+  </svg>
+</section>
+
+<input
+  #avatarFileInput
+  id="profile-avatar-upload"
+  type="file"
+  accept="image/png,image/jpeg,image/webp"
+  class="d-none"
+  [disabled]="uploadingAvatar()"
+  (change)="onAvatarFileSelected($event)"
+/>
+
+<div class="row g-4">
+  <div class="col-12 col-lg-7 col-xl-8">
+    <div class="trezo-card bg-white border-radius p-3 p-md-4 shadow-sm h-100">
+      <div class="v3-card-header-bar">
+        <div class="v3-card-header-main">
+          <span class="v3-kpi-icon kpi-primary v3-kpi-icon--sm">
+            <i class="material-symbols-outlined" aria-hidden="true">person</i>
+          </span>
+          <div>
+            <h5>Información personal</h5>
+            <p>Actualiza tus datos de identificación y contacto</p>
+          </div>
         </div>
+        @if (profileForm.dirty) {
+          <span class="badge text-bg-primary">Cambios pendientes</span>
+        }
+      </div>
+
+      <!-- Zona interactiva moderna de carga de avatar -->
+      <div
+        class="v3-upload-dropzone mb-4"
+        [class.is-drag-over]="isDragOver()"
+        role="button"
+        tabindex="0"
+        (click)="!uploadingAvatar() && avatarFileInput.click()"
+        (keydown.enter)="!uploadingAvatar() && avatarFileInput.click()"
+        (keydown.space)="$event.preventDefault(); !uploadingAvatar() && avatarFileInput.click()"
+        (dragover)="onDragOver($event)"
+        (dragleave)="onDragLeave($event)"
+        (drop)="onAvatarDrop($event)"
+        [appCustomTooltip]="'Haz clic o arrastra una imagen PNG, JPG o WEBP (máx. 5 MB)'"
+      >
+        <span class="v3-kpi-icon kpi-secondary v3-kpi-icon--sm">
+          @if (uploadingAvatar()) {
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+          } @else {
+            <i class="material-symbols-outlined" aria-hidden="true">cloud_upload</i>
+          }
+        </span>
+
+        <div class="v3-upload-copy">
+          <strong>
+            @if (uploadingAvatar()) {
+              Subiendo imagen de perfil...
+            } @else if (selectedFileName()) {
+              {{ selectedFileName() }}
+            } @else {
+              Foto de perfil institucional
+            }
+          </strong>
+          <small>
+            Toca para seleccionar o arrastra una imagen PNG, JPG o WEBP (máximo 5 MB)
+          </small>
+        </div>
+
+        <span class="btn btn-sm btn-outline-primary flex-shrink-0">
+          <i class="material-symbols-outlined fs-6" aria-hidden="true">image</i>
+          <span>Explorar</span>
+        </span>
       </div>
 
       <form [formGroup]="profileForm" (ngSubmit)="saveProfile()">
         <div class="row g-3">
-          <div class="col-md-6">
-            <label class="form-label">Primer nombre *</label>
-            <input class="form-control" type="text" formControlName="firstName" />
+          <div class="col-12 col-sm-6">
+            <label class="form-label" for="profile-first-name">
+              Primer nombre <span class="v3-required-mark">*</span>
+            </label>
+            <div class="v3-input-wrap">
+              <i class="material-symbols-outlined v3-input-icon" aria-hidden="true">badge</i>
+              <input
+                id="profile-first-name"
+                class="form-control"
+                [class.is-invalid]="isControlInvalid(profileForm, 'firstName')"
+                type="text"
+                formControlName="firstName"
+                placeholder="Tu primer nombre"
+              />
+            </div>
             @if (isControlInvalid(profileForm, 'firstName')) {
-              <small class="text-danger">{{ 'validation.required' | transloco }}</small>
+              <span class="v3-field-error">
+                <i class="material-symbols-outlined" aria-hidden="true">error</i>
+                <span>{{ 'validation.required' | transloco }}</span>
+              </span>
             }
           </div>
-          <div class="col-md-6">
-            <label class="form-label">Segundo nombre</label>
-            <input class="form-control" type="text" formControlName="middleName" />
+
+          <div class="col-12 col-sm-6">
+            <label class="form-label" for="profile-middle-name">Segundo nombre</label>
+            <div class="v3-input-wrap">
+              <i class="material-symbols-outlined v3-input-icon" aria-hidden="true">badge</i>
+              <input
+                id="profile-middle-name"
+                class="form-control"
+                type="text"
+                formControlName="middleName"
+                placeholder="Opcional"
+              />
+            </div>
           </div>
-          <div class="col-md-6">
-            <label class="form-label">Primer apellido *</label>
-            <input class="form-control" type="text" formControlName="lastName" />
+
+          <div class="col-12 col-sm-6">
+            <label class="form-label" for="profile-last-name">
+              Primer apellido <span class="v3-required-mark">*</span>
+            </label>
+            <div class="v3-input-wrap">
+              <i class="material-symbols-outlined v3-input-icon" aria-hidden="true">badge</i>
+              <input
+                id="profile-last-name"
+                class="form-control"
+                [class.is-invalid]="isControlInvalid(profileForm, 'lastName')"
+                type="text"
+                formControlName="lastName"
+                placeholder="Tu primer apellido"
+              />
+            </div>
             @if (isControlInvalid(profileForm, 'lastName')) {
-              <small class="text-danger">{{ 'validation.required' | transloco }}</small>
+              <span class="v3-field-error">
+                <i class="material-symbols-outlined" aria-hidden="true">error</i>
+                <span>{{ 'validation.required' | transloco }}</span>
+              </span>
             }
           </div>
-          <div class="col-md-6">
-            <label class="form-label">Segundo apellido</label>
-            <input class="form-control" type="text" formControlName="secondLastName" />
+
+          <div class="col-12 col-sm-6">
+            <label class="form-label" for="profile-second-last-name">Segundo apellido</label>
+            <div class="v3-input-wrap">
+              <i class="material-symbols-outlined v3-input-icon" aria-hidden="true">badge</i>
+              <input
+                id="profile-second-last-name"
+                class="form-control"
+                type="text"
+                formControlName="secondLastName"
+                placeholder="Opcional"
+              />
+            </div>
           </div>
-          <div class="col-md-6">
-            <label class="form-label">{{ 'profile.email' | transloco }}</label>
-            <input class="form-control" type="email" formControlName="email" />
+
+          <div class="col-12 col-sm-6">
+            <label class="form-label" for="profile-email">
+              {{ 'profile.email' | transloco }}
+            </label>
+            <div class="v3-input-wrap">
+              <i class="material-symbols-outlined v3-input-icon" aria-hidden="true">mail</i>
+              <input
+                id="profile-email"
+                class="form-control"
+                [class.is-invalid]="isControlInvalid(profileForm, 'email')"
+                type="email"
+                formControlName="email"
+                placeholder="correo@ejemplo.com"
+              />
+            </div>
             @if (isControlInvalid(profileForm, 'email')) {
-              <small class="text-danger">{{ 'validation.invalidEmail' | transloco }}</small>
+              <span class="v3-field-error">
+                <i class="material-symbols-outlined" aria-hidden="true">error</i>
+                <span>{{ 'validation.invalidEmail' | transloco }}</span>
+              </span>
             }
           </div>
-          <div class="col-md-6">
-            <label class="form-label">Teléfono</label>
-            <input class="form-control" type="text" formControlName="phone" />
+
+          <div class="col-12 col-sm-6">
+            <label class="form-label" for="profile-phone">Teléfono</label>
+            <div class="v3-input-wrap">
+              <i class="material-symbols-outlined v3-input-icon" aria-hidden="true">call</i>
+              <input
+                id="profile-phone"
+                class="form-control"
+                type="tel"
+                formControlName="phone"
+                placeholder="Ej. 300 123 4567"
+              />
+            </div>
           </div>
         </div>
 
-        <div class="mt-4">
-          <app-footer-form
-            [disabled]="profileForm.invalid"
-            [showSaveAndCreate]="false"
-            (saveAndCloseEvent)="saveProfile()"
-            (cancelEvent)="onCancel()"
-          />
-        </div>
+        <app-footer-form
+          [disabled]="profileForm.invalid"
+          [showSaveAndCreate]="false"
+          (saveAndCloseEvent)="saveProfile()"
+          (cancelEvent)="onCancel()"
+        />
       </form>
     </div>
   </div>
 
-  <div class="col-lg-4">
-    <div class="trezo-card bg-white border-radius p-4 shadow-sm">
-      <h5 class="mb-3 fw-semibold">Cambiar contraseña</h5>
+  <div class="col-12 col-lg-5 col-xl-4">
+    <div class="trezo-card bg-white border-radius p-3 p-md-4 shadow-sm h-100">
+      <div class="v3-card-header-bar">
+        <div class="v3-card-header-main">
+          <span class="v3-kpi-icon kpi-info v3-kpi-icon--sm">
+            <i class="material-symbols-outlined" aria-hidden="true">lock</i>
+          </span>
+          <div>
+            <h5>Seguridad de acceso</h5>
+            <p>Actualiza periódicamente tu contraseña</p>
+          </div>
+        </div>
+      </div>
+
       <form [formGroup]="passwordForm" (ngSubmit)="changePassword()">
         <div class="mb-3">
-          <label class="form-label">Contraseña actual *</label>
-          <input class="form-control" type="password" formControlName="currentPassword" />
+          <label class="form-label" for="profile-current-password">
+            Contraseña actual <span class="v3-required-mark">*</span>
+          </label>
+          <div class="v3-input-wrap has-trailing">
+            <i class="material-symbols-outlined v3-input-icon" aria-hidden="true">key</i>
+            <input
+              id="profile-current-password"
+              class="form-control"
+              [type]="showCurrentPassword() ? 'text' : 'password'"
+              formControlName="currentPassword"
+              placeholder="Ingresa tu contraseña actual"
+            />
+            <button
+              type="button"
+              class="v3-input-action"
+              (click)="showCurrentPassword.set(!showCurrentPassword())"
+              [appCustomTooltip]="showCurrentPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+            >
+              <i class="material-symbols-outlined" aria-hidden="true">
+                {{ showCurrentPassword() ? 'visibility_off' : 'visibility' }}
+              </i>
+            </button>
+          </div>
         </div>
+
         <div class="mb-3">
-          <label class="form-label">Nueva contraseña (mín. 8 caracteres) *</label>
-          <input class="form-control" type="password" formControlName="newPassword" />
+          <label class="form-label" for="profile-new-password">
+            Nueva contraseña <span class="v3-required-mark">*</span>
+          </label>
+          <div class="v3-input-wrap has-trailing">
+            <i class="material-symbols-outlined v3-input-icon" aria-hidden="true">lock</i>
+            <input
+              id="profile-new-password"
+              class="form-control"
+              [type]="showNewPassword() ? 'text' : 'password'"
+              formControlName="newPassword"
+              placeholder="Mínimo 8 caracteres"
+            />
+            <button
+              type="button"
+              class="v3-input-action"
+              (click)="showNewPassword.set(!showNewPassword())"
+              [appCustomTooltip]="showNewPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+            >
+              <i class="material-symbols-outlined" aria-hidden="true">
+                {{ showNewPassword() ? 'visibility_off' : 'visibility' }}
+              </i>
+            </button>
+          </div>
+
+          @if (newPasswordValue().length > 0) {
+            <div class="v3-password-meter">
+              <div class="v3-strength-header">
+                <span>Nivel de seguridad</span>
+                <strong>{{ passwordStrength().label }}</strong>
+              </div>
+              <div class="v3-strength-bars">
+                <span
+                  class="v3-strength-seg"
+                  [ngClass]="passwordStrength().score >= 1 ? passwordStrength().level : ''"
+                ></span>
+                <span
+                  class="v3-strength-seg"
+                  [ngClass]="passwordStrength().score >= 2 ? passwordStrength().level : ''"
+                ></span>
+                <span
+                  class="v3-strength-seg"
+                  [ngClass]="passwordStrength().score >= 3 ? passwordStrength().level : ''"
+                ></span>
+                <span
+                  class="v3-strength-seg"
+                  [ngClass]="passwordStrength().score >= 4 ? passwordStrength().level : ''"
+                ></span>
+              </div>
+              <div class="v3-password-reqs">
+                <span class="v3-req-chip" [class.is-met]="passwordStrength().hasLength">
+                  <i class="material-symbols-outlined" aria-hidden="true">
+                    {{ passwordStrength().hasLength ? 'check_circle' : 'radio_button_unchecked' }}
+                  </i>
+                  <span>8+ caracteres</span>
+                </span>
+                <span class="v3-req-chip" [class.is-met]="passwordStrength().hasUpper">
+                  <i class="material-symbols-outlined" aria-hidden="true">
+                    {{ passwordStrength().hasUpper ? 'check_circle' : 'radio_button_unchecked' }}
+                  </i>
+                  <span>Mayúscula</span>
+                </span>
+                <span class="v3-req-chip" [class.is-met]="passwordStrength().hasLower">
+                  <i class="material-symbols-outlined" aria-hidden="true">
+                    {{ passwordStrength().hasLower ? 'check_circle' : 'radio_button_unchecked' }}
+                  </i>
+                  <span>Minúscula</span>
+                </span>
+                <span class="v3-req-chip" [class.is-met]="passwordStrength().hasNumber">
+                  <i class="material-symbols-outlined" aria-hidden="true">
+                    {{ passwordStrength().hasNumber ? 'check_circle' : 'radio_button_unchecked' }}
+                  </i>
+                  <span>Número</span>
+                </span>
+              </div>
+            </div>
+          }
         </div>
-        <div class="mb-3">
-          <label class="form-label">Confirmar nueva contraseña *</label>
-          <input class="form-control" type="password" formControlName="confirmPassword" />
+
+        <div class="mb-4">
+          <label class="form-label" for="profile-confirm-password">
+            Confirmar nueva contraseña <span class="v3-required-mark">*</span>
+          </label>
+          <div class="v3-input-wrap has-trailing">
+            <i class="material-symbols-outlined v3-input-icon" aria-hidden="true">verified_user</i>
+            <input
+              id="profile-confirm-password"
+              class="form-control"
+              [class.is-invalid]="
+                confirmPasswordValue().length > 0 && !passwordStrength().passwordsMatch
+              "
+              [type]="showConfirmPassword() ? 'text' : 'password'"
+              formControlName="confirmPassword"
+              placeholder="Repite tu nueva contraseña"
+            />
+            <button
+              type="button"
+              class="v3-input-action"
+              (click)="showConfirmPassword.set(!showConfirmPassword())"
+              [appCustomTooltip]="showConfirmPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+            >
+              <i class="material-symbols-outlined" aria-hidden="true">
+                {{ showConfirmPassword() ? 'visibility_off' : 'visibility' }}
+              </i>
+            </button>
+          </div>
+          @if (confirmPasswordValue().length > 0 && !passwordStrength().passwordsMatch) {
+            <span class="v3-field-error">
+              <i class="material-symbols-outlined" aria-hidden="true">error</i>
+              <span>Las contraseñas aún no coinciden.</span>
+            </span>
+          }
         </div>
+
         <button
           type="submit"
           class="btn btn-primary w-100"
-          [disabled]="passwordForm.invalid"
+          [disabled]="
+            passwordForm.invalid ||
+            (confirmPasswordValue().length > 0 && !passwordStrength().passwordsMatch)
+          "
+          [appCustomTooltip]="'Actualizar contraseña de acceso'"
         >
-          Actualizar contraseña
+          <i class="material-symbols-outlined fs-6" aria-hidden="true">lock_reset</i>
+          <span>Actualizar contraseña</span>
         </button>
       </form>
     </div>

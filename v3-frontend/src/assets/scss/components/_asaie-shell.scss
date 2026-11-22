@@ -1,0 +1,132 @@
+// =============================================================================
+// ASAIE EXODO V3 - Shell Institucional (Rail tipo Canva, Flyout, Header y Footer)
+// Utiliza exclusivamente tokens $shell-* / $access-* / $auth-* de _variables.scss.
+// =============================================================================
+
+:root {
+  --asaie-sidebar-width: #{$shell-sidebar-width};
+  --asaie-sidebar-width-lg: #{$shell-sidebar-width-lg};
+  --asaie-sidebar-collapsed-width: #{$shell-sidebar-collapsed-width};
+  --asaie-flyout-width: #{$shell-flyout-width};
+  --asaie-header-height: #{$shell-header-height};
+
+  --asaie-rail-bg: linear-gradient(
+    180deg,
+    #{$shell-rail-bg-light-start} 0%,
+    #{$shell-rail-bg-light-end} 100%
+  );
+  --asaie-rail-border: #{$shell-border-light};
+  --asaie-rail-shadow: 2px 0 16px -10px #{rgba($shell-backdrop-color, 0.08)};
+  --asaie-rail-text: #{$shell-text-primary-light};
+  --asaie-rail-text-muted: #{$shell-text-muted-light};
+  --asaie-rail-hover-bg: #{$auth-light-surface-soft};
+  --asaie-rail-hover-text: #{$shell-rail-active-start};
+  --asaie-rail-brand-bg: #{$auth-light-surface-soft};
+  --asaie-rail-brand-shadow: 0 4px 12px -4px #{rgba($access-brand-blue, 0.22)};
+  --asaie-rail-active-bg: #{rgba($access-brand-blue-hover, 0.14)};
+  --asaie-rail-active-icon: #{$shell-rail-active-label-light};
+  --asaie-rail-active-label: #{$shell-rail-active-label-light};
+  --asaie-rail-active-shadow: 0 0 0 1px #{rgba($access-brand-blue-hover, 0.22)},
+    0 4px 12px -4px #{rgba($access-brand-blue, 0.18)};
+  --asaie-rail-indicator: #{$shell-rail-active-end};
+  --asaie-rail-divider: #{$shell-border-light};
+  --asaie-rail-danger: #{$auth-strength-weak};
+  --asaie-rail-danger-hover-bg: #{rgba($auth-strength-weak, 0.1)};
+
+  --asaie-flyout-bg: #{$shell-surface-light};
+  --asaie-flyout-border: #{$shell-border-light};
+  --asaie-flyout-shadow: 16px 0 36px -14px #{rgba($shell-backdrop-color, 0.14)};
+  --asaie-flyout-backdrop-bg: #{rgba($shell-backdrop-color, 0.16)};
+
+  --asaie-header-bg: #{$shell-surface-light};
+  --asaie-header-border: #{$shell-border-light};
+  --asaie-header-shadow: 0 2px 12px -4px #{rgba($shell-backdrop-color, 0.06)};
+  --asaie-header-text: #{$shell-text-primary-light};
+  --asaie-header-muted: #{$shell-text-muted-light};
+  --asaie-header-icon-hover-bg: #{rgba($access-brand-blue, 0.08)};
+  --asaie-header-pill-bg: #{$shell-pill-bg-light};
+  --asaie-header-role-chip-bg: #{rgba($access-brand-blue-hover, 0.12)};
+  --asaie-header-role-chip-text: #{$shell-rail-active-label-light};
+
+  --asaie-canvas-bg: #{$shell-canvas-bg-light};
+  --asaie-footer-bg: #{$shell-surface-light};
+  --asaie-footer-border: #{$shell-border-light};
+  --asaie-footer-text: #{$shell-text-muted-light};
+  --asaie-footer-pill-bg: #{$shell-pill-bg-light};
+  --asaie-online-dot: #{$shell-online-dot};
+  --asaie-heart-color: #{$shell-heart-pink};
+  --asaie-backdrop-bg: #{rgba($shell-backdrop-color, 0.45)};
+}
+
+body:not(.body-bg-color) {
+  background-color: var(--asaie-canvas-bg);
+}
+
+body.dark-theme {
+  --asaie-rail-bg: linear-gradient(
+    180deg,
+    #{$shell-rail-bg-dark-start} 0%,
+    #{$shell-rail-bg-dark-end} 100%
+  );
+  --asaie-rail-border: #{$shell-border-dark};
+  --asaie-rail-shadow: 4px 0 24px -10px #{rgba($shell-backdrop-color, 0.6)};
+  --asaie-rail-text: #{$shell-text-primary-dark};
+  --asaie-rail-text-muted: #{$shell-text-muted-dark};
+  --asaie-rail-hover-bg: #{rgba($auth-orb-cyan, 0.12)};
+  --asaie-rail-hover-text: #{$shell-rail-active-label-dark};
+  --asaie-rail-brand-bg: #{rgba($auth-orb-cyan, 0.12)};
+  --asaie-rail-brand-shadow: 0 4px 14px -4px #{rgba($auth-orb-cyan, 0.28)};
+  --asaie-rail-active-bg: #{rgba($access-brand-blue-dark, 0.16)};
+  --asaie-rail-active-icon: #{$shell-rail-active-label-dark};
+  --asaie-rail-active-label: #{$shell-rail-active-label-dark};
+  --asaie-rail-active-shadow: 0 0 0 1px #{rgba($access-brand-blue-dark, 0.26)},
+    0 4px 14px -4px #{rgba($auth-orb-cyan, 0.22)};
+  --asaie-rail-indicator: #{$shell-rail-active-label-dark};
+  --asaie-rail-divider: #{$shell-border-dark};
+  --asaie-rail-danger: #{$auth-strength-weak};
+  --asaie-rail-danger-hover-bg: #{rgba($auth-strength-weak, 0.16)};
+
+  --asaie-flyout-bg: #{$shell-surface-dark};
+  --asaie-flyout-border: #{$shell-border-dark};
+  --asaie-flyout-shadow: 16px 0 36px -14px #{rgba($shell-backdrop-color, 0.65)};
+  --asaie-flyout-backdrop-bg: #{rgba($shell-canvas-bg-dark, 0.45)};
+
+  --asaie-header-bg: #{$shell-surface-dark};
+  --asaie-header-border: #{$shell-border-dark};
+  --asaie-header-shadow: 0 4px 16px -4px #{rgba($shell-backdrop-color, 0.45)};
+  --asaie-header-text: #{$shell-text-primary-dark};
+  --asaie-header-muted: #{$shell-text-muted-dark};
+  --asaie-header-icon-hover-bg: #{rgba($access-brand-blue-dark, 0.14)};
+  --asaie-header-pill-bg: #{$shell-pill-bg-dark};
+  --asaie-header-role-chip-bg: #{rgba($access-brand-blue-dark, 0.16)};
+  --asaie-header-role-chip-text: #{$access-brand-blue-dark};
+
+  --asaie-canvas-bg: #{$shell-canvas-bg-dark};
+  --asaie-footer-bg: #{$shell-surface-dark};
+  --asaie-footer-border: #{$shell-border-dark};
+  --asaie-footer-text: #{$shell-text-muted-dark};
+  --asaie-footer-pill-bg: #{$shell-pill-bg-dark};
+  --asaie-backdrop-bg: #{rgba($shell-canvas-bg-dark, 0.68)};
+}
+
+.v3-sidebar-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 8;
+  background-color: var(--asaie-backdrop-bg);
+  backdrop-filter: blur(2px);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.28s ease, visibility 0.28s ease;
+
+  &.visible {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  @media (min-width: 1200px) {
+    display: none !important;
+  }
+}

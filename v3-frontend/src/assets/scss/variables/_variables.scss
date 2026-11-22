@@ -18,19 +18,25 @@ $switch-bg-color: #007bff !default;
 $switch-indicator-color: #fff !default;
 $btn-disabled-bg: #a0a0a0 !default;
 
-// Institutional Custom Tooltip ([appCustomTooltip])
-$tooltip-bg: #0f172a !default;
-$tooltip-color: #ffffff !default;
-$tooltip-border-color: rgba(255, 255, 255, 0.12) !default;
-$tooltip-dark-bg: #1e293b !default;
-$tooltip-dark-color: $theme-dark-body-color !default;
-$tooltip-radius: 6px !default;
-$tooltip-padding-y: 0.375rem !default;
-$tooltip-padding-x: 0.625rem !default;
-$tooltip-font-size: 0.75rem !default;
-$tooltip-max-width: 260px !default;
-$tooltip-shadow: 0 4px 12px rgba(15, 23, 42, 0.24) !default;
-$tooltip-z-index: 9999 !default;
+// Institutional Custom Tooltip ([appCustomTooltip]) — namespaced to avoid Bootstrap $tooltip-* collision
+$asaie-tooltip-bg: rgba(255, 255, 255, 0.97) !default;
+$asaie-tooltip-arrow-bg: #ffffff !default;
+$asaie-tooltip-color: #0f2544 !default;
+$asaie-tooltip-border-color: rgba(5, 63, 116, 0.14) !default;
+$asaie-tooltip-shadow: 0 10px 28px -6px rgba(15, 23, 42, 0.16),
+  0 2px 8px -2px rgba(5, 63, 116, 0.1) !default;
+$asaie-tooltip-dark-bg: rgba(15, 28, 52, 0.97) !default;
+$asaie-tooltip-dark-arrow-bg: #0f1c34 !default;
+$asaie-tooltip-dark-color: #f1f5f9 !default;
+$asaie-tooltip-dark-border-color: rgba(56, 189, 248, 0.24) !default;
+$asaie-tooltip-dark-shadow: 0 12px 30px -6px rgba(0, 0, 0, 0.55),
+  0 2px 8px -2px rgba(3, 153, 222, 0.18) !default;
+$asaie-tooltip-radius: 9px !default;
+$asaie-tooltip-padding-y: 0.38rem !default;
+$asaie-tooltip-padding-x: 0.72rem !default;
+$asaie-tooltip-font-size: 0.74rem !default;
+$asaie-tooltip-max-width: 280px !default;
+$asaie-tooltip-z-index: 9999 !default;
 
 // Authentication Shell & Animated Onboarding Tokens
 $auth-hero-bg-start: #032344 !default;
@@ -66,3 +72,74 @@ $auth-strength-weak: #ef4444 !default;
 $auth-strength-fair: #f59e0b !default;
 $auth-strength-good: #0399de !default;
 $auth-strength-strong: #10b981 !default;
+
+// ASAIE Shell (Canva-style Rail, Flyout, Header, Footer, Canvas) & Access Panel Tokens
+$shell-sidebar-width: 94px !default;
+$shell-sidebar-width-lg: 94px !default;
+$shell-sidebar-collapsed-width: 94px !default;
+$shell-flyout-width: 248px !default;
+$shell-header-height: 66px !default;
+
+$shell-rail-bg-light-start: #ffffff !default;
+$shell-rail-bg-light-end: #f9fbfe !default;
+$shell-rail-bg-dark-start: #0c1427 !default;
+$shell-rail-bg-dark-end: #0a1020 !default;
+$shell-rail-active-start: #053f74 !default;
+$shell-rail-active-end: #0399de !default;
+$shell-rail-active-dark-start: #053f74 !default;
+$shell-rail-active-dark-end: #02aeec !default;
+$shell-rail-active-label-light: #053f74 !default;
+$shell-rail-active-label-dark: #38bdf8 !default;
+
+$shell-canvas-bg-light: #f4f6fa !default;
+$shell-canvas-bg-dark: #070b14 !default;
+$shell-surface-light: #ffffff !default;
+$shell-surface-dark: #0c1427 !default;
+$shell-border-light: #e6ecf5 !default;
+$shell-border-dark: #19253f !default;
+$shell-text-primary-light: #1e293b !default;
+$shell-text-primary-dark: #f1f5f9 !default;
+$shell-text-muted-light: #64748b !default;
+$shell-text-muted-dark: #94a3b8 !default;
+$shell-online-dot: #22c55e !default;
+$shell-heart-pink: #ef4477 !default;
+$shell-backdrop-color: #0f172a !default;
+
+$v3-surface-subtle-light: #f8fafc !default;
+$v3-surface-subtle-dark: #132038 !default;
+$v3-section-tint-light: #edf5fc !default;
+$v3-section-tint-dark: #0b1930 !default;
+$v3-hero-light-start: #032344 !default;
+$v3-hero-light-mid: #053f74 !default;
+$v3-hero-light-end: #0399de !default;
+$v3-hero-dark-start: #061327 !default;
+$v3-hero-dark-mid: #0a2a54 !default;
+$v3-hero-dark-end: #0b4f82 !default;
+$shell-pill-bg-light: #f1f5fb !default;
+$shell-pill-bg-dark: #131f38 !default;
+$v3-input-bg-light: #ffffff !default;
+$v3-input-bg-subtle-light: #f8fafd !default;
+$v3-input-bg-dark: #0d182d !default;
+$v3-input-border-light: #d6e0ee !default;
+$v3-input-border-hover-light: #9eb6d4 !default;
+$v3-input-border-dark: #233658 !default;
+$v3-input-border-hover-dark: #365283 !default;
+$v3-danger-hover: #dc2626 !default;
+$v3-success-end: #15803d !default;
+
+$access-brand-blue: #2254a1 !default;
+$access-brand-blue-hover: #0399de !default;
+$access-brand-blue-dark: #38bdf8 !default;
+$access-search-bg-light: #f8fbfe !default;
+$access-search-border-light: #c4d8ea !default;
+$access-search-bg-dark: #111c33 !default;
+$access-search-border-dark: #223456 !default;
+$access-card-school-light: #1e3a5f !default;
+$access-card-school-dark: #f8fafc !default;
+$access-card-surface-dark: #0f192f !default;
+$access-chip-bg-light: #eef4fb !default;
+$access-chip-bg-dark: #152442 !default;
+$access-active-green: #16a34a !default;
+$access-accent-teal: #0d9488 !default;
+$access-accent-indigo: #4f46e5 !default;
+$access-accent-amber: #d97706 !default;

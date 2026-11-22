@@ -3,6 +3,25 @@
 Todos los cambios notables de **v3-frontend** (Angular 20+ para toda la Comunidad Educativa) se documentan en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [3.15.0] - 2026-11-22
+
+### Añadido
+- **Expedientes Digitales Enlazados por Registro en toda la Comunidad Educativa (`V3FileManagerModalComponent`, `V3AdministrationService`):**
+  - Eliminación de los botones sueltos de repositorio documental en las barras superiores de **Personal Docente**, **Personal Administrativo** y **Estudiantes**, sustituidos por acciones por fila en cada grilla con `[appCustomTooltip]`:
+    - **Docentes:** botón por fila enlazado a `TEACHER` + `teacher.id`.
+    - **Administrativos:** botón por fila enlazado a `ADMINISTRATIVE_STAFF` + `staff.id`.
+    - **Estudiantes y Matrículas:** botón por fila enlazado a `STUDENT` + `student.id` / `studentProfileId`.
+    - **Familias y Acudientes:** nueva columna `Acciones` con botón documental por fila y en el modal de acudientes vinculados (`FAMILY` + `family.id`).
+    - **Plantel, Branding, Perfil Docente, Portal Estudiantil y Perfil de Usuario:** enlazados respectivamente a `SCHOOL`, `TEACHER`, `STUDENT` y `USER`.
+  - Banner contextual del propietario en `V3FileManagerModalComponent` (nombre, documento y tipo de registro), limpieza automática al cambiar de registro, visualización de fecha/extensión y confirmación de borrado.
+- **Franja de Filtros Rápidos y Mejoras UI en el Módulo Administrativo (`AdminHubComponent`, `TeachersManagementComponent`, `AdministrativeStaffComponent`, `CampusesManagementComponent`, `GroupManagersComponent`):**
+  - Píldoras segmentadas de estado (`Activos` / `Inactivos` / `Todos`), vista rápida (`Sin director`) y filtro de sede en Directores de Grupo, estilos refinados en `_exodo-grid.scss` y `_v3-enterprise.scss`.
+
+### Corregido
+- **Descarga de Archivos Prefirmados S3 (`V3AdministrationService.getFileDownloadUrl`):** corrección de extracción de `presignedDownload.url` y alineación del tipo `CloudFileRecord` con `storagePath`.
+- **Directores de Grupo (`GroupManagersComponent`):** uso de `untracked()` en el `effect()` del año lectivo para evitar doble petición HTTP al cambiar de filtro y sanitización segura al limpiar el selector de sede.
+- Validación completa aprobada antes del release: `npm run check:native-title` (`0` violaciones), `npm run check:native-select` (`0` violaciones) y `ng build --configuration production` (`0` errores).
+
 ## [3.14.0] - 2026-11-22
 
 ### Añadido

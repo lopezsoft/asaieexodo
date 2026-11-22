@@ -3,6 +3,22 @@
 Todos los cambios notables de **v3-backend** (NestJS 11 + Fastify 5 + PostgreSQL 17 Unificado con RLS) se documentan en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [3.20.0] - 2026-11-22
+
+### Añadido
+- **Expedientes Digitales Enlazados por Registro en `StorageModule` (`cloud_files` + AWS S3 + RLS/RBAC):**
+  - Separación canónica entre categoría de almacenamiento S3 (`TEACHER_DOCUMENTS`, `STUDENT_DOCUMENTS`, `FAMILY_DOCUMENTS`, `ADMINISTRATIVE_DOCUMENTS`, `USER_AVATARS`, `INSTITUTIONAL_LOGOS`, `VIRTUAL_ACTIVITIES`, `OBSERVER_ATTACHMENTS`, `CRM_ATTACHMENTS`, `JASPER_REPORTS`, `GENERAL`) y propietario del expediente (`ownerEntityType` + `ownerEntityId`, indexado por `idx_cloud_files_school_owner`).
+  - Segmentación de rutas S3 por registro propietario (`{colegio}/{categoria}/{año}/{entidad}-{id}/{uuid}-{archivo}`) y validación anti-IDOR en transacción RLS (`ownerEntityExists` / `isEntityOwnedByUser`, incluyendo vínculo familiar en `student_family_links`).
+  - Exigencia obligatoria de `ownerEntityId` para entidades personales (`TEACHER`, `STUDENT`, `FAMILY`, `ADMINISTRATIVE_STAFF`, `USER`) tanto en carga como en listado, con autogestión controlada de firma docente (`portal.teacher.own`) y foto de perfil propia (`USER_AVATARS`).
+  - Nueva suite de pruebas unitarias e integración real en PostgreSQL 17 RLS: `storage-record-ownership.spec.ts`.
+- **Filtros Remotos de Estado, Sede y Asignación en Grillas Administrativas (`ExodoGridQueryDto`, `AdministrationController`, `PostgresAdministrationRepository`):**
+  - Soporte completo para `status` (`ACTIVE` | `INACTIVE` | `ALL`), `campusId` y `assignmentState` (`ALL` | `ASSIGNED` | `UNASSIGNED`) en `teachers`, `staff`, `campuses` y `group-managers`, con cobertura en vivo en `administration.spec.ts` (**16/16 suites, 72/72 tests PASS**).
+
+### Corregido
+- **`ManageAdministrationUseCase.sanitizeGridOptions`:** corregida la pérdida silenciosa de `status`, `campusId` y `assignmentState` antes de consultar PostgreSQL 17, que impedía filtrar por `Activos / Inactivos / Todos`, `Sin director` y `Sede`.
+- **Filtro de columna `Estado` (`isActive`):** ajuste a coincidencia por prefijo (`Activo%` / `Inactivo%`) para evitar que filtrar por `"Activo"` incluyera registros `"Inactivo"`.
+- **Carga Multipart (`POST /api/v1/storage/files/upload-multipart`):** lectura íntegra mediante `request.parts()` para procesar `category`, `ownerEntityType`, `ownerEntityId` y `description` en cualquier orden del `FormData`.
+
 ## [3.19.0] - 2026-11-22
 
 ### Añadido

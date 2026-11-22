@@ -1,5 +1,5 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { map, Observable, shareReplay } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { ApiEnvelope } from './v3-unified-auth.service';
@@ -101,8 +101,11 @@ export interface SchoolAcademicContextCatalogs {
 })
 export class V3CatalogsService {
   private readonly http = inject(HttpClient);
+  private readonly schoolContextVersionSignal = signal(0);
   private bundleCache$: Observable<GlobalCatalogsBundle> | null = null;
   private countriesCache$: Observable<CountryCatalogItem[]> | null = null;
+
+  readonly schoolContextVersion = this.schoolContextVersionSignal.asReadonly();
 
   getGlobalBundle(forceRefresh = false): Observable<GlobalCatalogsBundle> {
     if (!this.bundleCache$ || forceRefresh) {
@@ -191,8 +194,13 @@ export class V3CatalogsService {
       .pipe(map((res) => res.data));
   }
 
+  notifySchoolContextChanged(): void {
+    this.schoolContextVersionSignal.update((version) => version + 1);
+  }
+
   invalidateCache(): void {
     this.bundleCache$ = null;
     this.countriesCache$ = null;
+    this.notifySchoolContextChanged();
   }
 }

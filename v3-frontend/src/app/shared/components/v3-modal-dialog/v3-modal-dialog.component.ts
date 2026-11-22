@@ -1,12 +1,23 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import {
   Component,
+  DestroyRef,
+  ElementRef,
   EventEmitter,
   HostListener,
+  inject,
   Input,
+  NgZone,
+  OnChanges,
   Output,
+  PLATFORM_ID,
+  SimpleChanges,
 } from '@angular/core';
 import { CustomTooltipDirective } from '../../directives/custom-tooltip.directive';
+import {
+  focusFirstFormInput,
+  isActiveElementEditable,
+} from '../../utils/form-autofocus.util';
 
 /**
  * Modal empresarial reutilizable V3 (reemplaza ExtJS WindowCrud / SaveWindow).
@@ -65,7 +76,7 @@ import { CustomTooltipDirective } from '../../directives/custom-tooltip.directiv
     }
   `,
 })
-export class V3ModalDialogComponent {
+export class V3ModalDialogComponent implements OnChanges {
   @Input() open = false;
   @Input() heading = '';
   @Input() subtitle = '';
@@ -73,6 +84,93 @@ export class V3ModalDialogComponent {
   @Input() size: 'md' | 'lg' | 'xl' = 'lg';
   @Input() closeOnBackdrop = true;
   @Output() readonly closed = new EventEmitter<void>();
+
+  private readonly hostRef = inject(ElementRef<HTMLElement>);
+  private readonly ngZone = inject(NgZone);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+
+  private primaryFocusTimer: ReturnType<typeof setTimeout> | null = null;
+  private retryFocusTimer: ReturnType<typeof setTimeout> | null = null;
+
+  constructor() {
+    this.destroyRef.onDestroy(() => this.clearFocusTimers());
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    const openChange = changes['open'];
+    if (!openChange || !this.isBrowser) {
+      return;
+    }
+
+    if (openChange.currentValue && !openChange.previousValue) {
+      this.scheduleAutofocus();
+    } else if (!openChange.currentValue) {
+      this.clearFocusTimers();
+    }
+  }
+
+  private scheduleAutofocus(): void {
+    this.clearFocusTimers();
+
+    this.ngZone.runOutsideAngular(() => {
+      this.primaryFocusTimer = setTimeout(() => {
+        if (!this.open) {
+          return;
+        }
+
+        const modalBody = this.hostRef.nativeElement.querySelector('.v3-modal-body');
+        if (
+          modalBody &&
+          focusFirstFormInput(modalBody, {
+            force: true,
+            allowSelectFallback: true,
+          })
+        ) {
+          return;
+        }
+
+        // Reintento único por si el formulario interno se monta tras una carga asíncrona
+        this.retryFocusTimer = setTimeout(() => {
+          if (!this.open) {
+            return;
+          }
+
+          const delayedBody =
+            this.hostRef.nativeElement.querySelector('.v3-modal-body');
+          if (!delayedBody) {
+            return;
+          }
+
+          const doc = delayedBody.ownerDocument;
+          const active = doc?.activeElement;
+          if (
+            active instanceof HTMLElement &&
+            delayedBody.contains(active) &&
+            isActiveElementEditable(doc)
+          ) {
+            return;
+          }
+
+          focusFirstFormInput(delayedBody, {
+            force: true,
+            allowSelectFallback: true,
+          });
+        }, 180);
+      }, 45);
+    });
+  }
+
+  private clearFocusTimers(): void {
+    if (this.primaryFocusTimer !== null) {
+      clearTimeout(this.primaryFocusTimer);
+      this.primaryFocusTimer = null;
+    }
+    if (this.retryFocusTimer !== null) {
+      clearTimeout(this.retryFocusTimer);
+      this.retryFocusTimer = null;
+    }
+  }
 
   @HostListener('document:keydown.escape')
   onEscape(): void {

@@ -1,7 +1,8 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { map, Observable } from 'rxjs';
+import { map, Observable, tap } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { V3CatalogsService } from './v3-catalogs.service';
 import { ApiEnvelope } from './v3-unified-auth.service';
 
 export interface AcademicYearRecord {
@@ -196,6 +197,7 @@ export interface SchoolModuleRecord {
 @Injectable({ providedIn: 'root' })
 export class V3SettingsService {
   private readonly http = inject(HttpClient);
+  private readonly catalogsService = inject(V3CatalogsService);
   private readonly baseUrl = `${environment.APIURL}/settings`;
 
   listAcademicYears(): Observable<AcademicYearRecord[]> {
@@ -212,7 +214,10 @@ export class V3SettingsService {
         `${this.baseUrl}/academic-years`,
         payload,
       )
-      .pipe(map((r) => r.data));
+      .pipe(
+        map((r) => r.data),
+        tap(() => this.catalogsService.notifySchoolContextChanged()),
+      );
   }
 
   listGradingRules(academicYear: number): Observable<GradingRuleRecord[]> {

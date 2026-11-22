@@ -1,8 +1,27 @@
-import { CommonModule } from '@angular/common';
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import {
+  AfterViewInit,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  OnInit,
+  PLATFORM_ID,
+  signal,
+  ViewChild,
+} from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import {
+  ColumnContract,
+  DataSourceContract,
+  ExodoGridComponent,
+  ExodolibsModule,
+  Proxy,
+} from 'exodolibs';
 import { finalize } from 'rxjs';
+import { environment } from '../../../environments/environment';
+import { CustomizerSettingsService } from '../../customizer-settings/customizer-settings.service';
 import { LoadMaskService } from '../../services/common/load-mask.service';
 import { MessagesService } from '../../services/messages.service';
 import {
@@ -14,14 +33,22 @@ import {
   V3CatalogsService,
 } from '../../services/v3-catalogs.service';
 import { V3UnifiedAuthService } from '../../services/v3-unified-auth.service';
-import {
-  V3DataGridComponent,
-  V3GridColumn,
-} from '../../shared/components/v3-data-grid/v3-data-grid.component';
 import { V3FileManagerModalComponent } from '../../shared/components/v3-file-manager-modal/v3-file-manager-modal.component';
 import { V3ModalDialogComponent } from '../../shared/components/v3-modal-dialog/v3-modal-dialog.component';
+import {
+  V3FormWizardComponent,
+  V3WizardStep,
+} from '../../shared/components/v3-form-wizard/v3-form-wizard.component';
+import {
+  SearchableSelectOption,
+  V3SearchableSelectComponent,
+} from '../../shared/components/v3-searchable-select/v3-searchable-select.component';
 import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.directive';
-import { markAllAsTouched } from '../../utils/form-validators';
+import {
+  ExodoExportColumn,
+  exportGridRowsToExcel,
+} from '../../shared/utils/exodo-grid-export.util';
+import { isControlInvalid, markAllAsTouched } from '../../utils/form-validators';
 
 /**
  * Gestión de Personal Docente (reemplaza Teachers.js y SaveTeacher.js de ExtJS).
@@ -33,9 +60,11 @@ import { markAllAsTouched } from '../../utils/form-validators';
     CommonModule,
     ReactiveFormsModule,
     RouterLink,
-    V3DataGridComponent,
+    ExodolibsModule,
     V3ModalDialogComponent,
     V3FileManagerModalComponent,
+    V3FormWizardComponent,
+    V3SearchableSelectComponent,
     CustomTooltipDirective,
   ],
   template: `
@@ -53,256 +82,462 @@ import { markAllAsTouched } from '../../utils/form-validators';
         </ol>
       </div>
 
-      <app-v3-data-grid
-        heading="Directorio de Docentes"
-        subtitle="Gestión de información personal, formación, escalafón y área de enseñanza"
+      <exodo-grid
+        #teachersGrid
+        mode="remote"
+        caption="Directorio de Docentes"
         [columns]="columns"
-        [rows]="teachers()"
-        [loading]="loading()"
-        exportFileName="personal-docente"
-        searchPlaceholder="Buscar por documento, nombre o correo..."
-        (refreshRequested)="loadTeachers()"
+        [dataSource]="dataSource"
+        [proxy]="proxy"
+        [customBody]="true"
+        [allowSorting]="true"
+        [allowFiltering]="true"
+        [showPagination]="true"
+        [limit]="15"
+        [theme]="gridTheme"
+        placeholder="Buscar por documento, nombre o correo..."
+        (loadError)="onGridLoadError()"
       >
-        <button
-          grid-toolbar
-          type="button"
-          class="btn btn-sm btn-outline-info d-inline-flex align-items-center gap-1"
-          (click)="docsModalOpen.set(true)"
-          [appCustomTooltip]="'Abrir documentos digitales del personal docente en S3'"
-        >
-          <i class="material-symbols-outlined fs-6">folder_shared</i>
-          <span>Documentos S3</span>
-        </button>
-
-        @if (canWrite()) {
+        <div header class="v3-exodo-toolbar">
           <button
-            grid-toolbar
             type="button"
-            class="btn btn-sm btn-primary d-inline-flex align-items-center gap-1"
-            (click)="openCreateModal()"
-            [appCustomTooltip]="'Registrar nuevo docente'"
+            class="btn btn-sm btn-outline-info d-inline-flex align-items-center gap-1"
+            (click)="docsModalOpen.set(true)"
+            [appCustomTooltip]="'Abrir documentos digitales del personal docente'"
           >
-            <i class="material-symbols-outlined fs-6">person_add</i>
-            <span>Nuevo docente</span>
+            <i class="material-symbols-outlined fs-6">folder_shared</i>
+            <span>Documentos digitales</span>
           </button>
-        }
 
-        <ng-template #rowActions let-teacher>
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1"
+            (click)="teachersGrid.clearFilters()"
+            [appCustomTooltip]="'Limpiar filtros y ordenamiento'"
+          >
+            <i class="material-symbols-outlined fs-6">filter_alt_off</i>
+            <span>Limpiar</span>
+          </button>
+
+          @if (teacherRows.length > 0) {
+            <button
+              type="button"
+              class="btn btn-sm btn-outline-success d-inline-flex align-items-center gap-1"
+              (click)="exportCurrentPage()"
+              [appCustomTooltip]="'Exportar página actual a Excel (.xlsx)'"
+            >
+              <i class="material-symbols-outlined fs-6">download</i>
+              <span>Excel</span>
+            </button>
+          }
+
           @if (canWrite()) {
             <button
               type="button"
-              class="btn btn-sm btn-outline-primary me-1"
-              (click)="openEditModal(teacher)"
-              [appCustomTooltip]="'Editar docente'"
+              class="btn btn-sm btn-primary d-inline-flex align-items-center gap-1"
+              (click)="openCreateModal()"
+              [appCustomTooltip]="'Registrar nuevo docente'"
             >
-              <i class="material-symbols-outlined fs-6">edit</i>
+              <i class="material-symbols-outlined fs-6">person_add</i>
+              <span>Nuevo docente</span>
             </button>
           }
-          @if (canDelete()) {
-            <button
-              type="button"
-              class="btn btn-sm btn-outline-danger"
-              (click)="confirmDeleteTeacher(teacher)"
-              [appCustomTooltip]="'Eliminar docente'"
-            >
-              <i class="material-symbols-outlined fs-6">delete</i>
-            </button>
-          }
-        </ng-template>
-      </app-v3-data-grid>
+        </div>
+
+        @for (teacher of teacherRows; track teacher.id) {
+          <tr>
+            <td class="text-center text-muted small">
+              {{ (teachersGrid.dataRecords?.from || 1) + $index }}
+            </td>
+            <td>
+              {{
+                teacher.documentTypeCode
+                  ? teacher.documentTypeCode + ' ' + teacher.documentNumber
+                  : teacher.documentNumber
+              }}
+            </td>
+            <td class="fw-medium">{{ teacher.fullName }}</td>
+            <td>{{ teacher.email || '—' }}</td>
+            <td>{{ teacher.phone || '—' }}</td>
+            <td>{{ teacher.teachingAreaName || '—' }}</td>
+            <td>{{ teacher.payScaleName || '—' }}</td>
+            <td class="text-center">
+              <span
+                class="badge rounded-pill"
+                [ngClass]="
+                  teacher.isActive
+                    ? 'bg-success-subtle text-success'
+                    : 'bg-secondary-subtle text-secondary'
+                "
+              >
+                {{ teacher.isActive ? 'Activo' : 'Inactivo' }}
+              </span>
+            </td>
+            <td class="text-end text-nowrap">
+              @if (canWrite()) {
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-primary me-1"
+                  (click)="openEditModal(teacher)"
+                  [appCustomTooltip]="'Editar docente'"
+                >
+                  <i class="material-symbols-outlined fs-6">edit</i>
+                </button>
+              }
+              @if (canDelete()) {
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-danger"
+                  (click)="confirmDeleteTeacher(teacher)"
+                  [appCustomTooltip]="'Eliminar docente'"
+                >
+                  <i class="material-symbols-outlined fs-6">delete</i>
+                </button>
+              }
+            </td>
+          </tr>
+        }
+      </exodo-grid>
     </div>
 
     <app-v3-modal-dialog
       [open]="formModalOpen()"
       [heading]="editingTeacher() ? 'Editar Docente' : 'Registrar Docente'"
       icon="school"
-      size="xl"
+      size="lg"
       (closed)="formModalOpen.set(false)"
     >
-      <form [formGroup]="teacherForm" (ngSubmit)="saveTeacher()">
-        <div class="row g-3">
-          <div class="col-md-3">
-            <label class="form-label">Tipo de documento</label>
-            <select class="form-select" formControlName="documentTypeId">
-              @for (item of catalogs()?.documentTypes ?? []; track item.id) {
-                <option [ngValue]="item.id">{{ item.code }} - {{ item.name }}</option>
-              }
-            </select>
-          </div>
-          <div class="col-md-3">
-            <label class="form-label">Número de documento *</label>
-            <input type="text" class="form-control" formControlName="documentNumber" />
-          </div>
-          <div class="col-md-3">
-            <label class="form-label">Género</label>
-            <select class="form-select" formControlName="genderId">
-              <option [ngValue]="null">Seleccione...</option>
-              @for (item of catalogs()?.genders ?? []; track item.id) {
-                <option [ngValue]="item.id">{{ item.name }}</option>
-              }
-            </select>
-          </div>
-          <div class="col-md-3">
-            <label class="form-label">Fecha de nacimiento</label>
-            <input type="date" class="form-control" formControlName="birthDate" />
-          </div>
-
-          <div class="col-md-3">
-            <label class="form-label">Primer nombre *</label>
-            <input type="text" class="form-control" formControlName="firstName" />
-          </div>
-          <div class="col-md-3">
-            <label class="form-label">Segundo nombre</label>
-            <input type="text" class="form-control" formControlName="middleName" />
-          </div>
-          <div class="col-md-3">
-            <label class="form-label">Primer apellido *</label>
-            <input type="text" class="form-control" formControlName="lastName" />
-          </div>
-          <div class="col-md-3">
-            <label class="form-label">Segundo apellido</label>
-            <input type="text" class="form-control" formControlName="secondLastName" />
-          </div>
-
-          <div class="col-md-4">
-            <label class="form-label">Correo electrónico</label>
-            <input type="email" class="form-control" formControlName="email" />
-          </div>
-          <div class="col-md-4">
-            <label class="form-label">Teléfono / Celular</label>
-            <input type="text" class="form-control" formControlName="phone" />
-          </div>
-          <div class="col-md-4">
-            <label class="form-label">Dirección de residencia</label>
-            <input type="text" class="form-control" formControlName="address" />
-          </div>
-
-          <div class="col-md-4">
-            <label class="form-label">Nivel académico / Formación</label>
-            <select class="form-select" formControlName="academicDegreeId">
-              <option [ngValue]="null">Seleccione...</option>
-              @for (item of catalogs()?.academicDegrees ?? []; track item.id) {
-                <option [ngValue]="item.id">{{ item.name }}</option>
-              }
-            </select>
-          </div>
-          <div class="col-md-4">
-            <label class="form-label">Escalafón docente</label>
-            <select class="form-select" formControlName="payScaleId">
-              <option [ngValue]="null">Seleccione...</option>
-              @for (item of catalogs()?.teacherPayScales ?? []; track item.id) {
-                <option [ngValue]="item.id">{{ item.name }}</option>
-              }
-            </select>
-          </div>
-          <div class="col-md-4">
-            <label class="form-label">Área de enseñanza</label>
-            <select class="form-select" formControlName="teachingAreaId">
-              <option [ngValue]="null">Seleccione...</option>
-              @for (item of catalogs()?.teachingAreas ?? []; track item.id) {
-                <option [ngValue]="item.id">{{ item.name }}</option>
-              }
-            </select>
-          </div>
-
-          <div class="col-md-4">
-            <label class="form-label">Tipo de vinculación</label>
-            <select class="form-select" formControlName="appointmentTypeId">
-              <option [ngValue]="null">Seleccione...</option>
-              @for (item of catalogs()?.staffAppointmentTypes ?? []; track item.id) {
-                <option [ngValue]="item.id">{{ item.name }}</option>
-              }
-            </select>
-          </div>
-          <div class="col-md-4">
-            <label class="form-label">Cargo docente</label>
-            <select class="form-select" formControlName="positionId">
-              <option [ngValue]="null">Seleccione...</option>
-              @for (item of catalogs()?.staffPositions ?? []; track item.id) {
-                <option [ngValue]="item.id">{{ item.name }}</option>
-              }
-            </select>
-          </div>
-          <div class="col-md-4 d-flex align-items-end">
-            <div class="form-check form-switch">
-              <input class="form-check-input" type="checkbox" id="teacherActive" formControlName="isActive" />
-              <label class="form-check-label" for="teacherActive">Docente activo</label>
+      <form [formGroup]="teacherForm" (ngSubmit)="onTeacherFormSubmit()">
+        <app-v3-form-wizard
+          [steps]="teacherWizardSteps()"
+          [(activeIndex)]="wizardStep"
+          [allowFreeNavigation]="editingTeacher() !== null"
+          [showFooter]="false"
+          (nextRequested)="onTeacherStepNext($event)"
+        >
+          @if (wizardStep() === 0) {
+            <div class="row g-3">
+              <div class="col-12 col-md-6">
+                <label class="form-label">Tipo de documento</label>
+                <app-v3-searchable-select
+                  formControlName="documentTypeId"
+                  [options]="documentTypeOptions()"
+                  placeholder="Seleccione tipo..."
+                  searchPlaceholder="Buscar tipo de documento..."
+                />
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label">Número de documento *</label>
+                <input type="text" class="form-control" formControlName="documentNumber" />
+                @if (isControlInvalid(teacherForm, 'documentNumber')) {
+                  <small class="v3-field-error">El número de documento es obligatorio.</small>
+                }
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label">Primer nombre *</label>
+                <input type="text" class="form-control" formControlName="firstName" />
+                @if (isControlInvalid(teacherForm, 'firstName')) {
+                  <small class="v3-field-error">El primer nombre es obligatorio.</small>
+                }
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label">Segundo nombre</label>
+                <input type="text" class="form-control" formControlName="middleName" />
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label">Primer apellido *</label>
+                <input type="text" class="form-control" formControlName="lastName" />
+                @if (isControlInvalid(teacherForm, 'lastName')) {
+                  <small class="v3-field-error">El primer apellido es obligatorio.</small>
+                }
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label">Segundo apellido</label>
+                <input type="text" class="form-control" formControlName="secondLastName" />
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label">Género</label>
+                <app-v3-searchable-select
+                  formControlName="genderId"
+                  [options]="genderOptions()"
+                  [clearable]="true"
+                  placeholder="Seleccione..."
+                  searchPlaceholder="Buscar género..."
+                />
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label">Fecha de nacimiento</label>
+                <input type="date" class="form-control" formControlName="birthDate" />
+              </div>
             </div>
-          </div>
-        </div>
+          } @else if (wizardStep() === 1) {
+            <div class="row g-3">
+              <div class="col-12 col-md-6">
+                <label class="form-label">Correo electrónico</label>
+                <input type="email" class="form-control" formControlName="email" />
+                @if (isControlInvalid(teacherForm, 'email')) {
+                  <small class="v3-field-error">Ingresa un correo electrónico válido.</small>
+                }
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label">Teléfono / Celular</label>
+                <input type="text" class="form-control" formControlName="phone" />
+              </div>
+              <div class="col-12">
+                <label class="form-label">Dirección de residencia</label>
+                <input type="text" class="form-control" formControlName="address" />
+              </div>
+            </div>
+          } @else {
+            <div class="row g-3">
+              <div class="col-12 col-md-6">
+                <label class="form-label">Nivel académico / Formación</label>
+                <app-v3-searchable-select
+                  formControlName="academicDegreeId"
+                  [options]="academicDegreeOptions()"
+                  [clearable]="true"
+                  placeholder="Seleccione..."
+                  searchPlaceholder="Buscar nivel académico..."
+                />
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label">Escalafón docente</label>
+                <app-v3-searchable-select
+                  formControlName="payScaleId"
+                  [options]="payScaleOptions()"
+                  [clearable]="true"
+                  placeholder="Seleccione..."
+                  searchPlaceholder="Buscar escalafón..."
+                />
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label">Área de enseñanza</label>
+                <app-v3-searchable-select
+                  formControlName="teachingAreaId"
+                  [options]="teachingAreaOptions()"
+                  [clearable]="true"
+                  placeholder="Seleccione..."
+                  searchPlaceholder="Buscar área..."
+                />
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label">Tipo de vinculación</label>
+                <app-v3-searchable-select
+                  formControlName="appointmentTypeId"
+                  [options]="appointmentTypeOptions()"
+                  [clearable]="true"
+                  placeholder="Seleccione..."
+                  searchPlaceholder="Buscar vinculación..."
+                />
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label">Cargo docente</label>
+                <app-v3-searchable-select
+                  formControlName="positionId"
+                  [options]="positionOptions()"
+                  [clearable]="true"
+                  placeholder="Seleccione..."
+                  searchPlaceholder="Buscar cargo..."
+                />
+              </div>
+              <div class="col-12 col-md-6 d-flex align-items-end">
+                <div class="v3-form-switch-box">
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="teacherActive" formControlName="isActive" />
+                    <label class="form-check-label" for="teacherActive">Docente activo</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+        </app-v3-form-wizard>
       </form>
 
-      <div modal-footer>
+      <div modal-footer class="v3-modal-footer-split">
         <button type="button" class="btn btn-sm btn-outline-secondary" (click)="formModalOpen.set(false)">
           Cancelar
         </button>
-        <button
-          type="button"
-          class="btn btn-sm btn-primary"
-          [disabled]="teacherForm.invalid"
-          (click)="saveTeacher()"
-        >
-          Guardar docente
-        </button>
+        <div class="v3-modal-footer-actions">
+          @if (wizardStep() > 0) {
+            <button type="button" class="btn btn-sm btn-outline-secondary" (click)="wizardStep.set(wizardStep() - 1)">
+              Anterior
+            </button>
+          }
+          @if (wizardStep() < 2) {
+            <button
+              type="button"
+              class="btn btn-sm"
+              [ngClass]="editingTeacher() ? 'btn-outline-primary' : 'btn-primary'"
+              (click)="onTeacherStepNext(wizardStep())"
+            >
+              Siguiente
+            </button>
+          }
+          @if (wizardStep() === 2 || editingTeacher()) {
+            <button
+              type="button"
+              class="btn btn-sm btn-primary"
+              [disabled]="teacherForm.invalid"
+              (click)="saveTeacher()"
+            >
+              Guardar docente
+            </button>
+          }
+        </div>
       </div>
     </app-v3-modal-dialog>
 
     <app-v3-file-manager-modal
       [open]="docsModalOpen()"
       heading="Expedientes y Documentos de Docentes"
-      category="TEACHER_DOCUMENTS"
+      category="GENERAL"
+      [canUpload]="canManageDocs()"
+      [canDelete]="canManageDocs()"
       (closed)="docsModalOpen.set(false)"
     />
   `,
 })
-export class TeachersManagementComponent implements OnInit {
+export class TeachersManagementComponent implements OnInit, AfterViewInit {
+  @ViewChild('teachersGrid') private teachersGrid?: ExodoGridComponent;
+
   private readonly fb = inject(FormBuilder);
   private readonly adminService = inject(V3AdministrationService);
   private readonly catalogsService = inject(V3CatalogsService);
   private readonly v3Auth = inject(V3UnifiedAuthService);
+  private readonly themeService = inject(CustomizerSettingsService);
   private readonly maskService = inject(LoadMaskService);
   private readonly messages = inject(MessagesService);
+  protected readonly isControlInvalid = isControlInvalid;
 
-  readonly teachers = signal<TeacherProfileRecord[]>([]);
-  readonly loading = signal(false);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+  private initLoadTimer: ReturnType<typeof setTimeout> | null = null;
+
+  readonly wizardStep = signal(0);
+  readonly teacherWizardSteps = computed<readonly V3WizardStep[]>(() => [
+    {
+      id: 'personal',
+      title: 'Datos Personales',
+      subtitle: 'Documento, nombres completos y nacimiento',
+      icon: 'person',
+      invalid: Boolean(
+        (this.teacherForm?.get('documentNumber')?.invalid &&
+          this.teacherForm?.get('documentNumber')?.touched) ||
+          (this.teacherForm?.get('firstName')?.invalid &&
+            this.teacherForm?.get('firstName')?.touched) ||
+          (this.teacherForm?.get('lastName')?.invalid &&
+            this.teacherForm?.get('lastName')?.touched)
+      ),
+    },
+    {
+      id: 'contact',
+      title: 'Contacto y Residencia',
+      subtitle: 'Correo electrónico, teléfono y dirección',
+      icon: 'contact_mail',
+      invalid: Boolean(
+        this.teacherForm?.get('email')?.invalid &&
+          this.teacherForm?.get('email')?.touched
+      ),
+    },
+    {
+      id: 'profile',
+      title: 'Perfil Docente',
+      subtitle: 'Formación, escalafón, área y vinculación',
+      icon: 'workspace_premium',
+    },
+  ]);
+
+  readonly dataSource: DataSourceContract = { rows: [], dataRecords: null };
+  readonly proxy: Proxy = {
+    api: { read: `${environment.APIURL}/admin/teachers` },
+  };
   readonly catalogs = signal<GlobalCatalogsBundle | null>(null);
   readonly formModalOpen = signal(false);
   readonly docsModalOpen = signal(false);
   readonly editingTeacher = signal<TeacherProfileRecord | null>(null);
 
-  readonly canWrite = computed(() => {
-    const role = this.v3Auth.activeRole();
-    return (
-      role === 'SUPER_ADMIN' ||
-      role === 'SCHOOL_ADMIN' ||
-      role === 'RECTOR' ||
-      role === 'COORDINATOR'
-    );
-  });
+  readonly documentTypeOptions = computed<SearchableSelectOption<number>[]>(() =>
+    (this.catalogs()?.documentTypes ?? []).map((item) => ({
+      value: item.id,
+      label: `${item.code} - ${item.name}`,
+    }))
+  );
+  readonly genderOptions = computed(() => this.toNamedOptions(this.catalogs()?.genders));
+  readonly academicDegreeOptions = computed(() =>
+    this.toNamedOptions(this.catalogs()?.academicDegrees)
+  );
+  readonly payScaleOptions = computed(() => this.toNamedOptions(this.catalogs()?.teacherPayScales));
+  readonly teachingAreaOptions = computed(() =>
+    this.toNamedOptions(this.catalogs()?.teachingAreas)
+  );
+  readonly appointmentTypeOptions = computed(() =>
+    this.toNamedOptions(this.catalogs()?.staffAppointmentTypes)
+  );
+  readonly positionOptions = computed(() => this.toNamedOptions(this.catalogs()?.staffPositions));
 
-  readonly canDelete = computed(() => {
-    const role = this.v3Auth.activeRole();
-    return role === 'SUPER_ADMIN' || role === 'SCHOOL_ADMIN' || role === 'RECTOR';
-  });
+  private toNamedOptions(
+    items?: readonly { id: number; name: string }[]
+  ): SearchableSelectOption<number>[] {
+    return (items ?? []).map((item) => ({ value: item.id, label: item.name }));
+  }
 
-  readonly columns: V3GridColumn<TeacherProfileRecord>[] = [
+  readonly canWrite = computed(() =>
+    this.v3Auth.hasPermission('admin.teachers.write'),
+  );
+
+  readonly canDelete = computed(() =>
+    this.v3Auth.hasPermission('admin.teachers.delete'),
+  );
+
+  readonly canManageDocs = computed(() =>
+    this.v3Auth.hasPermission('storage.teacher_documents.write'),
+  );
+
+  get gridTheme(): 'dark' | 'glacial' {
+    return this.themeService.isDark() ? 'dark' : 'glacial';
+  }
+
+  get teacherRows(): TeacherProfileRecord[] {
+    return (this.teachersGrid?.rows as TeacherProfileRecord[] | undefined) ?? [];
+  }
+
+  readonly columns: ColumnContract[] = [
+    { text: '#', width: '48px', align: 'center', sortable: false },
+    { text: 'Documento', dataIndex: 'documentNumber' },
+    { text: 'Docente', dataIndex: 'fullName' },
+    { text: 'Correo', dataIndex: 'email' },
+    { text: 'Teléfono', dataIndex: 'phone' },
+    { text: 'Área enseñanza', dataIndex: 'teachingAreaName' },
+    { text: 'Escalafón', dataIndex: 'payScaleName' },
+    { text: 'Estado', dataIndex: 'isActive', align: 'center' },
+    { text: 'Acciones', width: '110px', align: 'right', sortable: false },
+  ];
+
+  private readonly exportColumns: readonly ExodoExportColumn<TeacherProfileRecord>[] = [
     {
-      key: 'documentNumber',
-      label: 'Documento',
-      formatter: (r) =>
-        r.documentTypeCode ? `${r.documentTypeCode} ${r.documentNumber}` : r.documentNumber,
+      header: 'Documento',
+      value: (r) =>
+        r.documentTypeCode
+          ? `${r.documentTypeCode} ${r.documentNumber}`
+          : r.documentNumber,
     },
-    { key: 'fullName', label: 'Docente' },
-    { key: 'email', label: 'Correo' },
-    { key: 'phone', label: 'Teléfono' },
-    { key: 'teachingAreaName', label: 'Área enseñanza' },
-    { key: 'payScaleName', label: 'Escalafón' },
-    { key: 'isActive', label: 'Estado', align: 'center', badge: true },
+    { header: 'Docente', value: (r) => r.fullName },
+    { header: 'Correo', value: (r) => r.email ?? '' },
+    { header: 'Teléfono', value: (r) => r.phone ?? '' },
+    { header: 'Área enseñanza', value: (r) => r.teachingAreaName ?? '' },
+    { header: 'Escalafón', value: (r) => r.payScaleName ?? '' },
+    { header: 'Estado', value: (r) => (r.isActive ? 'Activo' : 'Inactivo') },
   ];
 
   readonly teacherForm: FormGroup;
 
   constructor() {
+    this.destroyRef.onDestroy(() => {
+      if (this.initLoadTimer !== null) {
+        clearTimeout(this.initLoadTimer);
+        this.initLoadTimer = null;
+      }
+    });
     this.teacherForm = this.fb.group({
       documentTypeId: [1],
       documentNumber: ['', [Validators.required, Validators.maxLength(30)]],
@@ -326,21 +561,39 @@ export class TeachersManagementComponent implements OnInit {
 
   ngOnInit(): void {
     this.catalogsService.getGlobalBundle().subscribe((b) => this.catalogs.set(b));
-    this.loadTeachers();
+  }
+
+  ngAfterViewInit(): void {
+    this.teachersGrid?.onLoad({ paginated: '1' }, false);
+    if (this.isBrowser) {
+      this.initLoadTimer = setTimeout(() => {
+        this.initLoadTimer = null;
+        this.teachersGrid?.onLoad({ paginated: '1' }, true);
+      });
+    }
   }
 
   loadTeachers(): void {
-    this.loading.set(true);
-    this.adminService
-      .listTeachers({ limit: 500 })
-      .pipe(finalize(() => this.loading.set(false)))
-      .subscribe({
-        next: (res) => this.teachers.set(res.items),
-      });
+    this.teachersGrid?.rebuildGrid();
+  }
+
+  exportCurrentPage(): void {
+    exportGridRowsToExcel(
+      this.teacherRows,
+      this.exportColumns,
+      'personal-docente',
+    );
+  }
+
+  onGridLoadError(): void {
+    this.messages.showError(
+      'No fue posible cargar el listado de personal docente.',
+    );
   }
 
   openCreateModal(): void {
     this.editingTeacher.set(null);
+    this.wizardStep.set(0);
     this.teacherForm.reset({
       documentTypeId: 1,
       documentNumber: '',
@@ -365,6 +618,7 @@ export class TeachersManagementComponent implements OnInit {
 
   openEditModal(teacher: TeacherProfileRecord): void {
     this.editingTeacher.set(teacher);
+    this.wizardStep.set(0);
     this.teacherForm.patchValue({
       documentTypeId: teacher.documentTypeId ?? 1,
       documentNumber: teacher.documentNumber,
@@ -385,6 +639,42 @@ export class TeachersManagementComponent implements OnInit {
       isActive: teacher.isActive,
     });
     this.formModalOpen.set(true);
+  }
+
+  onTeacherStepNext(stepIndex: number): void {
+    if (stepIndex === 0) {
+      const requiredControls = ['documentNumber', 'firstName', 'lastName'];
+      let hasInvalid = false;
+      for (const name of requiredControls) {
+        const ctrl = this.teacherForm.get(name);
+        if (ctrl?.invalid) {
+          ctrl.markAsTouched();
+          hasInvalid = true;
+        }
+      }
+      if (hasInvalid) {
+        return;
+      }
+      this.wizardStep.set(1);
+      return;
+    }
+
+    if (stepIndex === 1) {
+      const emailCtrl = this.teacherForm.get('email');
+      if (emailCtrl?.invalid) {
+        emailCtrl.markAsTouched();
+        return;
+      }
+      this.wizardStep.set(2);
+    }
+  }
+
+  onTeacherFormSubmit(): void {
+    if (this.wizardStep() < 2 && !this.editingTeacher()) {
+      this.onTeacherStepNext(this.wizardStep());
+      return;
+    }
+    this.saveTeacher();
   }
 
   saveTeacher(): void {

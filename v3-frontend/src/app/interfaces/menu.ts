@@ -11,5 +11,8 @@ export interface Menu {
   order?: number;
   active: boolean;
   roles?: CommunityRole[];
+  permission?: string;
+  anyPermissions?: string[];
+  moduleTag?: string;
   subItems?: Menu[];
 }

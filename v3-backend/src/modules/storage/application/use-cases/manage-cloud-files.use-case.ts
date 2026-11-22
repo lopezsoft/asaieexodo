@@ -231,6 +231,22 @@ export class ManageCloudFilesUseCase {
     };
   }
 
+  public async getFileMetadata(
+    schoolId: bigint,
+    fileId: bigint,
+    includePending = false,
+  ): Promise<CloudFileRecord> {
+    const file = await this.cloudFileRepository.findById(
+      schoolId,
+      fileId,
+      includePending,
+    );
+    if (!file) {
+      throw new ResourceNotFoundException('CloudFile', fileId);
+    }
+    return file;
+  }
+
   public async listSchoolFiles(
     schoolId: bigint,
     ownerEntityType?: string,

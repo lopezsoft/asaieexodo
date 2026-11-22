@@ -136,6 +136,8 @@ export function mapLegacyProfileIdToRole(profileId: number): CommunityRole {
       return CommunityRole.COORDINATOR;
     case 7:
       return CommunityRole.FAMILY;
+    case 8:
+      return CommunityRole.SCHOOL_ADMIN;
     default:
       return CommunityRole.STUDENT;
   }

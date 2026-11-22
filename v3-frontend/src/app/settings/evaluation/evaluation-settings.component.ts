@@ -15,6 +15,14 @@ import {
   V3SettingsService,
 } from '../../services/v3-settings.service';
 import { V3UnifiedAuthService } from '../../services/v3-unified-auth.service';
+import {
+  V3FormWizardComponent,
+  V3WizardStep,
+} from '../../shared/components/v3-form-wizard/v3-form-wizard.component';
+import {
+  SearchableSelectOption,
+  V3SearchableSelectComponent,
+} from '../../shared/components/v3-searchable-select/v3-searchable-select.component';
 import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.directive';
 
 type EvaluationTab = 'rules' | 'periods' | 'scales' | 'dimensions';
@@ -26,7 +34,14 @@ type EvaluationTab = 'rules' | 'periods' | 'scales' | 'dimensions';
 @Component({
   selector: 'app-evaluation-settings',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, CustomTooltipDirective],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterLink,
+    V3FormWizardComponent,
+    V3SearchableSelectComponent,
+    CustomTooltipDirective,
+  ],
   template: `
     <div class="container-fluid py-3">
       <div class="breadcrumb-card mb-25 d-md-flex align-items-center justify-content-between">
@@ -77,106 +92,149 @@ type EvaluationTab = 'rules' | 'periods' | 'scales' | 'dimensions';
         @switch (activeTab()) {
           @case ('rules') {
             @if (canAdmin()) {
-              <div class="row g-2 align-items-end mb-4 p-3 rounded bg-light border">
-                <div class="col-md-3">
-                  <label class="form-label small fw-semibold">Grupo de grados *</label>
-                  <select class="form-select form-select-sm" [(ngModel)]="newRule.gradeGroupId">
-                    <option [ngValue]="null">Seleccione...</option>
-                    @for (gg of gradeGroups(); track gg.id) {
-                      <option [ngValue]="gg.id">{{ gg.name }}</option>
-                    }
-                  </select>
-                </div>
-                <div class="col-md-2">
-                  <label class="form-label small fw-semibold">Nota aprob.</label>
-                  <input type="number" step="0.1" class="form-control form-control-sm" [(ngModel)]="newRule.minPassingScore" />
-                </div>
-                <div class="col-md-2">
-                  <label class="form-label small fw-semibold">Máx. nivelación</label>
-                  <input type="number" step="0.1" class="form-control form-control-sm" [(ngModel)]="newRule.maxRecoveryScore" />
-                </div>
-                <div class="col-md-2">
-                  <label class="form-label small fw-semibold">Mín. prom. área</label>
-                  <input type="number" step="0.1" class="form-control form-control-sm" [(ngModel)]="newRule.minAreaAverage" />
-                </div>
-                <div class="col-md-1">
-                  <label class="form-label small fw-semibold">Decim.</label>
-                  <input type="number" min="0" max="4" class="form-control form-control-sm" [(ngModel)]="newRule.decimalsCount" />
-                </div>
-                <div class="col-md-2">
-                  <label class="form-label small fw-semibold">Áreas reprueba</label>
-                  <input type="number" min="1" class="form-control form-control-sm" [(ngModel)]="newRule.failedAreasLimit" />
-                </div>
-
-                <div class="col-md-2">
-                  <label class="form-label small fw-semibold">Umbral gracia</label>
-                  <input type="number" step="0.01" class="form-control form-control-sm" [(ngModel)]="newRule.roundingThresholdScore" />
-                </div>
-                <div class="col-md-2">
-                  <label class="form-label small fw-semibold">Nota gracia</label>
-                  <input type="number" step="0.01" class="form-control form-control-sm" [(ngModel)]="newRule.roundingTargetScore" />
-                </div>
-                <div class="col-md-2">
-                  <label class="form-label small fw-semibold">% Inasist. falla</label>
-                  <input type="number" min="0" max="100" class="form-control form-control-sm" [(ngModel)]="newRule.absenceFailPercentage" />
-                </div>
-                <div class="col-md-2">
-                  <label class="form-label small fw-semibold">Est. por libro</label>
-                  <input type="number" min="1" class="form-control form-control-sm" [(ngModel)]="newRule.studentsPerBook" />
-                </div>
-                <div class="col-md-2">
-                  <label class="form-label small fw-semibold">Repr. tras recup.</label>
-                  <select class="form-select form-select-sm" [(ngModel)]="newRule.failsAfterRecoveryMode">
-                    <option [ngValue]="0">0 · No reprueba</option>
-                    <option [ngValue]="1">1 · Pierde 1+ área</option>
-                    <option [ngValue]="2">2 · Pierde 2+ áreas</option>
-                    <option [ngValue]="3">3 · No aprueba todas</option>
-                  </select>
-                </div>
-                <div class="col-md-2">
-                  <label class="form-label small fw-semibold">Modalidad año</label>
-                  <select class="form-select form-select-sm" [(ngModel)]="newRule.academicYearMode">
-                    <option [ngValue]="0">Anual estándar</option>
-                    <option [ngValue]="1">Ciclos / Semestral</option>
-                  </select>
-                </div>
-
-                <div class="col-12 d-flex flex-wrap gap-3 pt-1">
-                  <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="swWeightedAreas" [(ngModel)]="newRule.usesWeightedAreas" />
-                    <label class="form-check-label small" for="swWeightedAreas">Áreas ponderadas</label>
-                  </div>
-                  <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="swFailAreaAny" [(ngModel)]="newRule.failsAreaIfAnySubjectFails" />
-                    <label class="form-check-label small" for="swFailAreaAny">Pierde área si falla 1 asig.</label>
-                  </div>
-                  <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="swFailMandatory" [(ngModel)]="newRule.failsYearByMandatoryArea" />
-                    <label class="form-check-label small" for="swFailMandatory">Pierde año por área oblig.</label>
-                  </div>
-                  <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="swRoundPeriod" [(ngModel)]="newRule.roundsPeriodScore" />
-                    <label class="form-check-label small" for="swRoundPeriod">Redondeo periodo</label>
-                  </div>
-                  <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="swRoundFinal" [(ngModel)]="newRule.roundsFinalScore" />
-                    <label class="form-check-label small" for="swRoundFinal">Redondeo final</label>
-                  </div>
-                  <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="swRankArea" [(ngModel)]="newRule.ranksByAreaAverage" />
-                    <label class="form-check-label small" for="swRankArea">Puestos por áreas</label>
-                  </div>
-                  <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="swEnforceDates" [(ngModel)]="newRule.enforcesRecoveryDates" />
-                    <label class="form-check-label small" for="swEnforceDates">Control fechas recup.</label>
-                  </div>
-                </div>
-
-                <div class="col-12 text-end pt-1">
-                  <button type="button" class="btn btn-sm btn-primary" [disabled]="!newRule.gradeGroupId" (click)="saveRule()">
-                    Guardar regla SIEE
-                  </button>
-                </div>
+              <div class="v3-form-panel">
+                <app-v3-form-wizard
+                  [steps]="ruleWizardSteps"
+                  [(activeIndex)]="ruleWizardStep"
+                  [allowFreeNavigation]="true"
+                  [allowSaveAnyStep]="true"
+                  [showFooter]="true"
+                  submitLabel="Guardar regla SIEE"
+                  submitIcon="save"
+                  [submitDisabled]="!newRule.gradeGroupId"
+                  (submitted)="saveRule()"
+                >
+                  @if (ruleWizardStep() === 0) {
+                    <div class="row g-3">
+                      <div class="col-12 col-md-6">
+                        <label class="form-label">Grupo de grados *</label>
+                        <app-v3-searchable-select
+                          [(ngModel)]="newRule.gradeGroupId"
+                          [options]="gradeGroupOptions()"
+                          [clearable]="true"
+                          placeholder="Seleccione..."
+                          searchPlaceholder="Buscar grupo de grados..."
+                        />
+                      </div>
+                      <div class="col-12 col-md-6">
+                        <label class="form-label">Modalidad año</label>
+                        <app-v3-searchable-select
+                          [(ngModel)]="newRule.academicYearMode"
+                          [options]="academicYearModeOptions"
+                          placeholder="Modalidad..."
+                          searchPlaceholder="Buscar..."
+                        />
+                      </div>
+                      <div class="col-12 col-md-6">
+                        <label class="form-label">Nota aprobatoria</label>
+                        <input type="number" step="0.1" class="form-control" [(ngModel)]="newRule.minPassingScore" />
+                      </div>
+                      <div class="col-12 col-md-6">
+                        <label class="form-label">Máxima de nivelación</label>
+                        <input type="number" step="0.1" class="form-control" [(ngModel)]="newRule.maxRecoveryScore" />
+                      </div>
+                      <div class="col-12 col-md-6">
+                        <label class="form-label">Mínimo promedio de área</label>
+                        <input type="number" step="0.1" class="form-control" [(ngModel)]="newRule.minAreaAverage" />
+                      </div>
+                      <div class="col-12 col-md-6">
+                        <label class="form-label">Decimales</label>
+                        <input type="number" min="0" max="4" class="form-control" [(ngModel)]="newRule.decimalsCount" />
+                      </div>
+                    </div>
+                  } @else if (ruleWizardStep() === 1) {
+                    <div class="row g-3">
+                      <div class="col-12 col-md-6">
+                        <label class="form-label">Áreas con que reprueba</label>
+                        <input type="number" min="1" class="form-control" [(ngModel)]="newRule.failedAreasLimit" />
+                      </div>
+                      <div class="col-12 col-md-6">
+                        <label class="form-label">Reprobación tras recuperación</label>
+                        <app-v3-searchable-select
+                          [(ngModel)]="newRule.failsAfterRecoveryMode"
+                          [options]="failsAfterRecoveryOptions"
+                          placeholder="Modo..."
+                          searchPlaceholder="Buscar..."
+                        />
+                      </div>
+                      <div class="col-12 col-md-6">
+                        <label class="form-label">Umbral de gracia</label>
+                        <input type="number" step="0.01" class="form-control" [(ngModel)]="newRule.roundingThresholdScore" />
+                      </div>
+                      <div class="col-12 col-md-6">
+                        <label class="form-label">Nota objetivo de gracia</label>
+                        <input type="number" step="0.01" class="form-control" [(ngModel)]="newRule.roundingTargetScore" />
+                      </div>
+                      <div class="col-12 col-md-6">
+                        <label class="form-label">% Inasistencias para reprobar</label>
+                        <input type="number" min="0" max="100" class="form-control" [(ngModel)]="newRule.absenceFailPercentage" />
+                      </div>
+                      <div class="col-12 col-md-6">
+                        <label class="form-label">Estudiantes por libro</label>
+                        <input type="number" min="1" class="form-control" [(ngModel)]="newRule.studentsPerBook" />
+                      </div>
+                    </div>
+                  } @else {
+                    <div class="row g-3">
+                      <div class="col-12 col-md-6">
+                        <div class="v3-form-switch-box">
+                          <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="swWeightedAreas" [(ngModel)]="newRule.usesWeightedAreas" />
+                            <label class="form-check-label" for="swWeightedAreas">Áreas ponderadas</label>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-12 col-md-6">
+                        <div class="v3-form-switch-box">
+                          <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="swFailAreaAny" [(ngModel)]="newRule.failsAreaIfAnySubjectFails" />
+                            <label class="form-check-label" for="swFailAreaAny">Pierde área si falla 1 asignatura</label>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-12 col-md-6">
+                        <div class="v3-form-switch-box">
+                          <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="swFailMandatory" [(ngModel)]="newRule.failsYearByMandatoryArea" />
+                            <label class="form-check-label" for="swFailMandatory">Pierde año por área obligatoria</label>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-12 col-md-6">
+                        <div class="v3-form-switch-box">
+                          <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="swRoundPeriod" [(ngModel)]="newRule.roundsPeriodScore" />
+                            <label class="form-check-label" for="swRoundPeriod">Redondeo por periodo</label>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-12 col-md-6">
+                        <div class="v3-form-switch-box">
+                          <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="swRoundFinal" [(ngModel)]="newRule.roundsFinalScore" />
+                            <label class="form-check-label" for="swRoundFinal">Redondeo nota final</label>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-12 col-md-6">
+                        <div class="v3-form-switch-box">
+                          <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="swRankArea" [(ngModel)]="newRule.ranksByAreaAverage" />
+                            <label class="form-check-label" for="swRankArea">Puestos por promedio de áreas</label>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-12 col-md-6">
+                        <div class="v3-form-switch-box">
+                          <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="swEnforceDates" [(ngModel)]="newRule.enforcesRecoveryDates" />
+                            <label class="form-check-label" for="swEnforceDates">Control estricto de fechas de recuperación</label>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  }
+                </app-v3-form-wizard>
               </div>
             }
             <div class="table-responsive">
@@ -245,36 +303,38 @@ type EvaluationTab = 'rules' | 'periods' | 'scales' | 'dimensions';
 
           @case ('periods') {
             @if (canWrite()) {
-              <div class="row g-2 align-items-end mb-4 p-3 rounded bg-light border">
-                <div class="col-md-1">
-                  <label class="form-label small fw-semibold">N° *</label>
-                  <input type="number" min="1" max="6" class="form-control form-control-sm" [(ngModel)]="newPeriod.periodNumber" />
-                </div>
-                <div class="col-md-3">
-                  <label class="form-label small fw-semibold">Nombre *</label>
-                  <input type="text" class="form-control form-control-sm" [(ngModel)]="newPeriod.name" placeholder="Primer Periodo" />
-                </div>
-                <div class="col-md-2">
-                  <label class="form-label small fw-semibold">Peso % *</label>
-                  <input type="number" class="form-control form-control-sm" [(ngModel)]="newPeriod.weightPercentage" />
-                </div>
-                <div class="col-md-2">
-                  <label class="form-label small fw-semibold">Inicio *</label>
-                  <input type="date" class="form-control form-control-sm" [(ngModel)]="newPeriod.startDate" />
-                </div>
-                <div class="col-md-2">
-                  <label class="form-label small fw-semibold">Fin *</label>
-                  <input type="date" class="form-control form-control-sm" [(ngModel)]="newPeriod.endDate" />
-                </div>
-                <div class="col-md-2 d-grid">
-                  <button
-                    type="button"
-                    class="btn btn-sm btn-primary"
-                    [disabled]="!newPeriod.name.trim() || !newPeriod.startDate || !newPeriod.endDate"
-                    (click)="savePeriod()"
-                  >
-                    Agregar periodo
-                  </button>
+              <div class="v3-form-panel">
+                <div class="row g-3">
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Número de periodo *</label>
+                    <input type="number" min="1" max="6" class="form-control" [(ngModel)]="newPeriod.periodNumber" />
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Nombre del periodo *</label>
+                    <input type="text" class="form-control" [(ngModel)]="newPeriod.name" placeholder="Primer Periodo" />
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Peso porcentual (%) *</label>
+                    <input type="number" class="form-control" [(ngModel)]="newPeriod.weightPercentage" />
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Fecha de inicio *</label>
+                    <input type="date" class="form-control" [(ngModel)]="newPeriod.startDate" />
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Fecha de cierre *</label>
+                    <input type="date" class="form-control" [(ngModel)]="newPeriod.endDate" />
+                  </div>
+                  <div class="col-12 col-md-6 d-flex align-items-end justify-content-md-end">
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-primary"
+                      [disabled]="!newPeriod.name.trim() || !newPeriod.startDate || !newPeriod.endDate"
+                      (click)="savePeriod()"
+                    >
+                      Agregar periodo
+                    </button>
+                  </div>
                 </div>
               </div>
             }
@@ -328,47 +388,57 @@ type EvaluationTab = 'rules' | 'periods' | 'scales' | 'dimensions';
 
           @case ('scales') {
             @if (canAdmin()) {
-              <div class="row g-2 align-items-end mb-4 p-3 rounded bg-light border">
-                <div class="col-md-3">
-                  <label class="form-label small fw-semibold">Desempeño Nacional *</label>
-                  <select class="form-select form-select-sm" [(ngModel)]="newScale.nationalScaleId">
-                    <option [ngValue]="null">Seleccione...</option>
-                    @for (ns of nationalScales(); track ns.id) {
-                      <option [ngValue]="ns.id">{{ ns.name }} ({{ ns.abbreviation }})</option>
-                    }
-                  </select>
-                </div>
-                <div class="col-md-2">
-                  <label class="form-label small fw-semibold">Grupo de grados</label>
-                  <select class="form-select form-select-sm" [(ngModel)]="newScale.gradeGroupId">
-                    <option [ngValue]="null">Todos</option>
-                    @for (gg of gradeGroups(); track gg.id) {
-                      <option [ngValue]="gg.id">{{ gg.name }}</option>
-                    }
-                  </select>
-                </div>
-                <div class="col-md-2">
-                  <label class="form-label small fw-semibold">Desde *</label>
-                  <input type="number" step="0.01" class="form-control form-control-sm" [(ngModel)]="newScale.minScore" />
-                </div>
-                <div class="col-md-2">
-                  <label class="form-label small fw-semibold">Hasta *</label>
-                  <input type="number" step="0.01" class="form-control form-control-sm" [(ngModel)]="newScale.maxScore" />
-                </div>
-                <div class="col-md-3 d-flex flex-column gap-1">
-                  <div class="d-flex gap-3">
-                    <div class="form-check form-switch mb-0">
-                      <input class="form-check-input" type="checkbox" id="swScaleFail" [(ngModel)]="newScale.isFailing" />
-                      <label class="form-check-label small" for="swScaleFail">Reprobatorio</label>
-                    </div>
-                    <div class="form-check form-switch mb-0">
-                      <input class="form-check-input" type="checkbox" id="swScaleGrad" [(ngModel)]="newScale.isGradable" />
-                      <label class="form-check-label small" for="swScaleGrad">Calificable</label>
+              <div class="v3-form-panel">
+                <div class="row g-3">
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Desempeño Nacional *</label>
+                    <app-v3-searchable-select
+                      [(ngModel)]="newScale.nationalScaleId"
+                      [options]="nationalScaleOptions()"
+                      [clearable]="true"
+                      placeholder="Seleccione..."
+                      searchPlaceholder="Buscar desempeño..."
+                    />
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Grupo de grados</label>
+                    <app-v3-searchable-select
+                      [(ngModel)]="newScale.gradeGroupId"
+                      [options]="gradeGroupOptions()"
+                      [clearable]="true"
+                      placeholder="Todos"
+                      searchPlaceholder="Buscar grupo..."
+                    />
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Nota mínima (Desde) *</label>
+                    <input type="number" step="0.01" class="form-control" [(ngModel)]="newScale.minScore" />
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Nota máxima (Hasta) *</label>
+                    <input type="number" step="0.01" class="form-control" [(ngModel)]="newScale.maxScore" />
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <div class="v3-form-switch-box">
+                      <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="swScaleFail" [(ngModel)]="newScale.isFailing" />
+                        <label class="form-check-label" for="swScaleFail">Rango reprobatorio</label>
+                      </div>
                     </div>
                   </div>
-                  <button type="button" class="btn btn-sm btn-primary" [disabled]="!newScale.nationalScaleId" (click)="saveScale()">
-                    Guardar rango
-                  </button>
+                  <div class="col-12 col-md-6">
+                    <div class="v3-form-switch-box">
+                      <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="swScaleGrad" [(ngModel)]="newScale.isGradable" />
+                        <label class="form-check-label" for="swScaleGrad">Rango calificable</label>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-12 d-flex justify-content-end">
+                    <button type="button" class="btn btn-sm btn-primary" [disabled]="!newScale.nationalScaleId" (click)="saveScale()">
+                      Guardar rango
+                    </button>
+                  </div>
                 </div>
               </div>
             }
@@ -415,27 +485,29 @@ type EvaluationTab = 'rules' | 'periods' | 'scales' | 'dimensions';
 
           @case ('dimensions') {
             @if (canWrite()) {
-              <div class="row g-2 align-items-end mb-4 p-3 rounded bg-light border">
-                <div class="col-md-1">
-                  <label class="form-label small fw-semibold">Cód. *</label>
-                  <input type="number" min="1" max="20" class="form-control form-control-sm" [(ngModel)]="newDim.dimensionCode" />
-                </div>
-                <div class="col-md-4">
-                  <label class="form-label small fw-semibold">Competencia / Dimensión *</label>
-                  <input type="text" class="form-control form-control-sm" [(ngModel)]="newDim.name" placeholder="Ej. Saber Cognitivo" />
-                </div>
-                <div class="col-md-2">
-                  <label class="form-label small fw-semibold">Abrev.</label>
-                  <input type="text" class="form-control form-control-sm" [(ngModel)]="newDim.abbreviation" />
-                </div>
-                <div class="col-md-2">
-                  <label class="form-label small fw-semibold">Porcentaje % *</label>
-                  <input type="number" class="form-control form-control-sm" [(ngModel)]="newDim.weightPercentage" />
-                </div>
-                <div class="col-md-3 d-grid">
-                  <button type="button" class="btn btn-sm btn-primary" [disabled]="!newDim.name.trim()" (click)="saveDimension()">
-                    Agregar competencia
-                  </button>
+              <div class="v3-form-panel">
+                <div class="row g-3">
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Código de competencia *</label>
+                    <input type="number" min="1" max="20" class="form-control" [(ngModel)]="newDim.dimensionCode" />
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Competencia / Dimensión *</label>
+                    <input type="text" class="form-control" [(ngModel)]="newDim.name" placeholder="Ej. Saber Cognitivo" />
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Abreviatura</label>
+                    <input type="text" class="form-control" [(ngModel)]="newDim.abbreviation" />
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Porcentaje % *</label>
+                    <input type="number" class="form-control" [(ngModel)]="newDim.weightPercentage" />
+                  </div>
+                  <div class="col-12 d-flex justify-content-end">
+                    <button type="button" class="btn btn-sm btn-primary" [disabled]="!newDim.name.trim()" (click)="saveDimension()">
+                      Agregar competencia
+                    </button>
+                  </div>
                 </div>
               </div>
             }
@@ -496,6 +568,27 @@ export class EvaluationSettingsComponent implements OnInit {
   private readonly messages = inject(MessagesService);
 
   readonly activeTab = signal<EvaluationTab>('rules');
+  readonly ruleWizardStep = signal(0);
+  readonly ruleWizardSteps: readonly V3WizardStep[] = [
+    {
+      id: 'scale',
+      title: 'Escala y Aprobación',
+      subtitle: 'Grupo de grados, modalidad y notas mínimas',
+      icon: 'rule',
+    },
+    {
+      id: 'grace',
+      title: 'Gracia, Inasistencias y Libros',
+      subtitle: 'Límites de reprobación, redondeo e inasistencias',
+      icon: 'calculate',
+    },
+    {
+      id: 'decree',
+      title: 'Reglas Decreto 1290',
+      subtitle: 'Criterios institucionales de ponderación y promoción',
+      icon: 'gavel',
+    },
+  ];
   readonly gradeGroups = signal<GradeGroupRecord[]>([]);
   readonly rules = signal<GradingRuleRecord[]>([]);
   readonly periods = signal<AcademicPeriodRecord[]>([]);
@@ -503,12 +596,34 @@ export class EvaluationSettingsComponent implements OnInit {
   readonly scales = signal<GradingScaleRecord[]>([]);
   readonly dimensions = signal<EvaluationDimensionRecord[]>([]);
 
-  readonly canAdmin = computed(() => {
-    const r = this.v3Auth.activeRole();
-    return r === 'SUPER_ADMIN' || r === 'SCHOOL_ADMIN' || r === 'RECTOR';
-  });
-  readonly canWrite = computed(
-    () => this.canAdmin() || this.v3Auth.activeRole() === 'COORDINATOR',
+  readonly failsAfterRecoveryOptions: SearchableSelectOption<number>[] = [
+    { value: 0, label: '0 · No reprueba' },
+    { value: 1, label: '1 · Pierde 1+ área' },
+    { value: 2, label: '2 · Pierde 2+ áreas' },
+    { value: 3, label: '3 · No aprueba todas' },
+  ];
+  readonly academicYearModeOptions: SearchableSelectOption<number>[] = [
+    { value: 0, label: 'Anual estándar' },
+    { value: 1, label: 'Ciclos / Semestral' },
+  ];
+  readonly gradeGroupOptions = computed<SearchableSelectOption<number>[]>(() =>
+    this.gradeGroups().map((gg) => ({ value: gg.id, label: gg.name }))
+  );
+  readonly nationalScaleOptions = computed<SearchableSelectOption<number>[]>(() =>
+    this.nationalScales().map((ns) => ({
+      value: ns.id,
+      label: `${ns.name} (${ns.abbreviation})`,
+    }))
+  );
+
+  readonly canAdmin = computed(() =>
+    this.v3Auth.hasPermission('settings.siee.write'),
+  );
+  readonly canWrite = computed(() =>
+    this.v3Auth.hasAnyPermission([
+      'settings.periods.write',
+      'settings.dimensions.write',
+    ]),
   );
 
   newRule = {
@@ -586,6 +701,7 @@ export class EvaluationSettingsComponent implements OnInit {
   }
 
   editRule(rule: GradingRuleRecord): void {
+    this.ruleWizardStep.set(0);
     this.newRule = {
       gradeGroupId: rule.gradeGroupId,
       minPassingScore: rule.minPassingScore,

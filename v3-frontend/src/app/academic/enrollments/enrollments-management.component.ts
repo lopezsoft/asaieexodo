@@ -24,12 +24,20 @@ import {
 import { V3UnifiedAuthService } from '../../services/v3-unified-auth.service';
 import { V3FileManagerModalComponent } from '../../shared/components/v3-file-manager-modal/v3-file-manager-modal.component';
 import { V3ModalDialogComponent } from '../../shared/components/v3-modal-dialog/v3-modal-dialog.component';
+import {
+  V3FormWizardComponent,
+  V3WizardStep,
+} from '../../shared/components/v3-form-wizard/v3-form-wizard.component';
+import {
+  SearchableSelectOption,
+  V3SearchableSelectComponent,
+} from '../../shared/components/v3-searchable-select/v3-searchable-select.component';
 import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.directive';
 
 type EnrollmentTab = 'students' | 'enrollments' | 'families' | 'move';
 
 /**
- * Inscripciones, Matrículas, Familias, Novedades, Documentos S3 y Traslado de Estudiantes
+ * Inscripciones, Matrículas, Familias, Novedades, Documentos Digitales y Traslado de Estudiantes
  * (reemplaza InscripcionesView, MatriculasView, FamiliesView, NovedadesView, MoverEstudiantesView).
  */
 @Component({
@@ -42,6 +50,8 @@ type EnrollmentTab = 'students' | 'enrollments' | 'families' | 'move';
     CustomTooltipDirective,
     V3ModalDialogComponent,
     V3FileManagerModalComponent,
+    V3FormWizardComponent,
+    V3SearchableSelectComponent,
   ],
   template: `
     <div class="container-fluid py-3">
@@ -97,80 +107,28 @@ type EnrollmentTab = 'students' | 'enrollments' | 'families' | 'move';
                 />
                 <button type="button" class="btn btn-outline-primary" (click)="searchStudents()">Buscar</button>
               </div>
-              <button
-                type="button"
-                class="btn btn-sm btn-outline-secondary"
-                (click)="openDocsModal('Documentos Digitales de Estudiantes')"
-              >
-                <i class="material-symbols-outlined fs-6 align-middle me-1">cloud_upload</i>
-                Repositorio S3 Estudiantes
-              </button>
-            </div>
-
-            @if (canWrite()) {
-              <div class="row g-2 align-items-end mb-4 p-3 rounded bg-light border">
-                <div class="col-md-2">
-                  <label class="form-label small fw-semibold">Tipo Doc.</label>
-                  <select class="form-select form-select-sm" [(ngModel)]="studentForm.documentTypeId">
-                    <option [ngValue]="null">Seleccione...</option>
-                    @for (dt of catalogs()?.documentTypes ?? []; track dt.id) {
-                      <option [ngValue]="dt.id">{{ dt.code || dt.name }}</option>
-                    }
-                  </select>
-                </div>
-                <div class="col-md-2">
-                  <label class="form-label small fw-semibold">Número Doc. *</label>
-                  <input type="text" class="form-control form-control-sm" [(ngModel)]="studentForm.documentNumber" />
-                </div>
-                <div class="col-md-2">
-                  <label class="form-label small fw-semibold">Primer Nombre *</label>
-                  <input type="text" class="form-control form-control-sm" [(ngModel)]="studentForm.firstName" />
-                </div>
-                <div class="col-md-2">
-                  <label class="form-label small fw-semibold">Segundo Nombre</label>
-                  <input type="text" class="form-control form-control-sm" [(ngModel)]="studentForm.middleName" />
-                </div>
-                <div class="col-md-2">
-                  <label class="form-label small fw-semibold">Primer Apellido *</label>
-                  <input type="text" class="form-control form-control-sm" [(ngModel)]="studentForm.lastName" />
-                </div>
-                <div class="col-md-2">
-                  <label class="form-label small fw-semibold">Segundo Apellido</label>
-                  <input type="text" class="form-control form-control-sm" [(ngModel)]="studentForm.secondLastName" />
-                </div>
-                <div class="col-md-2">
-                  <label class="form-label small fw-semibold">F. Nacimiento</label>
-                  <input type="date" class="form-control form-control-sm" [(ngModel)]="studentForm.birthDate" />
-                </div>
-                <div class="col-md-2">
-                  <label class="form-label small fw-semibold">RH</label>
-                  <input type="text" class="form-control form-control-sm" [(ngModel)]="studentForm.bloodType" placeholder="O+" />
-                </div>
-                <div class="col-md-2">
-                  <label class="form-label small fw-semibold">Teléfono</label>
-                  <input type="text" class="form-control form-control-sm" [(ngModel)]="studentForm.phone" />
-                </div>
-                <div class="col-md-3">
-                  <label class="form-label small fw-semibold">Correo electrónico</label>
-                  <input type="email" class="form-control form-control-sm" [(ngModel)]="studentForm.email" />
-                </div>
-                <div class="col-md-3 d-flex gap-1">
+              <div class="d-flex flex-wrap align-items-center gap-2">
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1"
+                  (click)="openDocsModal('Documentos Digitales de Estudiantes')"
+                  [appCustomTooltip]="'Abrir repositorio documental de estudiantes'"
+                >
+                  <i class="material-symbols-outlined fs-6">cloud_upload</i>
+                  <span>Repositorio Documental</span>
+                </button>
+                @if (canWrite()) {
                   <button
                     type="button"
-                    class="btn btn-sm btn-primary flex-grow-1"
-                    [disabled]="!studentForm.documentNumber.trim() || !studentForm.firstName.trim() || !studentForm.lastName.trim()"
-                    (click)="saveStudent()"
+                    class="btn btn-sm btn-primary d-inline-flex align-items-center gap-1"
+                    (click)="openCreateStudentModal()"
                   >
-                    {{ editingStudentId() ? 'Actualizar' : 'Inscribir Estudiante' }}
+                    <i class="material-symbols-outlined fs-6">person_add</i>
+                    <span>Inscribir estudiante</span>
                   </button>
-                  @if (editingStudentId()) {
-                    <button type="button" class="btn btn-sm btn-outline-secondary" (click)="resetStudentForm()" [appCustomTooltip]="'Cancelar'">
-                      <i class="material-symbols-outlined fs-6">close</i>
-                    </button>
-                  }
-                </div>
+                }
               </div>
-            }
+            </div>
 
             <div class="table-responsive">
               <table class="table table-hover v3-grid-table mb-0">
@@ -232,83 +190,101 @@ type EnrollmentTab = 'students' | 'enrollments' | 'families' | 'move';
           }
 
           @case ('enrollments') {
-            <div class="row g-2 align-items-end mb-3">
-              <div class="col-md-4">
-                <label class="form-label small fw-semibold">Filtrar por grupo</label>
-                <select class="form-select form-select-sm" [(ngModel)]="filterGroupId" (ngModelChange)="loadEnrollments()">
-                  <option [ngValue]="0">Todos los grupos ({{ academicYear() }})</option>
-                  @for (g of groups(); track g.id) {
-                    <option [ngValue]="g.id">{{ g.gradeName }}-{{ g.groupCode }} ({{ g.campusName }})</option>
-                  }
-                </select>
-              </div>
-              <div class="col-md-4">
-                <label class="form-label small fw-semibold">Buscar matriculado</label>
-                <input
-                  type="text"
-                  class="form-control form-control-sm"
-                  [(ngModel)]="enrollmentSearch"
-                  placeholder="Nombre o documento..."
-                  (keyup.enter)="loadEnrollments()"
-                />
-              </div>
-              <div class="col-md-2 d-grid">
-                <button type="button" class="btn btn-sm btn-outline-primary" (click)="loadEnrollments()">Filtrar</button>
-              </div>
-              @if (canWrite()) {
-                <div class="col-md-2 d-grid">
-                  <button
-                    type="button"
-                    class="btn btn-sm btn-outline-secondary"
-                    (click)="renumberFolios()"
-                    [appCustomTooltip]="'Renumerar secuencialmente No. Registro, Libro y Folio según configuración SIEE (students_per_book)'"
-                  >
-                    <i class="material-symbols-outlined fs-6 align-middle me-1">format_list_numbered</i>
-                    Renumerar Folios
-                  </button>
+            <div class="v3-form-panel">
+              <div class="row g-3">
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Filtrar por grupo</label>
+                  <app-v3-searchable-select
+                    placeholder="Todos los grupos"
+                    searchPlaceholder="Buscar grupo..."
+                    [options]="filterGroupOptions()"
+                    [(ngModel)]="filterGroupId"
+                    (ngModelChange)="loadEnrollments()"
+                  />
                 </div>
-              }
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Buscar matriculado</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    [(ngModel)]="enrollmentSearch"
+                    placeholder="Nombre o documento..."
+                    (keyup.enter)="loadEnrollments()"
+                  />
+                </div>
+                <div class="col-12 d-flex flex-wrap justify-content-end gap-2">
+                  <button type="button" class="btn btn-sm btn-outline-primary" (click)="loadEnrollments()">
+                    Filtrar
+                  </button>
+                  @if (canWrite()) {
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1"
+                      (click)="renumberFolios()"
+                      [appCustomTooltip]="'Renumerar secuencialmente No. Registro, Libro y Folio según configuración SIEE (students_per_book)'"
+                    >
+                      <i class="material-symbols-outlined fs-6">format_list_numbered</i>
+                      <span>Renumerar Folios</span>
+                    </button>
+                  }
+                </div>
+              </div>
             </div>
 
             @if (canWrite()) {
-              <div class="row g-2 align-items-end mb-4 p-3 rounded bg-light border">
-                <div class="col-md-4">
-                  <label class="form-label small fw-semibold">Estudiante *</label>
-                  <select class="form-select form-select-sm" [(ngModel)]="enrollmentForm.studentProfileId">
-                    <option [ngValue]="0">Seleccione estudiante...</option>
-                    @for (st of students(); track st.id) {
-                      <option [ngValue]="st.id">{{ st.documentNumber }} · {{ st.fullName }}</option>
-                    }
-                  </select>
-                </div>
-                <div class="col-md-3">
-                  <label class="form-label small fw-semibold">Grupo destino *</label>
-                  <select class="form-select form-select-sm" [(ngModel)]="enrollmentForm.academicGroupId" (ngModelChange)="onEnrollGroupChange($event)">
-                    <option [ngValue]="0">Seleccione grupo...</option>
-                    @for (g of groups(); track g.id) {
-                      <option [ngValue]="g.id">{{ g.gradeName }}-{{ g.groupCode }} ({{ g.campusName }} · {{ g.shiftName }})</option>
-                    }
-                  </select>
-                </div>
-                <div class="col-md-2">
-                  <label class="form-label small fw-semibold">Folio / Matrícula</label>
-                  <input type="text" class="form-control form-control-sm" [(ngModel)]="enrollmentForm.registrationNumber" placeholder="MAT-2026-001" />
-                </div>
-                <div class="col-md-1">
-                  <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="isRepeating" [(ngModel)]="enrollmentForm.isRepeatingGrade" />
-                    <label class="form-check-label small" for="isRepeating">Repite</label>
+              <div class="v3-form-panel">
+                <div class="row g-3">
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Estudiante *</label>
+                    <app-v3-searchable-select
+                      placeholder="Seleccione estudiante..."
+                      searchPlaceholder="Buscar por nombre o documento..."
+                      [options]="studentOptions()"
+                      [(ngModel)]="enrollmentForm.studentProfileId"
+                    />
                   </div>
-                </div>
-                <div class="col-md-2 d-grid">
-                  <button
-                    type="button"
-                    class="btn btn-sm btn-primary"
-                    [disabled]="!enrollmentForm.studentProfileId || !enrollmentForm.academicGroupId"
-                    (click)="saveEnrollment()"
-                  >
-                    Matricular
-                  </button>
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Grupo destino *</label>
+                    <app-v3-searchable-select
+                      placeholder="Seleccione grupo..."
+                      searchPlaceholder="Buscar grupo..."
+                      [options]="groupSelectOptions()"
+                      [(ngModel)]="enrollmentForm.academicGroupId"
+                      (ngModelChange)="onEnrollGroupChange($event)"
+                    />
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Folio / Matrícula</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      [(ngModel)]="enrollmentForm.registrationNumber"
+                      placeholder="MAT-2026-001"
+                    />
+                  </div>
+                  <div class="col-12 col-md-6 d-flex align-items-end">
+                    <div class="v3-form-switch-box">
+                      <div class="form-check form-switch">
+                        <input
+                          class="form-check-input"
+                          type="checkbox"
+                          id="isRepeating"
+                          [(ngModel)]="enrollmentForm.isRepeatingGrade"
+                        />
+                        <label class="form-check-label" for="isRepeating">Repite grado</label>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-12 d-flex justify-content-end">
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-primary"
+                      [disabled]="!enrollmentForm.studentProfileId || !enrollmentForm.academicGroupId"
+                      (click)="saveEnrollment()"
+                    >
+                      Matricular estudiante
+                    </button>
+                  </div>
                 </div>
               </div>
             }
@@ -357,7 +333,7 @@ type EnrollmentTab = 'students' | 'enrollments' | 'families' | 'move';
                           type="button"
                           class="btn btn-sm btn-outline-secondary"
                           (click)="openDocsModal('Documentos de ' + enr.studentFullName)"
-                          [appCustomTooltip]="'Documentos digitales S3'"
+                          [appCustomTooltip]="'Documentos digitales del estudiante'"
                         >
                           <i class="material-symbols-outlined fs-6">folder</i>
                         </button>
@@ -375,36 +351,38 @@ type EnrollmentTab = 'students' | 'enrollments' | 'families' | 'move';
 
           @case ('families') {
             @if (canWrite()) {
-              <div class="row g-2 align-items-end mb-4 p-3 rounded bg-light border">
-                <div class="col-md-2">
-                  <label class="form-label small fw-semibold">Documento *</label>
-                  <input type="text" class="form-control form-control-sm" [(ngModel)]="familyForm.documentNumber" />
-                </div>
-                <div class="col-md-3">
-                  <label class="form-label small fw-semibold">Nombre completo *</label>
-                  <input type="text" class="form-control form-control-sm" [(ngModel)]="familyForm.fullName" />
-                </div>
-                <div class="col-md-2">
-                  <label class="form-label small fw-semibold">Celular</label>
-                  <input type="text" class="form-control form-control-sm" [(ngModel)]="familyForm.mobilePhone" />
-                </div>
-                <div class="col-md-2">
-                  <label class="form-label small fw-semibold">Correo</label>
-                  <input type="email" class="form-control form-control-sm" [(ngModel)]="familyForm.email" />
-                </div>
-                <div class="col-md-2">
-                  <label class="form-label small fw-semibold">Ocupación</label>
-                  <input type="text" class="form-control form-control-sm" [(ngModel)]="familyForm.occupation" />
-                </div>
-                <div class="col-md-1 d-grid">
-                  <button
-                    type="button"
-                    class="btn btn-sm btn-primary"
-                    [disabled]="!familyForm.documentNumber.trim() || !familyForm.fullName.trim()"
-                    (click)="saveFamily()"
-                  >
-                    Crear
-                  </button>
+              <div class="v3-form-panel">
+                <div class="row g-3">
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Documento *</label>
+                    <input type="text" class="form-control" [(ngModel)]="familyForm.documentNumber" />
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Nombre completo *</label>
+                    <input type="text" class="form-control" [(ngModel)]="familyForm.fullName" />
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Celular</label>
+                    <input type="text" class="form-control" [(ngModel)]="familyForm.mobilePhone" />
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Correo electrónico</label>
+                    <input type="email" class="form-control" [(ngModel)]="familyForm.email" />
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Ocupación</label>
+                    <input type="text" class="form-control" [(ngModel)]="familyForm.occupation" />
+                  </div>
+                  <div class="col-12 col-md-6 d-flex align-items-end justify-content-md-end">
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-primary"
+                      [disabled]="!familyForm.documentNumber.trim() || !familyForm.fullName.trim()"
+                      (click)="saveFamily()"
+                    >
+                      Crear acudiente
+                    </button>
+                  </div>
                 </div>
               </div>
             }
@@ -439,28 +417,28 @@ type EnrollmentTab = 'students' | 'enrollments' | 'families' | 'move';
           }
 
           @case ('move') {
-            <div class="row g-3 mb-4 p-3 rounded bg-light border align-items-end">
-              <div class="col-md-6">
-                <label class="form-label small fw-semibold">Grupo destino para los estudiantes seleccionados *</label>
-                <select class="form-select form-select-sm" [(ngModel)]="moveTargetGroupId">
-                  <option [ngValue]="0">Seleccione grupo destino...</option>
-                  @for (g of groups(); track g.id) {
-                    <option [ngValue]="g.id">{{ g.gradeName }}-{{ g.groupCode }} ({{ g.campusName }} · {{ g.shiftName }})</option>
-                  }
-                </select>
-              </div>
-              <div class="col-md-3">
-                <span class="badge text-bg-primary">{{ selectedEnrollmentIds().length }} seleccionado(s)</span>
-              </div>
-              <div class="col-md-3 d-grid">
-                <button
-                  type="button"
-                  class="btn btn-sm btn-primary"
-                  [disabled]="!moveTargetGroupId || selectedEnrollmentIds().length === 0"
-                  (click)="executeMoveEnrollments()"
-                >
-                  Mover Seleccionados
-                </button>
+            <div class="v3-form-panel">
+              <div class="row g-3 align-items-end">
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Grupo destino para los estudiantes seleccionados *</label>
+                  <app-v3-searchable-select
+                    placeholder="Seleccione grupo destino..."
+                    searchPlaceholder="Buscar grupo..."
+                    [options]="groupSelectOptions()"
+                    [(ngModel)]="moveTargetGroupId"
+                  />
+                </div>
+                <div class="col-12 col-md-6 d-flex flex-wrap align-items-center justify-content-md-end gap-2">
+                  <span class="badge text-bg-primary">{{ selectedEnrollmentIds().length }} seleccionado(s)</span>
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-primary"
+                    [disabled]="!moveTargetGroupId || selectedEnrollmentIds().length === 0"
+                    (click)="executeMoveEnrollments()"
+                  >
+                    Mover Seleccionados
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -497,6 +475,110 @@ type EnrollmentTab = 'students' | 'enrollments' | 'families' | 'move';
         }
       </div>
 
+      <!-- Modal Wizard de Inscripción / Edición de Estudiante -->
+      <app-v3-modal-dialog
+        [open]="studentModalOpen()"
+        [heading]="editingStudentId() ? 'Editar Estudiante' : 'Inscribir Nuevo Estudiante'"
+        icon="person_add"
+        size="lg"
+        (closed)="closeStudentModal()"
+      >
+        <app-v3-form-wizard
+          [steps]="studentWizardSteps"
+          [(activeIndex)]="studentWizardStep"
+          [allowFreeNavigation]="editingStudentId() !== null"
+          [showFooter]="false"
+          (nextRequested)="onStudentStepNext($event)"
+        >
+          @if (studentWizardStep() === 0) {
+            <div class="row g-3">
+              <div class="col-12 col-md-6">
+                <label class="form-label">Tipo de documento</label>
+                <app-v3-searchable-select
+                  placeholder="Seleccione..."
+                  searchPlaceholder="Buscar tipo de documento..."
+                  [options]="documentTypeOptions()"
+                  [(ngModel)]="studentForm.documentTypeId"
+                />
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label">Número de documento *</label>
+                <input type="text" class="form-control" [(ngModel)]="studentForm.documentNumber" />
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label">Primer nombre *</label>
+                <input type="text" class="form-control" [(ngModel)]="studentForm.firstName" />
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label">Segundo nombre</label>
+                <input type="text" class="form-control" [(ngModel)]="studentForm.middleName" />
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label">Primer apellido *</label>
+                <input type="text" class="form-control" [(ngModel)]="studentForm.lastName" />
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label">Segundo apellido</label>
+                <input type="text" class="form-control" [(ngModel)]="studentForm.secondLastName" />
+              </div>
+            </div>
+          } @else {
+            <div class="row g-3">
+              <div class="col-12 col-md-6">
+                <label class="form-label">Fecha de nacimiento</label>
+                <input type="date" class="form-control" [(ngModel)]="studentForm.birthDate" />
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label">Grupo sanguíneo (RH)</label>
+                <input type="text" class="form-control" [(ngModel)]="studentForm.bloodType" placeholder="Ej. O+" />
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label">Teléfono / Celular</label>
+                <input type="text" class="form-control" [(ngModel)]="studentForm.phone" />
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label">Correo electrónico</label>
+                <input type="email" class="form-control" [(ngModel)]="studentForm.email" />
+              </div>
+            </div>
+          }
+        </app-v3-form-wizard>
+
+        <div modal-footer class="v3-modal-footer-split">
+          <button type="button" class="btn btn-sm btn-outline-secondary" (click)="closeStudentModal()">
+            Cancelar
+          </button>
+          <div class="v3-modal-footer-actions">
+            @if (studentWizardStep() > 0) {
+              <button type="button" class="btn btn-sm btn-outline-secondary" (click)="studentWizardStep.set(0)">
+                Anterior
+              </button>
+            }
+            @if (studentWizardStep() === 0) {
+              <button
+                type="button"
+                class="btn btn-sm"
+                [ngClass]="editingStudentId() ? 'btn-outline-primary' : 'btn-primary'"
+                [disabled]="!isStudentStepOneValid()"
+                (click)="onStudentStepNext(0)"
+              >
+                Siguiente
+              </button>
+            }
+            @if (studentWizardStep() === 1 || editingStudentId()) {
+              <button
+                type="button"
+                class="btn btn-sm btn-primary"
+                [disabled]="!isStudentStepOneValid()"
+                (click)="saveStudent()"
+              >
+                {{ editingStudentId() ? 'Actualizar estudiante' : 'Guardar estudiante' }}
+              </button>
+            }
+          </div>
+        </div>
+      </app-v3-modal-dialog>
+
       <!-- Modal de novedades de matrícula -->
       <app-v3-modal-dialog
         [open]="noveltiesModalOpen()"
@@ -506,33 +588,40 @@ type EnrollmentTab = 'students' | 'enrollments' | 'families' | 'move';
         (closed)="noveltiesModalOpen.set(false)"
       >
         @if (canWrite()) {
-          <div class="row g-2 align-items-end mb-3 p-3 rounded bg-light border">
-            <div class="col-md-4">
-              <label class="form-label small fw-semibold">Nuevo estado *</label>
-              <select class="form-select form-select-sm" [(ngModel)]="noveltyForm.enrollmentStatusId">
-                <option [ngValue]="0">Seleccione estado...</option>
-                @for (es of catalogs()?.enrollmentStatuses ?? []; track es.id) {
-                  <option [ngValue]="es.id">{{ es.name }}</option>
-                }
-              </select>
-            </div>
-            <div class="col-md-3">
-              <label class="form-label small fw-semibold">Fecha</label>
-              <input type="date" class="form-control form-control-sm" [(ngModel)]="noveltyForm.noveltyDate" />
-            </div>
-            <div class="col-md-5">
-              <label class="form-label small fw-semibold">Motivo / Observación *</label>
-              <input type="text" class="form-control form-control-sm" [(ngModel)]="noveltyForm.reason" placeholder="Ej. Retiro voluntario por traslado" />
-            </div>
-            <div class="col-12 text-end">
-              <button
-                type="button"
-                class="btn btn-sm btn-primary"
-                [disabled]="!noveltyForm.enrollmentStatusId || !noveltyForm.reason.trim()"
-                (click)="saveNovelty()"
-              >
-                Registrar Novedad
-              </button>
+          <div class="v3-form-panel">
+            <div class="row g-3">
+              <div class="col-12 col-md-6">
+                <label class="form-label">Nuevo estado *</label>
+                <app-v3-searchable-select
+                  placeholder="Seleccione estado..."
+                  searchPlaceholder="Buscar estado..."
+                  [options]="enrollmentStatusOptions()"
+                  [(ngModel)]="noveltyForm.enrollmentStatusId"
+                />
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label">Fecha</label>
+                <input type="date" class="form-control" [(ngModel)]="noveltyForm.noveltyDate" />
+              </div>
+              <div class="col-12">
+                <label class="form-label">Motivo / Observación *</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  [(ngModel)]="noveltyForm.reason"
+                  placeholder="Ej. Retiro voluntario por traslado"
+                />
+              </div>
+              <div class="col-12 d-flex justify-content-end">
+                <button
+                  type="button"
+                  class="btn btn-sm btn-primary"
+                  [disabled]="!noveltyForm.enrollmentStatusId || !noveltyForm.reason.trim()"
+                  (click)="saveNovelty()"
+                >
+                  Registrar Novedad
+                </button>
+              </div>
             </div>
           </div>
         }
@@ -560,31 +649,40 @@ type EnrollmentTab = 'students' | 'enrollments' | 'families' | 'move';
         (closed)="familiesModalOpen.set(false)"
       >
         @if (canWrite()) {
-          <div class="row g-2 align-items-end mb-3 p-3 rounded bg-light border">
-            <div class="col-md-6">
-              <label class="form-label small fw-semibold">Acudiente / Familiar *</label>
-              <select class="form-select form-select-sm" [(ngModel)]="linkFamilyForm.familyProfileId">
-                <option [ngValue]="0">Seleccione acudiente...</option>
-                @for (f of families(); track f.id) {
-                  <option [ngValue]="f.id">{{ f.documentNumber }} · {{ f.fullName }}</option>
-                }
-              </select>
-            </div>
-            <div class="col-md-3">
-              <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" id="isPrimary" [(ngModel)]="linkFamilyForm.isPrimaryGuardian" />
-                <label class="form-check-label small" for="isPrimary">Acudiente principal</label>
+          <div class="v3-form-panel">
+            <div class="row g-3">
+              <div class="col-12 col-md-6">
+                <label class="form-label">Acudiente / Familiar *</label>
+                <app-v3-searchable-select
+                  placeholder="Seleccione acudiente..."
+                  searchPlaceholder="Buscar por documento o nombre..."
+                  [options]="familyOptions()"
+                  [(ngModel)]="linkFamilyForm.familyProfileId"
+                />
               </div>
-            </div>
-            <div class="col-md-3 d-grid">
-              <button
-                type="button"
-                class="btn btn-sm btn-primary"
-                [disabled]="!linkFamilyForm.familyProfileId"
-                (click)="linkFamily()"
-              >
-                Vincular
-              </button>
+              <div class="col-12 col-md-6 d-flex align-items-end">
+                <div class="v3-form-switch-box">
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      id="isPrimary"
+                      [(ngModel)]="linkFamilyForm.isPrimaryGuardian"
+                    />
+                    <label class="form-check-label" for="isPrimary">Acudiente principal</label>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 d-flex justify-content-end">
+                <button
+                  type="button"
+                  class="btn btn-sm btn-primary"
+                  [disabled]="!linkFamilyForm.familyProfileId"
+                  (click)="linkFamily()"
+                >
+                  Vincular acudiente
+                </button>
+              </div>
             </div>
           </div>
         }
@@ -617,6 +715,8 @@ type EnrollmentTab = 'students' | 'enrollments' | 'families' | 'move';
         [open]="docsModalOpen()"
         [heading]="docsModalHeading()"
         category="STUDENT_DOCUMENTS"
+        [canUpload]="canManageDocs()"
+        [canDelete]="canManageDocs()"
         (closed)="docsModalOpen.set(false)"
       ></app-v3-file-manager-modal>
     </div>
@@ -632,10 +732,13 @@ export class EnrollmentsManagementComponent implements OnInit {
 
   readonly academicYear = computed(() => this.auth.academicYear());
   readonly canWrite = computed(() =>
-    this.auth.hasAnyRole(['SUPER_ADMIN', 'SCHOOL_ADMIN', 'RECTOR', 'COORDINATOR', 'SECRETARY']),
+    this.auth.hasPermission('academic.enrollments.write'),
   );
   readonly canDelete = computed(() =>
-    this.auth.hasAnyRole(['SUPER_ADMIN', 'SCHOOL_ADMIN', 'RECTOR']),
+    this.auth.hasPermission('academic.enrollments.delete'),
+  );
+  readonly canManageDocs = computed(() =>
+    this.auth.hasPermission('storage.student_documents.write'),
   );
 
   readonly activeTab = signal<EnrollmentTab>('students');
@@ -646,6 +749,22 @@ export class EnrollmentsManagementComponent implements OnInit {
   readonly catalogs = signal<GlobalCatalogsBundle | null>(null);
 
   readonly editingStudentId = signal<number | null>(null);
+  readonly studentModalOpen = signal(false);
+  readonly studentWizardStep = signal(0);
+  readonly studentWizardSteps: readonly V3WizardStep[] = [
+    {
+      id: 'identity',
+      title: 'Identificación y Nombres',
+      subtitle: 'Documento de identidad y nombres completos del estudiante',
+      icon: 'person_add',
+    },
+    {
+      id: 'contact',
+      title: 'Datos y Contacto',
+      subtitle: 'Fecha de nacimiento, grupo sanguíneo y canales de contacto',
+      icon: 'contact_phone',
+    },
+  ];
   readonly selectedEnrollmentIds = signal<number[]>([]);
   readonly noveltiesModalOpen = signal(false);
   readonly selectedEnrollmentForNovelties = signal<EnrollmentRecord | null>(null);
@@ -655,6 +774,68 @@ export class EnrollmentsManagementComponent implements OnInit {
   readonly studentFamilies = signal<StudentFamilyLinkRecord[]>([]);
   readonly docsModalOpen = signal(false);
   readonly docsModalHeading = signal('Documentos Digitales');
+
+  readonly documentTypeOptions = computed<SearchableSelectOption<number | null>[]>(
+    () => [
+      { value: null, label: 'Seleccione...' },
+      ...(this.catalogs()?.documentTypes ?? []).map((dt) => ({
+        value: dt.id,
+        label: dt.code || dt.name,
+        subtitle: dt.code ? dt.name : undefined,
+        keywords: dt.name,
+      })),
+    ],
+  );
+
+  readonly filterGroupOptions = computed<SearchableSelectOption<number>[]>(() => [
+    { value: 0, label: `Todos los grupos (${this.academicYear()})` },
+    ...this.groups().map((g) => ({
+      value: g.id,
+      label: `${g.gradeName}-${g.groupCode}`,
+      subtitle: g.campusName,
+      keywords: `${g.campusName} ${g.shiftName}`,
+    })),
+  ]);
+
+  readonly groupSelectOptions = computed<SearchableSelectOption<number>[]>(() => [
+    { value: 0, label: 'Seleccione grupo...' },
+    ...this.groups().map((g) => ({
+      value: g.id,
+      label: `${g.gradeName}-${g.groupCode}`,
+      subtitle: `${g.campusName} · ${g.shiftName}`,
+      keywords: `${g.campusName} ${g.shiftName}`,
+    })),
+  ]);
+
+  readonly studentOptions = computed<SearchableSelectOption<number>[]>(() => [
+    { value: 0, label: 'Seleccione estudiante...' },
+    ...this.students().map((st) => ({
+      value: st.id,
+      label: st.fullName,
+      badge: st.documentNumber,
+      keywords: st.documentNumber,
+    })),
+  ]);
+
+  readonly enrollmentStatusOptions = computed<SearchableSelectOption<number>[]>(
+    () => [
+      { value: 0, label: 'Seleccione estado...' },
+      ...(this.catalogs()?.enrollmentStatuses ?? []).map((es) => ({
+        value: es.id,
+        label: es.name,
+      })),
+    ],
+  );
+
+  readonly familyOptions = computed<SearchableSelectOption<number>[]>(() => [
+    { value: 0, label: 'Seleccione acudiente...' },
+    ...this.families().map((f) => ({
+      value: f.id,
+      label: f.fullName,
+      badge: f.documentNumber,
+      keywords: f.documentNumber,
+    })),
+  ]);
 
   studentSearch = '';
   enrollmentSearch = '';
@@ -747,8 +928,34 @@ export class EnrollmentsManagementComponent implements OnInit {
       });
   }
 
+  openCreateStudentModal(): void {
+    this.resetStudentForm();
+    this.studentWizardStep.set(0);
+    this.studentModalOpen.set(true);
+  }
+
+  closeStudentModal(): void {
+    this.studentModalOpen.set(false);
+    this.resetStudentForm();
+  }
+
+  isStudentStepOneValid(): boolean {
+    return Boolean(
+      this.studentForm.documentNumber.trim() &&
+        this.studentForm.firstName.trim() &&
+        this.studentForm.lastName.trim()
+    );
+  }
+
+  onStudentStepNext(stepIndex: number): void {
+    if (stepIndex === 0 && this.isStudentStepOneValid()) {
+      this.studentWizardStep.set(1);
+    }
+  }
+
   editStudent(st: StudentProfileRecord): void {
     this.editingStudentId.set(st.id);
+    this.studentWizardStep.set(0);
     this.studentForm = {
       documentTypeId: st.documentTypeId,
       documentNumber: st.documentNumber,
@@ -761,10 +968,12 @@ export class EnrollmentsManagementComponent implements OnInit {
       phone: st.phone ?? '',
       email: st.email ?? '',
     };
+    this.studentModalOpen.set(true);
   }
 
   resetStudentForm(): void {
     this.editingStudentId.set(null);
+    this.studentWizardStep.set(0);
     this.studentForm = {
       documentTypeId: null,
       documentNumber: '',
@@ -799,7 +1008,7 @@ export class EnrollmentsManagementComponent implements OnInit {
       .subscribe({
         next: () => {
           this.messages.showSuccess('Estudiante guardado correctamente.');
-          this.resetStudentForm();
+          this.closeStudentModal();
           this.searchStudents();
         },
       });

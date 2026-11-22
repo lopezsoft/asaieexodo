@@ -12,6 +12,10 @@ import {
 import { V3AdministrationService } from '../../services/v3-administration.service';
 import { V3PortalService } from '../../services/v3-portal.service';
 import { V3UnifiedAuthService } from '../../services/v3-unified-auth.service';
+import {
+  SearchableSelectOption,
+  V3SearchableSelectComponent,
+} from '../../shared/components/v3-searchable-select/v3-searchable-select.component';
 import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.directive';
 
 interface GroupOption {
@@ -42,7 +46,7 @@ interface QueuedReportItem {
 @Component({
   selector: 'app-teacher-reports',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, CustomTooltipDirective],
+  imports: [CommonModule, FormsModule, RouterLink, V3SearchableSelectComponent, CustomTooltipDirective],
   template: `
     <div class="container-fluid py-3">
       <div class="breadcrumb-card mb-25 d-md-flex align-items-center justify-content-between">
@@ -61,61 +65,65 @@ interface QueuedReportItem {
       <!-- BoletinesReportView.js (6 tipos + tamaño papel + estudiante individual o grupo completo) -->
       <div class="trezo-card bg-white border-radius p-4 shadow-sm mb-4">
         <h6 class="fw-bold mb-3">Generador de Boletines Académicos</h6>
-        <div class="row g-2 align-items-end mb-3">
-          <div class="col-md-3">
-            <label class="form-label small fw-semibold">Grupo *</label>
-            <select class="form-select form-select-sm" [(ngModel)]="bulletinForm.groupId" (ngModelChange)="loadGroupStudents()">
-              <option [ngValue]="0">Seleccione grupo...</option>
-              @for (g of groups(); track g.id) {
-                <option [ngValue]="g.id">{{ g.label }}</option>
-              }
-            </select>
+        <div class="row g-3 mb-3">
+          <div class="col-12 col-md-6">
+            <label class="form-label">Grupo *</label>
+            <app-v3-searchable-select
+              [(ngModel)]="bulletinForm.groupId"
+              [options]="groupSelectOptions()"
+              [clearable]="true"
+              placeholder="Seleccione grupo..."
+              searchPlaceholder="Buscar grupo..."
+              (selectionChange)="loadGroupStudents()"
+            />
           </div>
-          <div class="col-md-2">
-            <label class="form-label small fw-semibold">Periodo</label>
-            <select class="form-select form-select-sm" [(ngModel)]="bulletinForm.periodNumber">
-              @for (p of [1, 2, 3, 4]; track p) {
-                <option [ngValue]="p">Periodo {{ p }}</option>
-              }
-            </select>
+          <div class="col-12 col-md-6">
+            <label class="form-label">Periodo</label>
+            <app-v3-searchable-select
+              [(ngModel)]="bulletinForm.periodNumber"
+              [options]="periodOptions"
+              placeholder="Periodo..."
+              searchPlaceholder="Buscar periodo..."
+            />
           </div>
-          <div class="col-md-3">
-            <label class="form-label small fw-semibold">Tipo de Boletín</label>
-            <select class="form-select form-select-sm" [(ngModel)]="bulletinForm.bulletinType">
-              <option value="boletin_areas">1. Boletín por Áreas</option>
-              <option value="boletin_asignaturas">2. Boletín por Asignaturas</option>
-              <option value="boletin_competencias">3. Boletín por Competencias</option>
-              <option value="boletin_areas_mod2">4. Boletín Áreas Modelo 2</option>
-              <option value="preinformes_periodo">5. Pre-Informe Académico</option>
-              <option value="boletin_desempenos">6. Boletín por Desempeños</option>
-            </select>
+          <div class="col-12 col-md-6">
+            <label class="form-label">Tipo de Boletín</label>
+            <app-v3-searchable-select
+              [(ngModel)]="bulletinForm.bulletinType"
+              [options]="bulletinTypeOptions"
+              placeholder="Tipo de boletín..."
+              searchPlaceholder="Buscar tipo..."
+            />
           </div>
-          <div class="col-md-2">
-            <label class="form-label small fw-semibold">Tamaño Papel</label>
-            <select class="form-select form-select-sm" [(ngModel)]="bulletinForm.paperSize">
-              <option value="OFICIO">Oficio</option>
-              <option value="CARTA">Carta</option>
-            </select>
+          <div class="col-12 col-md-6">
+            <label class="form-label">Tamaño de Papel</label>
+            <app-v3-searchable-select
+              [(ngModel)]="bulletinForm.paperSize"
+              [options]="paperSizeOptions"
+              placeholder="Tamaño..."
+              searchPlaceholder="Buscar tamaño..."
+            />
           </div>
-          <div class="col-md-2 d-flex gap-1">
+          <div class="col-12 d-flex flex-wrap justify-content-end gap-2 pt-1">
             <button
               type="button"
-              class="btn btn-sm btn-primary flex-grow-1"
+              class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1"
+              [disabled]="!bulletinForm.groupId || (bulletinForm.singleStudentOnly && !bulletinForm.selectedEnrollmentId)"
+              (click)="enqueueBulletin()"
+              [appCustomTooltip]="'Encolar generación en segundo plano'"
+            >
+              <i class="material-symbols-outlined fs-6">cloud_queue</i>
+              <span>Encolar</span>
+            </button>
+            <button
+              type="button"
+              class="btn btn-sm btn-primary d-inline-flex align-items-center gap-1"
               [disabled]="!bulletinForm.groupId || (bulletinForm.singleStudentOnly && !bulletinForm.selectedEnrollmentId)"
               (click)="downloadBulletinDirect()"
               [appCustomTooltip]="'Descargar boletín en PDF inmediatamente'"
             >
-              <i class="material-symbols-outlined fs-6 align-middle me-1">download</i>
-              PDF
-            </button>
-            <button
-              type="button"
-              class="btn btn-sm btn-outline-secondary"
-              [disabled]="!bulletinForm.groupId || (bulletinForm.singleStudentOnly && !bulletinForm.selectedEnrollmentId)"
-              (click)="enqueueBulletin()"
-              [appCustomTooltip]="'Encolar generación en segundo plano (BullMQ + S3)'"
-            >
-              <i class="material-symbols-outlined fs-6 align-middle">cloud_queue</i>
+              <i class="material-symbols-outlined fs-6">download</i>
+              <span>Descargar PDF</span>
             </button>
           </div>
         </div>
@@ -134,12 +142,14 @@ interface QueuedReportItem {
 
         @if (bulletinForm.singleStudentOnly) {
           <div class="mt-2">
-            <select class="form-select form-select-sm" [(ngModel)]="bulletinForm.selectedEnrollmentId">
-              <option [ngValue]="0">Seleccione el estudiante del grupo...</option>
-              @for (st of groupStudents(); track st.id) {
-                <option [ngValue]="st.id">{{ st.studentFullName }} ({{ st.studentDocumentNumber }})</option>
-              }
-            </select>
+            <app-v3-searchable-select
+              size="sm"
+              [(ngModel)]="bulletinForm.selectedEnrollmentId"
+              [options]="studentSelectOptions()"
+              [clearable]="true"
+              placeholder="Seleccione el estudiante del grupo..."
+              searchPlaceholder="Buscar estudiante por nombre o documento..."
+            />
           </div>
         }
       </div>
@@ -149,12 +159,14 @@ interface QueuedReportItem {
         <h6 class="fw-bold mb-0">Informes Oficiales Disponibles (10)</h6>
         <div class="d-flex align-items-center gap-2">
           <label class="small text-muted mb-0">Formato:</label>
-          <select class="form-select form-select-sm w-auto" [(ngModel)]="outputFormat">
-            <option value="pdf">PDF</option>
-            <option value="xlsx">Excel (.xlsx)</option>
-            <option value="csv">CSV (.csv)</option>
-            <option value="docx">Word (.docx)</option>
-          </select>
+          <app-v3-searchable-select
+            size="sm"
+            style="min-width: 150px;"
+            [(ngModel)]="outputFormat"
+            [options]="outputFormatOptions"
+            placeholder="Formato..."
+            searchPlaceholder="Buscar formato..."
+          />
         </div>
       </div>
 
@@ -269,6 +281,38 @@ export class TeacherReportsComponent implements OnInit {
   readonly groups = signal<GroupOption[]>([]);
   readonly groupStudents = signal<EnrollmentRecord[]>([]);
   readonly queuedJobs = signal<QueuedReportItem[]>([]);
+
+  readonly groupSelectOptions = computed<SearchableSelectOption<number>[]>(() =>
+    this.groups().map((g) => ({ value: g.id, label: g.label }))
+  );
+  readonly studentSelectOptions = computed<SearchableSelectOption<number>[]>(() =>
+    this.groupStudents().map((st) => ({
+      value: st.id,
+      label: `${st.studentFullName} (${st.studentDocumentNumber})`,
+    }))
+  );
+  readonly periodOptions: SearchableSelectOption<number>[] = [1, 2, 3, 4].map((p) => ({
+    value: p,
+    label: `Periodo ${p}`,
+  }));
+  readonly bulletinTypeOptions: SearchableSelectOption<string>[] = [
+    { value: 'boletin_areas', label: '1. Boletín por Áreas' },
+    { value: 'boletin_asignaturas', label: '2. Boletín por Asignaturas' },
+    { value: 'boletin_competencias', label: '3. Boletín por Competencias' },
+    { value: 'boletin_areas_mod2', label: '4. Boletín Áreas Modelo 2' },
+    { value: 'preinformes_periodo', label: '5. Pre-Informe Académico' },
+    { value: 'boletin_desempenos', label: '6. Boletín por Desempeños' },
+  ];
+  readonly paperSizeOptions: SearchableSelectOption<string>[] = [
+    { value: 'OFICIO', label: 'Oficio' },
+    { value: 'CARTA', label: 'Carta' },
+  ];
+  readonly outputFormatOptions: SearchableSelectOption<'pdf' | 'xlsx' | 'csv' | 'docx'>[] = [
+    { value: 'pdf', label: 'PDF' },
+    { value: 'xlsx', label: 'Excel (.xlsx)' },
+    { value: 'csv', label: 'CSV (.csv)' },
+    { value: 'docx', label: 'Word (.docx)' },
+  ];
 
   outputFormat: 'pdf' | 'xlsx' | 'csv' | 'docx' = 'pdf';
   bulletinForm = {

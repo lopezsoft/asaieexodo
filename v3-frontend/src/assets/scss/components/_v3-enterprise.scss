@@ -11,7 +11,7 @@
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: none;
   }
 }
 
@@ -22,7 +22,18 @@
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: none;
+  }
+}
+
+@keyframes v3WizardStepEnter {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
   }
 }
 
@@ -49,7 +60,7 @@
     border-radius: 16px !important;
     background-color: var(--v3-surface-bg);
     box-shadow: var(--v3-surface-shadow) !important;
-    animation: v3SurfaceEnter 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation: v3SurfaceEnter 0.3s cubic-bezier(0.22, 1, 0.36, 1) backwards;
     transition: box-shadow 0.24s ease, border-color 0.24s ease, background-color 0.24s ease;
 
     .border-top,
@@ -312,18 +323,21 @@
     }
 
     &.btn-primary {
-      border: 0;
+      border: 1px solid #{$access-brand-blue};
       color: #{$shell-surface-light};
-      background: linear-gradient(
-        135deg,
-        #{$v3-hero-light-mid} 0%,
-        #{$access-brand-blue} 52%,
-        #{$access-brand-blue-hover} 100%
-      );
-      box-shadow: 0 8px 20px -8px #{rgba($v3-hero-light-mid, 0.55)} !important;
+      background-color: #{$access-brand-blue};
+      background-image: none;
+      box-shadow: 0 1px 2px #{rgba($shell-backdrop-color, 0.08)} !important;
 
       &:hover:not(:disabled) {
-        box-shadow: 0 12px 24px -8px #{rgba($access-brand-blue-hover, 0.58)} !important;
+        background-color: #{$v3-hero-light-mid};
+        border-color: #{$v3-hero-light-mid};
+        color: #{$shell-surface-light};
+        box-shadow: 0 4px 12px -4px #{rgba($v3-hero-light-mid, 0.34)} !important;
+      }
+
+      &:focus-visible {
+        box-shadow: 0 0 0 3px #{rgba($access-brand-blue-hover, 0.25)} !important;
       }
     }
 
@@ -353,34 +367,56 @@
       }
     }
 
-    &.btn-success {
-      border: 0;
-      color: #{$shell-surface-light};
-      background: linear-gradient(
-        135deg,
-        #{$access-accent-teal} 0%,
-        #{$access-active-green} 100%
-      );
-      box-shadow: 0 8px 18px -8px #{rgba($access-active-green, 0.48)} !important;
+    &.btn-outline-info {
+      background-color: transparent;
+      border: 1.5px solid #{rgba($access-brand-blue-hover, 0.38)};
+      color: #{$access-brand-blue-hover};
 
       &:hover:not(:disabled) {
-        background: linear-gradient(
-          135deg,
-          #{$access-accent-teal} 0%,
-          #{$v3-success-end} 100%
-        );
+        background-color: #{rgba($access-brand-blue-hover, 0.1)};
+        border-color: #{$access-brand-blue-hover};
+        color: #{$access-brand-blue};
+      }
+    }
+
+    &.btn-outline-success {
+      background-color: transparent;
+      border: 1.5px solid #{rgba($access-active-green, 0.38)};
+      color: #{$access-active-green};
+
+      &:hover:not(:disabled) {
+        background-color: #{rgba($access-active-green, 0.1)};
+        border-color: #{$access-active-green};
+        color: #{$v3-success-end};
+      }
+    }
+
+    &.btn-success {
+      border: 1px solid #{$access-active-green};
+      color: #{$shell-surface-light};
+      background-color: #{$access-active-green};
+      background-image: none;
+      box-shadow: 0 1px 2px #{rgba($shell-backdrop-color, 0.08)} !important;
+
+      &:hover:not(:disabled) {
+        background-color: #{$v3-success-end};
+        border-color: #{$v3-success-end};
+        box-shadow: 0 4px 12px -4px #{rgba($v3-success-end, 0.34)} !important;
       }
     }
 
     &.btn-danger {
-      border: 0;
+      border: 1px solid #{$auth-strength-weak};
       color: #{$shell-surface-light};
-      background: linear-gradient(
-        135deg,
-        #{$auth-strength-weak} 0%,
-        #{$v3-danger-hover} 100%
-      );
-      box-shadow: 0 8px 18px -8px #{rgba($auth-strength-weak, 0.48)} !important;
+      background-color: #{$auth-strength-weak};
+      background-image: none;
+      box-shadow: 0 1px 2px #{rgba($shell-backdrop-color, 0.08)} !important;
+
+      &:hover:not(:disabled) {
+        background-color: #{$v3-danger-hover};
+        border-color: #{$v3-danger-hover};
+        box-shadow: 0 4px 12px -4px #{rgba($v3-danger-hover, 0.34)} !important;
+      }
     }
 
     &.btn-outline-danger {
@@ -394,6 +430,20 @@
         color: #{$auth-strength-weak};
       }
     }
+  }
+
+  // Separación consistente entre botones contiguos sin duplicar gap en contenedores flex
+  :not(.btn-group):not(.btn-group-vertical):not(.input-group):not([class*='gap-']):not(.v3-form-actions):not(.v3-exodo-toolbar):not(.v3-hero-actions):not([modal-footer]) > .btn:not([class*='me-']) + .btn,
+  :not(.btn-group):not(.btn-group-vertical):not(.input-group):not([class*='gap-']):not(.v3-form-actions):not(.v3-exodo-toolbar):not(.v3-hero-actions):not([modal-footer]) > .btn:not([class*='me-']) + a.btn,
+  :not(.btn-group):not(.btn-group-vertical):not(.input-group):not([class*='gap-']):not(.v3-form-actions):not(.v3-exodo-toolbar):not(.v3-hero-actions):not([modal-footer]) > a.btn:not([class*='me-']) + .btn,
+  :not(.btn-group):not(.btn-group-vertical):not(.input-group):not([class*='gap-']):not(.v3-form-actions):not(.v3-exodo-toolbar):not(.v3-hero-actions):not([modal-footer]) > a.btn:not([class*='me-']) + a.btn {
+    margin-inline-start: 0.5rem;
+  }
+
+  // Elevar el espaciado en celdas de acciones de tabla que usan me-1
+  td > .btn.me-1,
+  td > a.btn.me-1 {
+    margin-right: 0.45rem !important;
   }
 
   .badge {
@@ -460,6 +510,42 @@ body.dark-theme .v3-modal-dialog {
     }
   }
 
+  .btn {
+    &.btn-primary {
+      background-color: #{$access-brand-blue};
+      border-color: #{$access-brand-blue};
+      color: #{$shell-surface-light};
+
+      &:hover:not(:disabled) {
+        background-color: #{$access-brand-blue-hover};
+        border-color: #{$access-brand-blue-hover};
+        color: #{$shell-surface-light};
+      }
+    }
+
+    &.btn-outline-info {
+      border-color: #{rgba($access-brand-blue-dark, 0.42)};
+      color: #{$access-brand-blue-dark};
+
+      &:hover:not(:disabled) {
+        background-color: #{rgba($access-brand-blue-dark, 0.14)};
+        border-color: #{$access-brand-blue-dark};
+        color: #{$access-brand-blue-dark};
+      }
+    }
+
+    &.btn-outline-success {
+      border-color: #{rgba($auth-strength-strong, 0.42)};
+      color: #{$auth-strength-strong};
+
+      &:hover:not(:disabled) {
+        background-color: #{rgba($auth-strength-strong, 0.14)};
+        border-color: #{$auth-strength-strong};
+        color: #{$auth-strength-strong};
+      }
+    }
+  }
+
   .trezo-card.bg-white,
   .v3-kpi-card,
   .v3-hub-card {
@@ -513,7 +599,7 @@ body.dark-theme .v3-modal-dialog {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  animation: v3ModalEnter 0.24s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: v3ModalEnter 0.24s cubic-bezier(0.22, 1, 0.36, 1) backwards;
 
   &.v3-modal-lg {
     max-width: 900px;
@@ -606,12 +692,47 @@ body.dark-theme .v3-modal-header {
 }
 
 .v3-modal-footer {
-  padding: 0.875rem 1.25rem;
+  padding: 0.9rem 1.25rem;
   border-top: 1px solid var(--borderColor);
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: flex-end;
-  gap: 0.5rem;
+  gap: 0.65rem;
+
+  > [modal-footer] {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.65rem;
+    width: 100%;
+
+    &.v3-modal-footer-split {
+      justify-content: space-between;
+    }
+
+    @media (max-width: 575.98px) {
+      flex-direction: column-reverse;
+
+      .btn {
+        width: 100%;
+      }
+
+      .v3-modal-footer-actions {
+        width: 100%;
+        flex-direction: column-reverse;
+      }
+    }
+  }
+
+  .v3-modal-footer-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.65rem;
+  }
 }
 
 .v3-kpi-card {
@@ -619,7 +740,7 @@ body.dark-theme .v3-modal-header {
   border-radius: 12px;
   background-color: var(--v3-surface-bg, #{$shell-surface-light});
   box-shadow: var(--v3-surface-shadow, none);
-  animation: v3SurfaceEnter 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: v3SurfaceEnter 0.32s cubic-bezier(0.22, 1, 0.36, 1) backwards;
   transition: transform 0.24s cubic-bezier(0.22, 1, 0.36, 1),
     box-shadow 0.24s ease,
     border-color 0.24s ease;
@@ -692,7 +813,7 @@ body.dark-theme .v3-modal-header {
   border-radius: 12px;
   background-color: var(--v3-surface-bg, #{$shell-surface-light});
   box-shadow: var(--v3-surface-shadow, none);
-  animation: v3SurfaceEnter 0.34s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: v3SurfaceEnter 0.34s cubic-bezier(0.22, 1, 0.36, 1) backwards;
   transition: transform 0.24s cubic-bezier(0.22, 1, 0.36, 1),
     border-color 0.24s ease,
     box-shadow 0.24s ease;
@@ -860,25 +981,9 @@ body.dark-theme .v3-modal-header {
   border-top: 1px solid var(--v3-surface-border, #{rgba($shell-backdrop-color, 0.06)});
 
   .v3-grid-page-size {
-    width: auto;
-    height: 34px !important;
-    min-height: 34px;
-    border-radius: 8px;
+    width: 92px;
+    flex-shrink: 0;
   }
-}
-
-.v3-year-selector {
-  min-width: 92px;
-  height: 34px !important;
-  min-height: 34px;
-  border-radius: 8px;
-  border-color: var(--asaie-header-border, var(--borderColor));
-  color: var(--asaie-header-text, var(--blackColor));
-  background-color: var(--asaie-header-bg, var(--whiteColor));
-  font-weight: 600;
-  font-size: 0.82rem;
-  padding-top: 0.25rem;
-  padding-bottom: 0.25rem;
 }
 
 .v3-school-pill {
@@ -929,13 +1034,13 @@ body.dark-theme .v3-school-pill {
   padding: 1.4rem 1.65rem;
   color: #{$auth-hero-text};
   background: linear-gradient(
-    125deg,
+    135deg,
     #{$v3-hero-light-start} 0%,
-    #{$v3-hero-light-mid} 52%,
-    #{$v3-hero-light-end} 100%
+    #{$v3-hero-light-mid} 62%,
+    #{$access-brand-blue} 100%
   );
-  box-shadow: 0 16px 34px -16px #{rgba($v3-hero-light-mid, 0.55)};
-  animation: v3SurfaceEnter 0.34s cubic-bezier(0.22, 1, 0.36, 1) both;
+  box-shadow: 0 10px 24px -16px #{rgba($v3-hero-light-start, 0.4)};
+  animation: v3SurfaceEnter 0.34s cubic-bezier(0.22, 1, 0.36, 1) backwards;
 
   &::before,
   &::after {
@@ -952,7 +1057,7 @@ body.dark-theme .v3-school-pill {
     right: 12%;
     background: radial-gradient(
       circle,
-      #{rgba($auth-orb-cyan, 0.24)} 0%,
+      #{rgba($auth-orb-cyan, 0.12)} 0%,
       transparent 70%
     );
   }
@@ -1134,10 +1239,9 @@ body.dark-theme .v3-school-pill {
 
 body.dark-theme .v3-hero-banner {
   background: linear-gradient(
-    125deg,
+    135deg,
     #{$v3-hero-dark-start} 0%,
-    #{$v3-hero-dark-mid} 54%,
-    #{$v3-hero-dark-end} 100%
+    #{$v3-hero-dark-mid} 100%
   );
   border: 1px solid #{rgba($access-brand-blue-dark, 0.2)};
 }
@@ -1152,7 +1256,7 @@ body.dark-theme .v3-hero-banner {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  animation: v3SurfaceEnter 0.34s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: v3SurfaceEnter 0.34s cubic-bezier(0.22, 1, 0.36, 1) backwards;
   transition: transform 0.24s cubic-bezier(0.22, 1, 0.36, 1),
     box-shadow 0.24s ease,
     border-color 0.24s ease;
@@ -1539,10 +1643,325 @@ body.dark-theme .v3-section-tint {
   }
 }
 
+.v3-form-panel {
+  background-color: var(--v3-subtle-bg, #{$v3-surface-subtle-light});
+  border: 1px solid var(--v3-surface-border, #{rgba($shell-backdrop-color, 0.08)});
+  border-radius: 14px;
+  padding: 1.25rem;
+  margin-bottom: 1.35rem;
+
+  &.v3-form-panel--warning {
+    background-color: #{rgba($access-accent-amber, 0.07)};
+    border-color: #{rgba($access-accent-amber, 0.28)};
+  }
+
+  &.v3-form-panel--info {
+    background-color: #{rgba($access-brand-blue-hover, 0.06)};
+    border-color: #{rgba($access-brand-blue-hover, 0.24)};
+  }
+}
+
+.v3-form-switch-box {
+  min-height: 44px;
+  padding: 0.55rem 0.9rem;
+  border-radius: 11px;
+  border: 1.5px solid var(--v3-input-border, #{$v3-input-border-light});
+  background-color: var(--v3-input-bg, #{$v3-input-bg-light});
+  display: flex;
+  align-items: center;
+  width: 100%;
+
+  .form-check {
+    margin-bottom: 0;
+    width: 100%;
+  }
+
+  .form-check-label {
+    font-size: 0.84rem;
+    font-weight: 500;
+    color: var(--v3-text-primary, #{$shell-text-primary-light});
+    cursor: pointer;
+  }
+}
+
+.v3-wizard {
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+
+  .v3-wizard-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+
+  .v3-wizard-progress {
+    height: 4px;
+    border-radius: 999px;
+    background-color: var(--v3-input-border, #{$v3-input-border-light});
+    overflow: hidden;
+  }
+
+  .v3-wizard-progress-bar {
+    height: 100%;
+    border-radius: 999px;
+    background-color: #{$access-brand-blue};
+    transition: width 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .v3-wizard-steps {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-bottom: 0.15rem;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  .v3-wizard-step-btn {
+    flex: 1 1 0;
+    min-width: fit-content;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.55rem 0.85rem;
+    border-radius: 11px;
+    border: 1.5px solid var(--v3-input-border, #{$v3-input-border-light});
+    background-color: var(--v3-input-bg, #{$v3-input-bg-light});
+    color: var(--v3-text-muted, #{$shell-text-muted-light});
+    font-size: 0.82rem;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+
+    &:hover:not(:disabled):not(.is-active) {
+      border-color: var(--v3-input-border-hover, #{$v3-input-border-hover-light});
+      color: var(--v3-text-primary, #{$shell-text-primary-light});
+    }
+
+    &.is-active {
+      border-color: #{$access-brand-blue};
+      background-color: #{rgba($access-brand-blue, 0.08)};
+      color: #{$access-brand-blue};
+
+      .v3-wizard-step-badge {
+        background-color: #{$access-brand-blue};
+        color: #{$shell-surface-light};
+      }
+    }
+
+    &.is-completed {
+      border-color: #{rgba($access-active-green, 0.42)};
+      background-color: #{rgba($access-active-green, 0.06)};
+      color: #{$v3-success-end};
+
+      .v3-wizard-step-badge {
+        background-color: #{$access-active-green};
+        color: #{$shell-surface-light};
+      }
+    }
+
+    &.is-invalid {
+      border-color: #{rgba($auth-strength-weak, 0.65)};
+      color: #{$auth-strength-weak};
+
+      .v3-wizard-step-badge {
+        background-color: #{$auth-strength-weak};
+        color: #{$shell-surface-light};
+      }
+    }
+
+    &.is-locked,
+    &:disabled {
+      opacity: 0.58;
+      cursor: not-allowed;
+    }
+  }
+
+  .v3-wizard-step-badge {
+    width: 26px;
+    height: 26px;
+    border-radius: 8px;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--v3-subtle-bg, #{$v3-surface-subtle-light});
+    color: var(--v3-text-primary, #{$shell-text-primary-light});
+    font-size: 0.78rem;
+    font-weight: 700;
+
+    i {
+      font-size: 1rem;
+    }
+  }
+
+  .v3-wizard-step-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.45rem 0.85rem;
+    padding: 0.65rem 0.9rem;
+    border-radius: 10px;
+    background-color: #{rgba($access-brand-blue-hover, 0.06)};
+    border: 1px solid #{rgba($access-brand-blue-hover, 0.14)};
+  }
+
+  .v3-wizard-counter {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    background-color: #{rgba($access-brand-blue, 0.12)};
+    color: #{$access-brand-blue};
+  }
+
+  .v3-wizard-meta-copy {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.25rem 0.5rem;
+    font-size: 0.82rem;
+
+    strong {
+      color: var(--v3-text-primary, #{$shell-text-primary-light});
+      font-weight: 700;
+    }
+
+    span {
+      color: var(--v3-text-muted, #{$shell-text-muted-light});
+    }
+  }
+
+  .v3-wizard-body {
+    animation: v3WizardStepEnter 0.22s ease backwards;
+  }
+
+  .v3-wizard-footer {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 0.75rem;
+    padding-top: 1.1rem;
+    border-top: 1px solid var(--v3-surface-border, #{rgba($shell-backdrop-color, 0.08)});
+
+    .v3-wizard-footer-start,
+    .v3-wizard-footer-end {
+      display: flex;
+      flex-direction: column-reverse;
+      gap: 0.65rem;
+      width: 100%;
+
+      .btn {
+        width: 100%;
+      }
+    }
+
+    @media (min-width: 576px) {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+
+      .v3-wizard-footer-start,
+      .v3-wizard-footer-end {
+        flex-direction: row;
+        align-items: center;
+        width: auto;
+
+        .btn {
+          width: auto;
+        }
+      }
+
+      .v3-wizard-footer-end {
+        justify-content: flex-end;
+      }
+    }
+  }
+}
+
+body.dark-theme {
+  .v3-form-panel {
+    background-color: #{$v3-surface-subtle-dark};
+    border-color: #{$shell-border-dark};
+
+    &.v3-form-panel--warning {
+      background-color: #{rgba($access-accent-amber, 0.12)};
+      border-color: #{rgba($access-accent-amber, 0.3)};
+    }
+
+    &.v3-form-panel--info {
+      background-color: #{rgba($access-brand-blue-dark, 0.1)};
+      border-color: #{rgba($access-brand-blue-dark, 0.26)};
+    }
+  }
+
+  .v3-form-switch-box {
+    background-color: #{$v3-input-bg-dark};
+    border-color: #{$v3-input-border-dark};
+
+    .form-check-label {
+      color: #{$shell-text-primary-dark};
+    }
+  }
+
+  .v3-wizard {
+    .v3-wizard-progress {
+      background-color: #{$shell-border-dark};
+    }
+
+    .v3-wizard-progress-bar {
+      background-color: #{$access-brand-blue-dark};
+    }
+
+    .v3-wizard-step-btn {
+      background-color: #{$v3-input-bg-dark};
+      border-color: #{$v3-input-border-dark};
+      color: #{$shell-text-muted-dark};
+
+      &.is-active {
+        border-color: #{$access-brand-blue-dark};
+        background-color: #{rgba($access-brand-blue-dark, 0.14)};
+        color: #{$access-brand-blue-dark};
+
+        .v3-wizard-step-badge {
+          background-color: #{$access-brand-blue-dark};
+          color: #{$shell-canvas-bg-dark};
+        }
+      }
+
+      &.is-completed {
+        color: #{$auth-strength-strong};
+      }
+    }
+
+    .v3-wizard-step-badge {
+      background-color: #{$v3-surface-subtle-dark};
+      color: #{$shell-text-primary-dark};
+    }
+
+    .v3-wizard-step-meta {
+      background-color: #{rgba($access-brand-blue-dark, 0.08)};
+      border-color: #{rgba($access-brand-blue-dark, 0.2)};
+    }
+
+    .v3-wizard-counter {
+      background-color: #{rgba($access-brand-blue-dark, 0.18)};
+      color: #{$access-brand-blue-dark};
+    }
+  }
+}
+
 .v3-form-actions {
   display: flex;
   flex-direction: column-reverse;
-  gap: 0.65rem;
+  gap: 0.7rem;
   padding-top: 1.15rem;
   border-top: 1px solid var(--v3-surface-border, #{rgba($shell-backdrop-color, 0.06)});
 
@@ -1561,13 +1980,721 @@ body.dark-theme .v3-section-tint {
   }
 }
 
+// =============================================================================
+// Consola RBAC Directivo-First V3 (Tarjetas Directivas, Segmentos y Master-Detail)
+// =============================================================================
+
+.v3-rbac-nav-bar {
+  background-color: var(--v3-surface-bg, #{$shell-surface-light});
+  border: 1px solid var(--v3-surface-border, #{rgba($shell-backdrop-color, 0.06)});
+  border-radius: 14px;
+  padding: 0.85rem 1.1rem;
+  box-shadow: var(--v3-surface-shadow, none);
+  animation: v3SurfaceEnter 0.28s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+
+  .nav-pills {
+    gap: 0.45rem;
+  }
+
+  .nav-link {
+    border-radius: 10px;
+    padding: 0.5rem 0.9rem;
+    font-size: 0.84rem;
+    font-weight: 600;
+    color: var(--v3-text-muted, #{$shell-text-muted-light});
+    background-color: transparent;
+    border: 1px solid transparent;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+
+    &:hover:not(.active) {
+      color: var(--v3-text-primary, #{$shell-text-primary-light});
+      background-color: var(--v3-subtle-bg, #{$v3-surface-subtle-light});
+    }
+
+    &.active {
+      background-color: #{$access-brand-blue};
+      color: #{$auth-hero-text};
+    }
+  }
+}
+
+.v3-rbac-role-card {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  text-align: left;
+  padding: 1rem 1.1rem;
+  border-radius: 14px;
+  border: 1px solid var(--v3-surface-border, #{rgba($shell-backdrop-color, 0.08)});
+  background-color: var(--v3-surface-bg, #{$shell-surface-light});
+  box-shadow: var(--v3-surface-shadow, none);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0.65rem;
+  cursor: pointer;
+  overflow: hidden;
+  transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 16%;
+    bottom: 16%;
+    width: 3px;
+    border-radius: 0 3px 3px 0;
+    background-color: #{$access-brand-blue};
+    opacity: 0;
+    transform: scaleY(0.5);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    border-color: #{rgba($access-brand-blue, 0.26)};
+    box-shadow: var(--v3-surface-shadow-hover, none);
+  }
+
+  &.is-active {
+    border-color: #{rgba($access-brand-blue, 0.42)};
+    background-color: #{rgba($access-brand-blue, 0.045)};
+    box-shadow: var(--v3-surface-shadow-hover, none);
+
+    &::before {
+      opacity: 1;
+      transform: scaleY(1);
+    }
+  }
+
+  .v3-rbac-role-card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.65rem;
+  }
+
+  .v3-rbac-role-count {
+    font-size: 1.55rem;
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+    color: var(--v3-text-primary, #{$shell-text-primary-light});
+  }
+
+  .v3-rbac-role-title {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--v3-text-primary, #{$shell-text-primary-light});
+    margin-bottom: 0.12rem;
+  }
+
+  .v3-rbac-role-hint {
+    font-size: 0.74rem;
+    line-height: 1.35;
+    color: var(--v3-text-muted, #{$shell-text-muted-light});
+  }
+}
+
+.v3-rbac-segment-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.v3-rbac-segment-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 38px;
+  padding: 0.38rem 0.82rem;
+  border-radius: 999px;
+  border: 1px solid var(--v3-surface-border, #{rgba($shell-backdrop-color, 0.1)});
+  background-color: var(--v3-surface-bg, #{$shell-surface-light});
+  color: var(--v3-text-muted, #{$shell-text-muted-light});
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+
+  i {
+    font-size: 1rem;
+  }
+
+  .v3-rbac-segment-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.1rem 0.45rem;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    background-color: var(--v3-subtle-bg, #{$v3-surface-subtle-light});
+    color: var(--v3-text-primary, #{$shell-text-primary-light});
+  }
+
+  &:hover:not(.is-active) {
+    border-color: #{rgba($access-brand-blue, 0.3)};
+    color: var(--v3-text-primary, #{$shell-text-primary-light});
+  }
+
+  &.is-active {
+    border-color: #{$access-brand-blue};
+    background-color: #{$access-brand-blue};
+    color: #{$auth-hero-text};
+
+    .v3-rbac-segment-count {
+      background-color: #{rgba($auth-hero-text, 0.2)};
+      color: #{$auth-hero-text};
+    }
+  }
+}
+
+.v3-rbac-role-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.28rem 0.62rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1px solid transparent;
+
+  &.is-rector {
+    background-color: #{rgba($access-accent-indigo, 0.11)};
+    border-color: #{rgba($access-accent-indigo, 0.25)};
+    color: #{$access-accent-indigo};
+  }
+
+  &.is-secretary {
+    background-color: #{rgba($access-accent-teal, 0.11)};
+    border-color: #{rgba($access-accent-teal, 0.26)};
+    color: #{$access-accent-teal};
+  }
+
+  &.is-coordinator {
+    background-color: #{rgba($access-active-green, 0.11)};
+    border-color: #{rgba($access-active-green, 0.26)};
+    color: #{$v3-success-end};
+  }
+
+  &.is-admin {
+    background-color: #{rgba($access-brand-blue, 0.11)};
+    border-color: #{rgba($access-brand-blue, 0.25)};
+    color: #{$access-brand-blue};
+  }
+
+  &.is-teacher {
+    background-color: #{rgba($access-brand-blue-hover, 0.1)};
+    border-color: #{rgba($access-brand-blue-hover, 0.24)};
+    color: #{$v3-hero-light-mid};
+  }
+
+  &.is-neutral {
+    background-color: var(--v3-subtle-bg, #{$v3-surface-subtle-light});
+    border-color: var(--v3-surface-border, #{rgba($shell-backdrop-color, 0.1)});
+    color: var(--v3-text-muted, #{$shell-text-muted-light});
+  }
+
+  &.is-suspended {
+    background-color: #{rgba($auth-strength-weak, 0.08)};
+    border-color: #{rgba($auth-strength-weak, 0.22)};
+    color: #{$auth-strength-weak};
+    opacity: 0.85;
+  }
+
+  .v3-rbac-chip-action {
+    border: 0;
+    background: transparent;
+    padding: 0.08rem;
+    margin: 0;
+    line-height: 1;
+    border-radius: 50%;
+    color: inherit;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0.78;
+    transition: opacity 0.15s ease, background-color 0.15s ease;
+
+    i {
+      font-size: 0.96rem;
+    }
+
+    &:hover {
+      opacity: 1;
+      background-color: #{rgba($shell-backdrop-color, 0.08)};
+    }
+
+    &.is-danger:hover {
+      color: #{$auth-strength-weak};
+      background-color: #{rgba($auth-strength-weak, 0.12)};
+    }
+  }
+}
+
+.v3-rbac-user-results {
+  max-height: 240px;
+  overflow-y: auto;
+  border-radius: 12px;
+  border: 1px solid var(--v3-surface-border, #{rgba($shell-backdrop-color, 0.1)});
+  background-color: var(--v3-surface-bg, #{$shell-surface-light});
+  display: flex;
+  flex-direction: column;
+}
+
+.v3-rbac-user-result-item {
+  width: 100%;
+  border: 0;
+  border-bottom: 1px solid var(--v3-surface-border, #{rgba($shell-backdrop-color, 0.06)});
+  background: transparent;
+  padding: 0.65rem 0.9rem;
+  text-align: left;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  cursor: pointer;
+  color: var(--v3-text-primary, #{$shell-text-primary-light});
+  transition: background-color 0.16s ease;
+
+  &:last-child {
+    border-bottom: 0;
+  }
+
+  &:hover {
+    background-color: #{rgba($access-brand-blue-hover, 0.08)};
+  }
+}
+
+.v3-rbac-selected-user {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  border: 1px solid #{rgba($access-brand-blue, 0.25)};
+  background-color: #{rgba($access-brand-blue, 0.05)};
+}
+
+.v3-rbac-module-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.v3-rbac-module-btn {
+  width: 100%;
+  border: 1px solid var(--v3-surface-border, #{rgba($shell-backdrop-color, 0.08)});
+  border-radius: 11px;
+  padding: 0.65rem 0.85rem;
+  background-color: var(--v3-surface-bg, #{$shell-surface-light});
+  color: var(--v3-text-primary, #{$shell-text-primary-light});
+  text-align: left;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+  cursor: pointer;
+  transition: border-color 0.18s ease, background-color 0.18s ease, transform 0.18s ease;
+
+  &:hover:not(.is-active) {
+    border-color: #{rgba($access-brand-blue, 0.28)};
+    background-color: var(--v3-subtle-bg, #{$v3-surface-subtle-light});
+  }
+
+  &.is-active {
+    border-color: #{$access-brand-blue};
+    background-color: #{rgba($access-brand-blue, 0.07)};
+    color: #{$access-brand-blue};
+    font-weight: 600;
+  }
+
+  .v3-rbac-module-main {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-width: 0;
+
+    i {
+      font-size: 1.15rem;
+      flex-shrink: 0;
+    }
+
+    span {
+      font-size: 0.82rem;
+      line-height: 1.28;
+    }
+  }
+
+  .v3-rbac-module-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background-color: #{$access-accent-amber};
+    flex-shrink: 0;
+  }
+}
+
+.v3-rbac-perm-card {
+  border: 1px solid var(--v3-surface-border, #{rgba($shell-backdrop-color, 0.08)});
+  border-radius: 14px;
+  background-color: var(--v3-surface-bg, #{$shell-surface-light});
+  overflow: hidden;
+}
+
+.v3-rbac-perm-card-header {
+  padding: 0.85rem 1.1rem;
+  background-color: var(--v3-subtle-bg, #{$v3-surface-subtle-light});
+  border-bottom: 1px solid var(--v3-surface-border, #{rgba($shell-backdrop-color, 0.08)});
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.v3-rbac-perm-row {
+  padding: 0.85rem 1.1rem;
+  border-bottom: 1px solid var(--v3-surface-border, #{rgba($shell-backdrop-color, 0.06)});
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+  transition: background-color 0.16s ease;
+
+  &:last-child {
+    border-bottom: 0;
+  }
+
+  &:hover {
+    background-color: #{rgba($access-brand-blue, 0.025)};
+  }
+
+  &.is-pending {
+    background-color: #{rgba($access-accent-amber, 0.08)};
+  }
+
+  .v3-rbac-perm-copy {
+    flex: 1 1 280px;
+    min-width: 0;
+  }
+
+  .v3-rbac-perm-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+
+    @media (max-width: 575.98px) {
+      width: 100%;
+      justify-content: space-between;
+    }
+  }
+}
+
+.v3-perm-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.42rem;
+  padding: 0.28rem 0.72rem;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  white-space: nowrap;
+  border: 1px solid var(--v3-surface-border, #{rgba($shell-backdrop-color, 0.08)});
+  background-color: var(--v3-subtle-bg, #{$v3-surface-subtle-light});
+  color: var(--v3-text-muted, #{$shell-text-muted-light});
+
+  .v3-perm-status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background-color: var(--v3-input-border-hover, #{$v3-input-border-hover-light});
+  }
+
+  &.is-allowed {
+    background-color: #{rgba($access-active-green, 0.11)};
+    border-color: #{rgba($access-active-green, 0.25)};
+    color: #{$v3-success-end};
+
+    .v3-perm-status-dot {
+      background-color: #{$access-active-green};
+    }
+  }
+
+  &.is-blocked {
+    background-color: #{rgba($auth-strength-weak, 0.1)};
+    border-color: #{rgba($auth-strength-weak, 0.24)};
+    color: #{$auth-strength-weak};
+
+    .v3-perm-status-dot {
+      background-color: #{$auth-strength-weak};
+    }
+  }
+}
+
+.v3-perm-segment {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px;
+  border-radius: 11px;
+  background-color: var(--v3-subtle-bg, #{$v3-surface-subtle-light});
+  border: 1px solid var(--v3-surface-border, #{rgba($shell-backdrop-color, 0.09)});
+
+  @media (max-width: 575.98px) {
+    width: 100%;
+  }
+}
+
+.v3-perm-segment-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.32rem;
+  min-height: 34px;
+  padding: 0.26rem 0.76rem;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--v3-text-muted, #{$shell-text-muted-light});
+  font-size: 0.77rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.18s ease,
+    color 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+
+  i {
+    font-size: 0.96rem;
+  }
+
+  &:hover:not(.is-default-active):not(.is-allow-active):not(.is-deny-active) {
+    background-color: #{rgba($access-brand-blue, 0.06)};
+    color: var(--v3-text-primary, #{$shell-text-primary-light});
+  }
+
+  &.is-default-active {
+    background-color: var(--v3-surface-bg, #{$shell-surface-light});
+    border-color: #{rgba($shell-backdrop-color, 0.11)};
+    color: var(--v3-text-primary, #{$shell-text-primary-light});
+    box-shadow: 0 1px 3px #{rgba($shell-backdrop-color, 0.08)};
+  }
+
+  &.is-allow-active {
+    background-color: #{rgba($access-active-green, 0.14)};
+    border-color: #{rgba($access-active-green, 0.32)};
+    color: #{$v3-success-end};
+    box-shadow: 0 1px 3px #{rgba($access-active-green, 0.12)};
+  }
+
+  &.is-deny-active {
+    background-color: #{rgba($auth-strength-weak, 0.12)};
+    border-color: #{rgba($auth-strength-weak, 0.3)};
+    color: #{$auth-strength-weak};
+    box-shadow: 0 1px 3px #{rgba($auth-strength-weak, 0.1)};
+  }
+
+  @media (max-width: 575.98px) {
+    flex: 1 1 0;
+    min-height: 38px;
+    padding: 0.32rem 0.45rem;
+  }
+}
+
+body.dark-theme {
+  .v3-rbac-nav-bar,
+  .v3-rbac-role-card,
+  .v3-rbac-segment-pill,
+  .v3-rbac-user-results,
+  .v3-rbac-module-btn,
+  .v3-rbac-perm-card {
+    background-color: #{$shell-surface-dark};
+    border-color: #{$shell-border-dark};
+  }
+
+  .v3-rbac-role-card {
+    .v3-rbac-role-count,
+    .v3-rbac-role-title {
+      color: #{$shell-text-primary-dark};
+    }
+
+    .v3-rbac-role-hint {
+      color: #{$shell-text-muted-dark};
+    }
+
+    &.is-active {
+      border-color: #{$access-brand-blue-dark};
+      background-color: #{rgba($access-brand-blue-dark, 0.1)};
+
+      &::before {
+        background-color: #{$access-brand-blue-dark};
+      }
+    }
+  }
+
+  .v3-rbac-segment-pill {
+    color: #{$shell-text-muted-dark};
+
+    .v3-rbac-segment-count {
+      background-color: #{$v3-surface-subtle-dark};
+      color: #{$shell-text-primary-dark};
+    }
+
+    &:hover:not(.is-active) {
+      border-color: #{rgba($access-brand-blue-dark, 0.35)};
+      color: #{$shell-text-primary-dark};
+    }
+
+    &.is-active {
+      background-color: #{$access-brand-blue};
+      border-color: #{$access-brand-blue};
+      color: #{$auth-hero-text};
+    }
+  }
+
+  .v3-rbac-role-badge {
+    &.is-rector {
+      color: #{$access-brand-blue-dark};
+    }
+
+    &.is-coordinator {
+      color: #{$auth-strength-strong};
+    }
+
+    &.is-admin,
+    &.is-teacher {
+      color: #{$access-brand-blue-dark};
+    }
+
+    &.is-neutral {
+      background-color: #{$v3-surface-subtle-dark};
+      border-color: #{$shell-border-dark};
+      color: #{$shell-text-muted-dark};
+    }
+  }
+
+  .v3-rbac-user-result-item {
+    border-bottom-color: #{$shell-border-dark};
+    color: #{$shell-text-primary-dark};
+
+    &:hover {
+      background-color: #{rgba($access-brand-blue-dark, 0.1)};
+    }
+  }
+
+  .v3-rbac-selected-user {
+    background-color: #{rgba($access-brand-blue-dark, 0.1)};
+    border-color: #{rgba($access-brand-blue-dark, 0.3)};
+  }
+
+  .v3-rbac-module-btn {
+    color: #{$shell-text-primary-dark};
+
+    &:hover:not(.is-active) {
+      background-color: #{$v3-surface-subtle-dark};
+      border-color: #{rgba($access-brand-blue-dark, 0.3)};
+    }
+
+    &.is-active {
+      background-color: #{rgba($access-brand-blue-dark, 0.14)};
+      border-color: #{$access-brand-blue-dark};
+      color: #{$access-brand-blue-dark};
+    }
+  }
+
+  .v3-rbac-perm-card-header {
+    background-color: #{$v3-surface-subtle-dark};
+    border-bottom-color: #{$shell-border-dark};
+  }
+
+  .v3-rbac-perm-row {
+    border-bottom-color: #{$shell-border-dark};
+
+    &.is-pending {
+      background-color: #{rgba($access-accent-amber, 0.14)};
+    }
+  }
+
+  .v3-perm-status {
+    background-color: #{$v3-surface-subtle-dark};
+    border-color: #{$shell-border-dark};
+    color: #{$shell-text-muted-dark};
+
+    &.is-allowed {
+      background-color: #{rgba($auth-strength-strong, 0.14)};
+      border-color: #{rgba($auth-strength-strong, 0.3)};
+      color: #{$auth-strength-strong};
+
+      .v3-perm-status-dot {
+        background-color: #{$auth-strength-strong};
+      }
+    }
+
+    &.is-blocked {
+      background-color: #{rgba($auth-strength-weak, 0.14)};
+      border-color: #{rgba($auth-strength-weak, 0.3)};
+      color: #{$auth-strength-weak};
+    }
+  }
+
+  .v3-perm-segment {
+    background-color: #{$shell-canvas-bg-dark};
+    border-color: #{$shell-border-dark};
+  }
+
+  .v3-perm-segment-btn {
+    color: #{$shell-text-muted-dark};
+
+    &:hover:not(.is-default-active):not(.is-allow-active):not(.is-deny-active) {
+      background-color: #{rgba($access-brand-blue-dark, 0.1)};
+      color: #{$shell-text-primary-dark};
+    }
+
+    &.is-default-active {
+      background-color: #{$v3-surface-subtle-dark};
+      border-color: #{$v3-input-border-dark};
+      color: #{$shell-text-primary-dark};
+    }
+
+    &.is-allow-active {
+      background-color: #{rgba($auth-strength-strong, 0.16)};
+      border-color: #{rgba($auth-strength-strong, 0.34)};
+      color: #{$auth-strength-strong};
+    }
+
+    &.is-deny-active {
+      background-color: #{rgba($auth-strength-weak, 0.16)};
+      border-color: #{rgba($auth-strength-weak, 0.34)};
+      color: #{$auth-strength-weak};
+    }
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .main-content-body .trezo-card,
   .v3-modal-dialog,
   .v3-kpi-card,
   .v3-hub-card,
   .v3-hero-banner,
-  .v3-kpi-metric-card {
+  .v3-kpi-metric-card,
+  .v3-wizard .v3-wizard-body,
+  .v3-rbac-nav-bar {
     animation: none !important;
   }
 
@@ -1578,10 +2705,17 @@ body.dark-theme .v3-section-tint {
   .v3-kpi-icon,
   .v3-upload-dropzone,
   .v3-strength-seg,
+  .v3-wizard .v3-wizard-progress-bar,
+  .v3-wizard .v3-wizard-step-btn,
   .main-content-body .btn,
   .v3-modal-dialog .btn,
   .v3-hub-card .v3-hub-arrow,
-  .v3-hub-card .border-top .material-symbols-outlined {
+  .v3-hub-card .border-top .material-symbols-outlined,
+  .v3-rbac-role-card,
+  .v3-rbac-segment-pill,
+  .v3-rbac-module-btn,
+  .v3-rbac-perm-row,
+  .v3-perm-segment-btn {
     transition: none !important;
   }
 }

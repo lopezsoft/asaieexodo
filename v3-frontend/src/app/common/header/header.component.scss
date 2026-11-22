@@ -6,7 +6,7 @@
     left: var(--asaie-sidebar-width);
     right: 0;
     top: 0;
-    z-index: 5;
+    z-index: 100;
     background-color: var(--asaie-header-bg);
     border-bottom: 1px solid var(--asaie-header-border);
     box-shadow: var(--asaie-header-shadow);
@@ -42,6 +42,37 @@
         img {
           max-height: 32px;
           width: auto;
+        }
+      }
+
+      .v3-header-year-select {
+        width: 118px;
+        flex-shrink: 0;
+
+        .v3-select-trigger {
+          min-height: 36px;
+          padding: 0.25rem 0.5rem 0.25rem 0.65rem;
+          border-radius: 999px;
+          background-color: var(--asaie-header-pill-bg);
+          border: 1px solid var(--asaie-header-border);
+          color: var(--asaie-header-text);
+          font-size: 0.82rem;
+          font-weight: 700;
+          font-variant-numeric: tabular-nums;
+          gap: 0.32rem;
+        }
+
+        .v3-select-leading {
+          font-size: 16px;
+          color: var(--primaryColor);
+        }
+
+        .v3-select-chevron {
+          font-size: 17px;
+        }
+
+        @media only screen and (max-width: 575.98px) {
+          width: 102px;
         }
       }
     }

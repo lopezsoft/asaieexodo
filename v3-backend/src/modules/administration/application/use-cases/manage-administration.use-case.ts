@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { GridQueryOptions } from '../../../../shared/infrastructure/http/pagination/laravel-paginator';
 import {
   AdministrationRepositoryPort,
   AdministrativeStaffRecord,
@@ -45,6 +46,16 @@ export class ManageAdministrationUseCase {
 
   listCampuses(schoolId: bigint): Promise<CampusRecord[]> {
     return this.repository.listCampuses(schoolId);
+  }
+
+  listCampusesPaginated(
+    schoolId: bigint,
+    options?: Partial<GridQueryOptions>,
+  ): Promise<PaginatedRecords<CampusRecord>> {
+    return this.repository.listCampusesPaginated(
+      schoolId,
+      this.sanitizeGridOptions(options),
+    );
   }
 
   createCampus(
@@ -122,14 +133,12 @@ export class ManageAdministrationUseCase {
 
   listTeachers(
     schoolId: bigint,
-    options?: { search?: string; onlyActive?: boolean; limit?: number; offset?: number },
+    options?: Partial<GridQueryOptions>,
   ): Promise<PaginatedRecords<TeacherProfileRecord>> {
-    return this.repository.listTeachers(schoolId, {
-      search: options?.search?.trim(),
-      onlyActive: options?.onlyActive,
-      limit: Math.min(Math.max(options?.limit ?? 100, 1), 500),
-      offset: Math.max(options?.offset ?? 0, 0),
-    });
+    return this.repository.listTeachers(
+      schoolId,
+      this.sanitizeGridOptions(options),
+    );
   }
 
   createTeacher(
@@ -153,14 +162,12 @@ export class ManageAdministrationUseCase {
 
   listAdministrativeStaff(
     schoolId: bigint,
-    options?: { search?: string; onlyActive?: boolean; limit?: number; offset?: number },
+    options?: Partial<GridQueryOptions>,
   ): Promise<PaginatedRecords<AdministrativeStaffRecord>> {
-    return this.repository.listAdministrativeStaff(schoolId, {
-      search: options?.search?.trim(),
-      onlyActive: options?.onlyActive,
-      limit: Math.min(Math.max(options?.limit ?? 100, 1), 500),
-      offset: Math.max(options?.offset ?? 0, 0),
-    });
+    return this.repository.listAdministrativeStaff(
+      schoolId,
+      this.sanitizeGridOptions(options),
+    );
   }
 
   createAdministrativeStaff(
@@ -190,6 +197,33 @@ export class ManageAdministrationUseCase {
       schoolId,
       academicYear ?? new Date().getFullYear(),
     );
+  }
+
+  listGroupManagersPaginated(
+    schoolId: bigint,
+    academicYear: number | undefined,
+    options?: Partial<GridQueryOptions>,
+  ): Promise<PaginatedRecords<GroupManagerRecord>> {
+    return this.repository.listGroupManagersPaginated(
+      schoolId,
+      academicYear ?? new Date().getFullYear(),
+      this.sanitizeGridOptions(options),
+    );
+  }
+
+  private sanitizeGridOptions(
+    options?: Partial<GridQueryOptions>,
+  ): GridQueryOptions {
+    return {
+      search: options?.search?.trim() || undefined,
+      filterField: options?.filterField?.trim() || undefined,
+      filterValue: options?.filterValue?.trim() || undefined,
+      sortField: options?.sortField?.trim() || undefined,
+      sortDirection: options?.sortDirection === 'DESC' ? 'DESC' : 'ASC',
+      onlyActive: options?.onlyActive,
+      limit: Math.min(Math.max(options?.limit ?? 100, 1), 500),
+      offset: Math.max(options?.offset ?? 0, 0),
+    };
   }
 
   upsertGroupManager(

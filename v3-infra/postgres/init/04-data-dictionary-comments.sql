@@ -1652,4 +1652,36 @@ COMMENT ON VIEW v_siee_subject_period_scores IS 'Vista unificada RLS-safe de cal
 COMMENT ON VIEW v_siee_area_period_scores IS 'Vista unificada RLS-safe de calificaciones consolidadas por área y periodo aplicando ponderación, decimales y regla fail_subject_of_the_area.';
 COMMENT ON VIEW v_siee_subject_annual_scores IS 'Vista unificada RLS-safe de definitivas anuales por asignatura respetando promotion_mode, redondeo de gracia y recuperaciones finales (reemplaza 8 vistas anuales legacy).';
 
+-- Motor RBAC granular multi-tenant (4 tablas)
+COMMENT ON TABLE permissions_catalog IS 'Catálogo global de permisos atómicos RBAC (module.resource.action) asociados opcionalmente a módulos licenciados SaaS.';
+COMMENT ON COLUMN permissions_catalog.id IS 'Identificador numérico estable del permiso atómico.';
+COMMENT ON COLUMN permissions_catalog.system_module_id IS 'Módulo del sistema requerido en school_modules para habilitar este permiso (NULL si pertenece al núcleo base).';
+COMMENT ON COLUMN permissions_catalog.is_sensitive IS 'Marca permisos sensibles o destructivos (cierre de año, edición rectoral de notas, firmas institucionales).';
+COMMENT ON COLUMN permissions_catalog.is_super_admin_only IS 'Indica si el permiso es exclusivo de SUPER_ADMIN SaaS y no puede otorgarse vía override de colegio.';
+COMMENT ON COLUMN permissions_catalog.code IS 'Código único técnico en inglés con notación punto (ej. academic.enrollments.write).';
+COMMENT ON COLUMN permissions_catalog.module_group IS 'Agrupación funcional para la matriz visual RBAC (DASHBOARD, ADMIN, IAM, SETTINGS, ACADEMIC, PROMOTION, ELECTIONS, REPORTS, PORTAL, STORAGE, CRM).';
+COMMENT ON COLUMN permissions_catalog.name IS 'Nombre legible en español del permiso para la interfaz administrativa.';
+COMMENT ON COLUMN permissions_catalog.description IS 'Descripción operativa clara del alcance del permiso en la institución educativa.';
+
+COMMENT ON TABLE role_default_permissions IS 'Matriz base de permisos por defecto asignados a cada rol institucional según operación MEN / Decreto 1290.';
+COMMENT ON COLUMN role_default_permissions.permission_id IS 'Identificador del permiso atómico (referencia a permissions_catalog).';
+COMMENT ON COLUMN role_default_permissions.role IS 'Rol base de la comunidad educativa al que aplica el permiso por defecto.';
+
+COMMENT ON TABLE school_role_permissions IS 'Sobrescrituras RBAC por institución educativa que permiten activar (ALLOW) o revocar (DENY) permisos sobre un rol base (aislamiento RLS).';
+COMMENT ON COLUMN school_role_permissions.school_id IS 'Identificador de la Institución Educativa propietaria (aislamiento RLS).';
+COMMENT ON COLUMN school_role_permissions.updated_by_user_id IS 'Usuario directivo que registró o modificó la sobrescritura.';
+COMMENT ON COLUMN school_role_permissions.updated_at IS 'Fecha y hora de la última actualización de la regla.';
+COMMENT ON COLUMN school_role_permissions.permission_id IS 'Identificador del permiso atómico sobrescrito.';
+COMMENT ON COLUMN school_role_permissions.role IS 'Rol institucional afectado dentro del colegio.';
+COMMENT ON COLUMN school_role_permissions.effect IS 'Efecto de la sobrescritura sobre la matriz base (ALLOW agrega permiso, DENY lo revoca).';
+
+COMMENT ON TABLE user_permission_overrides IS 'Excepciones RBAC puntuales por usuario y rol dentro de un colegio (ej. diferenciar Coordinador Académico vs de Convivencia, aislamiento RLS).';
+COMMENT ON COLUMN user_permission_overrides.school_id IS 'Identificador de la Institución Educativa propietaria (aislamiento RLS).';
+COMMENT ON COLUMN user_permission_overrides.user_id IS 'Identificador del usuario al que aplica la excepción puntual.';
+COMMENT ON COLUMN user_permission_overrides.updated_by_user_id IS 'Usuario directivo que configuró la excepción.';
+COMMENT ON COLUMN user_permission_overrides.updated_at IS 'Fecha y hora de la última actualización de la excepción.';
+COMMENT ON COLUMN user_permission_overrides.permission_id IS 'Identificador del permiso atómico afectado.';
+COMMENT ON COLUMN user_permission_overrides.role IS 'Rol activo en el que aplica la excepción para dicho usuario.';
+COMMENT ON COLUMN user_permission_overrides.effect IS 'Efecto de la excepción puntual (ALLOW agrega permiso, DENY lo revoca).';
+
 COMMIT;

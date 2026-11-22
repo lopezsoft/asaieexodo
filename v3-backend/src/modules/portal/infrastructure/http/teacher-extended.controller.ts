@@ -13,12 +13,20 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ActiveTenantContext } from '../../../../shared/application/context/tenant-context.service';
+import { TenantAccessDeniedException } from '../../../../shared/domain/exceptions/tenant-access-denied.exception';
+import { PostgresRlsService } from '../../../../shared/infrastructure/database/postgres-rls.service';
 import {
   CurrentUser,
-  Roles,
+  RequireAnyPermission,
+  RequireModule,
+  RequirePermissions,
 } from '../../../../shared/infrastructure/http/decorators/security.decorators';
 import { PositiveBigIntPipe } from '../../../../shared/infrastructure/http/pipes/positive-bigint.pipe';
-import { CommunityRole } from '../../../iam/domain/enums/community-role.enum';
+import {
+  RBAC_MODULES,
+  RBAC_PERMISSIONS,
+} from '../../../../shared/infrastructure/rbac/rbac-permissions.constants';
+import { RbacPermissionsService } from '../../../../shared/infrastructure/rbac/rbac-permissions.service';
 import { ManageTeacherExtendedUseCase } from '../../application/use-cases/manage-teacher-extended.use-case';
 import {
   AssignAchievementsBatchDto,
@@ -32,23 +40,22 @@ import {
   UpsertTeacherColumnDto,
 } from './dto/teacher-extended.dto';
 
-const TEACHER_ROLES = [
-  CommunityRole.SUPER_ADMIN,
-  CommunityRole.SCHOOL_ADMIN,
-  CommunityRole.RECTOR,
-  CommunityRole.COORDINATOR,
-  CommunityRole.SECRETARY,
-  CommunityRole.TEACHER,
-] as const;
-
 @ApiTags('Teacher Portal Extended (asaie-teachers Parity)')
 @ApiBearerAuth('jwt-auth')
 @Controller('teacher')
 export class TeacherExtendedController {
-  constructor(private readonly useCase: ManageTeacherExtendedUseCase) {}
+  constructor(
+    private readonly useCase: ManageTeacherExtendedUseCase,
+    private readonly rbacPermissions: RbacPermissionsService,
+    private readonly db: PostgresRlsService,
+  ) {}
 
   @Get('periods')
-  @Roles(...TEACHER_ROLES)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
+    RBAC_PERMISSIONS.PORTAL_TEACHER_SUPERVISE_READ,
+  )
   async listPeriods(
     @CurrentUser() p: ActiveTenantContext,
     @Query('academicYear') academicYear?: string,
@@ -63,7 +70,10 @@ export class TeacherExtendedController {
   }
 
   @Get('profile')
-  @Roles(...TEACHER_ROLES)
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
+    RBAC_PERMISSIONS.PORTAL_TEACHER_SUPERVISE_READ,
+  )
   async getSelfProfile(@CurrentUser() p: ActiveTenantContext) {
     return {
       success: true,
@@ -72,7 +82,7 @@ export class TeacherExtendedController {
   }
 
   @Patch('profile')
-  @Roles(...TEACHER_ROLES)
+  @RequirePermissions(RBAC_PERMISSIONS.PORTAL_TEACHER_OWN)
   async updateSelfProfile(
     @CurrentUser() p: ActiveTenantContext,
     @Body() dto: UpdateTeacherSelfProfileDto,
@@ -89,12 +99,17 @@ export class TeacherExtendedController {
 
   // Columnas dinámicas de planilla (n1..n30) e ítems de calificación
   @Get('courses/:courseAssignmentId/columns')
-  @Roles(...TEACHER_ROLES)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
+    RBAC_PERMISSIONS.PORTAL_TEACHER_SUPERVISE_READ,
+  )
   async listCourseColumns(
     @CurrentUser() p: ActiveTenantContext,
     @Param('courseAssignmentId', PositiveBigIntPipe) courseAssignmentId: bigint,
     @Query('periodNumber') periodNumber?: string,
   ) {
+    await this.assertCanReadCourse(p, courseAssignmentId);
     return {
       success: true,
       data: await this.useCase.listCourseColumns(
@@ -106,13 +121,18 @@ export class TeacherExtendedController {
   }
 
   @Post('courses/:courseAssignmentId/columns')
-  @Roles(...TEACHER_ROLES)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
+    RBAC_PERMISSIONS.ACADEMIC_GRADES_RECTOR_OVERRIDE,
+  )
   @HttpCode(HttpStatus.OK)
   async upsertCourseColumn(
     @CurrentUser() p: ActiveTenantContext,
     @Param('courseAssignmentId', PositiveBigIntPipe) courseAssignmentId: bigint,
     @Body() dto: UpsertTeacherColumnDto,
   ) {
+    await this.assertCanWriteCourse(p, courseAssignmentId);
     return {
       success: true,
       data: await this.useCase.upsertCourseColumn(
@@ -124,7 +144,11 @@ export class TeacherExtendedController {
   }
 
   @Delete('columns/:columnId')
-  @Roles(...TEACHER_ROLES)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
+    RBAC_PERMISSIONS.ACADEMIC_GRADES_RECTOR_OVERRIDE,
+  )
   async deleteCourseColumn(
     @CurrentUser() p: ActiveTenantContext,
     @Param('columnId', PositiveBigIntPipe) columnId: bigint,
@@ -134,13 +158,18 @@ export class TeacherExtendedController {
   }
 
   @Get('courses/:courseAssignmentId/grade-items')
-  @Roles(...TEACHER_ROLES)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
+    RBAC_PERMISSIONS.PORTAL_TEACHER_SUPERVISE_READ,
+  )
   async listGradeItems(
     @CurrentUser() p: ActiveTenantContext,
     @Param('courseAssignmentId', PositiveBigIntPipe) courseAssignmentId: bigint,
     @Query('academicYear') academicYear?: string,
     @Query('periodNumber') periodNumber?: string,
   ) {
+    await this.assertCanReadCourse(p, courseAssignmentId);
     return {
       success: true,
       data: await this.useCase.listCourseGradeItems(
@@ -153,12 +182,17 @@ export class TeacherExtendedController {
   }
 
   @Put('courses/:courseAssignmentId/grade-items')
-  @Roles(...TEACHER_ROLES)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
+    RBAC_PERMISSIONS.ACADEMIC_GRADES_RECTOR_OVERRIDE,
+  )
   async saveGradeItemsBatch(
     @CurrentUser() p: ActiveTenantContext,
     @Param('courseAssignmentId', PositiveBigIntPipe) courseAssignmentId: bigint,
     @Body() dto: SaveGradeItemsBatchDto,
   ) {
+    await this.assertCanWriteCourse(p, courseAssignmentId);
     return {
       success: true,
       data: await this.useCase.saveGradeItemsBatch(
@@ -172,9 +206,16 @@ export class TeacherExtendedController {
 
   // Descriptores multi-escala, asignación a notas y sincronización automática
   @Post('achievements/multi-scale')
-  @Roles(...TEACHER_ROLES)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
+    RBAC_PERMISSIONS.ACADEMIC_CURRICULUM_WRITE,
+  )
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Crear descriptores simultáneamente para múltiples desempeños de escala nacional' })
+  @ApiOperation({
+    summary:
+      'Crear descriptores simultáneamente para múltiples desempeños de escala nacional',
+  })
   async createMultiScale(
     @CurrentUser() p: ActiveTenantContext,
     @Body() dto: CreateAchievementsMultiScaleDto,
@@ -186,13 +227,18 @@ export class TeacherExtendedController {
   }
 
   @Get('courses/:courseAssignmentId/assigned-achievements')
-  @Roles(...TEACHER_ROLES)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
+    RBAC_PERMISSIONS.PORTAL_TEACHER_SUPERVISE_READ,
+  )
   async listAssignedAchievements(
     @CurrentUser() p: ActiveTenantContext,
     @Param('courseAssignmentId', PositiveBigIntPipe) courseAssignmentId: bigint,
     @Query('academicYear') academicYear?: string,
     @Query('periodNumber') periodNumber?: string,
   ) {
+    await this.assertCanReadCourse(p, courseAssignmentId);
     return {
       success: true,
       data: await this.useCase.listCourseAssignedAchievements(
@@ -205,7 +251,11 @@ export class TeacherExtendedController {
   }
 
   @Post('grades/assign-achievements')
-  @Roles(...TEACHER_ROLES)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
+    RBAC_PERMISSIONS.ACADEMIC_GRADES_RECTOR_OVERRIDE,
+  )
   @HttpCode(HttpStatus.OK)
   async assignAchievementsBatch(
     @CurrentUser() p: ActiveTenantContext,
@@ -217,12 +267,19 @@ export class TeacherExtendedController {
     };
   }
 
-  @Delete('grades/assigned-achievements/:academicScoreId/:achievementStandardId')
-  @Roles(...TEACHER_ROLES)
+  @Delete(
+    'grades/assigned-achievements/:academicScoreId/:achievementStandardId',
+  )
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
+    RBAC_PERMISSIONS.ACADEMIC_GRADES_RECTOR_OVERRIDE,
+  )
   async unassignAchievement(
     @CurrentUser() p: ActiveTenantContext,
     @Param('academicScoreId', PositiveBigIntPipe) academicScoreId: bigint,
-    @Param('achievementStandardId', PositiveBigIntPipe) achievementStandardId: bigint,
+    @Param('achievementStandardId', PositiveBigIntPipe)
+    achievementStandardId: bigint,
     @Query('academicYear') academicYear?: string,
   ) {
     await this.useCase.unassignAchievement(
@@ -242,14 +299,22 @@ export class TeacherExtendedController {
   }
 
   @Post('courses/:courseAssignmentId/sync-achievements')
-  @Roles(...TEACHER_ROLES)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
+    RBAC_PERMISSIONS.ACADEMIC_GRADES_RECTOR_OVERRIDE,
+  )
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Sincronizar descriptores y logros con las calificaciones según desempeño nacional' })
+  @ApiOperation({
+    summary:
+      'Sincronizar descriptores y logros con las calificaciones según desempeño nacional',
+  })
   async syncCourseAchievements(
     @CurrentUser() p: ActiveTenantContext,
     @Param('courseAssignmentId', PositiveBigIntPipe) courseAssignmentId: bigint,
     @Body() dto: SyncCourseAchievementsDto,
   ) {
+    await this.assertCanWriteCourse(p, courseAssignmentId);
     return {
       success: true,
       data: await this.useCase.syncCourseAchievements(
@@ -262,7 +327,11 @@ export class TeacherExtendedController {
 
   // Nivelaciones periódicas y de fin de año desde docente
   @Get('levelings/periodic')
-  @Roles(...TEACHER_ROLES)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
+    RBAC_PERMISSIONS.PORTAL_TEACHER_SUPERVISE_READ,
+  )
   async listPeriodicLevelings(
     @CurrentUser() p: ActiveTenantContext,
     @Query('courseAssignmentId') courseAssignmentId: string,
@@ -273,6 +342,9 @@ export class TeacherExtendedController {
     const cid = /^\d+$/.test(courseAssignmentId ?? '')
       ? BigInt(courseAssignmentId)
       : 0n;
+    if (cid > 0n) {
+      await this.assertCanReadCourse(p, cid);
+    }
     const safeMode: 'FAILED' | 'LEVELED' | 'ALL' =
       filterMode === 'LEVELED' || filterMode === 'ALL' ? filterMode : 'FAILED';
     return {
@@ -288,7 +360,11 @@ export class TeacherExtendedController {
   }
 
   @Get('levelings/final')
-  @Roles(...TEACHER_ROLES)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
+    RBAC_PERMISSIONS.PORTAL_TEACHER_SUPERVISE_READ,
+  )
   async listFinalLevelings(
     @CurrentUser() p: ActiveTenantContext,
     @Query('academicYear') academicYear?: string,
@@ -305,7 +381,11 @@ export class TeacherExtendedController {
   }
 
   @Post('levelings/save-batch')
-  @Roles(...TEACHER_ROLES)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
+    RBAC_PERMISSIONS.ACADEMIC_RECOVERIES_WRITE,
+  )
   @HttpCode(HttpStatus.OK)
   async saveLevelingsBatch(
     @CurrentUser() p: ActiveTenantContext,
@@ -319,19 +399,31 @@ export class TeacherExtendedController {
 
   // Observador Modelo 5 (condiciones físicas, familia, barreras/inclusión) + Modelo 3 (matriz N/AV/CS/S)
   @Get('observer/:enrollmentId/extended')
-  @Roles(...TEACHER_ROLES)
+  @RequireModule(RBAC_MODULES.STUDENT_OBSERVER)
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
+    RBAC_PERMISSIONS.PORTAL_TEACHER_SUPERVISE_READ,
+    RBAC_PERMISSIONS.PORTAL_TEACHER_OBSERVER_WRITE,
+  )
   async getObserverExtended(
     @CurrentUser() p: ActiveTenantContext,
     @Param('enrollmentId', PositiveBigIntPipe) enrollmentId: bigint,
   ) {
     return {
       success: true,
-      data: await this.useCase.getObserverExtendedData(p.schoolId, enrollmentId),
+      data: await this.useCase.getObserverExtendedData(
+        p.schoolId,
+        enrollmentId,
+      ),
     };
   }
 
   @Put('observer/:enrollmentId/extended')
-  @Roles(...TEACHER_ROLES)
+  @RequireModule(RBAC_MODULES.STUDENT_OBSERVER)
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
+    RBAC_PERMISSIONS.PORTAL_TEACHER_OBSERVER_WRITE,
+  )
   async saveObserverExtended(
     @CurrentUser() p: ActiveTenantContext,
     @Param('enrollmentId', PositiveBigIntPipe) enrollmentId: bigint,
@@ -347,9 +439,13 @@ export class TeacherExtendedController {
     };
   }
 
-  // Formato de seguimiento de acceso y conectividad (FormatoSeguimientoForm.js)
+  // Formato de seguimiento de acceso y conectividad
   @Get('tracking-format')
-  @Roles(...TEACHER_ROLES)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
+    RBAC_PERMISSIONS.PORTAL_TEACHER_SUPERVISE_READ,
+  )
   async listTrackingFormat(
     @CurrentUser() p: ActiveTenantContext,
     @Query('academicGroupId') academicGroupId: string,
@@ -369,7 +465,11 @@ export class TeacherExtendedController {
   }
 
   @Put('tracking-format')
-  @Roles(...TEACHER_ROLES)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
+    RBAC_PERMISSIONS.PORTAL_TEACHER_OBSERVER_WRITE,
+  )
   async saveTrackingFormat(
     @CurrentUser() p: ActiveTenantContext,
     @Body() dto: SaveTrackingFormatBatchDto,
@@ -378,6 +478,66 @@ export class TeacherExtendedController {
       success: true,
       data: await this.useCase.saveTrackingFormatBatch(p.schoolId, dto),
     };
+  }
+
+  private async assertCanReadCourse(
+    p: ActiveTenantContext,
+    courseAssignmentId: bigint,
+  ): Promise<void> {
+    const canSupervise = await this.rbacPermissions.hasPermission(
+      p.schoolId,
+      p.userId,
+      p.activeRole,
+      RBAC_PERMISSIONS.PORTAL_TEACHER_SUPERVISE_READ,
+    );
+    if (canSupervise) {
+      return;
+    }
+    await this.assertOwnsCourse(p, courseAssignmentId);
+  }
+
+  private async assertCanWriteCourse(
+    p: ActiveTenantContext,
+    courseAssignmentId: bigint,
+  ): Promise<void> {
+    const canOverride = await this.rbacPermissions.hasPermission(
+      p.schoolId,
+      p.userId,
+      p.activeRole,
+      RBAC_PERMISSIONS.ACADEMIC_GRADES_RECTOR_OVERRIDE,
+    );
+    if (canOverride) {
+      return;
+    }
+    await this.assertOwnsCourse(p, courseAssignmentId);
+  }
+
+  private async assertOwnsCourse(
+    p: ActiveTenantContext,
+    courseAssignmentId: bigint,
+  ): Promise<void> {
+    const owns = await this.db.withTenantTransaction(
+      p.schoolId,
+      async (client) => {
+        const res = await client.query<{ ok: number }>(
+          `SELECT 1 AS ok
+             FROM course_assignments ca
+             INNER JOIN teacher_profiles tp
+               ON tp.school_id = ca.school_id AND tp.id = ca.teacher_profile_id
+            WHERE ca.school_id = $1
+              AND ca.id = $2
+              AND tp.user_id = $3
+            LIMIT 1`,
+          [String(p.schoolId), String(courseAssignmentId), String(p.userId)],
+        );
+        return (res.rowCount ?? 0) > 0;
+      },
+    );
+    if (!owns) {
+      throw new TenantAccessDeniedException(
+        'Solo el docente titular de esta asignatura puede acceder o modificar esta planilla.',
+      );
+    }
   }
 
   private parseYear(raw: string | undefined, fallback: number): number {

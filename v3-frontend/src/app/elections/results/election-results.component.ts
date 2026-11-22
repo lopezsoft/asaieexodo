@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
@@ -9,6 +9,10 @@ import {
   SchoolElectionRecord,
   V3ElectionsService,
 } from '../../services/v3-elections.service';
+import {
+  SearchableSelectOption,
+  V3SearchableSelectComponent,
+} from '../../shared/components/v3-searchable-select/v3-searchable-select.component';
 import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.directive';
 
 /**
@@ -17,7 +21,7 @@ import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.d
 @Component({
   selector: 'app-election-results',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, CustomTooltipDirective],
+  imports: [CommonModule, FormsModule, RouterLink, V3SearchableSelectComponent, CustomTooltipDirective],
   template: `
     <div class="container-fluid py-3">
       <div class="breadcrumb-card mb-25 d-md-flex align-items-center justify-content-between">
@@ -26,17 +30,15 @@ import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.d
           <small class="text-muted">Participación, votación por candidatura y balance por mesas</small>
         </div>
         <div class="d-flex align-items-center gap-2">
-          <select
-            class="form-select form-select-sm"
-            style="width: auto;"
+          <app-v3-searchable-select
+            size="sm"
+            style="min-width: 240px;"
             [(ngModel)]="selectedElectionId"
+            [options]="electionOptions()"
+            placeholder="Seleccionar jornada..."
+            searchPlaceholder="Buscar jornada..."
             (ngModelChange)="loadResults()"
-            aria-label="Seleccionar jornada"
-          >
-            @for (e of elections(); track e.id) {
-              <option [ngValue]="e.id">{{ e.academicYear }} · {{ e.electionName }}</option>
-            }
-          </select>
+          />
           <button
             type="button"
             class="btn btn-sm btn-outline-primary"
@@ -115,6 +117,9 @@ export class ElectionResultsComponent implements OnInit {
 
   readonly elections = signal<SchoolElectionRecord[]>([]);
   readonly results = signal<ElectionResultsView | null>(null);
+  readonly electionOptions = computed<SearchableSelectOption<number>[]>(() =>
+    this.elections().map((e) => ({ value: e.id, label: `${e.academicYear} · ${e.electionName}` }))
+  );
   selectedElectionId = 0;
 
   ngOnInit(): void {

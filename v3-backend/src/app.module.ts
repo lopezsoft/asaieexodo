@@ -12,12 +12,14 @@ import { IamModule } from './modules/iam/iam.module';
 import { MigrationModule } from './modules/migration/migration.module';
 import { PortalModule } from './modules/portal/portal.module';
 import { PromotionModule } from './modules/promotion/promotion.module';
+import { RbacModule } from './modules/rbac/rbac.module';
 import { ReportingModule } from './modules/reporting/reporting.module';
 import { SettingsModule } from './modules/settings/settings.module';
 import { StorageModule } from './modules/storage/storage.module';
 import { TenantModule } from './modules/tenant/tenant.module';
 import { validateEnvironment } from './shared/infrastructure/config/environment.validation';
 import { JwtAuthGuard } from './shared/infrastructure/http/guards/jwt-auth.guard';
+import { PermissionsGuard } from './shared/infrastructure/http/guards/permissions.guard';
 import { RateLimitGuard } from './shared/infrastructure/http/guards/rate-limit.guard';
 import { RolesGuard } from './shared/infrastructure/http/guards/roles.guard';
 import { TenantContextInterceptor } from './shared/infrastructure/http/interceptors/tenant-context.interceptor';
@@ -57,6 +59,7 @@ import { SharedModule } from './shared/shared.module';
     PortalModule,
     TenantModule,
     IamModule,
+    RbacModule,
     GradingModule,
     CrmModule,
     StorageModule,
@@ -75,6 +78,10 @@ import { SharedModule } from './shared/shared.module';
     {
       provide: APP_GUARD,
       useClass: RolesGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: PermissionsGuard,
     },
     {
       provide: APP_INTERCEPTOR,

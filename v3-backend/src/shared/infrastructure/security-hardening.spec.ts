@@ -319,8 +319,8 @@ describe('ASAIE V3 Security Hardening & Architecture Unit Suite', () => {
     });
   });
 
-  describe('NodemailerSmtpMailAdapter HTML escaping & ConfigurableEmbeddingAdapter', () => {
-    it('escapes HTML injection payloads in CRM notifications', async () => {
+  describe('NodemailerSmtpMailAdapter HTML escaping, ASAIE branding & ConfigurableEmbeddingAdapter', () => {
+    it('escapes HTML injection payloads in CRM notifications and applies ASAIE ÉXODO brand tokens + inline logo CID', async () => {
       const adapter = new NodemailerSmtpMailAdapter(
         createConfig({ NODE_ENV: 'test' }),
         logger,
@@ -338,7 +338,25 @@ describe('ASAIE V3 Security Hardening & Architecture Unit Suite', () => {
       const sentInput = sendSpy.mock.calls[0][0];
       expect(sentInput.html).not.toContain('<script>');
       expect(sentInput.html).toContain('&lt;script&gt;alert(1)&lt;/script&gt;');
+      expect(sentInput.html).toContain('#032344');
+      expect(sentInput.html).toContain('#053f74');
+      expect(sentInput.html).toContain('#0399de');
+      expect(sentInput.html).toContain('cid:asaie-brand-logo');
       expect(sentInput.text).toBeDefined();
+
+      await adapter.sendPasswordResetEmail({
+        recipientEmail: 'docente@colegio.edu.co',
+        recipientFullName: 'Lewis López',
+        resetToken: 'abc123',
+        resetUrl: 'https://campus.asaie.co/auth/reset-password?token=abc123',
+        expiresInMinutes: 30,
+      });
+
+      const resetInput = sendSpy.mock.calls[1][0];
+      expect(resetInput.html).toContain('Restablecer Mi Contraseña');
+      expect(resetInput.html).toContain('https://campus.asaie.co/auth/reset-password?token=abc123');
+      expect(resetInput.html).toContain('30 minutos');
+      expect(resetInput.html).toContain('#0277bd');
     });
 
     it('rejects wrong dimensions, NaN and zero-norm vectors in ConfigurableEmbeddingAdapter', async () => {

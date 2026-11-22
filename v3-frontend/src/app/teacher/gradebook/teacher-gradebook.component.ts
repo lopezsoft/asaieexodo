@@ -30,6 +30,10 @@ import {
 } from '../../services/v3-settings.service';
 import { V3UnifiedAuthService } from '../../services/v3-unified-auth.service';
 import { V3ModalDialogComponent } from '../../shared/components/v3-modal-dialog/v3-modal-dialog.component';
+import {
+  SearchableSelectOption,
+  V3SearchableSelectComponent,
+} from '../../shared/components/v3-searchable-select/v3-searchable-select.component';
 import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.directive';
 
 type GradebookTab = 'scores' | 'preReports' | 'absences';
@@ -51,6 +55,7 @@ type GenderFilter = 'ALL' | 'M' | 'F';
     RouterLink,
     CustomTooltipDirective,
     V3ModalDialogComponent,
+    V3SearchableSelectComponent,
   ],
   template: `
     <div class="container-fluid py-3">
@@ -72,44 +77,51 @@ type GenderFilter = 'ALL' | 'M' | 'F';
 
       <!-- Barra de selección y herramientas -->
       <div class="trezo-card bg-white border-radius p-4 shadow-sm mb-4">
-        <div class="row g-2 align-items-end mb-3">
-          <div class="col-md-4">
-            <label class="form-label small fw-semibold">Curso / Asignatura *</label>
-            <select class="form-select form-select-sm" [(ngModel)]="selectedCourseId" (ngModelChange)="loadCourseData()">
-              <option [ngValue]="0">Seleccione curso...</option>
-              @for (c of courses(); track c.id) {
-                <option [ngValue]="c.id">{{ c.gradeName }}-{{ c.groupCode }} · {{ c.subjectName }} ({{ c.campusName }})</option>
-              }
-            </select>
+        <div class="row g-3 mb-3">
+          <div class="col-12 col-md-6">
+            <label class="form-label">Curso / Asignatura *</label>
+            <app-v3-searchable-select
+              [(ngModel)]="selectedCourseId"
+              [options]="courseSelectOptions()"
+              [clearable]="true"
+              placeholder="Seleccione curso..."
+              searchPlaceholder="Buscar curso o sede..."
+              (ngModelChange)="loadCourseData()"
+            />
           </div>
-          <div class="col-md-2">
-            <label class="form-label small fw-semibold">Periodo</label>
-            <select class="form-select form-select-sm" [(ngModel)]="selectedPeriod" (ngModelChange)="loadCourseData()">
-              @for (p of [1, 2, 3, 4]; track p) {
-                <option [ngValue]="p">Periodo {{ p }}</option>
-              }
-            </select>
+          <div class="col-12 col-md-6">
+            <label class="form-label">Periodo</label>
+            <app-v3-searchable-select
+              [(ngModel)]="selectedPeriod"
+              [options]="periodOptions"
+              placeholder="Periodo..."
+              searchPlaceholder="Buscar periodo..."
+              (ngModelChange)="loadCourseData()"
+            />
           </div>
-          <div class="col-md-2">
-            <label class="form-label small fw-semibold">Filtro por Sexo</label>
-            <select class="form-select form-select-sm" [(ngModel)]="genderFilter">
-              <option value="ALL">Mixto (Todos)</option>
-              <option value="M">Masculino (M)</option>
-              <option value="F">Femenino (F)</option>
-            </select>
+          <div class="col-12 col-md-6">
+            <label class="form-label">Filtro por Sexo</label>
+            <app-v3-searchable-select
+              [(ngModel)]="genderFilter"
+              [options]="genderFilterOptions"
+              placeholder="Mixto (Todos)"
+              searchPlaceholder="Buscar..."
+            />
           </div>
-          <div class="col-md-4 d-flex align-items-center justify-content-md-end gap-2">
-            <div class="form-check form-switch mb-0">
-              <input
-                class="form-check-input"
-                type="checkbox"
-                id="autoSaveSw"
-                [ngModel]="autoSaveEnabled()"
-                (ngModelChange)="toggleAutoSave($event)"
-              />
-              <label class="form-check-label small fw-semibold" for="autoSaveSw">
-                Autoguardado @if (autoSaveEnabled()) { ({{ autoSaveCountdown() }}s) }
-              </label>
+          <div class="col-12 col-md-6 d-flex flex-wrap align-items-end justify-content-md-end gap-2">
+            <div class="v3-form-switch-box flex-grow-1" style="width: auto;">
+              <div class="form-check form-switch">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="autoSaveSw"
+                  [ngModel]="autoSaveEnabled()"
+                  (ngModelChange)="toggleAutoSave($event)"
+                />
+                <label class="form-check-label" for="autoSaveSw">
+                  Autoguardado @if (autoSaveEnabled()) { ({{ autoSaveCountdown() }}s) }
+                </label>
+              </div>
             </div>
             <button
               type="button"
@@ -117,8 +129,8 @@ type GenderFilter = 'ALL' | 'M' | 'F';
               [disabled]="!gradebook() || gradebook()!.isPeriodClosed || gradebook()!.students.length === 0"
               (click)="saveAllGrades()"
             >
-              <i class="material-symbols-outlined fs-6 align-middle me-1">save</i>
-              Guardar Planilla
+              <i class="material-symbols-outlined fs-6">save</i>
+              <span>Guardar Planilla</span>
             </button>
           </div>
         </div>
@@ -308,28 +320,31 @@ type GenderFilter = 'ALL' | 'M' | 'F';
           }
 
           @case ('preReports') {
-            <div class="row g-2 align-items-end mb-4 p-3 rounded bg-light border">
-              <div class="col-md-4">
-                <label class="form-label small fw-semibold">Estudiante *</label>
-                <select class="form-select form-select-sm" [(ngModel)]="preReportForm.enrollmentId">
-                  <option [ngValue]="0">Seleccione...</option>
-                  @for (st of gradebook()?.students ?? []; track st.enrollmentId) {
-                    <option [ngValue]="st.enrollmentId">{{ st.studentFullName }}</option>
-                  }
-                </select>
-              </div>
-              <div class="col-md-2">
-                <label class="form-label small fw-semibold">Nota parcial *</label>
-                <input type="number" step="0.1" class="form-control form-control-sm" [(ngModel)]="preReportForm.partialScore" />
-              </div>
-              <div class="col-md-4">
-                <label class="form-label small fw-semibold">Alerta / Recomendación</label>
-                <input type="text" class="form-control form-control-sm" [(ngModel)]="preReportForm.observations" placeholder="Ej. Reforzar talleres de álgebra..." />
-              </div>
-              <div class="col-md-2 d-grid">
-                <button type="button" class="btn btn-sm btn-primary" [disabled]="!selectedCourseId || !preReportForm.enrollmentId" (click)="savePreReport()">
-                  Registrar
-                </button>
+            <div class="v3-form-panel">
+              <div class="row g-3">
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Estudiante *</label>
+                  <app-v3-searchable-select
+                    [(ngModel)]="preReportForm.enrollmentId"
+                    [options]="studentSelectOptions()"
+                    [clearable]="true"
+                    placeholder="Seleccione..."
+                    searchPlaceholder="Buscar estudiante..."
+                  />
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Nota parcial *</label>
+                  <input type="number" step="0.1" class="form-control" [(ngModel)]="preReportForm.partialScore" />
+                </div>
+                <div class="col-12">
+                  <label class="form-label">Alerta / Recomendación</label>
+                  <input type="text" class="form-control" [(ngModel)]="preReportForm.observations" placeholder="Ej. Reforzar talleres de álgebra..." />
+                </div>
+                <div class="col-12 d-flex justify-content-end">
+                  <button type="button" class="btn btn-sm btn-primary" [disabled]="!selectedCourseId || !preReportForm.enrollmentId" (click)="savePreReport()">
+                    Registrar preinforme
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -360,38 +375,43 @@ type GenderFilter = 'ALL' | 'M' | 'F';
           }
 
           @case ('absences') {
-            <div class="row g-2 align-items-end mb-4 p-3 rounded bg-light border">
-              <div class="col-md-3">
-                <label class="form-label small fw-semibold">Estudiante *</label>
-                <select class="form-select form-select-sm" [(ngModel)]="absenceForm.enrollmentId">
-                  <option [ngValue]="0">Seleccione...</option>
-                  @for (st of gradebook()?.students ?? []; track st.enrollmentId) {
-                    <option [ngValue]="st.enrollmentId">{{ st.studentFullName }}</option>
-                  }
-                </select>
-              </div>
-              <div class="col-md-2">
-                <label class="form-label small fw-semibold">Fecha *</label>
-                <input type="date" class="form-control form-control-sm" [(ngModel)]="absenceForm.absenceDate" />
-              </div>
-              <div class="col-md-1">
-                <label class="form-label small fw-semibold">Horas</label>
-                <input type="number" min="1" max="12" class="form-control form-control-sm" [(ngModel)]="absenceForm.hoursMissed" />
-              </div>
-              <div class="col-md-2">
-                <div class="form-check form-switch">
-                  <input class="form-check-input" type="checkbox" id="absJust" [(ngModel)]="absenceForm.isJustified" />
-                  <label class="form-check-label small" for="absJust">Justificada</label>
+            <div class="v3-form-panel">
+              <div class="row g-3">
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Estudiante *</label>
+                  <app-v3-searchable-select
+                    [(ngModel)]="absenceForm.enrollmentId"
+                    [options]="studentSelectOptions()"
+                    [clearable]="true"
+                    placeholder="Seleccione..."
+                    searchPlaceholder="Buscar estudiante..."
+                  />
                 </div>
-              </div>
-              <div class="col-md-2">
-                <label class="form-label small fw-semibold">Soporte</label>
-                <input type="text" class="form-control form-control-sm" [(ngModel)]="absenceForm.justificationNotes" placeholder="Excusa médica..." />
-              </div>
-              <div class="col-md-2 d-grid">
-                <button type="button" class="btn btn-sm btn-primary" [disabled]="!selectedCourseId || !absenceForm.enrollmentId" (click)="recordAbsence()">
-                  Registrar Falta
-                </button>
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Fecha *</label>
+                  <input type="date" class="form-control" [(ngModel)]="absenceForm.absenceDate" />
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Horas de inasistencia</label>
+                  <input type="number" min="1" max="12" class="form-control" [(ngModel)]="absenceForm.hoursMissed" />
+                </div>
+                <div class="col-12 col-md-6 d-flex align-items-end">
+                  <div class="v3-form-switch-box">
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" type="checkbox" id="absJust" [(ngModel)]="absenceForm.isJustified" />
+                      <label class="form-check-label" for="absJust">Falta justificada</label>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <label class="form-label">Soporte / Excusa</label>
+                  <input type="text" class="form-control" [(ngModel)]="absenceForm.justificationNotes" placeholder="Excusa médica..." />
+                </div>
+                <div class="col-12 d-flex justify-content-end">
+                  <button type="button" class="btn btn-sm btn-primary" [disabled]="!selectedCourseId || !absenceForm.enrollmentId" (click)="recordAbsence()">
+                    Registrar Falta
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -446,37 +466,40 @@ type GenderFilter = 'ALL' | 'M' | 'F';
         size="lg"
         (closed)="columnsModalOpen.set(false)"
       >
-        <div class="row g-2 align-items-end mb-3 p-3 rounded bg-light border">
-          <div class="col-md-3">
-            <label class="form-label small fw-semibold">Dimensión / Competencia *</label>
-            <select class="form-select form-select-sm" [(ngModel)]="colForm.dimensionId">
-              <option [ngValue]="0">Seleccione...</option>
-              @for (d of dimensions(); track d.id) {
-                <option [ngValue]="d.id">{{ d.name }} ({{ d.weightPercentage }}%)</option>
-              }
-            </select>
-          </div>
-          <div class="col-md-2">
-            <label class="form-label small fw-semibold">Columna # *</label>
-            <input type="number" min="1" max="30" class="form-control form-control-sm" [(ngModel)]="colForm.columnNumber" />
-          </div>
-          <div class="col-md-3">
-            <label class="form-label small fw-semibold">Descripción Actividad *</label>
-            <input type="text" class="form-control form-control-sm" [(ngModel)]="colForm.description" placeholder="Ej. Taller 1, Quiz..." />
-          </div>
-          <div class="col-md-2">
-            <label class="form-label small fw-semibold">Peso (%)</label>
-            <input type="number" min="0" max="100" class="form-control form-control-sm" [(ngModel)]="colForm.weightPercentage" />
-          </div>
-          <div class="col-md-2 d-grid">
-            <button
-              type="button"
-              class="btn btn-sm btn-primary"
-              [disabled]="!colForm.dimensionId || !colForm.description.trim()"
-              (click)="saveColumn()"
-            >
-              Guardar Col.
-            </button>
+        <div class="v3-form-panel">
+          <div class="row g-3">
+            <div class="col-12 col-md-6">
+              <label class="form-label">Dimensión / Competencia *</label>
+              <app-v3-searchable-select
+                [(ngModel)]="colForm.dimensionId"
+                [options]="dimensionSelectOptions()"
+                [clearable]="true"
+                placeholder="Seleccione..."
+                searchPlaceholder="Buscar dimensión..."
+              />
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label">Columna # *</label>
+              <input type="number" min="1" max="30" class="form-control" [(ngModel)]="colForm.columnNumber" />
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label">Descripción de actividad *</label>
+              <input type="text" class="form-control" [(ngModel)]="colForm.description" placeholder="Ej. Taller 1, Quiz..." />
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label">Peso (%)</label>
+              <input type="number" min="0" max="100" class="form-control" [(ngModel)]="colForm.weightPercentage" />
+            </div>
+            <div class="col-12 d-flex justify-content-end">
+              <button
+                type="button"
+                class="btn btn-sm btn-primary"
+                [disabled]="!colForm.dimensionId || !colForm.description.trim()"
+                (click)="saveColumn()"
+              >
+                Guardar columna
+              </button>
+            </div>
           </div>
         </div>
 
@@ -522,20 +545,21 @@ type GenderFilter = 'ALL' | 'M' | 'F';
         size="lg"
         (closed)="achievementsModalOpen.set(false)"
       >
-        <div class="row g-2 align-items-end mb-3 p-3 rounded bg-light border">
-          <div class="col-md-9">
-            <label class="form-label small fw-semibold">Agregar Logro o Sugerencia del Catálogo</label>
-            <select class="form-select form-select-sm" [(ngModel)]="selectedAchievementToAssign">
-              <option [ngValue]="0">Seleccione descriptor o sugerencia...</option>
-              @for (a of courseAchievements(); track a.id) {
-                <option [ngValue]="a.id">[{{ a.indicatorType }}] {{ a.description }}</option>
-              }
-            </select>
-          </div>
-          <div class="col-md-3 d-grid">
+        <div class="v3-form-panel">
+          <div class="d-flex flex-column flex-md-row gap-2 align-items-md-end">
+            <div class="flex-grow-1">
+              <label class="form-label">Agregar Logro o Sugerencia del Catálogo</label>
+              <app-v3-searchable-select
+                [(ngModel)]="selectedAchievementToAssign"
+                [options]="achievementSelectOptions()"
+                [clearable]="true"
+                placeholder="Seleccione descriptor o sugerencia..."
+                searchPlaceholder="Buscar descriptor o sugerencia..."
+              />
+            </div>
             <button
               type="button"
-              class="btn btn-sm btn-primary"
+              class="btn btn-sm btn-primary flex-shrink-0"
               [disabled]="!selectedAchievementToAssign"
               (click)="assignAchievement()"
             >
@@ -605,6 +629,40 @@ export class TeacherGradebookComponent implements OnInit, OnDestroy {
 
   readonly autoSaveEnabled = signal(false);
   readonly autoSaveCountdown = signal(60);
+
+  readonly periodOptions: SearchableSelectOption<number>[] = [1, 2, 3, 4].map((p) => ({
+    value: p,
+    label: `Periodo ${p}`,
+  }));
+  readonly genderFilterOptions: SearchableSelectOption<GenderFilter>[] = [
+    { value: 'ALL', label: 'Mixto (Todos)' },
+    { value: 'M', label: 'Masculino (M)' },
+    { value: 'F', label: 'Femenino (F)' },
+  ];
+  readonly courseSelectOptions = computed<SearchableSelectOption<number>[]>(() =>
+    this.courses().map((c) => ({
+      value: c.id,
+      label: `${c.gradeName}-${c.groupCode} · ${c.subjectName} (${c.campusName})`,
+    }))
+  );
+  readonly studentSelectOptions = computed<SearchableSelectOption<number>[]>(() =>
+    (this.gradebook()?.students ?? []).map((st) => ({
+      value: st.enrollmentId,
+      label: st.studentFullName,
+    }))
+  );
+  readonly dimensionSelectOptions = computed<SearchableSelectOption<number>[]>(() =>
+    this.dimensions().map((d) => ({
+      value: d.id,
+      label: `${d.name} (${d.weightPercentage}%)`,
+    }))
+  );
+  readonly achievementSelectOptions = computed<SearchableSelectOption<number>[]>(() =>
+    this.courseAchievements().map((a) => ({
+      value: a.id,
+      label: `[${a.indicatorType}] ${a.description}`,
+    }))
+  );
 
   private autoSaveIntervalId: ReturnType<typeof setInterval> | null = null;
   private readonly genderByEnrollment = new Map<number, string>();

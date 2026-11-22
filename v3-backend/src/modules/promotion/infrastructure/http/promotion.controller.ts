@@ -13,10 +13,16 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ActiveTenantContext } from '../../../../shared/application/context/tenant-context.service';
 import {
   CurrentUser,
-  Roles,
+  RequireAnyPermission,
+  RequireModule,
+  RequirePermissions,
 } from '../../../../shared/infrastructure/http/decorators/security.decorators';
 import { PositiveBigIntPipe } from '../../../../shared/infrastructure/http/pipes/positive-bigint.pipe';
-import { CommunityRole } from '../../../iam/domain/enums/community-role.enum';
+import {
+  RBAC_MODULES,
+  RBAC_PERMISSIONS,
+} from '../../../../shared/infrastructure/rbac/rbac-permissions.constants';
+import { RbacPermissionsService } from '../../../../shared/infrastructure/rbac/rbac-permissions.service';
 import { ManagePromotionUseCase } from '../../application/use-cases/manage-promotion.use-case';
 import {
   AdvancePromotionDto,
@@ -28,37 +34,21 @@ import {
   UpdatePromotionRecordDto,
 } from './dto/promotion.dto';
 
-const READ_ROLES = [
-  CommunityRole.SUPER_ADMIN,
-  CommunityRole.SCHOOL_ADMIN,
-  CommunityRole.RECTOR,
-  CommunityRole.COORDINATOR,
-  CommunityRole.SECRETARY,
-  CommunityRole.TEACHER,
-] as const;
-
-const WRITE_ROLES = [
-  CommunityRole.SUPER_ADMIN,
-  CommunityRole.SCHOOL_ADMIN,
-  CommunityRole.RECTOR,
-  CommunityRole.COORDINATOR,
-  CommunityRole.SECRETARY,
-] as const;
-
-const RECTOR_ROLES = [
-  CommunityRole.SUPER_ADMIN,
-  CommunityRole.SCHOOL_ADMIN,
-  CommunityRole.RECTOR,
-] as const;
-
 @ApiTags('Promotion, Final Book, Returning Enrollments & Year Closing')
 @ApiBearerAuth('jwt-auth')
 @Controller('promotion')
 export class PromotionController {
-  constructor(private readonly promotionUseCase: ManagePromotionUseCase) {}
+  constructor(
+    private readonly promotionUseCase: ManagePromotionUseCase,
+    private readonly rbacPermissions: RbacPermissionsService,
+  ) {}
 
   @Get('statuses')
-  @Roles(...READ_ROLES)
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.PROMOTION_FINAL_BOOK_VIEW,
+    RBAC_PERMISSIONS.ACADEMIC_ENROLLMENTS_VIEW,
+    RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
+  )
   async listStatuses() {
     return {
       success: true,
@@ -67,7 +57,8 @@ export class PromotionController {
   }
 
   @Get('records')
-  @Roles(...READ_ROLES)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequirePermissions(RBAC_PERMISSIONS.PROMOTION_FINAL_BOOK_VIEW)
   async listRecords(
     @CurrentUser() p: ActiveTenantContext,
     @Query('academicYear') academicYear?: string,
@@ -86,9 +77,13 @@ export class PromotionController {
   }
 
   @Post('generate-final-book')
-  @Roles(...RECTOR_ROLES, CommunityRole.COORDINATOR)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequirePermissions(RBAC_PERMISSIONS.PROMOTION_FINAL_BOOK_GENERATE)
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Generar libro final de calificaciones y actas de promoción bajo reglas SIEE Decreto 1290' })
+  @ApiOperation({
+    summary:
+      'Generar libro final de calificaciones y actas de promoción bajo reglas SIEE Decreto 1290',
+  })
   async generateFinalBook(
     @CurrentUser() p: ActiveTenantContext,
     @Body() dto: GenerateFinalBookDto,
@@ -100,7 +95,8 @@ export class PromotionController {
   }
 
   @Post('final-recoveries/generate')
-  @Roles(...RECTOR_ROLES, CommunityRole.COORDINATOR)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequirePermissions(RBAC_PERMISSIONS.PROMOTION_FINAL_BOOK_GENERATE)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary:
@@ -117,7 +113,8 @@ export class PromotionController {
   }
 
   @Get('final-sabana')
-  @Roles(...READ_ROLES)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequirePermissions(RBAC_PERMISSIONS.PROMOTION_FINAL_BOOK_VIEW)
   @ApiOperation({
     summary:
       'Consultar sábana final anual consolidada por grupo con notas definitivas, nivelaciones finales y estado de promoción',
@@ -140,12 +137,44 @@ export class PromotionController {
   }
 
   @Patch('records/:recordId')
-  @Roles(...WRITE_ROLES)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.PROMOTION_RECORDS_COMMISSION_EDIT,
+    RBAC_PERMISSIONS.PROMOTION_RECORDS_FOLIOS_EDIT,
+  )
   async updateRecord(
     @CurrentUser() p: ActiveTenantContext,
     @Param('recordId', PositiveBigIntPipe) recordId: bigint,
     @Body() dto: UpdatePromotionRecordDto,
   ) {
+    const editsCommissionFields =
+      dto.promotionStatusId !== undefined ||
+      dto.isCommissionPromoted !== undefined ||
+      dto.isGraduated !== undefined;
+
+    if (editsCommissionFields) {
+      await this.rbacPermissions.assertAnyPermission(
+        p.schoolId,
+        p.userId,
+        p.activeRole,
+        [RBAC_PERMISSIONS.PROMOTION_RECORDS_COMMISSION_EDIT],
+        'Se requiere el permiso promotion.records.commission_edit para modificar el estado de promoción, graduación o decisión de comisión.',
+      );
+    }
+
+    const editsFolioFields =
+      dto.diplomaNumber !== undefined || dto.graduationFolio !== undefined;
+
+    if (editsFolioFields) {
+      await this.rbacPermissions.assertAnyPermission(
+        p.schoolId,
+        p.userId,
+        p.activeRole,
+        [RBAC_PERMISSIONS.PROMOTION_RECORDS_FOLIOS_EDIT],
+        'Se requiere el permiso promotion.records.folios_edit para editar número de diploma o folio de grado.',
+      );
+    }
+
     return {
       success: true,
       data: await this.promotionUseCase.updatePromotionRecord(
@@ -157,7 +186,8 @@ export class PromotionController {
   }
 
   @Post('advance')
-  @Roles(...RECTOR_ROLES, CommunityRole.COORDINATOR)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequirePermissions(RBAC_PERMISSIONS.PROMOTION_ADVANCE_EXECUTE)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Registrar promoción anticipada de estudiante' })
   async applyAdvancePromotion(
@@ -171,9 +201,12 @@ export class PromotionController {
   }
 
   @Post('enroll-returning')
-  @Roles(...WRITE_ROLES)
+  @RequireModule(RBAC_MODULES.ENROLLMENTS)
+  @RequirePermissions(RBAC_PERMISSIONS.PROMOTION_RETURNING_ENROLL)
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Matricular masivamente estudiantes antiguos al nuevo año lectivo' })
+  @ApiOperation({
+    summary: 'Matricular masivamente estudiantes antiguos al nuevo año lectivo',
+  })
   async enrollReturning(
     @CurrentUser() p: ActiveTenantContext,
     @Body() dto: EnrollReturningStudentsDto,
@@ -185,7 +218,11 @@ export class PromotionController {
   }
 
   @Get('academic-history/:studentProfileId')
-  @Roles(...READ_ROLES)
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.PROMOTION_FINAL_BOOK_VIEW,
+    RBAC_PERMISSIONS.ACADEMIC_ENROLLMENTS_VIEW,
+    RBAC_PERMISSIONS.ACADEMIC_GRADES_VIEW,
+  )
   async getAcademicHistory(
     @CurrentUser() p: ActiveTenantContext,
     @Param('studentProfileId', PositiveBigIntPipe) studentProfileId: bigint,
@@ -200,7 +237,11 @@ export class PromotionController {
   }
 
   @Get('certificate-headers')
-  @Roles(...READ_ROLES)
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.PROMOTION_CERTIFICATE_HEADERS_WRITE,
+    RBAC_PERMISSIONS.REPORTS_CERTIFICATES_GENERATE,
+    RBAC_PERMISSIONS.PROMOTION_FINAL_BOOK_VIEW,
+  )
   async getCertificateHeaders(
     @CurrentUser() p: ActiveTenantContext,
     @Query('academicYear') academicYear?: string,
@@ -215,7 +256,8 @@ export class PromotionController {
   }
 
   @Patch('certificate-headers')
-  @Roles(...RECTOR_ROLES, CommunityRole.SECRETARY)
+  @RequireModule(RBAC_MODULES.INSTITUTIONAL_REPORTS)
+  @RequirePermissions(RBAC_PERMISSIONS.PROMOTION_CERTIFICATE_HEADERS_WRITE)
   async updateCertificateHeaders(
     @CurrentUser() p: ActiveTenantContext,
     @Body() dto: UpdateCertificateHeadersDto,
@@ -227,9 +269,12 @@ export class PromotionController {
   }
 
   @Post('close-year')
-  @Roles(...RECTOR_ROLES)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequirePermissions(RBAC_PERMISSIONS.PROMOTION_YEAR_CLOSE)
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Cerrar o reabrir el año lectivo y sus periodos académicos' })
+  @ApiOperation({
+    summary: 'Cerrar o reabrir el año lectivo y sus periodos académicos',
+  })
   async closeYear(
     @CurrentUser() p: ActiveTenantContext,
     @Body() dto: CloseAcademicYearDto,

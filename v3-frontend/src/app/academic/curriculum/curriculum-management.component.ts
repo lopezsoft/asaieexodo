@@ -22,6 +22,10 @@ import {
   V3CatalogsService,
 } from '../../services/v3-catalogs.service';
 import { V3UnifiedAuthService } from '../../services/v3-unified-auth.service';
+import {
+  SearchableSelectOption,
+  V3SearchableSelectComponent,
+} from '../../shared/components/v3-searchable-select/v3-searchable-select.component';
 import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.directive';
 
 type CurriculumTab = 'areas' | 'subjects' | 'studyPlans' | 'assignments';
@@ -33,7 +37,13 @@ type CurriculumTab = 'areas' | 'subjects' | 'studyPlans' | 'assignments';
 @Component({
   selector: 'app-curriculum-management',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, CustomTooltipDirective],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterLink,
+    CustomTooltipDirective,
+    V3SearchableSelectComponent,
+  ],
   template: `
     <div class="container-fluid py-3">
       <div class="breadcrumb-card mb-25 d-md-flex align-items-center justify-content-between">
@@ -78,34 +88,38 @@ type CurriculumTab = 'areas' | 'subjects' | 'studyPlans' | 'assignments';
         @switch (activeTab()) {
           @case ('areas') {
             @if (canWrite()) {
-              <div class="row g-2 align-items-end mb-4 p-3 rounded bg-light border">
-                <div class="col-md-4">
-                  <label class="form-label small fw-semibold">Nombre del área *</label>
-                  <input type="text" class="form-control form-control-sm" [(ngModel)]="areaForm.name" placeholder="Ej. Matemáticas" />
-                </div>
-                <div class="col-md-2">
-                  <label class="form-label small fw-semibold">Abreviatura</label>
-                  <input type="text" class="form-control form-control-sm" [(ngModel)]="areaForm.abbreviation" placeholder="MAT" />
-                </div>
-                <div class="col-md-1">
-                  <label class="form-label small fw-semibold">Orden</label>
-                  <input type="number" class="form-control form-control-sm" [(ngModel)]="areaForm.displayOrder" />
-                </div>
-                <div class="col-md-3">
-                  <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="failsYear" [(ngModel)]="areaForm.failsSchoolYear" />
-                    <label class="form-check-label small" for="failsYear">Reprueba año escolar</label>
+              <div class="v3-form-panel">
+                <div class="row g-3">
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Nombre del área *</label>
+                    <input type="text" class="form-control" [(ngModel)]="areaForm.name" placeholder="Ej. Matemáticas" />
                   </div>
-                </div>
-                <div class="col-md-2 d-flex gap-1">
-                  <button type="button" class="btn btn-sm btn-primary flex-grow-1" [disabled]="!areaForm.name.trim()" (click)="saveArea()">
-                    {{ editingAreaId() ? 'Actualizar' : 'Agregar' }}
-                  </button>
-                  @if (editingAreaId()) {
-                    <button type="button" class="btn btn-sm btn-outline-secondary" (click)="resetAreaForm()" [appCustomTooltip]="'Cancelar edición'">
-                      <i class="material-symbols-outlined fs-6">close</i>
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Abreviatura</label>
+                    <input type="text" class="form-control" [(ngModel)]="areaForm.abbreviation" placeholder="MAT" />
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Orden</label>
+                    <input type="number" class="form-control" [(ngModel)]="areaForm.displayOrder" />
+                  </div>
+                  <div class="col-12 col-md-6 d-flex align-items-end">
+                    <div class="v3-form-switch-box">
+                      <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="failsYear" [(ngModel)]="areaForm.failsSchoolYear" />
+                        <label class="form-check-label" for="failsYear">Reprueba año escolar</label>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-12 d-flex justify-content-end gap-2">
+                    @if (editingAreaId()) {
+                      <button type="button" class="btn btn-sm btn-outline-secondary" (click)="resetAreaForm()">
+                        Cancelar
+                      </button>
+                    }
+                    <button type="button" class="btn btn-sm btn-primary" [disabled]="!areaForm.name.trim()" (click)="saveArea()">
+                      {{ editingAreaId() ? 'Actualizar área' : 'Agregar área' }}
                     </button>
-                  }
+                  </div>
                 </div>
               </div>
             }
@@ -162,44 +176,48 @@ type CurriculumTab = 'areas' | 'subjects' | 'studyPlans' | 'assignments';
 
           @case ('subjects') {
             @if (canWrite()) {
-              <div class="row g-2 align-items-end mb-4 p-3 rounded bg-light border">
-                <div class="col-md-3">
-                  <label class="form-label small fw-semibold">Área *</label>
-                  <select class="form-select form-select-sm" [(ngModel)]="subjectForm.academicAreaId">
-                    <option [ngValue]="0">Seleccione área...</option>
-                    @for (a of areas(); track a.id) {
-                      <option [ngValue]="a.id">{{ a.name }}</option>
-                    }
-                  </select>
-                </div>
-                <div class="col-md-3">
-                  <label class="form-label small fw-semibold">Asignatura *</label>
-                  <input type="text" class="form-control form-control-sm" [(ngModel)]="subjectForm.name" placeholder="Ej. Álgebra" />
-                </div>
-                <div class="col-md-2">
-                  <label class="form-label small fw-semibold">Abrev.</label>
-                  <input type="text" class="form-control form-control-sm" [(ngModel)]="subjectForm.abbreviation" placeholder="ALG" />
-                </div>
-                <div class="col-md-2">
-                  <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="isElective" [(ngModel)]="subjectForm.isElective" />
-                    <label class="form-check-label small" for="isElective">Optativa / Electiva</label>
+              <div class="v3-form-panel">
+                <div class="row g-3">
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Área académica *</label>
+                    <app-v3-searchable-select
+                      placeholder="Seleccione área..."
+                      searchPlaceholder="Buscar área..."
+                      [options]="areaOptions()"
+                      [(ngModel)]="subjectForm.academicAreaId"
+                    />
                   </div>
-                </div>
-                <div class="col-md-2 d-flex gap-1">
-                  <button
-                    type="button"
-                    class="btn btn-sm btn-primary flex-grow-1"
-                    [disabled]="!subjectForm.name.trim() || !subjectForm.academicAreaId"
-                    (click)="saveSubject()"
-                  >
-                    {{ editingSubjectId() ? 'Actualizar' : 'Agregar' }}
-                  </button>
-                  @if (editingSubjectId()) {
-                    <button type="button" class="btn btn-sm btn-outline-secondary" (click)="resetSubjectForm()" [appCustomTooltip]="'Cancelar edición'">
-                      <i class="material-symbols-outlined fs-6">close</i>
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Asignatura *</label>
+                    <input type="text" class="form-control" [(ngModel)]="subjectForm.name" placeholder="Ej. Álgebra" />
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Abreviatura</label>
+                    <input type="text" class="form-control" [(ngModel)]="subjectForm.abbreviation" placeholder="ALG" />
+                  </div>
+                  <div class="col-12 col-md-6 d-flex align-items-end">
+                    <div class="v3-form-switch-box">
+                      <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="isElective" [(ngModel)]="subjectForm.isElective" />
+                        <label class="form-check-label" for="isElective">Optativa / Electiva</label>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-12 d-flex justify-content-end gap-2">
+                    @if (editingSubjectId()) {
+                      <button type="button" class="btn btn-sm btn-outline-secondary" (click)="resetSubjectForm()">
+                        Cancelar
+                      </button>
+                    }
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-primary"
+                      [disabled]="!subjectForm.name.trim() || !subjectForm.academicAreaId"
+                      (click)="saveSubject()"
+                    >
+                      {{ editingSubjectId() ? 'Actualizar asignatura' : 'Agregar asignatura' }}
                     </button>
-                  }
+                  </div>
                 </div>
               </div>
             }
@@ -250,51 +268,53 @@ type CurriculumTab = 'areas' | 'subjects' | 'studyPlans' | 'assignments';
 
           @case ('studyPlans') {
             @if (canWrite()) {
-              <div class="row g-2 align-items-end mb-4 p-3 rounded bg-light border">
-                <div class="col-md-3">
-                  <label class="form-label small fw-semibold">Sede (opcional)</label>
-                  <select class="form-select form-select-sm" [(ngModel)]="studyPlanForm.campusId">
-                    <option [ngValue]="null">Todas las sedes</option>
-                    @for (c of schoolContext()?.campuses ?? []; track c.id) {
-                      <option [ngValue]="c.id">{{ c.name }}</option>
-                    }
-                  </select>
-                </div>
-                <div class="col-md-2">
-                  <label class="form-label small fw-semibold">Grado *</label>
-                  <select class="form-select form-select-sm" [(ngModel)]="studyPlanForm.gradeId">
-                    <option [ngValue]="0">Seleccione...</option>
-                    @for (g of schoolContext()?.grades ?? []; track g.id) {
-                      <option [ngValue]="g.id">{{ g.name }}</option>
-                    }
-                  </select>
-                </div>
-                <div class="col-md-3">
-                  <label class="form-label small fw-semibold">Asignatura *</label>
-                  <select class="form-select form-select-sm" [(ngModel)]="studyPlanForm.subjectId">
-                    <option [ngValue]="0">Seleccione...</option>
-                    @for (s of subjects(); track s.id) {
-                      <option [ngValue]="s.id">{{ s.academicAreaName }} · {{ s.name }}</option>
-                    }
-                  </select>
-                </div>
-                <div class="col-md-1">
-                  <label class="form-label small fw-semibold">IHS *</label>
-                  <input type="number" min="0.5" max="40" step="0.5" class="form-control form-control-sm" [(ngModel)]="studyPlanForm.weeklyHours" />
-                </div>
-                <div class="col-md-1">
-                  <label class="form-label small fw-semibold">% Área</label>
-                  <input type="number" min="0" max="100" class="form-control form-control-sm" [(ngModel)]="studyPlanForm.areaWeightPercentage" />
-                </div>
-                <div class="col-md-2 d-grid">
-                  <button
-                    type="button"
-                    class="btn btn-sm btn-primary"
-                    [disabled]="!studyPlanForm.gradeId || !studyPlanForm.subjectId"
-                    (click)="saveStudyPlan()"
-                  >
-                    Guardar Plan
-                  </button>
+              <div class="v3-form-panel">
+                <div class="row g-3">
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Sede (opcional)</label>
+                    <app-v3-searchable-select
+                      placeholder="Todas las sedes"
+                      searchPlaceholder="Buscar sede..."
+                      [options]="campusOptions()"
+                      [(ngModel)]="studyPlanForm.campusId"
+                    />
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Grado *</label>
+                    <app-v3-searchable-select
+                      placeholder="Seleccione..."
+                      searchPlaceholder="Buscar grado..."
+                      [options]="gradeOptions()"
+                      [(ngModel)]="studyPlanForm.gradeId"
+                    />
+                  </div>
+                  <div class="col-12">
+                    <label class="form-label">Asignatura *</label>
+                    <app-v3-searchable-select
+                      placeholder="Seleccione..."
+                      searchPlaceholder="Buscar asignatura o área..."
+                      [options]="subjectOptions()"
+                      [(ngModel)]="studyPlanForm.subjectId"
+                    />
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Intensidad horaria semanal (IHS) *</label>
+                    <input type="number" min="0.5" max="40" step="0.5" class="form-control" [(ngModel)]="studyPlanForm.weeklyHours" />
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Porcentaje en el área (%)</label>
+                    <input type="number" min="0" max="100" class="form-control" [(ngModel)]="studyPlanForm.areaWeightPercentage" />
+                  </div>
+                  <div class="col-12 d-flex justify-content-end">
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-primary"
+                      [disabled]="!studyPlanForm.gradeId || !studyPlanForm.subjectId"
+                      (click)="saveStudyPlan()"
+                    >
+                      Guardar Plan
+                    </button>
+                  </div>
                 </div>
               </div>
             }
@@ -340,81 +360,84 @@ type CurriculumTab = 'areas' | 'subjects' | 'studyPlans' | 'assignments';
 
           @case ('assignments') {
             @if (canWrite()) {
-              <div class="row g-2 align-items-end mb-3 p-3 rounded bg-light border">
-                <div class="col-md-3">
-                  <label class="form-label small fw-semibold">Grupo (Sede · Jornada · Grado) *</label>
-                  <select class="form-select form-select-sm" [(ngModel)]="assignmentForm.academicGroupId" (ngModelChange)="onAssignmentGroupChange($event)">
-                    <option [ngValue]="0">Seleccione grupo...</option>
-                    @for (grp of groups(); track grp.id) {
-                      <option [ngValue]="grp.id">
-                        {{ grp.gradeName }}-{{ grp.groupCode }} ({{ grp.campusName }} · {{ grp.shiftName }})
-                      </option>
-                    }
-                  </select>
-                </div>
-                <div class="col-md-3">
-                  <label class="form-label small fw-semibold">Asignatura *</label>
-                  <select class="form-select form-select-sm" [(ngModel)]="assignmentForm.subjectId">
-                    <option [ngValue]="0">Seleccione asignatura...</option>
-                    @for (s of subjects(); track s.id) {
-                      <option [ngValue]="s.id">{{ s.name }} ({{ s.academicAreaName }})</option>
-                    }
-                  </select>
-                </div>
-                <div class="col-md-3">
-                  <label class="form-label small fw-semibold">Docente *</label>
-                  <select class="form-select form-select-sm" [(ngModel)]="assignmentForm.teacherProfileId">
-                    <option [ngValue]="0">Seleccione docente...</option>
-                    @for (t of teachers(); track t.id) {
-                      <option [ngValue]="t.id">{{ t.fullName }}</option>
-                    }
-                  </select>
-                </div>
-                <div class="col-md-1">
-                  <label class="form-label small fw-semibold">IHS</label>
-                  <input type="number" min="0.5" max="40" step="0.5" class="form-control form-control-sm" [(ngModel)]="assignmentForm.weeklyHours" />
-                </div>
-                <div class="col-md-2 d-grid">
-                  <button
-                    type="button"
-                    class="btn btn-sm btn-primary"
-                    [disabled]="!assignmentForm.academicGroupId || !assignmentForm.subjectId || !assignmentForm.teacherProfileId"
-                    (click)="saveAssignment()"
-                  >
-                    Asignar Carga
-                  </button>
+              <div class="v3-form-panel">
+                <div class="row g-3">
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Grupo (Sede · Jornada · Grado) *</label>
+                    <app-v3-searchable-select
+                      placeholder="Seleccione grupo..."
+                      searchPlaceholder="Buscar grupo, sede o jornada..."
+                      [options]="groupOptions()"
+                      [(ngModel)]="assignmentForm.academicGroupId"
+                      (ngModelChange)="onAssignmentGroupChange($event)"
+                    />
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Asignatura *</label>
+                    <app-v3-searchable-select
+                      placeholder="Seleccione asignatura..."
+                      searchPlaceholder="Buscar asignatura o área..."
+                      [options]="subjectOptions()"
+                      [(ngModel)]="assignmentForm.subjectId"
+                    />
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Docente *</label>
+                    <app-v3-searchable-select
+                      placeholder="Seleccione docente..."
+                      searchPlaceholder="Buscar docente..."
+                      [options]="teacherOptions()"
+                      [(ngModel)]="assignmentForm.teacherProfileId"
+                    />
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Intensidad horaria (IHS)</label>
+                    <input type="number" min="0.5" max="40" step="0.5" class="form-control" [(ngModel)]="assignmentForm.weeklyHours" />
+                  </div>
+                  <div class="col-12 d-flex justify-content-end">
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-primary"
+                      [disabled]="!assignmentForm.academicGroupId || !assignmentForm.subjectId || !assignmentForm.teacherProfileId"
+                      (click)="saveAssignment()"
+                    >
+                      Asignar Carga
+                    </button>
+                  </div>
                 </div>
               </div>
 
-              <div class="row g-2 align-items-end mb-4 p-3 rounded border border-warning-subtle bg-warning-subtle">
-                <div class="col-md-4">
-                  <label class="form-label small fw-semibold">Traslado masivo · Docente origen</label>
-                  <select class="form-select form-select-sm" [(ngModel)]="reassignForm.fromTeacherId">
-                    <option [ngValue]="0">Seleccione docente origen...</option>
-                    @for (t of teachers(); track t.id) {
-                      <option [ngValue]="t.id">{{ t.fullName }}</option>
-                    }
-                  </select>
-                </div>
-                <div class="col-md-4">
-                  <label class="form-label small fw-semibold">Docente destino</label>
-                  <select class="form-select form-select-sm" [(ngModel)]="reassignForm.toTeacherId">
-                    <option [ngValue]="0">Seleccione docente destino...</option>
-                    @for (t of teachers(); track t.id) {
-                      <option [ngValue]="t.id">{{ t.fullName }}</option>
-                    }
-                  </select>
-                </div>
-                <div class="col-md-4 d-grid">
-                  <button
-                    type="button"
-                    class="btn btn-sm btn-warning fw-semibold"
-                    [disabled]="!reassignForm.fromTeacherId || !reassignForm.toTeacherId || reassignForm.fromTeacherId === reassignForm.toTeacherId"
-                    (click)="reassignTeacher()"
-                  >
-                    <i class="material-symbols-outlined fs-6 align-middle me-1">swap_horiz</i>
-                    Trasladar toda la carga ({{ academicYear() }})
-                  </button>
+              <div class="v3-form-panel v3-form-panel--warning">
+                <div class="row g-3">
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Traslado masivo · Docente origen</label>
+                    <app-v3-searchable-select
+                      placeholder="Seleccione docente origen..."
+                      searchPlaceholder="Buscar docente origen..."
+                      [options]="teacherOptions()"
+                      [(ngModel)]="reassignForm.fromTeacherId"
+                    />
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Docente destino</label>
+                    <app-v3-searchable-select
+                      placeholder="Seleccione docente destino..."
+                      searchPlaceholder="Buscar docente destino..."
+                      [options]="teacherOptions()"
+                      [(ngModel)]="reassignForm.toTeacherId"
+                    />
+                  </div>
+                  <div class="col-12 d-flex justify-content-end">
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-warning fw-semibold d-inline-flex align-items-center gap-1"
+                      [disabled]="!reassignForm.fromTeacherId || !reassignForm.toTeacherId || reassignForm.fromTeacherId === reassignForm.toTeacherId"
+                      (click)="reassignTeacher()"
+                    >
+                      <i class="material-symbols-outlined fs-6">swap_horiz</i>
+                      <span>Trasladar toda la carga ({{ academicYear() }})</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             }
@@ -473,10 +496,10 @@ export class CurriculumManagementComponent implements OnInit {
 
   readonly academicYear = computed(() => this.auth.academicYear());
   readonly canWrite = computed(() =>
-    this.auth.hasAnyRole(['SUPER_ADMIN', 'SCHOOL_ADMIN', 'RECTOR', 'COORDINATOR', 'SECRETARY']),
+    this.auth.hasPermission('academic.curriculum.write'),
   );
   readonly canDelete = computed(() =>
-    this.auth.hasAnyRole(['SUPER_ADMIN', 'SCHOOL_ADMIN', 'RECTOR']),
+    this.auth.hasPermission('academic.curriculum.delete'),
   );
 
   readonly activeTab = signal<CurriculumTab>('areas');
@@ -490,6 +513,58 @@ export class CurriculumManagementComponent implements OnInit {
 
   readonly editingAreaId = signal<number | null>(null);
   readonly editingSubjectId = signal<number | null>(null);
+
+  readonly areaOptions = computed<SearchableSelectOption<number>[]>(() => [
+    { value: 0, label: 'Seleccione área...' },
+    ...this.areas().map((a) => ({ value: a.id, label: a.name })),
+  ]);
+
+  readonly campusOptions = computed<SearchableSelectOption<number | null>[]>(
+    () => [
+      { value: null, label: 'Todas las sedes' },
+      ...(this.schoolContext()?.campuses ?? []).map((c) => ({
+        value: c.id,
+        label: c.name,
+      })),
+    ],
+  );
+
+  readonly gradeOptions = computed<SearchableSelectOption<number>[]>(() => [
+    { value: 0, label: 'Seleccione grado...' },
+    ...(this.schoolContext()?.grades ?? []).map((g) => ({
+      value: g.id,
+      label: g.name,
+    })),
+  ]);
+
+  readonly subjectOptions = computed<SearchableSelectOption<number>[]>(() => [
+    { value: 0, label: 'Seleccione asignatura...' },
+    ...this.subjects().map((s) => ({
+      value: s.id,
+      label: s.name,
+      subtitle: s.academicAreaName,
+      keywords: `${s.academicAreaName} ${s.abbreviation ?? ''}`,
+    })),
+  ]);
+
+  readonly groupOptions = computed<SearchableSelectOption<number>[]>(() => [
+    { value: 0, label: 'Seleccione grupo...' },
+    ...this.groups().map((grp) => ({
+      value: grp.id,
+      label: `${grp.gradeName}-${grp.groupCode}`,
+      subtitle: `${grp.campusName} · ${grp.shiftName}`,
+      keywords: `${grp.campusName} ${grp.shiftName} ${grp.gradeName}`,
+    })),
+  ]);
+
+  readonly teacherOptions = computed<SearchableSelectOption<number>[]>(() => [
+    { value: 0, label: 'Seleccione docente...' },
+    ...this.teachers().map((t) => ({
+      value: t.id,
+      label: t.fullName,
+      keywords: t.documentNumber,
+    })),
+  ]);
 
   areaForm = { name: '', abbreviation: '', failsSchoolYear: true, displayOrder: 1 };
   subjectForm = { academicAreaId: 0, name: '', abbreviation: '', isElective: false, displayOrder: 1 };

@@ -8,6 +8,10 @@ import {
   V3PortalService,
 } from '../../services/v3-portal.service';
 import { V3UnifiedAuthService } from '../../services/v3-unified-auth.service';
+import {
+  SearchableSelectOption,
+  V3SearchableSelectComponent,
+} from '../../shared/components/v3-searchable-select/v3-searchable-select.component';
 import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.directive';
 
 /**
@@ -17,7 +21,7 @@ import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.d
 @Component({
   selector: 'app-academic-notes',
   standalone: true,
-  imports: [CommonModule, FormsModule, CustomTooltipDirective],
+  imports: [CommonModule, FormsModule, V3SearchableSelectComponent, CustomTooltipDirective],
   template: `
     <div class="container-fluid py-3">
       <div class="breadcrumb-card mb-25 d-md-flex align-items-center justify-content-between">
@@ -28,18 +32,15 @@ import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.d
           </small>
         </div>
         <div class="d-flex align-items-center gap-2">
-          <select
-            class="form-select form-select-sm"
-            style="width: auto;"
+          <app-v3-searchable-select
+            size="sm"
+            style="min-width: 190px;"
             [(ngModel)]="selectedPeriod"
+            [options]="periodOptions"
+            placeholder="Filtrar periodo..."
+            searchPlaceholder="Buscar periodo..."
             (ngModelChange)="loadGrades()"
-            aria-label="Filtrar periodo"
-          >
-            <option [ngValue]="0">Todos los periodos</option>
-            @for (p of [1, 2, 3, 4]; track p) {
-              <option [ngValue]="p">Periodo {{ p }}</option>
-            }
-          </select>
+          />
           <button
             type="button"
             class="btn btn-sm btn-outline-primary"
@@ -147,6 +148,10 @@ export class AcademicNotesComponent implements OnInit {
 
   readonly academicYear = computed(() => this.auth.academicYear());
   readonly data = signal<StudentPortalGradesView | null>(null);
+  readonly periodOptions: SearchableSelectOption<number>[] = [
+    { value: 0, label: 'Todos los periodos' },
+    ...[1, 2, 3, 4].map((p) => ({ value: p, label: `Periodo ${p}` })),
+  ];
   selectedPeriod = 0;
 
   ngOnInit(): void {

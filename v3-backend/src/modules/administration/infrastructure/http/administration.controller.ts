@@ -20,10 +20,20 @@ import {
 import { ActiveTenantContext } from '../../../../shared/application/context/tenant-context.service';
 import {
   CurrentUser,
-  Roles,
+  RequireAnyPermission,
+  RequirePermissions,
 } from '../../../../shared/infrastructure/http/decorators/security.decorators';
+import {
+  AcademicYearExodoGridQueryDto,
+  ExodoGridQueryDto,
+} from '../../../../shared/infrastructure/http/pagination/exodo-grid-query.dto';
+import {
+  buildLaravelPaginatorResponse,
+  normalizeExodoGridQuery,
+} from '../../../../shared/infrastructure/http/pagination/laravel-paginator';
 import { PositiveBigIntPipe } from '../../../../shared/infrastructure/http/pipes/positive-bigint.pipe';
-import { CommunityRole } from '../../../iam/domain/enums/community-role.enum';
+import { RBAC_PERMISSIONS } from '../../../../shared/infrastructure/rbac/rbac-permissions.constants';
+import { RbacPermissionsService } from '../../../../shared/infrastructure/rbac/rbac-permissions.service';
 import { ManageAdministrationUseCase } from '../../application/use-cases/manage-administration.use-case';
 import {
   AssignCampusEducationLevelDto,
@@ -36,26 +46,13 @@ import {
   UpsertGroupManagerDto,
 } from './dto/administration.dto';
 
-const ADMIN_READ_ROLES = [
-  CommunityRole.SUPER_ADMIN,
-  CommunityRole.SCHOOL_ADMIN,
-  CommunityRole.RECTOR,
-  CommunityRole.COORDINATOR,
-  CommunityRole.SECRETARY,
-] as const;
-
-const ADMIN_WRITE_ROLES = [
-  CommunityRole.SUPER_ADMIN,
-  CommunityRole.SCHOOL_ADMIN,
-  CommunityRole.RECTOR,
-] as const;
-
 @ApiTags('Administration & Executive Dashboard')
 @ApiBearerAuth('jwt-auth')
 @Controller('admin')
 export class AdministrationController {
   constructor(
     private readonly adminUseCase: ManageAdministrationUseCase,
+    private readonly rbacPermissions: RbacPermissionsService,
   ) {}
 
   // ===========================================================================
@@ -63,7 +60,10 @@ export class AdministrationController {
   // ===========================================================================
 
   @Get('dashboard/statistics')
-  @Roles(...ADMIN_READ_ROLES, CommunityRole.TEACHER)
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.DASHBOARD_EXECUTIVE_VIEW,
+    RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
+  )
   @ApiOperation({
     summary:
       'Obtener KPIs anuales (matriculados, retirados, docentes, sedes, grupos) y series históricas',
@@ -77,10 +77,28 @@ export class AdministrationController {
       academicYear && /^\d{4}$/.test(academicYear)
         ? Number(academicYear)
         : principal.academicYear;
-    const data = await this.adminUseCase.getDashboardStatistics(
+    const rawData = await this.adminUseCase.getDashboardStatistics(
       principal.schoolId,
       parsedYear,
     );
+
+    const canViewBilling = await this.rbacPermissions.hasPermission(
+      principal.schoolId,
+      principal.userId,
+      principal.activeRole,
+      RBAC_PERMISSIONS.DASHBOARD_BILLING_VIEW,
+    );
+
+    const data = canViewBilling
+      ? rawData
+      : {
+          ...rawData,
+          schoolSummary: {
+            ...rawData.schoolSummary,
+            subscriptionLockDate: '',
+          },
+        };
+
     return { success: true, data };
   }
 
@@ -89,18 +107,32 @@ export class AdministrationController {
   // ===========================================================================
 
   @Get('school')
-  @Roles(...ADMIN_READ_ROLES)
+  @RequirePermissions(RBAC_PERMISSIONS.ADMIN_SCHOOL_VIEW)
   @ApiOperation({ summary: 'Consultar ficha institucional del colegio activo' })
   async getSchoolProfile(
     @CurrentUser() principal: ActiveTenantContext,
   ): Promise<Record<string, unknown>> {
-    const data = await this.adminUseCase.getSchoolProfile(principal.schoolId);
+    const rawData = await this.adminUseCase.getSchoolProfile(principal.schoolId);
+    const canViewBilling = await this.rbacPermissions.hasPermission(
+      principal.schoolId,
+      principal.userId,
+      principal.activeRole,
+      RBAC_PERMISSIONS.DASHBOARD_BILLING_VIEW,
+    );
+    const data = canViewBilling
+      ? rawData
+      : {
+          ...rawData,
+          subscriptionLockDate: '',
+        };
     return { success: true, data };
   }
 
   @Patch('school')
-  @Roles(...ADMIN_WRITE_ROLES)
-  @ApiOperation({ summary: 'Actualizar datos institucionales del colegio activo' })
+  @RequirePermissions(RBAC_PERMISSIONS.ADMIN_SCHOOL_WRITE)
+  @ApiOperation({
+    summary: 'Actualizar datos institucionales del colegio activo',
+  })
   async updateSchoolProfile(
     @CurrentUser() principal: ActiveTenantContext,
     @Body() dto: UpdateSchoolProfileDto,
@@ -117,17 +149,40 @@ export class AdministrationController {
   // ===========================================================================
 
   @Get('campuses')
-  @Roles(...ADMIN_READ_ROLES, CommunityRole.TEACHER)
-  @ApiOperation({ summary: 'Listar sedes educativas del colegio activo' })
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.ADMIN_CAMPUSES_VIEW,
+    RBAC_PERMISSIONS.ACADEMIC_ENROLLMENTS_VIEW,
+    RBAC_PERMISSIONS.ACADEMIC_COURSE_ASSIGNMENTS_VIEW,
+    RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
+  )
+  @ApiOperation({
+    summary:
+      'Listar sedes educativas del colegio activo (paginador Laravel o completo)',
+  })
   async listCampuses(
     @CurrentUser() principal: ActiveTenantContext,
-  ): Promise<Record<string, unknown>> {
+    @Query() query: ExodoGridQueryDto,
+  ): Promise<unknown> {
+    const normalized = normalizeExodoGridQuery(query);
+    if (normalized.isLaravelPagination) {
+      const paginated = await this.adminUseCase.listCampusesPaginated(
+        principal.schoolId,
+        normalized,
+      );
+      return buildLaravelPaginatorResponse({
+        items: paginated.items,
+        total: paginated.total,
+        page: normalized.page,
+        perPage: normalized.limit,
+        basePath: '/api/v1/admin/campuses',
+      });
+    }
     const data = await this.adminUseCase.listCampuses(principal.schoolId);
     return { success: true, data };
   }
 
   @Post('campuses')
-  @Roles(...ADMIN_WRITE_ROLES)
+  @RequirePermissions(RBAC_PERMISSIONS.ADMIN_CAMPUSES_WRITE)
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Crear una nueva sede educativa' })
   async createCampus(
@@ -139,7 +194,7 @@ export class AdministrationController {
   }
 
   @Patch('campuses/:campusId')
-  @Roles(...ADMIN_WRITE_ROLES)
+  @RequirePermissions(RBAC_PERMISSIONS.ADMIN_CAMPUSES_WRITE)
   @ApiOperation({ summary: 'Actualizar una sede educativa existente' })
   async updateCampus(
     @CurrentUser() principal: ActiveTenantContext,
@@ -155,8 +210,10 @@ export class AdministrationController {
   }
 
   @Delete('campuses/:campusId')
-  @Roles(...ADMIN_WRITE_ROLES)
-  @ApiOperation({ summary: 'Eliminar una sede educativa sin dependencias activas' })
+  @RequirePermissions(RBAC_PERMISSIONS.ADMIN_CAMPUSES_WRITE)
+  @ApiOperation({
+    summary: 'Eliminar una sede educativa sin dependencias activas',
+  })
   async deleteCampus(
     @CurrentUser() principal: ActiveTenantContext,
     @Param('campusId', PositiveBigIntPipe) campusId: bigint,
@@ -166,7 +223,11 @@ export class AdministrationController {
   }
 
   @Get('campuses/:campusId/shifts')
-  @Roles(...ADMIN_READ_ROLES, CommunityRole.TEACHER)
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.ADMIN_CAMPUSES_VIEW,
+    RBAC_PERMISSIONS.ACADEMIC_ENROLLMENTS_VIEW,
+    RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
+  )
   @ApiOperation({ summary: 'Listar jornadas asignadas a una sede' })
   async listCampusShifts(
     @CurrentUser() principal: ActiveTenantContext,
@@ -180,7 +241,7 @@ export class AdministrationController {
   }
 
   @Post('campuses/:campusId/shifts')
-  @Roles(...ADMIN_WRITE_ROLES)
+  @RequirePermissions(RBAC_PERMISSIONS.ADMIN_CAMPUSES_WRITE)
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Vincular una jornada escolar a la sede' })
   async assignCampusShift(
@@ -197,7 +258,7 @@ export class AdministrationController {
   }
 
   @Delete('campuses/:campusId/shifts/:assignmentId')
-  @Roles(...ADMIN_WRITE_ROLES)
+  @RequirePermissions(RBAC_PERMISSIONS.ADMIN_CAMPUSES_WRITE)
   @ApiOperation({ summary: 'Desvincular una jornada de la sede' })
   async removeCampusShift(
     @CurrentUser() principal: ActiveTenantContext,
@@ -213,7 +274,11 @@ export class AdministrationController {
   }
 
   @Get('campuses/:campusId/education-levels')
-  @Roles(...ADMIN_READ_ROLES, CommunityRole.TEACHER)
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.ADMIN_CAMPUSES_VIEW,
+    RBAC_PERMISSIONS.ACADEMIC_ENROLLMENTS_VIEW,
+    RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
+  )
   @ApiOperation({ summary: 'Listar niveles educativos asignados a una sede' })
   async listCampusEducationLevels(
     @CurrentUser() principal: ActiveTenantContext,
@@ -227,7 +292,7 @@ export class AdministrationController {
   }
 
   @Post('campuses/:campusId/education-levels')
-  @Roles(...ADMIN_WRITE_ROLES)
+  @RequirePermissions(RBAC_PERMISSIONS.ADMIN_CAMPUSES_WRITE)
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Vincular un nivel educativo a la sede' })
   async assignCampusEducationLevel(
@@ -244,7 +309,7 @@ export class AdministrationController {
   }
 
   @Delete('campuses/:campusId/education-levels/:assignmentId')
-  @Roles(...ADMIN_WRITE_ROLES)
+  @RequirePermissions(RBAC_PERMISSIONS.ADMIN_CAMPUSES_WRITE)
   @ApiOperation({ summary: 'Desvincular un nivel educativo de la sede' })
   async removeCampusEducationLevel(
     @CurrentUser() principal: ActiveTenantContext,
@@ -264,30 +329,42 @@ export class AdministrationController {
   // ===========================================================================
 
   @Get('teachers')
-  @Roles(...ADMIN_READ_ROLES)
-  @ApiOperation({ summary: 'Listar personal docente del colegio activo con paginación y búsqueda' })
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.ADMIN_TEACHERS_VIEW,
+    RBAC_PERMISSIONS.ACADEMIC_COURSE_ASSIGNMENTS_VIEW,
+    RBAC_PERMISSIONS.ADMIN_GROUP_MANAGERS_VIEW,
+  )
+  @ApiOperation({
+    summary:
+      'Listar personal docente del colegio activo con paginación y búsqueda',
+  })
   @ApiQuery({ name: 'search', required: false })
   @ApiQuery({ name: 'onlyActive', required: false, example: 'true' })
   @ApiQuery({ name: 'limit', required: false, example: 100 })
   @ApiQuery({ name: 'offset', required: false, example: 0 })
   async listTeachers(
     @CurrentUser() principal: ActiveTenantContext,
-    @Query('search') search?: string,
-    @Query('onlyActive') onlyActive?: string,
-    @Query('limit') limit?: string,
-    @Query('offset') offset?: string,
-  ): Promise<Record<string, unknown>> {
-    const data = await this.adminUseCase.listTeachers(principal.schoolId, {
-      search,
-      onlyActive: onlyActive === 'true',
-      limit: limit && /^\d+$/.test(limit) ? Number(limit) : undefined,
-      offset: offset && /^\d+$/.test(offset) ? Number(offset) : undefined,
-    });
+    @Query() query: ExodoGridQueryDto,
+  ): Promise<unknown> {
+    const normalized = normalizeExodoGridQuery(query);
+    const data = await this.adminUseCase.listTeachers(
+      principal.schoolId,
+      normalized,
+    );
+    if (normalized.isLaravelPagination) {
+      return buildLaravelPaginatorResponse({
+        items: data.items,
+        total: data.total,
+        page: normalized.page,
+        perPage: normalized.limit,
+        basePath: '/api/v1/admin/teachers',
+      });
+    }
     return { success: true, data };
   }
 
   @Post('teachers')
-  @Roles(...ADMIN_WRITE_ROLES, CommunityRole.COORDINATOR)
+  @RequirePermissions(RBAC_PERMISSIONS.ADMIN_TEACHERS_WRITE)
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Registrar nuevo perfil docente' })
   async createTeacher(
@@ -299,7 +376,7 @@ export class AdministrationController {
   }
 
   @Patch('teachers/:teacherId')
-  @Roles(...ADMIN_WRITE_ROLES, CommunityRole.COORDINATOR)
+  @RequirePermissions(RBAC_PERMISSIONS.ADMIN_TEACHERS_WRITE)
   @ApiOperation({ summary: 'Actualizar datos de un docente' })
   async updateTeacher(
     @CurrentUser() principal: ActiveTenantContext,
@@ -311,17 +388,23 @@ export class AdministrationController {
       teacherId,
       dto,
     );
+    if (dto.isActive !== undefined) {
+      this.rbacPermissions.invalidateSchoolCache(principal.schoolId);
+    }
     return { success: true, data };
   }
 
   @Delete('teachers/:teacherId')
-  @Roles(...ADMIN_WRITE_ROLES)
-  @ApiOperation({ summary: 'Eliminar un docente sin carga académica bloqueante' })
+  @RequirePermissions(RBAC_PERMISSIONS.ADMIN_TEACHERS_DELETE)
+  @ApiOperation({
+    summary: 'Eliminar un docente sin carga académica bloqueante',
+  })
   async deleteTeacher(
     @CurrentUser() principal: ActiveTenantContext,
     @Param('teacherId', PositiveBigIntPipe) teacherId: bigint,
   ): Promise<Record<string, unknown>> {
     await this.adminUseCase.deleteTeacher(principal.schoolId, teacherId);
+    this.rbacPermissions.invalidateSchoolCache(principal.schoolId);
     return { success: true, data: { deleted: true, id: Number(teacherId) } };
   }
 
@@ -330,33 +413,37 @@ export class AdministrationController {
   // ===========================================================================
 
   @Get('staff')
-  @Roles(...ADMIN_READ_ROLES)
-  @ApiOperation({ summary: 'Listar personal administrativo del colegio activo' })
+  @RequirePermissions(RBAC_PERMISSIONS.ADMIN_STAFF_VIEW)
+  @ApiOperation({
+    summary: 'Listar personal administrativo del colegio activo',
+  })
   @ApiQuery({ name: 'search', required: false })
   @ApiQuery({ name: 'onlyActive', required: false })
   @ApiQuery({ name: 'limit', required: false })
   @ApiQuery({ name: 'offset', required: false })
   async listAdministrativeStaff(
     @CurrentUser() principal: ActiveTenantContext,
-    @Query('search') search?: string,
-    @Query('onlyActive') onlyActive?: string,
-    @Query('limit') limit?: string,
-    @Query('offset') offset?: string,
-  ): Promise<Record<string, unknown>> {
+    @Query() query: ExodoGridQueryDto,
+  ): Promise<unknown> {
+    const normalized = normalizeExodoGridQuery(query);
     const data = await this.adminUseCase.listAdministrativeStaff(
       principal.schoolId,
-      {
-        search,
-        onlyActive: onlyActive === 'true',
-        limit: limit && /^\d+$/.test(limit) ? Number(limit) : undefined,
-        offset: offset && /^\d+$/.test(offset) ? Number(offset) : undefined,
-      },
+      normalized,
     );
+    if (normalized.isLaravelPagination) {
+      return buildLaravelPaginatorResponse({
+        items: data.items,
+        total: data.total,
+        page: normalized.page,
+        perPage: normalized.limit,
+        basePath: '/api/v1/admin/staff',
+      });
+    }
     return { success: true, data };
   }
 
   @Post('staff')
-  @Roles(...ADMIN_WRITE_ROLES)
+  @RequirePermissions(RBAC_PERMISSIONS.ADMIN_STAFF_WRITE)
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Registrar nuevo funcionario administrativo' })
   async createAdministrativeStaff(
@@ -367,12 +454,15 @@ export class AdministrationController {
       principal.schoolId,
       dto,
     );
+    this.rbacPermissions.invalidateSchoolCache(principal.schoolId);
     return { success: true, data };
   }
 
   @Patch('staff/:staffId')
-  @Roles(...ADMIN_WRITE_ROLES)
-  @ApiOperation({ summary: 'Actualizar datos de un funcionario administrativo' })
+  @RequirePermissions(RBAC_PERMISSIONS.ADMIN_STAFF_WRITE)
+  @ApiOperation({
+    summary: 'Actualizar datos de un funcionario administrativo',
+  })
   async updateAdministrativeStaff(
     @CurrentUser() principal: ActiveTenantContext,
     @Param('staffId', PositiveBigIntPipe) staffId: bigint,
@@ -383,11 +473,14 @@ export class AdministrationController {
       staffId,
       dto,
     );
+    if (dto.isActive !== undefined || dto.assignedRole !== undefined) {
+      this.rbacPermissions.invalidateSchoolCache(principal.schoolId);
+    }
     return { success: true, data };
   }
 
   @Delete('staff/:staffId')
-  @Roles(...ADMIN_WRITE_ROLES)
+  @RequirePermissions(RBAC_PERMISSIONS.ADMIN_STAFF_WRITE)
   @ApiOperation({ summary: 'Eliminar un funcionario administrativo' })
   async deleteAdministrativeStaff(
     @CurrentUser() principal: ActiveTenantContext,
@@ -397,6 +490,7 @@ export class AdministrationController {
       principal.schoolId,
       staffId,
     );
+    this.rbacPermissions.invalidateSchoolCache(principal.schoolId);
     return { success: true, data: { deleted: true, id: Number(staffId) } };
   }
 
@@ -405,18 +499,39 @@ export class AdministrationController {
   // ===========================================================================
 
   @Get('group-managers')
-  @Roles(...ADMIN_READ_ROLES, CommunityRole.TEACHER)
-  @ApiOperation({ summary: 'Listar grupos académicos y sus directores de grupo por año lectivo' })
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.ADMIN_GROUP_MANAGERS_VIEW,
+    RBAC_PERMISSIONS.ACADEMIC_ENROLLMENTS_VIEW,
+    RBAC_PERMISSIONS.ACADEMIC_COURSE_ASSIGNMENTS_VIEW,
+    RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
+  )
+  @ApiOperation({
+    summary:
+      'Listar grupos académicos y sus directores de grupo por año lectivo',
+  })
   @ApiQuery({ name: 'academicYear', required: false, example: 2026 })
   @ApiResponse({ status: 200, description: 'Listado de directores de grupo.' })
   async listGroupManagers(
     @CurrentUser() principal: ActiveTenantContext,
-    @Query('academicYear') academicYear?: string,
-  ): Promise<Record<string, unknown>> {
-    const parsedYear =
-      academicYear && /^\d{4}$/.test(academicYear)
-        ? Number(academicYear)
-        : principal.academicYear;
+    @Query() query: AcademicYearExodoGridQueryDto,
+  ): Promise<unknown> {
+    const parsedYear = query.academicYear ?? principal.academicYear;
+    const normalized = normalizeExodoGridQuery(query);
+    if (normalized.isLaravelPagination) {
+      const paginated = await this.adminUseCase.listGroupManagersPaginated(
+        principal.schoolId,
+        parsedYear,
+        normalized,
+      );
+      return buildLaravelPaginatorResponse({
+        items: paginated.items,
+        total: paginated.total,
+        page: normalized.page,
+        perPage: normalized.limit,
+        basePath: '/api/v1/admin/group-managers',
+        queryParams: { academicYear: parsedYear },
+      });
+    }
     const data = await this.adminUseCase.listGroupManagers(
       principal.schoolId,
       parsedYear,
@@ -425,9 +540,11 @@ export class AdministrationController {
   }
 
   @Post('group-managers')
-  @Roles(...ADMIN_WRITE_ROLES, CommunityRole.COORDINATOR)
+  @RequirePermissions(RBAC_PERMISSIONS.ADMIN_GROUP_MANAGERS_WRITE)
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Crear o asignar director de grupo a un curso del año lectivo' })
+  @ApiOperation({
+    summary: 'Crear o asignar director de grupo a un curso del año lectivo',
+  })
   async upsertGroupManager(
     @CurrentUser() principal: ActiveTenantContext,
     @Body() dto: UpsertGroupManagerDto,
@@ -440,8 +557,11 @@ export class AdministrationController {
   }
 
   @Patch('group-managers/:groupId')
-  @Roles(...ADMIN_WRITE_ROLES, CommunityRole.COORDINATOR)
-  @ApiOperation({ summary: 'Actualizar director de grupo, cupo o estado de un grupo académico' })
+  @RequirePermissions(RBAC_PERMISSIONS.ADMIN_GROUP_MANAGERS_WRITE)
+  @ApiOperation({
+    summary:
+      'Actualizar director de grupo, cupo o estado de un grupo académico',
+  })
   async updateGroupManager(
     @CurrentUser() principal: ActiveTenantContext,
     @Param('groupId', PositiveBigIntPipe) groupId: bigint,
@@ -456,8 +576,11 @@ export class AdministrationController {
   }
 
   @Delete('group-managers/:groupId')
-  @Roles(...ADMIN_WRITE_ROLES, CommunityRole.COORDINATOR)
-  @ApiOperation({ summary: 'Eliminar grupo académico o desvincular director si tiene matrículas' })
+  @RequirePermissions(RBAC_PERMISSIONS.ADMIN_GROUP_MANAGERS_WRITE)
+  @ApiOperation({
+    summary:
+      'Eliminar grupo académico o desvincular director si tiene matrículas',
+  })
   async deleteGroupManager(
     @CurrentUser() principal: ActiveTenantContext,
     @Param('groupId', PositiveBigIntPipe) groupId: bigint,

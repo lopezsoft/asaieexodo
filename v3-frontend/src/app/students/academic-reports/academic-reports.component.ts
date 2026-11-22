@@ -102,6 +102,8 @@ import { V3FileManagerModalComponent } from '../../shared/components/v3-file-man
         [open]="docsModalOpen()"
         heading="Boletines y Documentos del Estudiante"
         category="STUDENT_DOCUMENTS"
+        [canUpload]="false"
+        [canDelete]="false"
         (closed)="docsModalOpen.set(false)"
       ></app-v3-file-manager-modal>
     </div>

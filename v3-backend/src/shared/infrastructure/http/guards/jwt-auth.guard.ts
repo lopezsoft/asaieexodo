@@ -115,31 +115,74 @@ export class JwtAuthGuard implements CanActivate {
     const schoolId = BigInt(payload.schoolId);
     const userId = BigInt(payload.sub);
 
-    // Verificar en PostgreSQL (RLS) que la sesion no haya sido revocada
-    if (payload.sid) {
-      const sessionValid = await this.db.withTenantTransaction(
-        schoolId,
-        async (client) => {
-          const res = await client.query<{ id: string }>(
-            `SELECT id
-             FROM auth_sessions
-             WHERE id = $1
-               AND school_id = $2
-               AND user_id = $3
-               AND is_revoked = FALSE
-               AND expires_at > NOW()
+    // Verificar en PostgreSQL (RLS) que la sesión, el usuario, el colegio y la membresía sigan activos
+    const sessionAndMembershipValid = await this.db.withTenantTransaction(
+      schoolId,
+      async (client) => {
+        if (payload.sid) {
+          const res = await client.query<{ ok: number }>(
+            `SELECT 1 AS ok
+             FROM users u
+             INNER JOIN schools sc
+               ON sc.id = $2
+              AND sc.is_active = TRUE
+             INNER JOIN auth_sessions s
+               ON s.id = $1
+              AND s.school_id = $2
+              AND s.user_id = u.id
+              AND s.is_revoked = FALSE
+              AND s.expires_at > NOW()
+             WHERE u.id = $3
+               AND u.is_active = TRUE
+               AND (
+                 $4 = 'SUPER_ADMIN'
+                 OR EXISTS (
+                   SELECT 1
+                   FROM user_school_memberships m
+                   WHERE m.school_id = $2
+                     AND m.user_id = u.id
+                     AND m.role = $4
+                     AND m.is_active = TRUE
+                     AND m.status = 'ACTIVE'
+                 )
+               )
              LIMIT 1`,
-            [payload.sid, String(schoolId), String(userId)],
+            [payload.sid, String(schoolId), String(userId), payload.activeRole],
           );
           return (res.rowCount ?? 0) > 0;
-        },
-      );
+        }
 
-      if (!sessionValid) {
-        throw new UnauthorizedException(
-          'La sesión fue cerrada o revocada. Por favor inicia sesión nuevamente.',
+        const res = await client.query<{ ok: number }>(
+          `SELECT 1 AS ok
+           FROM users u
+           INNER JOIN schools sc
+             ON sc.id = $1
+            AND sc.is_active = TRUE
+           WHERE u.id = $2
+             AND u.is_active = TRUE
+             AND (
+               $3 = 'SUPER_ADMIN'
+               OR EXISTS (
+                 SELECT 1
+                 FROM user_school_memberships m
+                 WHERE m.school_id = $1
+                   AND m.user_id = u.id
+                   AND m.role = $3
+                   AND m.is_active = TRUE
+                   AND m.status = 'ACTIVE'
+               )
+             )
+           LIMIT 1`,
+          [String(schoolId), String(userId), payload.activeRole],
         );
-      }
+        return (res.rowCount ?? 0) > 0;
+      },
+    );
+
+    if (!sessionAndMembershipValid) {
+      throw new UnauthorizedException(
+        'La sesión fue revocada o tu membresía en la institución ya no se encuentra activa. Inicia sesión nuevamente.',
+      );
     }
 
     request.user = {

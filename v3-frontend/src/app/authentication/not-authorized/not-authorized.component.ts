@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { V3UnifiedAuthService } from '../../services/v3-unified-auth.service';
 
 @Component({
   selector: 'app-not-authorized',
@@ -18,9 +19,12 @@ import { RouterLink } from '@angular/router';
         </p>
       </div>
       <div class="d-flex flex-column flex-sm-row gap-2">
-        <a routerLink="/dashboard" class="auth-submit-btn text-decoration-none">
+        <a
+          [routerLink]="v3Auth.defaultHomeRoute()"
+          class="auth-submit-btn text-decoration-none"
+        >
           <span class="material-symbols-outlined">dashboard</span>
-          <span>Volver al panel principal</span>
+          <span>Volver a mi panel</span>
         </a>
         <a routerLink="/auth" class="auth-secondary-btn text-decoration-none">
           <span class="material-symbols-outlined">login</span>
@@ -30,4 +34,6 @@ import { RouterLink } from '@angular/router';
     </section>
   `,
 })
-export class NotAuthorizedComponent {}
+export class NotAuthorizedComponent {
+  protected readonly v3Auth = inject(V3UnifiedAuthService);
+}

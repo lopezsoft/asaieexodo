@@ -18,6 +18,10 @@ import {
   V3PromotionService,
 } from '../../services/v3-promotion.service';
 import { V3UnifiedAuthService } from '../../services/v3-unified-auth.service';
+import {
+  SearchableSelectOption,
+  V3SearchableSelectComponent,
+} from '../../shared/components/v3-searchable-select/v3-searchable-select.component';
 
 /**
  * Promoción Anticipada de Estudiantes (reemplaza PromocionAnticipadaView de ExtJS).
@@ -25,7 +29,7 @@ import { V3UnifiedAuthService } from '../../services/v3-unified-auth.service';
 @Component({
   selector: 'app-advance-promotion',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, V3SearchableSelectComponent],
   template: `
     <div class="container-fluid py-3">
       <div class="breadcrumb-card mb-25 d-md-flex align-items-center justify-content-between">
@@ -43,41 +47,44 @@ import { V3UnifiedAuthService } from '../../services/v3-unified-auth.service';
 
       <div class="trezo-card bg-white border-radius p-4 shadow-sm">
         <div class="row g-3">
-          <div class="col-md-6">
-            <label class="form-label small fw-semibold">Estudiante matriculado *</label>
-            <select class="form-select form-select-sm" [(ngModel)]="form.enrollmentId">
-              <option [ngValue]="0">Seleccione estudiante...</option>
-              @for (e of enrollments(); track e.id) {
-                <option [ngValue]="e.id">{{ e.gradeName }}-{{ e.groupCode }} · {{ e.studentFullName }} ({{ e.studentDocumentNumber }})</option>
-              }
-            </select>
+          <div class="col-12 col-md-6">
+            <label class="form-label">Estudiante matriculado *</label>
+            <app-v3-searchable-select
+              [(ngModel)]="form.enrollmentId"
+              [options]="enrollmentOptions()"
+              [clearable]="true"
+              placeholder="Seleccione estudiante..."
+              searchPlaceholder="Buscar por documento o nombre..."
+            />
           </div>
-          <div class="col-md-6">
-            <label class="form-label small fw-semibold">Grupo destino (traslado inmediato opcional)</label>
-            <select class="form-select form-select-sm" [(ngModel)]="form.targetGroupId">
-              <option [ngValue]="0">Sin traslado de grupo (solo acta)</option>
-              @for (g of groups(); track g.id) {
-                <option [ngValue]="g.id">{{ g.gradeName }}-{{ g.groupCode }} ({{ g.campusName }} · {{ g.shiftName }})</option>
-              }
-            </select>
+          <div class="col-12 col-md-6">
+            <label class="form-label">Grupo destino (traslado inmediato opcional)</label>
+            <app-v3-searchable-select
+              [(ngModel)]="form.targetGroupId"
+              [options]="targetGroupOptions()"
+              [clearable]="true"
+              placeholder="Sin traslado de grupo (solo acta)"
+              searchPlaceholder="Buscar grupo destino..."
+            />
           </div>
-          <div class="col-md-4">
-            <label class="form-label small fw-semibold">Estado de Promoción</label>
-            <select class="form-select form-select-sm" [(ngModel)]="form.promotionStatusId">
-              @for (st of statuses(); track st.id) {
-                <option [ngValue]="st.id">{{ st.description }}</option>
-              }
-            </select>
+          <div class="col-12 col-md-6">
+            <label class="form-label">Estado de Promoción</label>
+            <app-v3-searchable-select
+              [(ngModel)]="form.promotionStatusId"
+              [options]="promotionStatusOptions()"
+              placeholder="Estado..."
+              searchPlaceholder="Buscar estado..."
+            />
           </div>
-          <div class="col-md-3">
-            <label class="form-label small fw-semibold">Número de Acta *</label>
-            <input type="text" class="form-control form-control-sm" [(ngModel)]="form.actNumber" placeholder="ACTA-ANT-2026-01" />
+          <div class="col-12 col-md-6">
+            <label class="form-label">Número de Acta *</label>
+            <input type="text" class="form-control" [(ngModel)]="form.actNumber" placeholder="ACTA-ANT-2026-01" />
           </div>
-          <div class="col-md-5">
-            <label class="form-label small fw-semibold">Observación / Sustento del Consejo Académico</label>
-            <input type="text" class="form-control form-control-sm" [(ngModel)]="form.observations" placeholder="Aprobada por desempeño superior..." />
+          <div class="col-12">
+            <label class="form-label">Observación / Sustento del Consejo Académico</label>
+            <input type="text" class="form-control" [(ngModel)]="form.observations" placeholder="Aprobada por desempeño superior..." />
           </div>
-          <div class="col-12 text-end">
+          <div class="col-12 d-flex justify-content-end pt-2 border-top">
             <button
               type="button"
               class="btn btn-sm btn-primary"
@@ -104,6 +111,22 @@ export class AdvancePromotionComponent implements OnInit {
   readonly enrollments = signal<EnrollmentRecord[]>([]);
   readonly groups = signal<GroupManagerRecord[]>([]);
   readonly statuses = signal<PromotionStatusOption[]>([]);
+
+  readonly enrollmentOptions = computed<SearchableSelectOption<number>[]>(() =>
+    this.enrollments().map((e) => ({
+      value: e.id,
+      label: `${e.gradeName}-${e.groupCode} · ${e.studentFullName} (${e.studentDocumentNumber})`,
+    }))
+  );
+  readonly targetGroupOptions = computed<SearchableSelectOption<number>[]>(() =>
+    this.groups().map((g) => ({
+      value: g.id,
+      label: `${g.gradeName}-${g.groupCode} (${g.campusName} · ${g.shiftName})`,
+    }))
+  );
+  readonly promotionStatusOptions = computed<SearchableSelectOption<number>[]>(() =>
+    this.statuses().map((st) => ({ value: st.id, label: st.description }))
+  );
 
   form = {
     enrollmentId: 0,

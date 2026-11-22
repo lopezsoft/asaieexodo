@@ -85,41 +85,53 @@ import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.d
 
             <hr class="my-4" />
             <h6 class="fw-semibold mb-3 text-primary">Configuración de Boletines ({{ v3Auth.academicYear() }})</h6>
-            <div class="row g-2">
-              <div class="col-md-4">
-                <div class="form-check form-switch">
-                  <input class="form-check-input" type="checkbox" id="signRector" [(ngModel)]="bulletinConfig.showRectorSignature" />
-                  <label class="form-check-label small" for="signRector">Firma Rector</label>
+            <div class="row g-3">
+              <div class="col-12 col-md-6">
+                <div class="v3-form-switch-box">
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="signRector" [(ngModel)]="bulletinConfig.showRectorSignature" />
+                    <label class="form-check-label" for="signRector">Firma Rector</label>
+                  </div>
                 </div>
               </div>
-              <div class="col-md-4">
-                <div class="form-check form-switch">
-                  <input class="form-check-input" type="checkbox" id="signSec" [(ngModel)]="bulletinConfig.showSecretarySignature" />
-                  <label class="form-check-label small" for="signSec">Firma Secretaría</label>
+              <div class="col-12 col-md-6">
+                <div class="v3-form-switch-box">
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="signSec" [(ngModel)]="bulletinConfig.showSecretarySignature" />
+                    <label class="form-check-label" for="signSec">Firma Secretaría</label>
+                  </div>
                 </div>
               </div>
-              <div class="col-md-4">
-                <div class="form-check form-switch">
-                  <input class="form-check-input" type="checkbox" id="signHomeroom" [(ngModel)]="bulletinConfig.showHomeroomSignature" />
-                  <label class="form-check-label small" for="signHomeroom">Firma Dir. Grupo</label>
+              <div class="col-12 col-md-6">
+                <div class="v3-form-switch-box">
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="signHomeroom" [(ngModel)]="bulletinConfig.showHomeroomSignature" />
+                    <label class="form-check-label" for="signHomeroom">Firma Dir. Grupo</label>
+                  </div>
                 </div>
               </div>
-              <div class="col-md-4">
-                <div class="form-check form-switch">
-                  <input class="form-check-input" type="checkbox" id="showAvg" [(ngModel)]="bulletinConfig.showStudentAverage" />
-                  <label class="form-check-label small" for="showAvg">Mostrar promedio</label>
+              <div class="col-12 col-md-6">
+                <div class="v3-form-switch-box">
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="showAvg" [(ngModel)]="bulletinConfig.showStudentAverage" />
+                    <label class="form-check-label" for="showAvg">Mostrar promedio</label>
+                  </div>
                 </div>
               </div>
-              <div class="col-md-4">
-                <div class="form-check form-switch">
-                  <input class="form-check-input" type="checkbox" id="showScale" [(ngModel)]="bulletinConfig.showNationalScale" />
-                  <label class="form-check-label small" for="showScale">Mostrar desempeño</label>
+              <div class="col-12 col-md-6">
+                <div class="v3-form-switch-box">
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="showScale" [(ngModel)]="bulletinConfig.showNationalScale" />
+                    <label class="form-check-label" for="showScale">Mostrar desempeño</label>
+                  </div>
                 </div>
               </div>
-              <div class="col-md-4">
-                <div class="form-check form-switch">
-                  <input class="form-check-input" type="checkbox" id="showQr" [(ngModel)]="carnetConfig.enableQr" />
-                  <label class="form-check-label small" for="showQr">QR en Carnés</label>
+              <div class="col-12 col-md-6">
+                <div class="v3-form-switch-box">
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="showQr" [(ngModel)]="carnetConfig.enableQr" />
+                    <label class="form-check-label" for="showQr">QR en Carnés</label>
+                  </div>
                 </div>
               </div>
             </div>
@@ -149,7 +161,7 @@ import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.d
                       class="form-check-input"
                       type="checkbox"
                       [checked]="mod.isActive"
-                      [disabled]="!canAdmin()"
+                      [disabled]="!canManageModules()"
                       (change)="toggleModule(mod, $event)"
                     />
                   </div>
@@ -166,7 +178,9 @@ import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.d
     <app-v3-file-manager-modal
       [open]="watermarksOpen()"
       heading="Marcas de Agua y Firmas Escaneadas (AWS S3)"
-      category="WATERMARKS_AND_SIGNATURES"
+      category="INSTITUTIONAL_LOGOS"
+      [canUpload]="canManageBrandFiles()"
+      [canDelete]="canManageBrandFiles()"
       (closed)="watermarksOpen.set(false)"
     />
   `,
@@ -180,10 +194,15 @@ export class BrandingModulesSettingsComponent implements OnInit {
   readonly modules = signal<SchoolModuleRecord[]>([]);
   readonly watermarksOpen = signal(false);
 
-  readonly canAdmin = computed(() => {
-    const r = this.v3Auth.activeRole();
-    return r === 'SUPER_ADMIN' || r === 'SCHOOL_ADMIN' || r === 'RECTOR';
-  });
+  readonly canAdmin = computed(() =>
+    this.v3Auth.hasPermission('settings.branding.write'),
+  );
+  readonly canManageModules = computed(() =>
+    this.v3Auth.hasPermission('settings.modules.manage'),
+  );
+  readonly canManageBrandFiles = computed(() =>
+    this.v3Auth.hasPermission('storage.institutional_branding.write'),
+  );
 
   branding = {
     directorName: '',

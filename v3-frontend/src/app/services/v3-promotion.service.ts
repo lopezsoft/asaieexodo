@@ -1,7 +1,8 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { map, Observable } from 'rxjs';
+import { map, Observable, tap } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { V3CatalogsService } from './v3-catalogs.service';
 import { ApiEnvelope } from './v3-unified-auth.service';
 
 export interface PromotionStatusOption {
@@ -138,6 +139,7 @@ export interface YearCertificateHeadersRecord {
 @Injectable({ providedIn: 'root' })
 export class V3PromotionService {
   private readonly http = inject(HttpClient);
+  private readonly catalogsService = inject(V3CatalogsService);
   private readonly baseUrl = `${environment.APIURL}/promotion`;
 
   listStatuses(): Observable<PromotionStatusOption[]> {
@@ -291,6 +293,9 @@ export class V3PromotionService {
         isClosed,
         cloneToNextYear,
       })
-      .pipe(map((r) => r.data));
+      .pipe(
+        map((r) => r.data),
+        tap(() => this.catalogsService.notifySchoolContextChanged()),
+      );
   }
 }

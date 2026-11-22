@@ -33,16 +33,16 @@ import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.d
       @if (canWrite()) {
         <div class="trezo-card bg-white border-radius p-4 mb-4 shadow-sm">
           <h6 class="fw-semibold mb-3">Nueva Plantilla de Observador</h6>
-          <div class="row g-2 align-items-end">
-            <div class="col-md-4">
-              <label class="form-label small fw-semibold">Nombre del modelo *</label>
-              <input type="text" class="form-control form-control-sm" [(ngModel)]="newTemplate.name" placeholder="Ej. Observador Institucional Modelo 5" />
+          <div class="row g-3">
+            <div class="col-12 col-md-6">
+              <label class="form-label">Nombre del modelo *</label>
+              <input type="text" class="form-control" [(ngModel)]="newTemplate.name" placeholder="Ej. Observador Institucional Modelo 5" />
             </div>
-            <div class="col-md-6">
-              <label class="form-label small fw-semibold">Descripción</label>
-              <input type="text" class="form-control form-control-sm" [(ngModel)]="newTemplate.description" placeholder="Alcance del modelo" />
+            <div class="col-12 col-md-6">
+              <label class="form-label">Descripción</label>
+              <input type="text" class="form-control" [(ngModel)]="newTemplate.description" placeholder="Alcance del modelo" />
             </div>
-            <div class="col-md-2 d-grid">
+            <div class="col-12 d-flex justify-content-end">
               <button type="button" class="btn btn-sm btn-primary" [disabled]="!newTemplate.name.trim()" (click)="createTemplate()">
                 Crear modelo
               </button>
@@ -140,12 +140,11 @@ export class ObserverSettingsComponent implements OnInit {
   private readonly secDrafts = new Map<number, { title: string; isCoexistenceSection: boolean }>();
   private readonly critDrafts = new Map<number, { description: string }>();
 
-  readonly canAdmin = computed(() => {
-    const r = this.v3Auth.activeRole();
-    return r === 'SUPER_ADMIN' || r === 'SCHOOL_ADMIN' || r === 'RECTOR';
-  });
-  readonly canWrite = computed(
-    () => this.canAdmin() || this.v3Auth.activeRole() === 'COORDINATOR',
+  readonly canAdmin = computed(() =>
+    this.v3Auth.hasPermission('settings.observer.delete'),
+  );
+  readonly canWrite = computed(() =>
+    this.v3Auth.hasPermission('settings.observer.write'),
   );
 
   ngOnInit(): void {

@@ -39,9 +39,14 @@ import {
 import { ActiveTenantContext } from '../../../../shared/application/context/tenant-context.service';
 import {
   CurrentUser,
-  Roles,
+  RequireModule,
+  RequirePermissions,
 } from '../../../../shared/infrastructure/http/decorators/security.decorators';
 import { PositiveBigIntPipe } from '../../../../shared/infrastructure/http/pipes/positive-bigint.pipe';
+import {
+  RBAC_MODULES,
+  RBAC_PERMISSIONS,
+} from '../../../../shared/infrastructure/rbac/rbac-permissions.constants';
 import { CommunityRole } from '../../../iam/domain/enums/community-role.enum';
 import { ManageSchoolCrmUseCase } from '../../application/use-cases/manage-school-crm.use-case';
 
@@ -348,11 +353,13 @@ export class SemanticKnowledgeSearchRequestDto {
 
 @ApiTags('School CRM & Vector AI (pgvector)')
 @ApiBearerAuth('jwt-auth')
+@RequireModule(RBAC_MODULES.SCHOOL_CRM_OMNICHANNEL)
 @Controller('crm')
 export class CrmController {
   constructor(private readonly manageSchoolCrmUseCase: ManageSchoolCrmUseCase) {}
 
   @Post('conversations')
+  @RequirePermissions(RBAC_PERMISSIONS.CRM_COMMUNICATIONS_USE)
   @ApiOperation({
     summary: 'Iniciar conversación omnicanal en el CRM Escolar (RLS desde JWT)',
   })
@@ -382,6 +389,7 @@ export class CrmController {
   }
 
   @Get('conversations')
+  @RequirePermissions(RBAC_PERMISSIONS.CRM_COMMUNICATIONS_USE)
   @ApiOperation({
     summary: 'Listar conversaciones activas del usuario en su colegio (paginado)',
   })
@@ -405,6 +413,7 @@ export class CrmController {
   }
 
   @Get('conversations/:conversationId/messages')
+  @RequirePermissions(RBAC_PERMISSIONS.CRM_COMMUNICATIONS_USE)
   @ApiOperation({ summary: 'Listar mensajes de una conversación CRM Escolar' })
   @ApiParam({ name: 'conversationId', example: 1 })
   public async listConversationMessages(
@@ -424,6 +433,7 @@ export class CrmController {
   }
 
   @Post('conversations/:conversationId/messages')
+  @RequirePermissions(RBAC_PERMISSIONS.CRM_COMMUNICATIONS_USE)
   @ApiOperation({ summary: 'Enviar un nuevo mensaje a una conversación existente' })
   @ApiParam({ name: 'conversationId', example: 1 })
   public async sendMessage(
@@ -445,6 +455,7 @@ export class CrmController {
   }
 
   @Patch('conversations/:conversationId/read')
+  @RequirePermissions(RBAC_PERMISSIONS.CRM_COMMUNICATIONS_USE)
   @ApiOperation({ summary: 'Marcar conversación como leída (reinicia unread_count)' })
   @ApiParam({ name: 'conversationId', example: 1 })
   public async markConversationRead(
@@ -460,14 +471,7 @@ export class CrmController {
   }
 
   @Post('announcements')
-  @Roles(
-    CommunityRole.SUPER_ADMIN,
-    CommunityRole.SCHOOL_ADMIN,
-    CommunityRole.RECTOR,
-    CommunityRole.COORDINATOR,
-    CommunityRole.SECRETARY,
-    CommunityRole.TEACHER,
-  )
+  @RequirePermissions(RBAC_PERMISSIONS.CRM_ANNOUNCEMENTS_WRITE)
   @ApiOperation({ summary: 'Publicar circular o comunicado institucional segmentado' })
   public async publishAnnouncement(
     @CurrentUser() principal: ActiveTenantContext,
@@ -491,6 +495,7 @@ export class CrmController {
   }
 
   @Get('announcements')
+  @RequirePermissions(RBAC_PERMISSIONS.CRM_COMMUNICATIONS_USE)
   @ApiOperation({ summary: 'Listar circulares institucionales vigentes para el rol activo' })
   public async listAnnouncements(
     @CurrentUser() principal: ActiveTenantContext,
@@ -507,6 +512,7 @@ export class CrmController {
   }
 
   @Post('announcements/:announcementId/acknowledge')
+  @RequirePermissions(RBAC_PERMISSIONS.CRM_COMMUNICATIONS_USE)
   @ApiOperation({ summary: 'Registrar acuse de lectura/recibido de circular institucional' })
   @ApiParam({ name: 'announcementId', example: 1 })
   public async acknowledgeAnnouncement(
@@ -522,6 +528,7 @@ export class CrmController {
   }
 
   @Post('tickets')
+  @RequirePermissions(RBAC_PERMISSIONS.CRM_COMMUNICATIONS_USE)
   @ApiOperation({ summary: 'Radicar solicitud o ticket PQRSD con cálculo automático de SLA' })
   public async createSupportTicket(
     @CurrentUser() principal: ActiveTenantContext,
@@ -542,6 +549,7 @@ export class CrmController {
   }
 
   @Get('tickets')
+  @RequirePermissions(RBAC_PERMISSIONS.CRM_COMMUNICATIONS_USE)
   @ApiOperation({ summary: 'Listar solicitudes/tickets PQRSD accesibles al usuario' })
   public async listSupportTickets(
     @CurrentUser() principal: ActiveTenantContext,
@@ -559,13 +567,7 @@ export class CrmController {
   }
 
   @Patch('tickets/:ticketId')
-  @Roles(
-    CommunityRole.SUPER_ADMIN,
-    CommunityRole.SCHOOL_ADMIN,
-    CommunityRole.RECTOR,
-    CommunityRole.COORDINATOR,
-    CommunityRole.SECRETARY,
-  )
+  @RequirePermissions(RBAC_PERMISSIONS.CRM_TICKETS_MANAGE)
   @ApiOperation({ summary: 'Asignar o actualizar estado de ticket PQRSD (Directivos/Secretaría)' })
   @ApiParam({ name: 'ticketId', example: 1 })
   public async updateSupportTicket(
@@ -584,13 +586,7 @@ export class CrmController {
   }
 
   @Post('knowledge/embeddings')
-  @Roles(
-    CommunityRole.SUPER_ADMIN,
-    CommunityRole.SCHOOL_ADMIN,
-    CommunityRole.RECTOR,
-    CommunityRole.COORDINATOR,
-    CommunityRole.SECRETARY,
-  )
+  @RequirePermissions(RBAC_PERMISSIONS.CRM_KNOWLEDGE_WRITE)
   @ApiOperation({
     summary: 'Indexar fragmento documental (PEI, SIEE, Convivencia, CRM) en pgvector',
   })
@@ -612,6 +608,7 @@ export class CrmController {
   }
 
   @Post('knowledge/semantic-search')
+  @RequirePermissions(RBAC_PERMISSIONS.CRM_COMMUNICATIONS_USE)
   @ApiOperation({
     summary: 'Búsqueda semántica vectorial con pgvector (<=> distancia coseno) aislada por JWT',
   })

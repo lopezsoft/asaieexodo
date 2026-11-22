@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { finalize, forkJoin } from 'rxjs';
@@ -11,6 +11,10 @@ import {
   SchoolElectionRecord,
   V3ElectionsService,
 } from '../../services/v3-elections.service';
+import {
+  SearchableSelectOption,
+  V3SearchableSelectComponent,
+} from '../../shared/components/v3-searchable-select/v3-searchable-select.component';
 import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.directive';
 
 /**
@@ -19,7 +23,7 @@ import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.d
 @Component({
   selector: 'app-election-candidates',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, CustomTooltipDirective],
+  imports: [CommonModule, FormsModule, RouterLink, V3SearchableSelectComponent, CustomTooltipDirective],
   template: `
     <div class="container-fluid py-3">
       <div class="breadcrumb-card mb-25 d-md-flex align-items-center justify-content-between">
@@ -36,54 +40,61 @@ import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.d
       </div>
 
       <div class="trezo-card bg-white border-radius p-4 shadow-sm mb-4">
-        <div class="row g-2 align-items-end mb-4">
-          <div class="col-md-5">
-            <label class="form-label small fw-semibold">Jornada Electoral</label>
-            <select class="form-select form-select-sm" [(ngModel)]="selectedElectionId" (ngModelChange)="loadCandidates()">
-              @for (e of elections(); track e.id) {
-                <option [ngValue]="e.id">{{ e.academicYear }} · {{ e.electionName }}</option>
-              }
-            </select>
+        <div class="row g-3 mb-4">
+          <div class="col-12 col-md-6">
+            <label class="form-label">Jornada Electoral</label>
+            <app-v3-searchable-select
+              [(ngModel)]="selectedElectionId"
+              [options]="electionOptions()"
+              placeholder="Seleccione jornada..."
+              searchPlaceholder="Buscar jornada..."
+              (ngModelChange)="loadCandidates()"
+            />
           </div>
         </div>
 
         @if (selectedElectionId) {
-          <div class="row g-2 align-items-end mb-4 p-3 rounded bg-light border">
-            <div class="col-md-2">
-              <label class="form-label small fw-semibold">Candidatura *</label>
-              <select class="form-select form-select-sm" [(ngModel)]="form.candidacyTypeId">
-                @for (ct of candidacyTypes(); track ct.id) {
-                  <option [ngValue]="ct.id">{{ ct.name }}</option>
-                }
-              </select>
-            </div>
-            <div class="col-md-1">
-              <label class="form-label small fw-semibold">Tarjetón *</label>
-              <input type="text" class="form-control form-control-sm" [(ngModel)]="form.ballotNumber" placeholder="01" />
-            </div>
-            <div class="col-md-3">
-              <label class="form-label small fw-semibold">Nombre del Candidato *</label>
-              <input type="text" class="form-control form-control-sm" [(ngModel)]="form.candidateName" placeholder="Nombre o Voto en Blanco" />
-            </div>
-            <div class="col-md-3">
-              <label class="form-label small fw-semibold">Propuesta / Lema</label>
-              <input type="text" class="form-control form-control-sm" [(ngModel)]="form.proposalText" placeholder="Propuesta de campaña..." />
-            </div>
-            <div class="col-md-1">
-              <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" id="isBlank" [(ngModel)]="form.isBlankVoteOption" />
-                <label class="form-check-label small" for="isBlank">Blanco</label>
+          <div class="v3-form-panel">
+            <div class="row g-3">
+              <div class="col-12 col-md-6">
+                <label class="form-label">Candidatura *</label>
+                <app-v3-searchable-select
+                  [(ngModel)]="form.candidacyTypeId"
+                  [options]="candidacyTypeOptions()"
+                  placeholder="Candidatura..."
+                  searchPlaceholder="Buscar candidatura..."
+                />
               </div>
-            </div>
-            <div class="col-md-2 d-grid">
-              <button
-                type="button"
-                class="btn btn-sm btn-primary"
-                [disabled]="!form.ballotNumber.trim() || !form.candidateName.trim()"
-                (click)="saveCandidate()"
-              >
-                Agregar Candidato
-              </button>
+              <div class="col-12 col-md-6">
+                <label class="form-label">Número de Tarjetón *</label>
+                <input type="text" class="form-control" [(ngModel)]="form.ballotNumber" placeholder="01" />
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label">Nombre del Candidato *</label>
+                <input type="text" class="form-control" [(ngModel)]="form.candidateName" placeholder="Nombre o Voto en Blanco" />
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label">Propuesta / Lema</label>
+                <input type="text" class="form-control" [(ngModel)]="form.proposalText" placeholder="Propuesta de campaña..." />
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="v3-form-switch-box">
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="isBlank" [(ngModel)]="form.isBlankVoteOption" />
+                    <label class="form-check-label" for="isBlank">Opción de Voto en Blanco</label>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6 d-flex align-items-end justify-content-md-end">
+                <button
+                  type="button"
+                  class="btn btn-sm btn-primary"
+                  [disabled]="!form.ballotNumber.trim() || !form.candidateName.trim()"
+                  (click)="saveCandidate()"
+                >
+                  Agregar Candidato
+                </button>
+              </div>
             </div>
           </div>
 
@@ -149,6 +160,13 @@ export class ElectionCandidatesComponent implements OnInit {
   readonly elections = signal<SchoolElectionRecord[]>([]);
   readonly candidacyTypes = signal<CandidacyTypeItem[]>([]);
   readonly candidates = signal<ElectionCandidateRecord[]>([]);
+
+  readonly electionOptions = computed<SearchableSelectOption<number>[]>(() =>
+    this.elections().map((e) => ({ value: e.id, label: `${e.academicYear} · ${e.electionName}` }))
+  );
+  readonly candidacyTypeOptions = computed<SearchableSelectOption<number>[]>(() =>
+    this.candidacyTypes().map((ct) => ({ value: ct.id, label: ct.name }))
+  );
 
   selectedElectionId = 0;
   form = {

@@ -12,6 +12,7 @@ import {
 } from '../../../../shared/application/ports/mail-sender.port';
 import { ResourceNotFoundException } from '../../../../shared/domain/exceptions/resource-not-found.exception';
 import { TenantAccessDeniedException } from '../../../../shared/domain/exceptions/tenant-access-denied.exception';
+import { RbacPermissionsService } from '../../../../shared/infrastructure/rbac/rbac-permissions.service';
 import { CommunityRole } from '../../domain/enums/community-role.enum';
 import { CommunityUserRepositoryPort } from '../../domain/ports/community-user.repository.port';
 import { PasswordHasherPort } from '../../domain/ports/password-hasher.port';
@@ -60,6 +61,8 @@ export interface AuthenticatedSessionOutput {
   readonly activeSchoolName: string;
   readonly activeRole: CommunityRole;
   readonly academicYear: number;
+  readonly permissions: string[];
+  readonly enabledModules: string[];
   readonly user: Record<string, unknown>;
 }
 
@@ -73,6 +76,7 @@ export class AuthenticateCommunityUserUseCase {
     private readonly jwtService: JwtService,
     private readonly mailSender: MailSenderPort,
     private readonly configService: ConfigService,
+    private readonly rbacPermissions: RbacPermissionsService,
   ) {}
 
   async login(
@@ -144,6 +148,12 @@ export class AuthenticateCommunityUserUseCase {
       tokenType: 'ACCESS',
     });
 
+    const rbac = await this.rbacPermissions.resolveEffectiveAccess(
+      targetMembership.schoolId,
+      user.id,
+      targetMembership.role,
+    );
+
     return {
       accessToken,
       sessionId: session.id,
@@ -151,6 +161,8 @@ export class AuthenticateCommunityUserUseCase {
       activeSchoolName: targetMembership.schoolName,
       activeRole: targetMembership.role,
       academicYear: currentYear,
+      permissions: rbac.permissions,
+      enabledModules: rbac.enabledModules,
       user: user.toPublicProfile(),
     };
   }
@@ -202,6 +214,12 @@ export class AuthenticateCommunityUserUseCase {
       tokenType: 'ACCESS',
     });
 
+    const rbac = await this.rbacPermissions.resolveEffectiveAccess(
+      verifiedMembership.schoolId,
+      user.id,
+      verifiedMembership.role,
+    );
+
     return {
       accessToken,
       sessionId: session.id,
@@ -209,6 +227,8 @@ export class AuthenticateCommunityUserUseCase {
       activeSchoolName: verifiedMembership.schoolName,
       activeRole: verifiedMembership.role,
       academicYear,
+      permissions: rbac.permissions,
+      enabledModules: rbac.enabledModules,
       user: user.toPublicProfile(),
     };
   }
@@ -230,12 +250,20 @@ export class AuthenticateCommunityUserUseCase {
         m.schoolId === params.activeSchoolId && m.role === params.activeRole,
     );
 
+    const rbac = await this.rbacPermissions.resolveEffectiveAccess(
+      params.activeSchoolId,
+      params.userId,
+      params.activeRole,
+    );
+
     return {
       sessionId: params.sessionId,
       activeSchoolId: Number(params.activeSchoolId),
       activeSchoolName: activeMembership?.schoolName ?? '',
       activeRole: params.activeRole,
       academicYear: params.academicYear,
+      permissions: rbac.permissions,
+      enabledModules: rbac.enabledModules,
       user: user.toPublicProfile(),
     };
   }

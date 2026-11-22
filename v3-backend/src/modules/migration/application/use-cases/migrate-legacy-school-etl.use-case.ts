@@ -756,7 +756,7 @@ export class MigrateLegacySchoolEtlUseCase {
       }
     }
 
-    // Membresías por rol para este colegio
+    // Membresías por rol para este colegio (ORDER BY state ASC, id ASC para que el registro activo prevalezca en dedupeByKey)
     const roleRows = await this.mysql.queryAll<{
       user_id: string;
       profile_id: string;
@@ -764,7 +764,8 @@ export class MigrateLegacySchoolEtlUseCase {
     }>(
       `SELECT user_id, profile_id, state
          FROM ${adminDb}.user_roles
-        WHERE school_id = ${legacySchoolId}`,
+        WHERE school_id = ${legacySchoolId}
+        ORDER BY state ASC, id ASC`,
     );
 
     const memberships = dedupeByKey(
@@ -772,7 +773,9 @@ export class MigrateLegacySchoolEtlUseCase {
         .map((r) => {
           const newUid = userIdMap.get(safeInt(r.user_id));
           if (!newUid) return null;
-          const profileId = safeInt(r.profile_id, 5);
+          const rawProfileId = safeInt(r.profile_id, 5);
+          const profileId =
+            rawProfileId >= 1 && rawProfileId <= 8 ? rawProfileId : 5;
           const isActive = safeInt(r.state, 1) === 1;
           return {
             userId: newUid,

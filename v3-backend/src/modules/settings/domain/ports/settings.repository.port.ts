@@ -424,5 +424,6 @@ export abstract class SettingsRepositoryPort {
   abstract cleanupZeroGrades(
     schoolId: bigint,
     academicYear: number,
+    actorUserId?: bigint,
   ): Promise<{ deletedCount: number }>;
 }

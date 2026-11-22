@@ -12,6 +12,10 @@ import {
   V3PortalService,
 } from '../../services/v3-portal.service';
 import { V3UnifiedAuthService } from '../../services/v3-unified-auth.service';
+import {
+  SearchableSelectOption,
+  V3SearchableSelectComponent,
+} from '../../shared/components/v3-searchable-select/v3-searchable-select.component';
 import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.directive';
 
 type LevelingTab = 'periodic' | 'final';
@@ -31,7 +35,7 @@ interface ReportJobState {
 @Component({
   selector: 'app-teacher-levelings',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, CustomTooltipDirective],
+  imports: [CommonModule, FormsModule, RouterLink, V3SearchableSelectComponent, CustomTooltipDirective],
   template: `
     <div class="container-fluid py-3">
       <div class="breadcrumb-card mb-25 d-md-flex align-items-center justify-content-between">
@@ -75,53 +79,47 @@ interface ReportJobState {
 
       @if (activeTab() === 'periodic') {
         <div class="trezo-card bg-white border-radius p-4 shadow-sm mb-4">
-          <div class="row g-2 align-items-end">
-            <div class="col-md-5">
-              <label class="form-label small fw-semibold">Curso / Asignatura *</label>
-              <select
-                class="form-select form-select-sm"
+          <div class="row g-3">
+            <div class="col-12 col-md-6">
+              <label class="form-label">Curso / Asignatura *</label>
+              <app-v3-searchable-select
                 [(ngModel)]="selectedCourseId"
+                [options]="courseSelectOptions()"
+                [clearable]="true"
+                placeholder="Seleccione curso..."
+                searchPlaceholder="Buscar curso o sede..."
                 (ngModelChange)="loadPeriodicLevelings()"
-              >
-                <option [ngValue]="0">Seleccione curso...</option>
-                @for (c of courses(); track c.id) {
-                  <option [ngValue]="c.id">
-                    {{ c.gradeName }}-{{ c.groupCode }} · {{ c.subjectName }} ({{ c.campusName }})
-                  </option>
-                }
-              </select>
+              />
             </div>
-            <div class="col-md-2">
-              <label class="form-label small fw-semibold">Periodo</label>
-              <select
-                class="form-select form-select-sm"
+            <div class="col-12 col-md-6">
+              <label class="form-label">Periodo</label>
+              <app-v3-searchable-select
                 [(ngModel)]="selectedPeriod"
+                [options]="periodOptions"
+                placeholder="Periodo..."
+                searchPlaceholder="Buscar periodo..."
                 (ngModelChange)="loadPeriodicLevelings()"
-              >
-                @for (p of [1, 2, 3, 4]; track p) {
-                  <option [ngValue]="p">Periodo {{ p }}</option>
-                }
-              </select>
+              />
             </div>
-            <div class="col-md-5 d-flex flex-wrap gap-2 justify-content-md-end">
+            <div class="col-12 d-flex flex-wrap gap-2 justify-content-end">
               <button
                 type="button"
-                class="btn btn-sm btn-outline-secondary"
+                class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1"
                 [disabled]="!selectedCourseId"
                 (click)="printReport('nivelaciones_periodicas', 'Acta de Nivelaciones Periódicas')"
                 [appCustomTooltip]="'Generar acta oficial de nivelaciones periódicas en PDF'"
               >
-                <i class="material-symbols-outlined fs-6 align-middle me-1">print</i>
-                Acta PDF
+                <i class="material-symbols-outlined fs-6">print</i>
+                <span>Acta PDF</span>
               </button>
               <button
                 type="button"
-                class="btn btn-sm btn-primary"
+                class="btn btn-sm btn-primary d-inline-flex align-items-center gap-1"
                 [disabled]="periodicRows().length === 0"
                 (click)="savePeriodicBatch()"
               >
-                <i class="material-symbols-outlined fs-6 align-middle me-1">save</i>
-                Guardar Nivelaciones
+                <i class="material-symbols-outlined fs-6">save</i>
+                <span>Guardar Nivelaciones</span>
               </button>
             </div>
           </div>
@@ -327,6 +325,17 @@ export class TeacherLevelingsComponent implements OnInit {
   readonly minPassingScore = signal(3.0);
   readonly maxRecoveryScore = signal(3.5);
   readonly reportJobs = signal<ReportJobState[]>([]);
+
+  readonly periodOptions: SearchableSelectOption<number>[] = [1, 2, 3, 4].map((p) => ({
+    value: p,
+    label: `Periodo ${p}`,
+  }));
+  readonly courseSelectOptions = computed<SearchableSelectOption<number>[]>(() =>
+    this.courses().map((c) => ({
+      value: c.id,
+      label: `${c.gradeName}-${c.groupCode} · ${c.subjectName} (${c.campusName})`,
+    }))
+  );
 
   selectedCourseId = 0;
   selectedPeriod = 1;

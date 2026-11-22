@@ -13,12 +13,20 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ActiveTenantContext } from '../../../../shared/application/context/tenant-context.service';
+import { TenantAccessDeniedException } from '../../../../shared/domain/exceptions/tenant-access-denied.exception';
+import { PostgresRlsService } from '../../../../shared/infrastructure/database/postgres-rls.service';
 import {
   CurrentUser,
-  Roles,
+  RequireAnyPermission,
+  RequireModule,
+  RequirePermissions,
 } from '../../../../shared/infrastructure/http/decorators/security.decorators';
 import { PositiveBigIntPipe } from '../../../../shared/infrastructure/http/pipes/positive-bigint.pipe';
-import { CommunityRole } from '../../../iam/domain/enums/community-role.enum';
+import {
+  RBAC_MODULES,
+  RBAC_PERMISSIONS,
+} from '../../../../shared/infrastructure/rbac/rbac-permissions.constants';
+import { RbacPermissionsService } from '../../../../shared/infrastructure/rbac/rbac-permissions.service';
 import { ManagePortalUseCase } from '../../application/use-cases/manage-portal.use-case';
 import {
   AddEvaluationQuestionDto,
@@ -37,23 +45,24 @@ import {
   UpsertStudentObserverDto,
 } from './dto/portal.dto';
 
-const TEACHER_PORTAL_ROLES = [
-  CommunityRole.SUPER_ADMIN,
-  CommunityRole.SCHOOL_ADMIN,
-  CommunityRole.RECTOR,
-  CommunityRole.COORDINATOR,
-  CommunityRole.SECRETARY,
-  CommunityRole.TEACHER,
-] as const;
-
-@ApiTags('Teacher Portal (Gradebook, Achievements, Observer M5, Lesson Plans & LMS)')
+@ApiTags(
+  'Teacher Portal (Gradebook, Achievements, Observer M5, Lesson Plans & LMS)',
+)
 @ApiBearerAuth('jwt-auth')
 @Controller('teacher')
 export class TeacherPortalController {
-  constructor(private readonly portalUseCase: ManagePortalUseCase) {}
+  constructor(
+    private readonly portalUseCase: ManagePortalUseCase,
+    private readonly rbacPermissions: RbacPermissionsService,
+    private readonly db: PostgresRlsService,
+  ) {}
 
   @Get('courses')
-  @Roles(...TEACHER_PORTAL_ROLES)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
+    RBAC_PERMISSIONS.PORTAL_TEACHER_SUPERVISE_READ,
+  )
   async listCourses(
     @CurrentUser() p: ActiveTenantContext,
     @Query('academicYear') academicYear?: string,
@@ -70,13 +79,18 @@ export class TeacherPortalController {
   }
 
   @Get('courses/:courseAssignmentId/gradebook')
-  @Roles(...TEACHER_PORTAL_ROLES)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
+    RBAC_PERMISSIONS.PORTAL_TEACHER_SUPERVISE_READ,
+  )
   async getGradebook(
     @CurrentUser() p: ActiveTenantContext,
     @Param('courseAssignmentId', PositiveBigIntPipe) courseAssignmentId: bigint,
     @Query('academicYear') academicYear?: string,
     @Query('periodNumber') periodNumber?: string,
   ) {
+    await this.assertCanReadCourse(p, courseAssignmentId);
     return {
       success: true,
       data: await this.portalUseCase.getCourseGradebook(
@@ -89,12 +103,17 @@ export class TeacherPortalController {
   }
 
   @Put('courses/:courseAssignmentId/gradebook')
-  @Roles(...TEACHER_PORTAL_ROLES)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
+    RBAC_PERMISSIONS.ACADEMIC_GRADES_RECTOR_OVERRIDE,
+  )
   async saveGradebook(
     @CurrentUser() p: ActiveTenantContext,
     @Param('courseAssignmentId', PositiveBigIntPipe) courseAssignmentId: bigint,
     @Body() dto: SaveGradebookBatchDto,
   ) {
+    await this.assertCanWriteCourseGrades(p, courseAssignmentId);
     return {
       success: true,
       data: await this.portalUseCase.saveGradebookBatch(
@@ -107,13 +126,18 @@ export class TeacherPortalController {
   }
 
   @Get('courses/:courseAssignmentId/pre-reports')
-  @Roles(...TEACHER_PORTAL_ROLES)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
+    RBAC_PERMISSIONS.PORTAL_TEACHER_SUPERVISE_READ,
+  )
   async listPreReports(
     @CurrentUser() p: ActiveTenantContext,
     @Param('courseAssignmentId', PositiveBigIntPipe) courseAssignmentId: bigint,
     @Query('academicYear') academicYear?: string,
     @Query('periodNumber') periodNumber?: string,
   ) {
+    await this.assertCanReadCourse(p, courseAssignmentId);
     return {
       success: true,
       data: await this.portalUseCase.listPreReports(
@@ -126,13 +150,18 @@ export class TeacherPortalController {
   }
 
   @Post('courses/:courseAssignmentId/pre-reports')
-  @Roles(...TEACHER_PORTAL_ROLES)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
+    RBAC_PERMISSIONS.ACADEMIC_GRADES_RECTOR_OVERRIDE,
+  )
   @HttpCode(HttpStatus.OK)
   async upsertPreReport(
     @CurrentUser() p: ActiveTenantContext,
     @Param('courseAssignmentId', PositiveBigIntPipe) courseAssignmentId: bigint,
     @Body() dto: UpsertPreReportDto,
   ) {
+    await this.assertCanWriteCourseGrades(p, courseAssignmentId);
     return {
       success: true,
       data: await this.portalUseCase.upsertPreReport(
@@ -145,7 +174,11 @@ export class TeacherPortalController {
 
   // Logros e indicadores
   @Get('achievements')
-  @Roles(...TEACHER_PORTAL_ROLES)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
+    RBAC_PERMISSIONS.PORTAL_TEACHER_SUPERVISE_READ,
+  )
   async listAchievements(
     @CurrentUser() p: ActiveTenantContext,
     @Query('academicYear') academicYear?: string,
@@ -169,7 +202,11 @@ export class TeacherPortalController {
   }
 
   @Post('achievements')
-  @Roles(...TEACHER_PORTAL_ROLES)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
+    RBAC_PERMISSIONS.ACADEMIC_CURRICULUM_WRITE,
+  )
   @HttpCode(HttpStatus.CREATED)
   async saveAchievement(
     @CurrentUser() p: ActiveTenantContext,
@@ -182,7 +219,11 @@ export class TeacherPortalController {
   }
 
   @Delete('achievements/:id')
-  @Roles(...TEACHER_PORTAL_ROLES)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
+    RBAC_PERMISSIONS.ACADEMIC_CURRICULUM_WRITE,
+  )
   async deleteAchievement(
     @CurrentUser() p: ActiveTenantContext,
     @Param('id', PositiveBigIntPipe) id: bigint,
@@ -192,7 +233,11 @@ export class TeacherPortalController {
   }
 
   @Post('achievements/import')
-  @Roles(...TEACHER_PORTAL_ROLES)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
+    RBAC_PERMISSIONS.ACADEMIC_CURRICULUM_WRITE,
+  )
   @HttpCode(HttpStatus.OK)
   async importAchievements(
     @CurrentUser() p: ActiveTenantContext,
@@ -206,7 +251,11 @@ export class TeacherPortalController {
 
   // Inasistencias
   @Get('absences')
-  @Roles(...TEACHER_PORTAL_ROLES)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
+    RBAC_PERMISSIONS.PORTAL_TEACHER_SUPERVISE_READ,
+  )
   async listAbsences(
     @CurrentUser() p: ActiveTenantContext,
     @Query('courseAssignmentId') courseAssignmentId: string,
@@ -226,7 +275,11 @@ export class TeacherPortalController {
   }
 
   @Post('absences')
-  @Roles(...TEACHER_PORTAL_ROLES)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
+    RBAC_PERMISSIONS.ACADEMIC_GRADES_RECTOR_OVERRIDE,
+  )
   @HttpCode(HttpStatus.CREATED)
   async recordAbsence(
     @CurrentUser() p: ActiveTenantContext,
@@ -239,7 +292,11 @@ export class TeacherPortalController {
   }
 
   @Delete('absences/:absenceId')
-  @Roles(...TEACHER_PORTAL_ROLES)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
+    RBAC_PERMISSIONS.ACADEMIC_GRADES_RECTOR_OVERRIDE,
+  )
   async deleteAbsence(
     @CurrentUser() p: ActiveTenantContext,
     @Param('absenceId', PositiveBigIntPipe) absenceId: bigint,
@@ -250,7 +307,12 @@ export class TeacherPortalController {
 
   // Observador del Estudiante (incluye Modelo 5 de asaie-teachers)
   @Get('observer/:enrollmentId')
-  @Roles(...TEACHER_PORTAL_ROLES)
+  @RequireModule(RBAC_MODULES.STUDENT_OBSERVER)
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
+    RBAC_PERMISSIONS.PORTAL_TEACHER_SUPERVISE_READ,
+    RBAC_PERMISSIONS.PORTAL_TEACHER_OBSERVER_WRITE,
+  )
   async getObserver(
     @CurrentUser() p: ActiveTenantContext,
     @Param('enrollmentId', PositiveBigIntPipe) enrollmentId: bigint,
@@ -267,7 +329,11 @@ export class TeacherPortalController {
   }
 
   @Post('observer')
-  @Roles(...TEACHER_PORTAL_ROLES)
+  @RequireModule(RBAC_MODULES.STUDENT_OBSERVER)
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
+    RBAC_PERMISSIONS.PORTAL_TEACHER_OBSERVER_WRITE,
+  )
   @HttpCode(HttpStatus.OK)
   async upsertObserver(
     @CurrentUser() p: ActiveTenantContext,
@@ -280,7 +346,11 @@ export class TeacherPortalController {
   }
 
   @Post('observer/:observerId/annotations')
-  @Roles(...TEACHER_PORTAL_ROLES)
+  @RequireModule(RBAC_MODULES.STUDENT_OBSERVER)
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
+    RBAC_PERMISSIONS.PORTAL_TEACHER_OBSERVER_WRITE,
+  )
   @HttpCode(HttpStatus.CREATED)
   async addAnnotation(
     @CurrentUser() p: ActiveTenantContext,
@@ -299,7 +369,11 @@ export class TeacherPortalController {
   }
 
   @Delete('observer/annotations/:annotationId')
-  @Roles(...TEACHER_PORTAL_ROLES)
+  @RequireModule(RBAC_MODULES.STUDENT_OBSERVER)
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
+    RBAC_PERMISSIONS.PORTAL_TEACHER_OBSERVER_WRITE,
+  )
   async deleteAnnotation(
     @CurrentUser() p: ActiveTenantContext,
     @Param('annotationId', PositiveBigIntPipe) annotationId: bigint,
@@ -310,7 +384,11 @@ export class TeacherPortalController {
 
   // Planes de clase y parcelador
   @Get('lesson-plans')
-  @Roles(...TEACHER_PORTAL_ROLES)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
+    RBAC_PERMISSIONS.PORTAL_TEACHER_SUPERVISE_READ,
+  )
   async listLessonPlans(
     @CurrentUser() p: ActiveTenantContext,
     @Query('academicYear') academicYear?: string,
@@ -329,7 +407,8 @@ export class TeacherPortalController {
   }
 
   @Post('lesson-plans')
-  @Roles(...TEACHER_PORTAL_ROLES)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequirePermissions(RBAC_PERMISSIONS.PORTAL_TEACHER_OWN)
   @HttpCode(HttpStatus.CREATED)
   async createLessonPlan(
     @CurrentUser() p: ActiveTenantContext,
@@ -342,7 +421,8 @@ export class TeacherPortalController {
   }
 
   @Delete('lesson-plans/:planId')
-  @Roles(...TEACHER_PORTAL_ROLES)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequirePermissions(RBAC_PERMISSIONS.PORTAL_TEACHER_OWN)
   async deleteLessonPlan(
     @CurrentUser() p: ActiveTenantContext,
     @Param('planId', PositiveBigIntPipe) planId: bigint,
@@ -352,7 +432,8 @@ export class TeacherPortalController {
   }
 
   @Post('lesson-plans/:planId/units')
-  @Roles(...TEACHER_PORTAL_ROLES)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequirePermissions(RBAC_PERMISSIONS.PORTAL_TEACHER_OWN)
   @HttpCode(HttpStatus.CREATED)
   async addLessonPlanUnit(
     @CurrentUser() p: ActiveTenantContext,
@@ -366,7 +447,8 @@ export class TeacherPortalController {
   }
 
   @Delete('lesson-plans/units/:unitId')
-  @Roles(...TEACHER_PORTAL_ROLES)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequirePermissions(RBAC_PERMISSIONS.PORTAL_TEACHER_OWN)
   async deleteLessonPlanUnit(
     @CurrentUser() p: ActiveTenantContext,
     @Param('unitId', PositiveBigIntPipe) unitId: bigint,
@@ -377,7 +459,11 @@ export class TeacherPortalController {
 
   // Aula Virtual: Actividades, Evaluaciones en Línea y Clases en Vivo
   @Get('activities')
-  @Roles(...TEACHER_PORTAL_ROLES)
+  @RequireModule(RBAC_MODULES.VIRTUAL_CLASSROOM)
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
+    RBAC_PERMISSIONS.PORTAL_TEACHER_SUPERVISE_READ,
+  )
   async listActivities(
     @CurrentUser() p: ActiveTenantContext,
     @Query('courseAssignmentId') courseAssignmentId?: string,
@@ -394,7 +480,8 @@ export class TeacherPortalController {
   }
 
   @Post('activities')
-  @Roles(...TEACHER_PORTAL_ROLES)
+  @RequireModule(RBAC_MODULES.VIRTUAL_CLASSROOM)
+  @RequirePermissions(RBAC_PERMISSIONS.PORTAL_TEACHER_OWN)
   @HttpCode(HttpStatus.CREATED)
   async createActivity(
     @CurrentUser() p: ActiveTenantContext,
@@ -407,7 +494,8 @@ export class TeacherPortalController {
   }
 
   @Delete('activities/:activityId')
-  @Roles(...TEACHER_PORTAL_ROLES)
+  @RequireModule(RBAC_MODULES.VIRTUAL_CLASSROOM)
+  @RequirePermissions(RBAC_PERMISSIONS.PORTAL_TEACHER_OWN)
   async deleteActivity(
     @CurrentUser() p: ActiveTenantContext,
     @Param('activityId', PositiveBigIntPipe) activityId: bigint,
@@ -417,7 +505,11 @@ export class TeacherPortalController {
   }
 
   @Get('activities/:activityId/submissions')
-  @Roles(...TEACHER_PORTAL_ROLES)
+  @RequireModule(RBAC_MODULES.VIRTUAL_CLASSROOM)
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
+    RBAC_PERMISSIONS.PORTAL_TEACHER_SUPERVISE_READ,
+  )
   async listSubmissions(
     @CurrentUser() p: ActiveTenantContext,
     @Param('activityId', PositiveBigIntPipe) activityId: bigint,
@@ -432,7 +524,8 @@ export class TeacherPortalController {
   }
 
   @Patch('activities/submissions/:submissionId')
-  @Roles(...TEACHER_PORTAL_ROLES)
+  @RequireModule(RBAC_MODULES.VIRTUAL_CLASSROOM)
+  @RequirePermissions(RBAC_PERMISSIONS.PORTAL_TEACHER_OWN)
   async gradeSubmission(
     @CurrentUser() p: ActiveTenantContext,
     @Param('submissionId', PositiveBigIntPipe) submissionId: bigint,
@@ -449,7 +542,11 @@ export class TeacherPortalController {
   }
 
   @Get('evaluations')
-  @Roles(...TEACHER_PORTAL_ROLES)
+  @RequireModule(RBAC_MODULES.VIRTUAL_CLASSROOM)
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
+    RBAC_PERMISSIONS.PORTAL_TEACHER_SUPERVISE_READ,
+  )
   async listEvaluations(
     @CurrentUser() p: ActiveTenantContext,
     @Query('courseAssignmentId') courseAssignmentId?: string,
@@ -466,7 +563,8 @@ export class TeacherPortalController {
   }
 
   @Post('evaluations')
-  @Roles(...TEACHER_PORTAL_ROLES)
+  @RequireModule(RBAC_MODULES.VIRTUAL_CLASSROOM)
+  @RequirePermissions(RBAC_PERMISSIONS.PORTAL_TEACHER_OWN)
   @HttpCode(HttpStatus.CREATED)
   async createEvaluation(
     @CurrentUser() p: ActiveTenantContext,
@@ -479,17 +577,22 @@ export class TeacherPortalController {
   }
 
   @Delete('evaluations/:evaluationId')
-  @Roles(...TEACHER_PORTAL_ROLES)
+  @RequireModule(RBAC_MODULES.VIRTUAL_CLASSROOM)
+  @RequirePermissions(RBAC_PERMISSIONS.PORTAL_TEACHER_OWN)
   async deleteEvaluation(
     @CurrentUser() p: ActiveTenantContext,
     @Param('evaluationId', PositiveBigIntPipe) evaluationId: bigint,
   ) {
     await this.portalUseCase.deleteOnlineEvaluation(p.schoolId, evaluationId);
-    return { success: true, data: { deleted: true, id: Number(evaluationId) } };
+    return {
+      success: true,
+      data: { deleted: true, id: Number(evaluationId) },
+    };
   }
 
   @Post('evaluations/:evaluationId/questions')
-  @Roles(...TEACHER_PORTAL_ROLES)
+  @RequireModule(RBAC_MODULES.VIRTUAL_CLASSROOM)
+  @RequirePermissions(RBAC_PERMISSIONS.PORTAL_TEACHER_OWN)
   @HttpCode(HttpStatus.CREATED)
   async addQuestion(
     @CurrentUser() p: ActiveTenantContext,
@@ -507,7 +610,8 @@ export class TeacherPortalController {
   }
 
   @Delete('evaluations/questions/:questionId')
-  @Roles(...TEACHER_PORTAL_ROLES)
+  @RequireModule(RBAC_MODULES.VIRTUAL_CLASSROOM)
+  @RequirePermissions(RBAC_PERMISSIONS.PORTAL_TEACHER_OWN)
   async deleteQuestion(
     @CurrentUser() p: ActiveTenantContext,
     @Param('questionId', PositiveBigIntPipe) questionId: bigint,
@@ -517,7 +621,11 @@ export class TeacherPortalController {
   }
 
   @Get('evaluations/:evaluationId/attempts')
-  @Roles(...TEACHER_PORTAL_ROLES)
+  @RequireModule(RBAC_MODULES.VIRTUAL_CLASSROOM)
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
+    RBAC_PERMISSIONS.PORTAL_TEACHER_SUPERVISE_READ,
+  )
   async listAttempts(
     @CurrentUser() p: ActiveTenantContext,
     @Param('evaluationId', PositiveBigIntPipe) evaluationId: bigint,
@@ -532,7 +640,11 @@ export class TeacherPortalController {
   }
 
   @Get('live-classes')
-  @Roles(...TEACHER_PORTAL_ROLES)
+  @RequireModule(RBAC_MODULES.VIRTUAL_CLASSROOM)
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
+    RBAC_PERMISSIONS.PORTAL_TEACHER_SUPERVISE_READ,
+  )
   async listLiveClasses(
     @CurrentUser() p: ActiveTenantContext,
     @Query('courseAssignmentId') courseAssignmentId?: string,
@@ -549,7 +661,8 @@ export class TeacherPortalController {
   }
 
   @Post('live-classes')
-  @Roles(...TEACHER_PORTAL_ROLES)
+  @RequireModule(RBAC_MODULES.VIRTUAL_CLASSROOM)
+  @RequirePermissions(RBAC_PERMISSIONS.PORTAL_TEACHER_OWN)
   @HttpCode(HttpStatus.CREATED)
   async createLiveClass(
     @CurrentUser() p: ActiveTenantContext,
@@ -562,13 +675,74 @@ export class TeacherPortalController {
   }
 
   @Delete('live-classes/:liveClassId')
-  @Roles(...TEACHER_PORTAL_ROLES)
+  @RequireModule(RBAC_MODULES.VIRTUAL_CLASSROOM)
+  @RequirePermissions(RBAC_PERMISSIONS.PORTAL_TEACHER_OWN)
   async deleteLiveClass(
     @CurrentUser() p: ActiveTenantContext,
     @Param('liveClassId', PositiveBigIntPipe) liveClassId: bigint,
   ) {
     await this.portalUseCase.deleteLiveClass(p.schoolId, liveClassId);
     return { success: true, data: { deleted: true, id: Number(liveClassId) } };
+  }
+
+  private async assertCanReadCourse(
+    p: ActiveTenantContext,
+    courseAssignmentId: bigint,
+  ): Promise<void> {
+    const canSupervise = await this.rbacPermissions.hasPermission(
+      p.schoolId,
+      p.userId,
+      p.activeRole,
+      RBAC_PERMISSIONS.PORTAL_TEACHER_SUPERVISE_READ,
+    );
+    if (canSupervise) {
+      return;
+    }
+    await this.assertOwnsCourse(p, courseAssignmentId);
+  }
+
+  private async assertCanWriteCourseGrades(
+    p: ActiveTenantContext,
+    courseAssignmentId: bigint,
+  ): Promise<void> {
+    const canOverride = await this.rbacPermissions.hasPermission(
+      p.schoolId,
+      p.userId,
+      p.activeRole,
+      RBAC_PERMISSIONS.ACADEMIC_GRADES_RECTOR_OVERRIDE,
+    );
+    if (canOverride) {
+      return;
+    }
+    await this.assertOwnsCourse(p, courseAssignmentId);
+  }
+
+  private async assertOwnsCourse(
+    p: ActiveTenantContext,
+    courseAssignmentId: bigint,
+  ): Promise<void> {
+    const owns = await this.db.withTenantTransaction(
+      p.schoolId,
+      async (client) => {
+        const res = await client.query<{ ok: number }>(
+          `SELECT 1 AS ok
+             FROM course_assignments ca
+             INNER JOIN teacher_profiles tp
+               ON tp.school_id = ca.school_id AND tp.id = ca.teacher_profile_id
+            WHERE ca.school_id = $1
+              AND ca.id = $2
+              AND tp.user_id = $3
+            LIMIT 1`,
+          [String(p.schoolId), String(courseAssignmentId), String(p.userId)],
+        );
+        return (res.rowCount ?? 0) > 0;
+      },
+    );
+    if (!owns) {
+      throw new TenantAccessDeniedException(
+        'Solo el docente titular de esta asignatura puede acceder o modificar esta planilla.',
+      );
+    }
   }
 
   private parseYear(raw: string | undefined, fallback: number): number {

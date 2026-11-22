@@ -14,6 +14,10 @@ import {
   V3SettingsService,
 } from '../../services/v3-settings.service';
 import { V3UnifiedAuthService } from '../../services/v3-unified-auth.service';
+import {
+  SearchableSelectOption,
+  V3SearchableSelectComponent,
+} from '../../shared/components/v3-searchable-select/v3-searchable-select.component';
 import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.directive';
 
 type StructureTab = 'years' | 'shifts' | 'levels' | 'groups' | 'grades';
@@ -25,7 +29,7 @@ type StructureTab = 'years' | 'shifts' | 'levels' | 'groups' | 'grades';
 @Component({
   selector: 'app-academic-structure-settings',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, CustomTooltipDirective],
+  imports: [CommonModule, FormsModule, RouterLink, V3SearchableSelectComponent, CustomTooltipDirective],
   template: `
     <div class="container-fluid py-3">
       <div class="breadcrumb-card mb-25 d-md-flex align-items-center justify-content-between">
@@ -73,27 +77,31 @@ type StructureTab = 'years' | 'shifts' | 'levels' | 'groups' | 'grades';
         @switch (activeTab()) {
           @case ('years') {
             @if (canWrite()) {
-              <div class="row g-2 align-items-end mb-4 p-3 rounded bg-light border">
-                <div class="col-md-2">
-                  <label class="form-label small fw-semibold">Año *</label>
-                  <input type="number" class="form-control form-control-sm" [(ngModel)]="newYear.year" />
-                </div>
-                <div class="col-md-3">
-                  <label class="form-label small fw-semibold">Inicio</label>
-                  <input type="date" class="form-control form-control-sm" [(ngModel)]="newYear.startDate" />
-                </div>
-                <div class="col-md-3">
-                  <label class="form-label small fw-semibold">Fin</label>
-                  <input type="date" class="form-control form-control-sm" [(ngModel)]="newYear.endDate" />
-                </div>
-                <div class="col-md-2">
-                  <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="onlineOpen" [(ngModel)]="newYear.isOnlineEnrollmentOpen" />
-                    <label class="form-check-label small" for="onlineOpen">Matrícula online</label>
+              <div class="v3-form-panel">
+                <div class="row g-3">
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Año *</label>
+                    <input type="number" class="form-control" [(ngModel)]="newYear.year" />
                   </div>
-                </div>
-                <div class="col-md-2 d-grid">
-                  <button type="button" class="btn btn-sm btn-primary" (click)="saveYear()">Guardar año</button>
+                  <div class="col-12 col-md-6 d-flex align-items-end">
+                    <div class="v3-form-switch-box">
+                      <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="onlineOpen" [(ngModel)]="newYear.isOnlineEnrollmentOpen" />
+                        <label class="form-check-label" for="onlineOpen">Matrícula en línea abierta</label>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Fecha de inicio</label>
+                    <input type="date" class="form-control" [(ngModel)]="newYear.startDate" />
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Fecha de finalización</label>
+                    <input type="date" class="form-control" [(ngModel)]="newYear.endDate" />
+                  </div>
+                  <div class="col-12 d-flex justify-content-end">
+                    <button type="button" class="btn btn-sm btn-primary" (click)="saveYear()">Guardar año</button>
+                  </div>
                 </div>
               </div>
             }
@@ -133,17 +141,21 @@ type StructureTab = 'years' | 'shifts' | 'levels' | 'groups' | 'grades';
 
           @case ('shifts') {
             @if (canWrite()) {
-              <div class="row g-2 align-items-end mb-4 p-3 rounded bg-light border">
-                <div class="col-md-2">
-                  <label class="form-label small fw-semibold">Código *</label>
-                  <input type="number" class="form-control form-control-sm" [(ngModel)]="newShift.shiftCode" />
-                </div>
-                <div class="col-md-6">
-                  <label class="form-label small fw-semibold">Nombre de jornada *</label>
-                  <input type="text" class="form-control form-control-sm" [(ngModel)]="newShift.name" placeholder="Ej. Mañana, Tarde, Única" />
-                </div>
-                <div class="col-md-2 d-grid">
-                  <button type="button" class="btn btn-sm btn-primary" [disabled]="!newShift.name.trim()" (click)="saveShift()">Guardar</button>
+              <div class="v3-form-panel">
+                <div class="row g-3">
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Código de jornada *</label>
+                    <input type="number" class="form-control" [(ngModel)]="newShift.shiftCode" />
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Nombre de jornada *</label>
+                    <input type="text" class="form-control" [(ngModel)]="newShift.name" placeholder="Ej. Mañana, Tarde, Única" />
+                  </div>
+                  <div class="col-12 d-flex justify-content-end">
+                    <button type="button" class="btn btn-sm btn-primary" [disabled]="!newShift.name.trim()" (click)="saveShift()">
+                      Guardar jornada
+                    </button>
+                  </div>
                 </div>
               </div>
             }
@@ -183,25 +195,29 @@ type StructureTab = 'years' | 'shifts' | 'levels' | 'groups' | 'grades';
 
           @case ('levels') {
             @if (canWrite()) {
-              <div class="row g-2 align-items-end mb-4 p-3 rounded bg-light border">
-                <div class="col-md-2">
-                  <label class="form-label small fw-semibold">Código *</label>
-                  <input type="text" class="form-control form-control-sm" [(ngModel)]="newLevel.levelCode" placeholder="PRIM" />
-                </div>
-                <div class="col-md-5">
-                  <label class="form-label small fw-semibold">Nombre del nivel *</label>
-                  <input type="text" class="form-control form-control-sm" [(ngModel)]="newLevel.name" placeholder="Básica Primaria" />
-                </div>
-                <div class="col-md-2">
-                  <label class="form-label small fw-semibold">Abreviatura</label>
-                  <input type="text" class="form-control form-control-sm" [(ngModel)]="newLevel.abbreviation" />
-                </div>
-                <div class="col-md-1">
-                  <label class="form-label small fw-semibold">Orden</label>
-                  <input type="number" class="form-control form-control-sm" [(ngModel)]="newLevel.displayOrder" />
-                </div>
-                <div class="col-md-2 d-grid">
-                  <button type="button" class="btn btn-sm btn-primary" [disabled]="!newLevel.levelCode.trim() || !newLevel.name.trim()" (click)="saveLevel()">Guardar</button>
+              <div class="v3-form-panel">
+                <div class="row g-3">
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Código del nivel *</label>
+                    <input type="text" class="form-control" [(ngModel)]="newLevel.levelCode" placeholder="PRIM" />
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Nombre del nivel *</label>
+                    <input type="text" class="form-control" [(ngModel)]="newLevel.name" placeholder="Básica Primaria" />
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Abreviatura</label>
+                    <input type="text" class="form-control" [(ngModel)]="newLevel.abbreviation" />
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Orden de visualización</label>
+                    <input type="number" class="form-control" [(ngModel)]="newLevel.displayOrder" />
+                  </div>
+                  <div class="col-12 d-flex justify-content-end">
+                    <button type="button" class="btn btn-sm btn-primary" [disabled]="!newLevel.levelCode.trim() || !newLevel.name.trim()" (click)="saveLevel()">
+                      Guardar nivel
+                    </button>
+                  </div>
                 </div>
               </div>
             }
@@ -239,19 +255,25 @@ type StructureTab = 'years' | 'shifts' | 'levels' | 'groups' | 'grades';
 
           @case ('groups') {
             @if (canWrite()) {
-              <div class="row g-2 align-items-end mb-4 p-3 rounded bg-light border">
-                <div class="col-md-7">
-                  <label class="form-label small fw-semibold">Nombre del grupo de grados *</label>
-                  <input type="text" class="form-control form-control-sm" [(ngModel)]="newGroup.name" placeholder="Ej. Básica Primaria (1° a 5°)" />
-                </div>
-                <div class="col-md-3">
-                  <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="cycleEnd" [(ngModel)]="newGroup.isCycleEnd" />
-                    <label class="form-check-label small" for="cycleEnd">Fin de ciclo</label>
+              <div class="v3-form-panel">
+                <div class="row g-3">
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Nombre del grupo de grados *</label>
+                    <input type="text" class="form-control" [(ngModel)]="newGroup.name" placeholder="Ej. Básica Primaria (1° a 5°)" />
                   </div>
-                </div>
-                <div class="col-md-2 d-grid">
-                  <button type="button" class="btn btn-sm btn-primary" [disabled]="!newGroup.name.trim()" (click)="saveGradeGroup()">Guardar</button>
+                  <div class="col-12 col-md-6 d-flex align-items-end">
+                    <div class="v3-form-switch-box">
+                      <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="cycleEnd" [(ngModel)]="newGroup.isCycleEnd" />
+                        <label class="form-check-label" for="cycleEnd">Fin de ciclo</label>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-12 d-flex justify-content-end">
+                    <button type="button" class="btn btn-sm btn-primary" [disabled]="!newGroup.name.trim()" (click)="saveGradeGroup()">
+                      Guardar grupo
+                    </button>
+                  </div>
                 </div>
               </div>
             }
@@ -285,37 +307,41 @@ type StructureTab = 'years' | 'shifts' | 'levels' | 'groups' | 'grades';
 
           @case ('grades') {
             @if (canWrite()) {
-              <div class="row g-2 align-items-end mb-4 p-3 rounded bg-light border">
-                <div class="col-md-2">
-                  <label class="form-label small fw-semibold">Código *</label>
-                  <input type="text" class="form-control form-control-sm" [(ngModel)]="newGrade.gradeCode" placeholder="01" />
-                </div>
-                <div class="col-md-3">
-                  <label class="form-label small fw-semibold">Nombre del grado *</label>
-                  <input type="text" class="form-control form-control-sm" [(ngModel)]="newGrade.name" placeholder="Primero" />
-                </div>
-                <div class="col-md-3">
-                  <label class="form-label small fw-semibold">Nivel *</label>
-                  <select class="form-select form-select-sm" [(ngModel)]="newGrade.educationLevelId">
-                    <option [ngValue]="null">Seleccione...</option>
-                    @for (lvl of levels(); track lvl.id) {
-                      <option [ngValue]="lvl.id">{{ lvl.name }}</option>
-                    }
-                  </select>
-                </div>
-                <div class="col-md-2">
-                  <label class="form-label small fw-semibold">Grupo de grados</label>
-                  <select class="form-select form-select-sm" [(ngModel)]="newGrade.gradeGroupId">
-                    <option [ngValue]="null">Ninguno</option>
-                    @for (gg of gradeGroups(); track gg.id) {
-                      <option [ngValue]="gg.id">{{ gg.name }}</option>
-                    }
-                  </select>
-                </div>
-                <div class="col-md-2 d-grid">
-                  <button type="button" class="btn btn-sm btn-primary" [disabled]="!newGrade.gradeCode.trim() || !newGrade.name.trim() || !newGrade.educationLevelId" (click)="saveGrade()">
-                    Guardar grado
-                  </button>
+              <div class="v3-form-panel">
+                <div class="row g-3">
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Código del grado *</label>
+                    <input type="text" class="form-control" [(ngModel)]="newGrade.gradeCode" placeholder="01" />
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Nombre del grado *</label>
+                    <input type="text" class="form-control" [(ngModel)]="newGrade.name" placeholder="Primero" />
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Nivel educativo *</label>
+                    <app-v3-searchable-select
+                      [(ngModel)]="newGrade.educationLevelId"
+                      [options]="educationLevelOptions()"
+                      [clearable]="true"
+                      placeholder="Seleccione..."
+                      searchPlaceholder="Buscar nivel..."
+                    />
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Grupo de grados</label>
+                    <app-v3-searchable-select
+                      [(ngModel)]="newGrade.gradeGroupId"
+                      [options]="gradeGroupOptions()"
+                      [clearable]="true"
+                      placeholder="Ninguno"
+                      searchPlaceholder="Buscar grupo..."
+                    />
+                  </div>
+                  <div class="col-12 d-flex justify-content-end">
+                    <button type="button" class="btn btn-sm btn-primary" [disabled]="!newGrade.gradeCode.trim() || !newGrade.name.trim() || !newGrade.educationLevelId" (click)="saveGrade()">
+                      Guardar grado
+                    </button>
+                  </div>
                 </div>
               </div>
             }
@@ -368,10 +394,16 @@ export class AcademicStructureSettingsComponent implements OnInit {
   readonly gradeGroups = signal<GradeGroupRecord[]>([]);
   readonly grades = signal<GradeRecord[]>([]);
 
-  readonly canWrite = computed(() => {
-    const role = this.v3Auth.activeRole();
-    return role === 'SUPER_ADMIN' || role === 'SCHOOL_ADMIN' || role === 'RECTOR';
-  });
+  readonly educationLevelOptions = computed<SearchableSelectOption<number>[]>(() =>
+    this.levels().map((lvl) => ({ value: lvl.id, label: lvl.name }))
+  );
+  readonly gradeGroupOptions = computed<SearchableSelectOption<number>[]>(() =>
+    this.gradeGroups().map((gg) => ({ value: gg.id, label: gg.name }))
+  );
+
+  readonly canWrite = computed(() =>
+    this.v3Auth.hasPermission('settings.structure.write'),
+  );
 
   newYear = { year: new Date().getFullYear(), startDate: '', endDate: '', isOnlineEnrollmentOpen: false };
   newShift = { shiftCode: 1, name: '' };

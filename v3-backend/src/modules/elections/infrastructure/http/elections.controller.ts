@@ -14,10 +14,15 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ActiveTenantContext } from '../../../../shared/application/context/tenant-context.service';
 import {
   CurrentUser,
-  Roles,
+  RequireAnyPermission,
+  RequireModule,
+  RequirePermissions,
 } from '../../../../shared/infrastructure/http/decorators/security.decorators';
 import { PositiveBigIntPipe } from '../../../../shared/infrastructure/http/pipes/positive-bigint.pipe';
-import { CommunityRole } from '../../../iam/domain/enums/community-role.enum';
+import {
+  RBAC_MODULES,
+  RBAC_PERMISSIONS,
+} from '../../../../shared/infrastructure/rbac/rbac-permissions.constants';
 import { ManageElectionsUseCase } from '../../application/use-cases/manage-elections.use-case';
 import {
   AddElectionJuryDto,
@@ -27,28 +32,15 @@ import {
   SaveSchoolElectionDto,
 } from './dto/elections.dto';
 
-const ADMIN_ROLES = [
-  CommunityRole.SUPER_ADMIN,
-  CommunityRole.SCHOOL_ADMIN,
-  CommunityRole.RECTOR,
-  CommunityRole.COORDINATOR,
-  CommunityRole.SECRETARY,
-] as const;
-
-const ALL_COMMUNITY = [
-  ...ADMIN_ROLES,
-  CommunityRole.TEACHER,
-  CommunityRole.STUDENT,
-] as const;
-
 @ApiTags('School Government & Electronic Voting')
 @ApiBearerAuth('jwt-auth')
+@RequireModule(RBAC_MODULES.SCHOOL_ELECTIONS)
 @Controller('elections')
 export class ElectionsController {
   constructor(private readonly electionsUseCase: ManageElectionsUseCase) {}
 
   @Get('candidacy-types')
-  @Roles(...ALL_COMMUNITY)
+  @RequirePermissions(RBAC_PERMISSIONS.ELECTIONS_VIEW)
   async listCandidacyTypes(@CurrentUser() p: ActiveTenantContext) {
     return {
       success: true,
@@ -57,7 +49,7 @@ export class ElectionsController {
   }
 
   @Get()
-  @Roles(...ADMIN_ROLES, CommunityRole.TEACHER)
+  @RequirePermissions(RBAC_PERMISSIONS.ELECTIONS_VIEW)
   async listElections(@CurrentUser() p: ActiveTenantContext) {
     return {
       success: true,
@@ -66,7 +58,7 @@ export class ElectionsController {
   }
 
   @Post()
-  @Roles(...ADMIN_ROLES)
+  @RequirePermissions(RBAC_PERMISSIONS.ELECTIONS_MANAGE)
   @HttpCode(HttpStatus.CREATED)
   async createElection(
     @CurrentUser() p: ActiveTenantContext,
@@ -79,7 +71,7 @@ export class ElectionsController {
   }
 
   @Patch(':electionId')
-  @Roles(...ADMIN_ROLES)
+  @RequirePermissions(RBAC_PERMISSIONS.ELECTIONS_MANAGE)
   async updateElection(
     @CurrentUser() p: ActiveTenantContext,
     @Param('electionId', PositiveBigIntPipe) electionId: bigint,
@@ -95,7 +87,7 @@ export class ElectionsController {
   }
 
   @Delete(':electionId')
-  @Roles(CommunityRole.SUPER_ADMIN, CommunityRole.SCHOOL_ADMIN, CommunityRole.RECTOR)
+  @RequirePermissions(RBAC_PERMISSIONS.ELECTIONS_DELETE)
   async deleteElection(
     @CurrentUser() p: ActiveTenantContext,
     @Param('electionId', PositiveBigIntPipe) electionId: bigint,
@@ -106,7 +98,7 @@ export class ElectionsController {
 
   // Mesas y jurados
   @Get(':electionId/stations')
-  @Roles(...ADMIN_ROLES, CommunityRole.TEACHER)
+  @RequirePermissions(RBAC_PERMISSIONS.ELECTIONS_VIEW)
   async listStations(
     @CurrentUser() p: ActiveTenantContext,
     @Param('electionId', PositiveBigIntPipe) electionId: bigint,
@@ -118,7 +110,7 @@ export class ElectionsController {
   }
 
   @Post(':electionId/stations')
-  @Roles(...ADMIN_ROLES)
+  @RequirePermissions(RBAC_PERMISSIONS.ELECTIONS_MANAGE)
   @HttpCode(HttpStatus.CREATED)
   async createStation(
     @CurrentUser() p: ActiveTenantContext,
@@ -132,7 +124,7 @@ export class ElectionsController {
   }
 
   @Delete('stations/:stationId')
-  @Roles(...ADMIN_ROLES)
+  @RequirePermissions(RBAC_PERMISSIONS.ELECTIONS_MANAGE)
   async deleteStation(
     @CurrentUser() p: ActiveTenantContext,
     @Param('stationId', PositiveBigIntPipe) stationId: bigint,
@@ -142,7 +134,7 @@ export class ElectionsController {
   }
 
   @Post('stations/:stationId/juries')
-  @Roles(...ADMIN_ROLES)
+  @RequirePermissions(RBAC_PERMISSIONS.ELECTIONS_MANAGE)
   @HttpCode(HttpStatus.CREATED)
   async addJury(
     @CurrentUser() p: ActiveTenantContext,
@@ -156,7 +148,7 @@ export class ElectionsController {
   }
 
   @Delete('juries/:juryId')
-  @Roles(...ADMIN_ROLES)
+  @RequirePermissions(RBAC_PERMISSIONS.ELECTIONS_MANAGE)
   async deleteJury(
     @CurrentUser() p: ActiveTenantContext,
     @Param('juryId', PositiveBigIntPipe) juryId: bigint,
@@ -167,7 +159,7 @@ export class ElectionsController {
 
   // Candidatos
   @Get(':electionId/candidates')
-  @Roles(...ALL_COMMUNITY)
+  @RequirePermissions(RBAC_PERMISSIONS.ELECTIONS_VIEW)
   async listCandidates(
     @CurrentUser() p: ActiveTenantContext,
     @Param('electionId', PositiveBigIntPipe) electionId: bigint,
@@ -179,7 +171,7 @@ export class ElectionsController {
   }
 
   @Post(':electionId/candidates')
-  @Roles(...ADMIN_ROLES)
+  @RequirePermissions(RBAC_PERMISSIONS.ELECTIONS_MANAGE)
   @HttpCode(HttpStatus.CREATED)
   async createCandidate(
     @CurrentUser() p: ActiveTenantContext,
@@ -193,7 +185,7 @@ export class ElectionsController {
   }
 
   @Patch(':electionId/candidates/:candidateId')
-  @Roles(...ADMIN_ROLES)
+  @RequirePermissions(RBAC_PERMISSIONS.ELECTIONS_MANAGE)
   async updateCandidate(
     @CurrentUser() p: ActiveTenantContext,
     @Param('electionId', PositiveBigIntPipe) electionId: bigint,
@@ -210,7 +202,7 @@ export class ElectionsController {
   }
 
   @Delete('candidates/:candidateId')
-  @Roles(...ADMIN_ROLES)
+  @RequirePermissions(RBAC_PERMISSIONS.ELECTIONS_MANAGE)
   async deleteCandidate(
     @CurrentUser() p: ActiveTenantContext,
     @Param('candidateId', PositiveBigIntPipe) candidateId: bigint,
@@ -221,8 +213,11 @@ export class ElectionsController {
 
   // Cabina electoral estudiantil y escrutinio en vivo
   @Get('active-ballot')
-  @Roles(...ALL_COMMUNITY)
-  @ApiOperation({ summary: 'Obtener tarjetón electoral activo y estado de votación del estudiante autenticado' })
+  @RequirePermissions(RBAC_PERMISSIONS.ELECTIONS_VIEW)
+  @ApiOperation({
+    summary:
+      'Obtener tarjetón electoral activo y estado de votación del estudiante autenticado',
+  })
   async getActiveBallot(
     @CurrentUser() p: ActiveTenantContext,
     @Query('academicYear') academicYear?: string,
@@ -242,9 +237,14 @@ export class ElectionsController {
   }
 
   @Post(':electionId/vote')
-  @Roles(CommunityRole.STUDENT, ...ADMIN_ROLES)
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.PORTAL_STUDENT_OWN,
+    RBAC_PERMISSIONS.ELECTIONS_MANAGE,
+  )
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Registrar voto único verificado por candidatura y estudiante' })
+  @ApiOperation({
+    summary: 'Registrar voto único verificado por candidatura y estudiante',
+  })
   async castVote(
     @CurrentUser() p: ActiveTenantContext,
     @Param('electionId', PositiveBigIntPipe) electionId: bigint,
@@ -262,15 +262,20 @@ export class ElectionsController {
   }
 
   @Get(':electionId/results')
-  @Roles(...ADMIN_ROLES, CommunityRole.TEACHER)
-  @ApiOperation({ summary: 'Escrutinio electoral en vivo por candidatura, candidato y mesa' })
+  @RequirePermissions(RBAC_PERMISSIONS.ELECTIONS_VIEW)
+  @ApiOperation({
+    summary: 'Escrutinio electoral en vivo por candidatura, candidato y mesa',
+  })
   async getResults(
     @CurrentUser() p: ActiveTenantContext,
     @Param('electionId', PositiveBigIntPipe) electionId: bigint,
   ) {
     return {
       success: true,
-      data: await this.electionsUseCase.getElectionResults(p.schoolId, electionId),
+      data: await this.electionsUseCase.getElectionResults(
+        p.schoolId,
+        electionId,
+      ),
     };
   }
 }

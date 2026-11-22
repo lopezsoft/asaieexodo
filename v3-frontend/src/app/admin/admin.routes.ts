@@ -1,50 +1,66 @@
 import { Routes } from '@angular/router';
-import { roleGuard } from '../guards/role.guard';
-import { CommunityRole } from '../services/v3-unified-auth.service';
-import { AdminHubComponent } from './hub/admin-hub.component';
+import {
+  anyPermissionGuard,
+  permissionGuard,
+} from '../guards/permission.guard';
+import { RBAC_PERMISSIONS } from '../shared/constants/rbac-permissions.constants';
 import { CampusesManagementComponent } from './campuses/campuses-management.component';
 import { GroupManagersComponent } from './group-managers/group-managers.component';
+import { AdminHubComponent } from './hub/admin-hub.component';
+import { RolesPermissionsManagementComponent } from './roles-permissions/roles-permissions-management.component';
 import { SchoolInformationComponent } from './school/school-information.component';
 import { AdministrativeStaffComponent } from './staff/administrative-staff.component';
 import { TeachersManagementComponent } from './teachers/teachers-management.component';
 
-const ADMIN_ROLES: readonly CommunityRole[] = [
-  'SUPER_ADMIN',
-  'SCHOOL_ADMIN',
-  'RECTOR',
-  'COORDINATOR',
-  'SECRETARY',
-];
-
 export const adminRoutes: Routes = [
   {
     path: '',
-    canActivate: [roleGuard(ADMIN_ROLES)],
+    canActivate: [
+      anyPermissionGuard([
+        RBAC_PERMISSIONS.ADMIN_SCHOOL_VIEW,
+        RBAC_PERMISSIONS.ADMIN_CAMPUSES_VIEW,
+        RBAC_PERMISSIONS.ADMIN_TEACHERS_VIEW,
+        RBAC_PERMISSIONS.ADMIN_STAFF_VIEW,
+        RBAC_PERMISSIONS.ADMIN_GROUP_MANAGERS_VIEW,
+        RBAC_PERMISSIONS.IAM_MEMBERSHIPS_VIEW,
+        RBAC_PERMISSIONS.IAM_RBAC_MANAGE,
+      ]),
+    ],
     component: AdminHubComponent,
   },
   {
     path: 'school',
-    canActivate: [roleGuard(ADMIN_ROLES)],
+    canActivate: [permissionGuard([RBAC_PERMISSIONS.ADMIN_SCHOOL_VIEW])],
     component: SchoolInformationComponent,
   },
   {
     path: 'campuses',
-    canActivate: [roleGuard(ADMIN_ROLES)],
+    canActivate: [permissionGuard([RBAC_PERMISSIONS.ADMIN_CAMPUSES_VIEW])],
     component: CampusesManagementComponent,
   },
   {
     path: 'teachers',
-    canActivate: [roleGuard(ADMIN_ROLES)],
+    canActivate: [permissionGuard([RBAC_PERMISSIONS.ADMIN_TEACHERS_VIEW])],
     component: TeachersManagementComponent,
   },
   {
     path: 'staff',
-    canActivate: [roleGuard(ADMIN_ROLES)],
+    canActivate: [permissionGuard([RBAC_PERMISSIONS.ADMIN_STAFF_VIEW])],
     component: AdministrativeStaffComponent,
   },
   {
     path: 'group-managers',
-    canActivate: [roleGuard(ADMIN_ROLES)],
+    canActivate: [permissionGuard([RBAC_PERMISSIONS.ADMIN_GROUP_MANAGERS_VIEW])],
     component: GroupManagersComponent,
+  },
+  {
+    path: 'roles-permissions',
+    canActivate: [
+      anyPermissionGuard([
+        RBAC_PERMISSIONS.IAM_MEMBERSHIPS_VIEW,
+        RBAC_PERMISSIONS.IAM_RBAC_MANAGE,
+      ]),
+    ],
+    component: RolesPermissionsManagementComponent,
   },
 ];

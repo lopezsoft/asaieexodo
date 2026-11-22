@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { existsSync } from 'node:fs';
+import { join, resolve } from 'node:path';
 import * as nodemailer from 'nodemailer';
 import { Transporter } from 'nodemailer';
+import type { Attachment } from 'nodemailer/lib/mailer';
 import {
   CrmEmailNotificationPayload,
   EmailConfirmationPayload,
@@ -13,6 +16,11 @@ import {
 } from '../../application/ports/mail-sender.port';
 import { DomainException } from '../../domain/exceptions/domain.exception';
 import { SmartLoggerService } from '../logging/smart-logger.service';
+import {
+  ASAIE_BRAND_LOGO_CID,
+  ASAIE_EMAIL_BRAND_TOKENS,
+  AsaieEmailTemplateBuilder,
+} from './asaie-email-template.builder';
 
 /**
  * Adaptador de infraestructura SMTP basado en Nodemailer para el envio de
@@ -30,13 +38,18 @@ export class NodemailerSmtpMailAdapter implements MailSenderPort {
   private readonly transporter: Transporter;
   private readonly fromAddress: string;
   private readonly fromName: string;
+  private readonly siteUrl: string;
+  private readonly brandLogoUrl: string | null;
+  private readonly brandLogoLocalPath: string | null;
   private readonly isTestEnvironment: boolean;
   private readonly isProduction: boolean;
+  private readonly templateBuilder: AsaieEmailTemplateBuilder;
 
   constructor(
     private readonly configService: ConfigService,
     private readonly logger: SmartLoggerService,
   ) {
+    this.templateBuilder = new AsaieEmailTemplateBuilder();
     const nodeEnv = this.configService.get<string>('NODE_ENV', 'development');
     this.isTestEnvironment = nodeEnv === 'test';
     this.isProduction = nodeEnv === 'production';
@@ -76,6 +89,24 @@ export class NodemailerSmtpMailAdapter implements MailSenderPort {
         'ASAIE EXODO - Comunidad Educativa',
       ),
     );
+    this.siteUrl = this.configService
+      .get<string>('SITE_URL', ASAIE_EMAIL_BRAND_TOKENS.siteUrl)
+      .trim();
+
+    const configuredLogoUrl = this.configService
+      .get<string>('MAIL_BRAND_LOGO_URL', '')
+      .trim();
+    this.brandLogoUrl =
+      configuredLogoUrl && /^https:\/\//i.test(configuredLogoUrl)
+        ? configuredLogoUrl
+        : null;
+
+    const candidateLogoPath = resolve(
+      join(process.cwd(), 'resources', 'mail', 'logotipo.png'),
+    );
+    this.brandLogoLocalPath = existsSync(candidateLogoPath)
+      ? candidateLogoPath
+      : null;
 
     if (this.isTestEnvironment) {
       this.transporter = nodemailer.createTransport({
@@ -109,6 +140,7 @@ export class NodemailerSmtpMailAdapter implements MailSenderPort {
   ): Promise<MailDeliveryResult> {
     const safeTo = this.sanitizeHeader(input.to);
     const safeSubject = this.sanitizeHeader(input.subject);
+    const attachments = this.resolveInlineBrandAttachments(input.html);
 
     try {
       const info = await this.transporter.sendMail({
@@ -117,6 +149,7 @@ export class NodemailerSmtpMailAdapter implements MailSenderPort {
         subject: safeSubject,
         html: input.html,
         text: input.text,
+        attachments,
       });
 
       this.logger.log(
@@ -167,21 +200,29 @@ export class NodemailerSmtpMailAdapter implements MailSenderPort {
   public async sendEmailConfirmation(
     payload: EmailConfirmationPayload,
   ): Promise<MailDeliveryResult> {
-    const safeName = this.escapeHtml(payload.recipientFullName);
-    const safeSchool = this.escapeHtml(payload.schoolName ?? 'ASAIE ÉXODO');
+    const safeName = this.templateBuilder.escapeHtml(payload.recipientFullName);
+    const safeSchool = this.templateBuilder.escapeHtml(
+      payload.schoolName ?? 'ASAIE ÉXODO',
+    );
     const safeUrl = this.validateSafeHttpUrl(payload.confirmationUrl);
 
-    const html = this.buildInstitutionalLayout({
-      badge: 'VERIFICACIÓN DE CUENTA',
-      title: `Hola, ${safeName}`,
+    const html = this.templateBuilder.buildLayout({
+      preheader: `Confirma tu dirección de correo para activar tu acceso en ${payload.schoolName ?? 'ASAIE ÉXODO'}.`,
+      badge: 'Verificación de Cuenta',
+      badgeTone: 'brand',
+      title: `¡Te damos la bienvenida, ${safeName}!`,
+      subtitle: `Portal unificado de ${safeSchool}`,
       bodyHtml: `
-        <p>Bienvenido(a) al portal unificado de la comunidad educativa <strong>${safeSchool}</strong>.</p>
-        <p>Para confirmar tu dirección de correo electrónico y activar las notificaciones académicas y del CRM Escolar, haz clic en el siguiente botón:</p>
+        <p style="margin:0 0 14px;">Tu cuenta en <strong>${safeSchool}</strong> a través de <strong>ASAIE ÉXODO</strong> está casi lista.</p>
+        <p style="margin:0;">Confirma tu dirección de correo electrónico para activar las notificaciones académicas, boletines y alertas del CRM Escolar:</p>
       `,
       ctaLabel: 'Confirmar Correo Electrónico',
       ctaUrl: safeUrl,
+      showFallbackUrl: true,
       footerNote:
-        'Si no solicitaste esta verificación, puedes ignorar este mensaje de forma segura.',
+        'Si no solicitaste esta verificación, puedes ignorar este mensaje de forma segura; tu dirección no será activada sin confirmación.',
+      logoSrc: this.resolveBrandLogoSrc(),
+      siteUrl: this.siteUrl,
     });
 
     const text = [
@@ -204,21 +245,29 @@ export class NodemailerSmtpMailAdapter implements MailSenderPort {
   public async sendPasswordResetEmail(
     payload: PasswordResetEmailPayload,
   ): Promise<MailDeliveryResult> {
-    const safeName = this.escapeHtml(payload.recipientFullName);
+    const safeName = this.templateBuilder.escapeHtml(payload.recipientFullName);
     const safeUrl = this.validateSafeHttpUrl(payload.resetUrl);
     const safeMinutes = Math.max(1, Math.floor(payload.expiresInMinutes));
 
-    const html = this.buildInstitutionalLayout({
-      badge: 'RECUPERACIÓN DE CONTRASEÑA',
-      title: `Solicitud de restablecimiento para ${safeName}`,
+    const html = this.templateBuilder.buildLayout({
+      preheader: `Enlace seguro de un solo uso para restablecer tu contraseña en ASAIE ÉXODO (válido por ${safeMinutes} minutos).`,
+      badge: 'Recuperación de Contraseña',
+      badgeTone: 'brand',
+      title: 'Restablece tu contraseña',
+      subtitle: `Solicitud de acceso para ${safeName}`,
       bodyHtml: `
-        <p>Hemos recibido una solicitud para restablecer la contraseña de tu cuenta en <strong>ASAIE ÉXODO</strong>.</p>
-        <p>Este enlace es de un solo uso y es válido únicamente durante los próximos <strong>${safeMinutes} minutos</strong>:</p>
+        <p style="margin:0 0 14px;">Hola <strong>${safeName}</strong>,</p>
+        <p style="margin:0;">Hemos recibido una solicitud para restablecer la contraseña de tu cuenta en <strong>ASAIE ÉXODO</strong>. Haz clic en el siguiente botón para crear una nueva contraseña segura:</p>
       `,
+      calloutTone: 'brand',
+      calloutHtml: `<strong>Enlace temporal de un solo uso:</strong> por tu seguridad, este enlace caducará automáticamente en <strong>${safeMinutes} minutos</strong>.`,
       ctaLabel: 'Restablecer Mi Contraseña',
       ctaUrl: safeUrl,
+      showFallbackUrl: true,
       footerNote:
         'Si tú no realizaste esta solicitud, tu contraseña actual permanece protegida y no necesitas realizar ninguna acción.',
+      logoSrc: this.resolveBrandLogoSrc(),
+      siteUrl: this.siteUrl,
     });
 
     const text = [
@@ -241,19 +290,27 @@ export class NodemailerSmtpMailAdapter implements MailSenderPort {
   public async sendPasswordChangedAlert(
     payload: PasswordChangedAlertPayload,
   ): Promise<MailDeliveryResult> {
-    const safeName = this.escapeHtml(payload.recipientFullName);
-    const safeChangedAt = this.escapeHtml(payload.changedAtIso);
+    const safeName = this.templateBuilder.escapeHtml(payload.recipientFullName);
+    const formattedDate = this.templateBuilder.formatColombiaDateTime(
+      payload.changedAtIso,
+    );
 
-    const html = this.buildInstitutionalLayout({
-      badge: 'ALERTA DE SEGURIDAD',
-      title: 'Contraseña actualizada exitosamente',
+    const html = this.templateBuilder.buildLayout({
+      preheader: 'Tu contraseña en ASAIE ÉXODO fue actualizada exitosamente y tus sesiones previas fueron cerradas.',
+      badge: 'Alerta de Seguridad',
+      badgeTone: 'success',
+      title: 'Tu contraseña ha sido actualizada',
+      subtitle: `Confirmación de seguridad para ${safeName}`,
       bodyHtml: `
-        <p>Hola <strong>${safeName}</strong>,</p>
-        <p>Te confirmamos que la contraseña de tu cuenta en <strong>ASAIE ÉXODO</strong> fue actualizada el <strong>${safeChangedAt}</strong> y tus sesiones anteriores fueron cerradas por seguridad.</p>
-        <p>Si reconoces esta actividad, no necesitas hacer nada más. En caso contrario, comunícate de inmediato con la coordinación o soporte técnico de tu institución educativa.</p>
+        <p style="margin:0 0 14px;">Hola <strong>${safeName}</strong>,</p>
+        <p style="margin:0;">Te confirmamos que la contraseña de tu cuenta en <strong>ASAIE ÉXODO</strong> fue modificada exitosamente y tus sesiones anteriores fueron cerradas para proteger tu acceso.</p>
       `,
+      calloutTone: 'success',
+      calloutHtml: `<strong>Fecha y hora del cambio:</strong> ${formattedDate}<br />Si reconoces esta actividad, no necesitas realizar ninguna acción adicional. Si no fuiste tú, comunícate de inmediato con la coordinación o soporte técnico de tu Institución Educativa.`,
       footerNote:
-        'Notificación automática de seguridad del Sistema de Identidad y Acceso (IAM) de ASAIE ÉXODO.',
+        'Notificación automática del Sistema de Identidad y Acceso (IAM) de ASAIE ÉXODO.',
+      logoSrc: this.resolveBrandLogoSrc(),
+      siteUrl: this.siteUrl,
     });
 
     const text = `Hola ${payload.recipientFullName}. Tu contraseña en ASAIE ÉXODO fue actualizada el ${payload.changedAtIso}. Si no reconoces este cambio, contacta de inmediato a soporte institucional.`;
@@ -272,24 +329,27 @@ export class NodemailerSmtpMailAdapter implements MailSenderPort {
   public async sendCrmOmnichannelNotification(
     payload: CrmEmailNotificationPayload,
   ): Promise<MailDeliveryResult> {
-    const safeSchool = this.escapeHtml(payload.schoolName);
-    const safeSubject = this.escapeHtml(payload.subject);
-    const safeName = this.escapeHtml(payload.recipientFullName);
-    const safeBodyHtml = this.escapeHtml(payload.messageBody).replace(
-      /\r?\n/g,
-      '<br />',
-    );
+    const safeSchool = this.templateBuilder.escapeHtml(payload.schoolName);
+    const safeSubject = this.templateBuilder.escapeHtml(payload.subject);
+    const safeName = this.templateBuilder.escapeHtml(payload.recipientFullName);
+    const safeBodyHtml = this.templateBuilder
+      .escapeHtml(payload.messageBody)
+      .replace(/\r?\n/g, '<br />');
 
-    const html = this.buildInstitutionalLayout({
-      badge: `CRM ESCOLAR — ${safeSchool}`,
+    const html = this.templateBuilder.buildLayout({
+      preheader: `${payload.schoolName}: ${payload.subject}`,
+      badge: `CRM Escolar · ${safeSchool}`,
+      badgeTone: 'brand',
       title: safeSubject,
+      subtitle: `Comunicación oficial de ${safeSchool}`,
       bodyHtml: `
-        <p>Estimado(a) <strong>${safeName}</strong>,</p>
-        <div style="padding:16px; background:#f8fafc; border-left:4px solid #1e40af; border-radius:4px; margin:16px 0;">
-          ${safeBodyHtml}
-        </div>
+        <p style="margin:0;">Estimado(a) <strong>${safeName}</strong>,</p>
       `,
-      footerNote: `Mensaje enviado a través del CRM Escolar Omnicanal de ${safeSchool}.`,
+      calloutTone: 'brand',
+      calloutHtml: safeBodyHtml,
+      footerNote: `Mensaje institucional enviado a través del CRM Escolar Omnicanal de ${safeSchool}.`,
+      logoSrc: this.resolveBrandLogoSrc(),
+      siteUrl: this.siteUrl,
     });
 
     const text = `Estimado(a) ${payload.recipientFullName},\n\n${payload.messageBody}\n\n— CRM Escolar de ${payload.schoolName}`;
@@ -305,13 +365,34 @@ export class NodemailerSmtpMailAdapter implements MailSenderPort {
     );
   }
 
-  private escapeHtml(value: string): string {
-    return String(value ?? '')
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;');
+  private resolveBrandLogoSrc(): string | null {
+    if (this.brandLogoUrl) {
+      return this.brandLogoUrl;
+    }
+    if (this.brandLogoLocalPath) {
+      return `cid:${ASAIE_BRAND_LOGO_CID}`;
+    }
+    return null;
+  }
+
+  private resolveInlineBrandAttachments(html: string): Attachment[] | undefined {
+    if (
+      this.brandLogoUrl ||
+      !this.brandLogoLocalPath ||
+      !html.includes(`cid:${ASAIE_BRAND_LOGO_CID}`)
+    ) {
+      return undefined;
+    }
+
+    return [
+      {
+        filename: 'asaie-logotipo.png',
+        path: this.brandLogoLocalPath,
+        cid: ASAIE_BRAND_LOGO_CID,
+        contentDisposition: 'inline',
+        contentType: 'image/png',
+      },
+    ];
   }
 
   private sanitizeHeader(value: string): string {
@@ -343,45 +424,5 @@ export class NodemailerSmtpMailAdapter implements MailSenderPort {
     }
 
     return parsed.toString();
-  }
-
-  private buildInstitutionalLayout(params: {
-    badge: string;
-    title: string;
-    bodyHtml: string;
-    ctaLabel?: string;
-    ctaUrl?: string;
-    footerNote: string;
-  }): string {
-    const ctaBlock =
-      params.ctaLabel && params.ctaUrl
-        ? `<div style="margin:28px 0; text-align:center;">
-             <a href="${this.escapeHtml(params.ctaUrl)}" style="background:#1e40af; color:#ffffff; text-decoration:none; padding:12px 24px; border-radius:6px; font-weight:600; display:inline-block;">
-               ${this.escapeHtml(params.ctaLabel)}
-             </a>
-           </div>`
-        : '';
-
-    return `<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-</head>
-<body style="margin:0; padding:24px; background:#f1f5f9; font-family:'Segoe UI', Roboto, Arial, sans-serif; color:#1e293b;">
-  <div style="max-width:600px; margin:0 auto; background:#ffffff; border-radius:10px; overflow:hidden; box-shadow:0 2px 8px rgba(15,23,42,0.08);">
-    <div style="background:#0f172a; color:#ffffff; padding:20px 28px;">
-      <span style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#93c5fd; font-weight:700;">${params.badge}</span>
-      <h2 style="margin:8px 0 0; font-size:20px; font-weight:600;">${params.title}</h2>
-    </div>
-    <div style="padding:28px; line-height:1.6; font-size:15px;">
-      ${params.bodyHtml}
-      ${ctaBlock}
-      <hr style="border:none; border-top:1px solid #e2e8f0; margin:24px 0;" />
-      <p style="font-size:12px; color:#64748b; margin:0;">${params.footerNote}</p>
-    </div>
-  </div>
-</body>
-</html>`;
   }
 }

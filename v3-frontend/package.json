@@ -4,12 +4,13 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve -o --port 7200",
-    "prebuild": "npm run check:native-title",
+    "prebuild": "npm run check:native-title && npm run check:native-select",
     "build": "ng build --configuration production",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "typecheck": "tsc --noEmit -p tsconfig.app.json",
-    "check:native-title": "node scripts/check-native-title.js"
+    "check:native-title": "node scripts/check-native-title.js",
+    "check:native-select": "node scripts/check-native-select.js"
   },
   "private": true,
   "dependencies": {
@@ -30,6 +31,7 @@
     "@jsverse/transloco": "^7.6.1",
     "apexcharts": "^4.4.0",
     "bootstrap": "^5.3.3",
+    "exodolibs": "^0.9.0",
     "express": "^4.21.0",
     "jspdf": "^2.5.2",
     "jspdf-autotable": "^3.8.4",

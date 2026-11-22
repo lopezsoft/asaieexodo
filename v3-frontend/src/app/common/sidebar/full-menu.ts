@@ -1,13 +1,8 @@
 import { Menu } from '../../interfaces/menu';
-import { CommunityRole } from '../../services/v3-unified-auth.service';
-
-const ADMIN_PANEL_ROLES: CommunityRole[] = [
-  'SUPER_ADMIN',
-  'SCHOOL_ADMIN',
-  'RECTOR',
-  'COORDINATOR',
-  'SECRETARY',
-];
+import {
+  RBAC_MODULES,
+  RBAC_PERMISSIONS,
+} from '../../shared/constants/rbac-permissions.constants';
 
 export const fullMenu: Menu[] = [
   {
@@ -17,6 +12,10 @@ export const fullMenu: Menu[] = [
     icon: 'dashboard',
     link: '/dashboard',
     active: true,
+    anyPermissions: [
+      RBAC_PERMISSIONS.DASHBOARD_EXECUTIVE_VIEW,
+      RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
+    ],
   },
   {
     id: 10,
@@ -26,7 +25,15 @@ export const fullMenu: Menu[] = [
     icon: 'apartment',
     link: '/admin',
     active: true,
-    roles: ADMIN_PANEL_ROLES,
+    anyPermissions: [
+      RBAC_PERMISSIONS.ADMIN_SCHOOL_VIEW,
+      RBAC_PERMISSIONS.ADMIN_CAMPUSES_VIEW,
+      RBAC_PERMISSIONS.ADMIN_TEACHERS_VIEW,
+      RBAC_PERMISSIONS.ADMIN_STAFF_VIEW,
+      RBAC_PERMISSIONS.ADMIN_GROUP_MANAGERS_VIEW,
+      RBAC_PERMISSIONS.IAM_MEMBERSHIPS_VIEW,
+      RBAC_PERMISSIONS.IAM_RBAC_MANAGE,
+    ],
     subItems: [
       {
         id: 101,
@@ -35,7 +42,15 @@ export const fullMenu: Menu[] = [
         icon: 'grid_view',
         link: '/admin',
         active: true,
-        roles: ADMIN_PANEL_ROLES,
+        anyPermissions: [
+          RBAC_PERMISSIONS.ADMIN_SCHOOL_VIEW,
+          RBAC_PERMISSIONS.ADMIN_CAMPUSES_VIEW,
+          RBAC_PERMISSIONS.ADMIN_TEACHERS_VIEW,
+          RBAC_PERMISSIONS.ADMIN_STAFF_VIEW,
+          RBAC_PERMISSIONS.ADMIN_GROUP_MANAGERS_VIEW,
+          RBAC_PERMISSIONS.IAM_MEMBERSHIPS_VIEW,
+          RBAC_PERMISSIONS.IAM_RBAC_MANAGE,
+        ],
       },
       {
         id: 102,
@@ -44,7 +59,7 @@ export const fullMenu: Menu[] = [
         icon: 'domain',
         link: '/admin/school',
         active: true,
-        roles: ADMIN_PANEL_ROLES,
+        permission: RBAC_PERMISSIONS.ADMIN_SCHOOL_VIEW,
       },
       {
         id: 103,
@@ -53,7 +68,7 @@ export const fullMenu: Menu[] = [
         icon: 'location_city',
         link: '/admin/campuses',
         active: true,
-        roles: ADMIN_PANEL_ROLES,
+        permission: RBAC_PERMISSIONS.ADMIN_CAMPUSES_VIEW,
       },
       {
         id: 104,
@@ -62,7 +77,7 @@ export const fullMenu: Menu[] = [
         icon: 'school',
         link: '/admin/teachers',
         active: true,
-        roles: ADMIN_PANEL_ROLES,
+        permission: RBAC_PERMISSIONS.ADMIN_TEACHERS_VIEW,
       },
       {
         id: 105,
@@ -71,7 +86,7 @@ export const fullMenu: Menu[] = [
         icon: 'badge',
         link: '/admin/staff',
         active: true,
-        roles: ADMIN_PANEL_ROLES,
+        permission: RBAC_PERMISSIONS.ADMIN_STAFF_VIEW,
       },
       {
         id: 106,
@@ -80,7 +95,19 @@ export const fullMenu: Menu[] = [
         icon: 'groups',
         link: '/admin/group-managers',
         active: true,
-        roles: ADMIN_PANEL_ROLES,
+        permission: RBAC_PERMISSIONS.ADMIN_GROUP_MANAGERS_VIEW,
+      },
+      {
+        id: 107,
+        name: 'Roles y Permisos',
+        translatedName: 'menu.admin.rolesPermissions',
+        icon: 'admin_panel_settings',
+        link: '/admin/roles-permissions',
+        active: true,
+        anyPermissions: [
+          RBAC_PERMISSIONS.IAM_MEMBERSHIPS_VIEW,
+          RBAC_PERMISSIONS.IAM_RBAC_MANAGE,
+        ],
       },
     ],
   },
@@ -92,7 +119,14 @@ export const fullMenu: Menu[] = [
     icon: 'settings',
     link: '/settings',
     active: true,
-    roles: ADMIN_PANEL_ROLES,
+    anyPermissions: [
+      RBAC_PERMISSIONS.SETTINGS_STRUCTURE_VIEW,
+      RBAC_PERMISSIONS.SETTINGS_SIEE_VIEW,
+      RBAC_PERMISSIONS.SETTINGS_PERIODS_VIEW,
+      RBAC_PERMISSIONS.SETTINGS_DIMENSIONS_VIEW,
+      RBAC_PERMISSIONS.SETTINGS_OBSERVER_VIEW,
+      RBAC_PERMISSIONS.SETTINGS_BRANDING_VIEW,
+    ],
     subItems: [
       {
         id: 201,
@@ -101,7 +135,13 @@ export const fullMenu: Menu[] = [
         icon: 'tune',
         link: '/settings',
         active: true,
-        roles: ADMIN_PANEL_ROLES,
+        anyPermissions: [
+          RBAC_PERMISSIONS.SETTINGS_STRUCTURE_VIEW,
+          RBAC_PERMISSIONS.SETTINGS_SIEE_VIEW,
+          RBAC_PERMISSIONS.SETTINGS_PERIODS_VIEW,
+          RBAC_PERMISSIONS.SETTINGS_OBSERVER_VIEW,
+          RBAC_PERMISSIONS.SETTINGS_BRANDING_VIEW,
+        ],
       },
       {
         id: 202,
@@ -110,7 +150,7 @@ export const fullMenu: Menu[] = [
         icon: 'account_tree',
         link: '/settings/structure',
         active: true,
-        roles: ADMIN_PANEL_ROLES,
+        permission: RBAC_PERMISSIONS.SETTINGS_STRUCTURE_VIEW,
       },
       {
         id: 203,
@@ -119,7 +159,11 @@ export const fullMenu: Menu[] = [
         icon: 'rule',
         link: '/settings/evaluation',
         active: true,
-        roles: ADMIN_PANEL_ROLES,
+        anyPermissions: [
+          RBAC_PERMISSIONS.SETTINGS_SIEE_VIEW,
+          RBAC_PERMISSIONS.SETTINGS_PERIODS_VIEW,
+          RBAC_PERMISSIONS.SETTINGS_DIMENSIONS_VIEW,
+        ],
       },
       {
         id: 204,
@@ -128,7 +172,8 @@ export const fullMenu: Menu[] = [
         icon: 'assignment_ind',
         link: '/settings/observer',
         active: true,
-        roles: ADMIN_PANEL_ROLES,
+        moduleTag: RBAC_MODULES.STUDENT_OBSERVER,
+        permission: RBAC_PERMISSIONS.SETTINGS_OBSERVER_VIEW,
       },
       {
         id: 205,
@@ -137,7 +182,7 @@ export const fullMenu: Menu[] = [
         icon: 'draw',
         link: '/settings/branding',
         active: true,
-        roles: ADMIN_PANEL_ROLES,
+        permission: RBAC_PERMISSIONS.SETTINGS_BRANDING_VIEW,
       },
     ],
   },
@@ -148,7 +193,15 @@ export const fullMenu: Menu[] = [
     icon: 'menu_book',
     link: '/academic',
     active: true,
-    roles: [...ADMIN_PANEL_ROLES, 'TEACHER'],
+    anyPermissions: [
+      RBAC_PERMISSIONS.ACADEMIC_CURRICULUM_VIEW,
+      RBAC_PERMISSIONS.ACADEMIC_ENROLLMENTS_VIEW,
+      RBAC_PERMISSIONS.ACADEMIC_GRADES_VIEW,
+      RBAC_PERMISSIONS.REPORTS_ACADEMIC_GENERATE,
+      RBAC_PERMISSIONS.REPORTS_CERTIFICATES_GENERATE,
+      RBAC_PERMISSIONS.REPORTS_DIRECTORY_GENERATE,
+      RBAC_PERMISSIONS.REPORTS_TEACHER_GENERATE,
+    ],
     subItems: [
       {
         id: 301,
@@ -157,7 +210,11 @@ export const fullMenu: Menu[] = [
         icon: 'apps',
         link: '/academic',
         active: true,
-        roles: [...ADMIN_PANEL_ROLES, 'TEACHER'],
+        anyPermissions: [
+          RBAC_PERMISSIONS.ACADEMIC_CURRICULUM_VIEW,
+          RBAC_PERMISSIONS.ACADEMIC_ENROLLMENTS_VIEW,
+          RBAC_PERMISSIONS.ACADEMIC_GRADES_VIEW,
+        ],
       },
       {
         id: 302,
@@ -166,7 +223,11 @@ export const fullMenu: Menu[] = [
         icon: 'library_books',
         link: '/academic/curriculum',
         active: true,
-        roles: [...ADMIN_PANEL_ROLES, 'TEACHER'],
+        moduleTag: RBAC_MODULES.ACADEMIC_GRADES,
+        anyPermissions: [
+          RBAC_PERMISSIONS.ACADEMIC_CURRICULUM_VIEW,
+          RBAC_PERMISSIONS.ACADEMIC_COURSE_ASSIGNMENTS_VIEW,
+        ],
       },
       {
         id: 303,
@@ -175,7 +236,8 @@ export const fullMenu: Menu[] = [
         icon: 'how_to_reg',
         link: '/academic/enrollments',
         active: true,
-        roles: [...ADMIN_PANEL_ROLES, 'TEACHER'],
+        moduleTag: RBAC_MODULES.ENROLLMENTS,
+        permission: RBAC_PERMISSIONS.ACADEMIC_ENROLLMENTS_VIEW,
       },
       {
         id: 304,
@@ -184,7 +246,8 @@ export const fullMenu: Menu[] = [
         icon: 'grading',
         link: '/academic/grades-control',
         active: true,
-        roles: [...ADMIN_PANEL_ROLES, 'TEACHER'],
+        moduleTag: RBAC_MODULES.ACADEMIC_GRADES,
+        permission: RBAC_PERMISSIONS.ACADEMIC_GRADES_VIEW,
       },
       {
         id: 305,
@@ -193,7 +256,12 @@ export const fullMenu: Menu[] = [
         icon: 'description',
         link: '/academic/reports',
         active: true,
-        roles: [...ADMIN_PANEL_ROLES, 'TEACHER'],
+        anyPermissions: [
+          RBAC_PERMISSIONS.REPORTS_ACADEMIC_GENERATE,
+          RBAC_PERMISSIONS.REPORTS_CERTIFICATES_GENERATE,
+          RBAC_PERMISSIONS.REPORTS_DIRECTORY_GENERATE,
+          RBAC_PERMISSIONS.REPORTS_TEACHER_GENERATE,
+        ],
       },
     ],
   },
@@ -204,7 +272,12 @@ export const fullMenu: Menu[] = [
     icon: 'workspace_premium',
     link: '/promotion',
     active: true,
-    roles: ADMIN_PANEL_ROLES,
+    anyPermissions: [
+      RBAC_PERMISSIONS.PROMOTION_FINAL_BOOK_VIEW,
+      RBAC_PERMISSIONS.PROMOTION_ADVANCE_EXECUTE,
+      RBAC_PERMISSIONS.PROMOTION_RETURNING_ENROLL,
+      RBAC_PERMISSIONS.PROMOTION_YEAR_CLOSE,
+    ],
     subItems: [
       {
         id: 401,
@@ -213,7 +286,11 @@ export const fullMenu: Menu[] = [
         icon: 'apps',
         link: '/promotion',
         active: true,
-        roles: ADMIN_PANEL_ROLES,
+        anyPermissions: [
+          RBAC_PERMISSIONS.PROMOTION_FINAL_BOOK_VIEW,
+          RBAC_PERMISSIONS.PROMOTION_ADVANCE_EXECUTE,
+          RBAC_PERMISSIONS.PROMOTION_RETURNING_ENROLL,
+        ],
       },
       {
         id: 402,
@@ -222,7 +299,8 @@ export const fullMenu: Menu[] = [
         icon: 'auto_stories',
         link: '/promotion/final-book',
         active: true,
-        roles: ADMIN_PANEL_ROLES,
+        moduleTag: RBAC_MODULES.ACADEMIC_GRADES,
+        permission: RBAC_PERMISSIONS.PROMOTION_FINAL_BOOK_VIEW,
       },
       {
         id: 403,
@@ -231,7 +309,8 @@ export const fullMenu: Menu[] = [
         icon: 'fast_forward',
         link: '/promotion/advance',
         active: true,
-        roles: ADMIN_PANEL_ROLES,
+        moduleTag: RBAC_MODULES.ACADEMIC_GRADES,
+        permission: RBAC_PERMISSIONS.PROMOTION_ADVANCE_EXECUTE,
       },
       {
         id: 404,
@@ -240,7 +319,8 @@ export const fullMenu: Menu[] = [
         icon: 'group_add',
         link: '/promotion/enroll-returning',
         active: true,
-        roles: ADMIN_PANEL_ROLES,
+        moduleTag: RBAC_MODULES.ENROLLMENTS,
+        permission: RBAC_PERMISSIONS.PROMOTION_RETURNING_ENROLL,
       },
       {
         id: 405,
@@ -249,7 +329,11 @@ export const fullMenu: Menu[] = [
         icon: 'history_edu',
         link: '/promotion/history',
         active: true,
-        roles: ADMIN_PANEL_ROLES,
+        anyPermissions: [
+          RBAC_PERMISSIONS.PROMOTION_FINAL_BOOK_VIEW,
+          RBAC_PERMISSIONS.PROMOTION_CERTIFICATE_HEADERS_WRITE,
+          RBAC_PERMISSIONS.REPORTS_CERTIFICATES_GENERATE,
+        ],
       },
       {
         id: 406,
@@ -258,7 +342,8 @@ export const fullMenu: Menu[] = [
         icon: 'lock_clock',
         link: '/promotion/year-closing',
         active: true,
-        roles: ['SUPER_ADMIN', 'SCHOOL_ADMIN', 'RECTOR'],
+        moduleTag: RBAC_MODULES.ACADEMIC_GRADES,
+        permission: RBAC_PERMISSIONS.PROMOTION_YEAR_CLOSE,
       },
     ],
   },
@@ -270,7 +355,19 @@ export const fullMenu: Menu[] = [
     icon: 'how_to_vote',
     link: '/elections',
     active: true,
-    roles: [...ADMIN_PANEL_ROLES, 'TEACHER'],
+    moduleTag: RBAC_MODULES.SCHOOL_ELECTIONS,
+    anyPermissions: [
+      RBAC_PERMISSIONS.ELECTIONS_VIEW,
+      RBAC_PERMISSIONS.ELECTIONS_MANAGE,
+    ],
+    roles: [
+      'SUPER_ADMIN',
+      'SCHOOL_ADMIN',
+      'RECTOR',
+      'COORDINATOR',
+      'SECRETARY',
+      'TEACHER',
+    ],
     subItems: [
       {
         id: 501,
@@ -279,7 +376,7 @@ export const fullMenu: Menu[] = [
         icon: 'apps',
         link: '/elections',
         active: true,
-        roles: [...ADMIN_PANEL_ROLES, 'TEACHER'],
+        permission: RBAC_PERMISSIONS.ELECTIONS_VIEW,
       },
       {
         id: 502,
@@ -288,7 +385,7 @@ export const fullMenu: Menu[] = [
         icon: 'ballot',
         link: '/elections/control',
         active: true,
-        roles: [...ADMIN_PANEL_ROLES, 'TEACHER'],
+        permission: RBAC_PERMISSIONS.ELECTIONS_VIEW,
       },
       {
         id: 503,
@@ -297,7 +394,7 @@ export const fullMenu: Menu[] = [
         icon: 'person_add',
         link: '/elections/candidates',
         active: true,
-        roles: [...ADMIN_PANEL_ROLES, 'TEACHER'],
+        permission: RBAC_PERMISSIONS.ELECTIONS_VIEW,
       },
       {
         id: 504,
@@ -306,7 +403,7 @@ export const fullMenu: Menu[] = [
         icon: 'analytics',
         link: '/elections/results',
         active: true,
-        roles: [...ADMIN_PANEL_ROLES, 'TEACHER'],
+        permission: RBAC_PERMISSIONS.ELECTIONS_VIEW,
       },
       {
         id: 505,
@@ -315,7 +412,7 @@ export const fullMenu: Menu[] = [
         icon: 'how_to_vote',
         link: '/student/school-elections',
         active: true,
-        roles: ['RECTOR', 'COORDINATOR', 'SUPER_ADMIN'],
+        permission: RBAC_PERMISSIONS.ELECTIONS_MANAGE,
       },
     ],
   },
@@ -327,7 +424,10 @@ export const fullMenu: Menu[] = [
     icon: 'cast_for_education',
     link: '/teacher',
     active: true,
-    roles: [...ADMIN_PANEL_ROLES, 'TEACHER'],
+    anyPermissions: [
+      RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
+      RBAC_PERMISSIONS.PORTAL_TEACHER_SUPERVISE_READ,
+    ],
     subItems: [
       {
         id: 601,
@@ -336,7 +436,10 @@ export const fullMenu: Menu[] = [
         icon: 'apps',
         link: '/teacher',
         active: true,
-        roles: [...ADMIN_PANEL_ROLES, 'TEACHER'],
+        anyPermissions: [
+          RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
+          RBAC_PERMISSIONS.PORTAL_TEACHER_SUPERVISE_READ,
+        ],
       },
       {
         id: 602,
@@ -345,7 +448,11 @@ export const fullMenu: Menu[] = [
         icon: 'edit_note',
         link: '/teacher/gradebook',
         active: true,
-        roles: [...ADMIN_PANEL_ROLES, 'TEACHER'],
+        moduleTag: RBAC_MODULES.ACADEMIC_GRADES,
+        anyPermissions: [
+          RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
+          RBAC_PERMISSIONS.PORTAL_TEACHER_SUPERVISE_READ,
+        ],
       },
       {
         id: 603,
@@ -354,7 +461,11 @@ export const fullMenu: Menu[] = [
         icon: 'fact_check',
         link: '/teacher/planning',
         active: true,
-        roles: [...ADMIN_PANEL_ROLES, 'TEACHER'],
+        moduleTag: RBAC_MODULES.ACADEMIC_GRADES,
+        anyPermissions: [
+          RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
+          RBAC_PERMISSIONS.PORTAL_TEACHER_SUPERVISE_READ,
+        ],
       },
       {
         id: 606,
@@ -363,7 +474,11 @@ export const fullMenu: Menu[] = [
         icon: 'published_with_changes',
         link: '/teacher/levelings',
         active: true,
-        roles: [...ADMIN_PANEL_ROLES, 'TEACHER'],
+        moduleTag: RBAC_MODULES.ACADEMIC_GRADES,
+        anyPermissions: [
+          RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
+          RBAC_PERMISSIONS.PORTAL_TEACHER_SUPERVISE_READ,
+        ],
       },
       {
         id: 604,
@@ -372,7 +487,12 @@ export const fullMenu: Menu[] = [
         icon: 'assignment_ind',
         link: '/teacher/observer',
         active: true,
-        roles: [...ADMIN_PANEL_ROLES, 'TEACHER'],
+        moduleTag: RBAC_MODULES.STUDENT_OBSERVER,
+        anyPermissions: [
+          RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
+          RBAC_PERMISSIONS.PORTAL_TEACHER_SUPERVISE_READ,
+          RBAC_PERMISSIONS.PORTAL_TEACHER_OBSERVER_WRITE,
+        ],
       },
       {
         id: 607,
@@ -381,7 +501,11 @@ export const fullMenu: Menu[] = [
         icon: 'checklist',
         link: '/teacher/tracking',
         active: true,
-        roles: [...ADMIN_PANEL_ROLES, 'TEACHER'],
+        moduleTag: RBAC_MODULES.ACADEMIC_GRADES,
+        anyPermissions: [
+          RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
+          RBAC_PERMISSIONS.PORTAL_TEACHER_SUPERVISE_READ,
+        ],
       },
       {
         id: 608,
@@ -390,7 +514,11 @@ export const fullMenu: Menu[] = [
         icon: 'print',
         link: '/teacher/reports',
         active: true,
-        roles: [...ADMIN_PANEL_ROLES, 'TEACHER'],
+        moduleTag: RBAC_MODULES.TEACHER_REPORTS,
+        anyPermissions: [
+          RBAC_PERMISSIONS.REPORTS_TEACHER_GENERATE,
+          RBAC_PERMISSIONS.REPORTS_ACADEMIC_GENERATE,
+        ],
       },
       {
         id: 605,
@@ -399,7 +527,11 @@ export const fullMenu: Menu[] = [
         icon: 'videocam',
         link: '/teacher/virtual-classroom',
         active: true,
-        roles: [...ADMIN_PANEL_ROLES, 'TEACHER'],
+        moduleTag: RBAC_MODULES.VIRTUAL_CLASSROOM,
+        anyPermissions: [
+          RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
+          RBAC_PERMISSIONS.PORTAL_TEACHER_SUPERVISE_READ,
+        ],
       },
       {
         id: 609,
@@ -408,7 +540,7 @@ export const fullMenu: Menu[] = [
         icon: 'badge',
         link: '/teacher/profile',
         active: true,
-        roles: [...ADMIN_PANEL_ROLES, 'TEACHER'],
+        permission: RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
       },
     ],
   },
@@ -427,7 +559,8 @@ export const fullMenu: Menu[] = [
     icon: 'school',
     link: '/student/academic-notes',
     active: true,
-    roles: ['STUDENT', 'FAMILY'],
+    moduleTag: RBAC_MODULES.ACADEMIC_GRADES,
+    permission: RBAC_PERMISSIONS.PORTAL_STUDENT_OWN,
   },
   {
     id: 4,
@@ -436,7 +569,8 @@ export const fullMenu: Menu[] = [
     icon: 'assignment',
     link: '/student/academic-reports',
     active: true,
-    roles: ['STUDENT', 'FAMILY'],
+    moduleTag: RBAC_MODULES.ACADEMIC_GRADES,
+    permission: RBAC_PERMISSIONS.PORTAL_STUDENT_OWN,
   },
   {
     id: 5,
@@ -445,7 +579,8 @@ export const fullMenu: Menu[] = [
     icon: 'assignment_turned_in',
     link: '/student/academic-activities',
     active: true,
-    roles: ['STUDENT', 'TEACHER'],
+    moduleTag: RBAC_MODULES.VIRTUAL_CLASSROOM,
+    permission: RBAC_PERMISSIONS.PORTAL_STUDENT_OWN,
   },
   {
     id: 6,
@@ -454,6 +589,8 @@ export const fullMenu: Menu[] = [
     icon: 'how_to_vote',
     link: '/student/school-elections',
     active: true,
+    moduleTag: RBAC_MODULES.SCHOOL_ELECTIONS,
     roles: ['STUDENT'],
+    permission: RBAC_PERMISSIONS.ELECTIONS_VIEW,
   },
 ];

@@ -36,16 +36,18 @@ import {
 import { FastifyRequest } from 'fastify';
 import { ActiveTenantContext } from '../../../../shared/application/context/tenant-context.service';
 import { UploadCloudObjectInput } from '../../../../shared/application/ports/cloud-storage.port';
-import {
-  CurrentUser,
-  Roles,
-} from '../../../../shared/infrastructure/http/decorators/security.decorators';
+import { TenantAccessDeniedException } from '../../../../shared/domain/exceptions/tenant-access-denied.exception';
+import { CurrentUser } from '../../../../shared/infrastructure/http/decorators/security.decorators';
 import { PositiveBigIntPipe } from '../../../../shared/infrastructure/http/pipes/positive-bigint.pipe';
+import {
+  RBAC_PERMISSIONS,
+  resolveStorageCategoryWritePermissions,
+} from '../../../../shared/infrastructure/rbac/rbac-permissions.constants';
+import { RbacPermissionsService } from '../../../../shared/infrastructure/rbac/rbac-permissions.service';
 import {
   ALLOWED_MIME_TO_EXTENSIONS,
   MAX_CLOUD_FILE_SIZE_BYTES,
 } from '../../../../shared/infrastructure/storage/aws-s3-storage.adapter';
-import { CommunityRole } from '../../../iam/domain/enums/community-role.enum';
 import { ManageCloudFilesUseCase } from '../../application/use-cases/manage-cloud-files.use-case';
 
 const ALLOWED_STORAGE_CATEGORIES: UploadCloudObjectInput['category'][] = [
@@ -57,6 +59,18 @@ const ALLOWED_STORAGE_CATEGORIES: UploadCloudObjectInput['category'][] = [
   'JASPER_REPORTS',
   'GENERAL',
 ];
+
+const STAFF_FILE_VIEW_PERMISSIONS = [
+  RBAC_PERMISSIONS.ADMIN_SCHOOL_VIEW,
+  RBAC_PERMISSIONS.ACADEMIC_ENROLLMENTS_VIEW,
+  RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
+  RBAC_PERMISSIONS.PORTAL_TEACHER_SUPERVISE_READ,
+] as const;
+
+const PUBLIC_SCHOOL_READ_CATEGORIES = new Set<string>([
+  'INSTITUTIONAL_LOGOS',
+  'VIRTUAL_ACTIVITIES',
+]);
 
 const ALLOWED_MIME_LIST = Array.from(ALLOWED_MIME_TO_EXTENSIONS.keys());
 const MAX_BASE64_LENGTH = Math.ceil((MAX_CLOUD_FILE_SIZE_BYTES * 4) / 3) + 128;
@@ -134,7 +148,8 @@ export class CreatePresignedUploadTicketRequestDto {
 
   @ApiProperty({
     example: 245760,
-    description: 'Tamaño exacto en bytes (1 byte .. 10 MB) firmado en S3 ContentLength',
+    description:
+      'Tamaño exacto en bytes (1 byte .. 10 MB) firmado en S3 ContentLength',
   })
   @IsInt()
   @Min(1)
@@ -176,17 +191,21 @@ export class ListSchoolFilesQueryDto {
 export class StorageController {
   constructor(
     private readonly manageCloudFilesUseCase: ManageCloudFilesUseCase,
+    private readonly rbacPermissions: RbacPermissionsService,
   ) {}
 
   @Post('upload')
   @ApiOperation({
-    summary: 'Subir archivo institucional (Base64) a AWS S3 y registrar en cloud_files (RLS JWT)',
+    summary:
+      'Subir archivo institucional (Base64) a AWS S3 y registrar en cloud_files (RLS + RBAC por categoría)',
   })
   @ApiResponse({ status: 201, description: 'Archivo almacenado en AWS S3.' })
   public async uploadFile(
     @CurrentUser() principal: ActiveTenantContext,
     @Body() dto: UploadSchoolFileRequestDto,
   ): Promise<Record<string, unknown>> {
+    await this.assertCategoryWriteAccess(principal, dto.category);
+
     const cleanBase64 = (
       dto.base64Content.includes(',')
         ? dto.base64Content.split(',')[1]
@@ -223,14 +242,26 @@ export class StorageController {
   @Post('upload-multipart')
   @ApiConsumes('multipart/form-data')
   @ApiOperation({
-    summary: 'Subir archivo binario mediante multipart/form-data a AWS S3 (Fastify Multipart)',
+    summary:
+      'Subir archivo binario mediante multipart/form-data a AWS S3 (Fastify Multipart + RBAC por categoría)',
   })
-  @ApiQuery({ name: 'category', enum: ALLOWED_STORAGE_CATEGORIES, required: false })
+  @ApiQuery({
+    name: 'category',
+    enum: ALLOWED_STORAGE_CATEGORIES,
+    required: false,
+  })
   public async uploadMultipartFile(
     @CurrentUser() principal: ActiveTenantContext,
     @Req() request: FastifyRequest,
     @Query('category') categoryQuery?: UploadCloudObjectInput['category'],
   ): Promise<Record<string, unknown>> {
+    const category: UploadCloudObjectInput['category'] =
+      categoryQuery && ALLOWED_STORAGE_CATEGORIES.includes(categoryQuery)
+        ? categoryQuery
+        : 'GENERAL';
+
+    await this.assertCategoryWriteAccess(principal, category);
+
     const multipartReq = request as FastifyRequest & {
       file?: () => Promise<{
         filename: string;
@@ -247,13 +278,10 @@ export class StorageController {
 
     const uploadedPart = await multipartReq.file();
     if (!uploadedPart) {
-      throw new BadRequestException('No se adjuntó ningún archivo en la petición.');
+      throw new BadRequestException(
+        'No se adjuntó ningún archivo en la petición.',
+      );
     }
-
-    const category: UploadCloudObjectInput['category'] =
-      categoryQuery && ALLOWED_STORAGE_CATEGORIES.includes(categoryQuery)
-        ? categoryQuery
-        : 'GENERAL';
 
     const buffer = await uploadedPart.toBuffer();
 
@@ -271,12 +299,15 @@ export class StorageController {
 
   @Post('presigned-upload')
   @ApiOperation({
-    summary: 'Generar URL prefirmada (PUT) de AWS S3 y registrar ticket PENDING en cloud_files',
+    summary:
+      'Generar URL prefirmada (PUT) de AWS S3 y registrar ticket PENDING en cloud_files',
   })
   public async createPresignedUpload(
     @CurrentUser() principal: ActiveTenantContext,
     @Body() dto: CreatePresignedUploadTicketRequestDto,
   ): Promise<Record<string, unknown>> {
+    await this.assertCategoryWriteAccess(principal, dto.category);
+
     const result =
       await this.manageCloudFilesUseCase.createPresignedUploadTicket({
         schoolId: principal.schoolId,
@@ -293,13 +324,27 @@ export class StorageController {
 
   @Post(':fileId/confirm-upload')
   @ApiOperation({
-    summary: 'Confirmar carga prefirmada verificando el objeto en S3 (HeadObject -> ACTIVE)',
+    summary:
+      'Confirmar carga prefirmada verificando el objeto en S3 (HeadObject -> ACTIVE)',
   })
   @ApiParam({ name: 'fileId', example: 1 })
   public async confirmPresignedUpload(
     @CurrentUser() principal: ActiveTenantContext,
     @Param('fileId', PositiveBigIntPipe) fileId: bigint,
   ): Promise<Record<string, unknown>> {
+    const metadata = await this.manageCloudFilesUseCase.getFileMetadata(
+      principal.schoolId,
+      fileId,
+      true,
+    );
+
+    if (metadata.uploadedByUserId !== String(principal.userId)) {
+      await this.assertCategoryWriteAccess(
+        principal,
+        metadata.ownerEntityType ?? 'GENERAL',
+      );
+    }
+
     const confirmed = await this.manageCloudFilesUseCase.confirmPresignedUpload(
       principal.schoolId,
       fileId,
@@ -315,24 +360,63 @@ export class StorageController {
     @CurrentUser() principal: ActiveTenantContext,
     @Query() query: ListSchoolFilesQueryDto,
   ): Promise<Record<string, unknown>> {
-    const files = await this.manageCloudFilesUseCase.listSchoolFiles(
+    const hasStaffView = await this.rbacPermissions.hasAnyPermission(
+      principal.schoolId,
+      principal.userId,
+      principal.activeRole,
+      STAFF_FILE_VIEW_PERMISSIONS,
+    );
+
+    const allFiles = await this.manageCloudFilesUseCase.listSchoolFiles(
       principal.schoolId,
       query.category,
       query.limit,
       query.offset,
     );
+
+    const files = hasStaffView
+      ? allFiles
+      : allFiles.filter(
+          (f) =>
+            f.uploadedByUserId === String(principal.userId) ||
+            PUBLIC_SCHOOL_READ_CATEGORIES.has(f.ownerEntityType ?? ''),
+        );
+
     return { success: true, total: files.length, data: files };
   }
 
   @Get(':fileId/presigned-url')
   @ApiOperation({
-    summary: 'Obtener URL prefirmada temporal (GET) para descargar archivo privado de AWS S3',
+    summary:
+      'Obtener URL prefirmada temporal (GET) para descargar archivo privado de AWS S3',
   })
   @ApiParam({ name: 'fileId', example: 1 })
   public async getPresignedDownloadUrl(
     @CurrentUser() principal: ActiveTenantContext,
     @Param('fileId', PositiveBigIntPipe) fileId: bigint,
   ): Promise<Record<string, unknown>> {
+    const metadata = await this.manageCloudFilesUseCase.getFileMetadata(
+      principal.schoolId,
+      fileId,
+    );
+
+    const hasStaffView = await this.rbacPermissions.hasAnyPermission(
+      principal.schoolId,
+      principal.userId,
+      principal.activeRole,
+      STAFF_FILE_VIEW_PERMISSIONS,
+    );
+
+    if (
+      !hasStaffView &&
+      metadata.uploadedByUserId !== String(principal.userId) &&
+      !PUBLIC_SCHOOL_READ_CATEGORIES.has(metadata.ownerEntityType ?? '')
+    ) {
+      throw new TenantAccessDeniedException(
+        'No tienes autorización para descargar este archivo privado.',
+      );
+    }
+
     const result = await this.manageCloudFilesUseCase.getPresignedDownloadUrl(
       principal.schoolId,
       fileId,
@@ -341,26 +425,43 @@ export class StorageController {
   }
 
   @Delete(':fileId')
-  @Roles(
-    CommunityRole.SUPER_ADMIN,
-    CommunityRole.SCHOOL_ADMIN,
-    CommunityRole.RECTOR,
-    CommunityRole.COORDINATOR,
-    CommunityRole.SECRETARY,
-    CommunityRole.TEACHER,
-  )
   @ApiOperation({
-    summary: 'Eliminar archivo de cloud_files y AWS S3 bajo RLS del JWT',
+    summary:
+      'Eliminar archivo de cloud_files y AWS S3 bajo RLS del JWT y permisos RBAC por categoría',
   })
   @ApiParam({ name: 'fileId', example: 1 })
   public async deleteFile(
     @CurrentUser() principal: ActiveTenantContext,
     @Param('fileId', PositiveBigIntPipe) fileId: bigint,
   ): Promise<Record<string, unknown>> {
+    const metadata = await this.manageCloudFilesUseCase.getFileMetadata(
+      principal.schoolId,
+      fileId,
+      true,
+    );
+    await this.assertCategoryWriteAccess(
+      principal,
+      metadata.ownerEntityType ?? 'GENERAL',
+    );
+
     const result = await this.manageCloudFilesUseCase.deleteSchoolFile(
       principal.schoolId,
       fileId,
     );
     return { success: true, data: result };
+  }
+
+  private async assertCategoryWriteAccess(
+    principal: ActiveTenantContext,
+    category: string,
+  ): Promise<void> {
+    const requiredPerms = resolveStorageCategoryWritePermissions(category);
+    await this.rbacPermissions.assertAnyPermission(
+      principal.schoolId,
+      principal.userId,
+      principal.activeRole,
+      requiredPerms,
+      `No tienes permiso para subir o eliminar archivos en la categoría '${category}'.`,
+    );
   }
 }

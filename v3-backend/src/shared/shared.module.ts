@@ -11,6 +11,7 @@ import { HtmlReportTemplateBuilder } from './infrastructure/reporting/html-repor
 import { InstitutionalReportDataService } from './infrastructure/reporting/institutional-report-data.service';
 import { JasperReportAdapter } from './infrastructure/reporting/jasper-report.adapter';
 import { NativeDocumentReportAdapter } from './infrastructure/reporting/native-document-report.adapter';
+import { RbacPermissionsService } from './infrastructure/rbac/rbac-permissions.service';
 import { AwsS3StorageAdapter } from './infrastructure/storage/aws-s3-storage.adapter';
 
 @Global()
@@ -19,6 +20,7 @@ import { AwsS3StorageAdapter } from './infrastructure/storage/aws-s3-storage.ada
     SmartLoggerService,
     TenantContextService,
     PostgresRlsService,
+    RbacPermissionsService,
     InstitutionalReportDataService,
     HtmlReportTemplateBuilder,
     ExcelReportBuilder,
@@ -41,6 +43,7 @@ import { AwsS3StorageAdapter } from './infrastructure/storage/aws-s3-storage.ada
     SmartLoggerService,
     TenantContextService,
     PostgresRlsService,
+    RbacPermissionsService,
     InstitutionalReportDataService,
     HtmlReportTemplateBuilder,
     ExcelReportBuilder,

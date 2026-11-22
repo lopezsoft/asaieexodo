@@ -1,15 +1,28 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import {
+  AfterViewInit,
   Component,
   computed,
+  DestroyRef,
   effect,
   inject,
   OnInit,
+  PLATFORM_ID,
   signal,
+  ViewChild,
 } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import {
+  ColumnContract,
+  DataSourceContract,
+  ExodoGridComponent,
+  ExodolibsModule,
+  Proxy,
+} from 'exodolibs';
 import { finalize } from 'rxjs';
+import { environment } from '../../../environments/environment';
+import { CustomizerSettingsService } from '../../customizer-settings/customizer-settings.service';
 import { LoadMaskService } from '../../services/common/load-mask.service';
 import { MessagesService } from '../../services/messages.service';
 import {
@@ -22,12 +35,16 @@ import {
   V3CatalogsService,
 } from '../../services/v3-catalogs.service';
 import { V3UnifiedAuthService } from '../../services/v3-unified-auth.service';
-import {
-  V3DataGridComponent,
-  V3GridColumn,
-} from '../../shared/components/v3-data-grid/v3-data-grid.component';
 import { V3ModalDialogComponent } from '../../shared/components/v3-modal-dialog/v3-modal-dialog.component';
+import {
+  SearchableSelectOption,
+  V3SearchableSelectComponent,
+} from '../../shared/components/v3-searchable-select/v3-searchable-select.component';
 import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.directive';
+import {
+  ExodoExportColumn,
+  exportGridRowsToExcel,
+} from '../../shared/utils/exodo-grid-export.util';
 import { markAllAsTouched } from '../../utils/form-validators';
 
 /**
@@ -41,8 +58,9 @@ import { markAllAsTouched } from '../../utils/form-validators';
     CommonModule,
     ReactiveFormsModule,
     RouterLink,
-    V3DataGridComponent,
+    ExodolibsModule,
     V3ModalDialogComponent,
+    V3SearchableSelectComponent,
     CustomTooltipDirective,
   ],
   template: `
@@ -60,71 +78,124 @@ import { markAllAsTouched } from '../../utils/form-validators';
         </ol>
       </div>
 
-      <app-v3-data-grid
-        [heading]="'Directores de Grupo — Año ' + v3Auth.academicYear()"
-        subtitle="Sincronizado automáticamente con el selector de año lectivo de la barra superior"
+      <exodo-grid
+        #groupManagersGrid
+        mode="remote"
+        [caption]="'Directores de Grupo — Año ' + v3Auth.academicYear()"
         [columns]="columns"
-        [rows]="groups()"
-        [loading]="loading()"
-        [exportFileName]="'directores-grupo-' + v3Auth.academicYear()"
-        searchPlaceholder="Buscar por sede, grado, grupo o docente..."
-        (refreshRequested)="loadGroupManagers()"
+        [dataSource]="dataSource"
+        [proxy]="proxy"
+        [customBody]="true"
+        [allowSorting]="true"
+        [allowFiltering]="true"
+        [showPagination]="true"
+        [limit]="15"
+        [theme]="gridTheme"
+        placeholder="Buscar por sede, grado, grupo o docente..."
+        (loadError)="onGridLoadError()"
       >
-        <button
-          grid-toolbar
-          type="button"
-          class="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1"
-          (click)="enqueueGroupDirectorsReport()"
-          [appCustomTooltip]="'Generar reporte PDF de directores de grupo vía JasperReports'"
-        >
-          <i class="material-symbols-outlined fs-6">picture_as_pdf</i>
-          <span>Reporte PDF</span>
-        </button>
-
-        @if (canWrite()) {
+        <div header class="v3-exodo-toolbar">
           <button
-            grid-toolbar
             type="button"
-            class="btn btn-sm btn-primary d-inline-flex align-items-center gap-1"
-            (click)="openCreateModal()"
-            [appCustomTooltip]="'Asignar nuevo director de grupo'"
+            class="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1"
+            (click)="enqueueGroupDirectorsReport()"
+            [appCustomTooltip]="'Generar reporte PDF de directores de grupo'"
           >
-            <i class="material-symbols-outlined fs-6">add</i>
-            <span>Asignar director</span>
+            <i class="material-symbols-outlined fs-6">picture_as_pdf</i>
+            <span>Reporte PDF</span>
           </button>
-        }
 
-        <ng-template #rowActions let-group>
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1"
+            (click)="groupManagersGrid.clearFilters()"
+            [appCustomTooltip]="'Limpiar filtros y ordenamiento'"
+          >
+            <i class="material-symbols-outlined fs-6">filter_alt_off</i>
+            <span>Limpiar</span>
+          </button>
+
+          @if (groupManagerRows.length > 0) {
+            <button
+              type="button"
+              class="btn btn-sm btn-outline-success d-inline-flex align-items-center gap-1"
+              (click)="exportCurrentPage()"
+              [appCustomTooltip]="'Exportar página actual a Excel (.xlsx)'"
+            >
+              <i class="material-symbols-outlined fs-6">download</i>
+              <span>Excel</span>
+            </button>
+          }
+
           @if (canWrite()) {
             <button
               type="button"
-              class="btn btn-sm btn-outline-primary me-1"
-              (click)="openEditModal(group)"
-              [appCustomTooltip]="'Editar director o cupo del grupo'"
+              class="btn btn-sm btn-primary d-inline-flex align-items-center gap-1"
+              (click)="openCreateModal()"
+              [appCustomTooltip]="'Asignar nuevo director de grupo'"
             >
-              <i class="material-symbols-outlined fs-6">edit</i>
-            </button>
-            <button
-              type="button"
-              class="btn btn-sm btn-outline-secondary me-1"
-              (click)="toggleActiveState(group)"
-              [appCustomTooltip]="group.isActive ? 'Inactivar grupo' : 'Activar grupo'"
-            >
-              <i class="material-symbols-outlined fs-6">
-                {{ group.isActive ? 'toggle_on' : 'toggle_off' }}
-              </i>
-            </button>
-            <button
-              type="button"
-              class="btn btn-sm btn-outline-danger"
-              (click)="confirmDeleteGroup(group)"
-              [appCustomTooltip]="'Eliminar o desvincular director de grupo'"
-            >
-              <i class="material-symbols-outlined fs-6">delete</i>
+              <i class="material-symbols-outlined fs-6">add</i>
+              <span>Asignar director</span>
             </button>
           }
-        </ng-template>
-      </app-v3-data-grid>
+        </div>
+
+        @for (group of groupManagerRows; track group.id) {
+          <tr>
+            <td class="text-center text-muted small">
+              {{ (groupManagersGrid.dataRecords?.from || 1) + $index }}
+            </td>
+            <td>{{ group.campusName }}</td>
+            <td>{{ group.shiftName }}</td>
+            <td class="fw-medium">{{ group.gradeName }}</td>
+            <td class="text-center">{{ group.groupCode }}</td>
+            <td>{{ group.homeroomTeacherName || 'Sin asignar' }}</td>
+            <td class="text-center">{{ group.maxCapacity }}</td>
+            <td class="text-center">
+              <span
+                class="badge rounded-pill"
+                [ngClass]="
+                  group.isActive
+                    ? 'bg-success-subtle text-success'
+                    : 'bg-secondary-subtle text-secondary'
+                "
+              >
+                {{ group.isActive ? 'Activo' : 'Inactivo' }}
+              </span>
+            </td>
+            <td class="text-end text-nowrap">
+              @if (canWrite()) {
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-primary me-1"
+                  (click)="openEditModal(group)"
+                  [appCustomTooltip]="'Editar director o cupo del grupo'"
+                >
+                  <i class="material-symbols-outlined fs-6">edit</i>
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-secondary me-1"
+                  (click)="toggleActiveState(group)"
+                  [appCustomTooltip]="group.isActive ? 'Inactivar grupo' : 'Activar grupo'"
+                >
+                  <i class="material-symbols-outlined fs-6">
+                    {{ group.isActive ? 'toggle_on' : 'toggle_off' }}
+                  </i>
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-danger"
+                  (click)="confirmDeleteGroup(group)"
+                  [appCustomTooltip]="'Eliminar o desvincular director de grupo'"
+                >
+                  <i class="material-symbols-outlined fs-6">delete</i>
+                </button>
+              }
+            </td>
+          </tr>
+        }
+      </exodo-grid>
     </div>
 
     <app-v3-modal-dialog
@@ -136,58 +207,63 @@ import { markAllAsTouched } from '../../utils/form-validators';
     >
       <form [formGroup]="groupForm" (ngSubmit)="saveGroup()">
         <div class="row g-3">
-          <div class="col-md-6">
+          <div class="col-12 col-md-6">
             <label class="form-label">Sede educativa *</label>
-            <select class="form-select" formControlName="campusId">
-              <option [ngValue]="null">Seleccione...</option>
-              @for (item of schoolContext()?.campuses ?? []; track item.id) {
-                <option [ngValue]="item.id">{{ item.name }}</option>
-              }
-            </select>
+            <app-v3-searchable-select
+              formControlName="campusId"
+              [options]="campusOptions()"
+              [clearable]="true"
+              placeholder="Seleccione..."
+              searchPlaceholder="Buscar sede..."
+            />
           </div>
-          <div class="col-md-6">
+          <div class="col-12 col-md-6">
             <label class="form-label">Jornada *</label>
-            <select class="form-select" formControlName="shiftId">
-              <option [ngValue]="null">Seleccione...</option>
-              @for (item of schoolContext()?.shifts ?? []; track item.id) {
-                <option [ngValue]="item.id">{{ item.name }}</option>
-              }
-            </select>
+            <app-v3-searchable-select
+              formControlName="shiftId"
+              [options]="shiftOptions()"
+              [clearable]="true"
+              placeholder="Seleccione..."
+              searchPlaceholder="Buscar jornada..."
+            />
           </div>
 
-          <div class="col-md-4">
+          <div class="col-12 col-md-6">
             <label class="form-label">Grado *</label>
-            <select class="form-select" formControlName="gradeId">
-              <option [ngValue]="null">Seleccione...</option>
-              @for (item of schoolContext()?.grades ?? []; track item.id) {
-                <option [ngValue]="item.id">{{ item.name }}</option>
-              }
-            </select>
+            <app-v3-searchable-select
+              formControlName="gradeId"
+              [options]="gradeOptions()"
+              [clearable]="true"
+              placeholder="Seleccione..."
+              searchPlaceholder="Buscar grado..."
+            />
           </div>
-          <div class="col-md-4">
+          <div class="col-12 col-md-6">
             <label class="form-label">Código de grupo *</label>
             <input type="text" class="form-control" formControlName="groupCode" placeholder="Ej. 01, A, B" />
           </div>
-          <div class="col-md-4">
+
+          <div class="col-12 col-md-6">
             <label class="form-label">Cupo máximo</label>
             <input type="number" class="form-control" formControlName="maxCapacity" min="1" max="200" />
           </div>
-
-          <div class="col-md-8">
+          <div class="col-12 col-md-6">
             <label class="form-label">Docente Director de Grupo</label>
-            <select class="form-select" formControlName="homeroomTeacherId">
-              <option [ngValue]="null">Sin asignar</option>
-              @for (teacher of activeTeachers(); track teacher.id) {
-                <option [ngValue]="teacher.id">
-                  {{ teacher.fullName }} ({{ teacher.documentNumber }})
-                </option>
-              }
-            </select>
+            <app-v3-searchable-select
+              formControlName="homeroomTeacherId"
+              [options]="homeroomTeacherOptions()"
+              [clearable]="true"
+              placeholder="Sin asignar"
+              searchPlaceholder="Buscar docente..."
+            />
           </div>
-          <div class="col-md-4 d-flex align-items-end">
-            <div class="form-check form-switch">
-              <input class="form-check-input" type="checkbox" id="groupActive" formControlName="isActive" />
-              <label class="form-check-label" for="groupActive">Grupo activo</label>
+
+          <div class="col-12 col-md-6">
+            <div class="v3-form-switch-box">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="groupActive" formControlName="isActive" />
+                <label class="form-check-label" for="groupActive">Grupo activo</label>
+              </div>
             </div>
           </div>
         </div>
@@ -209,48 +285,93 @@ import { markAllAsTouched } from '../../utils/form-validators';
     </app-v3-modal-dialog>
   `,
 })
-export class GroupManagersComponent implements OnInit {
+export class GroupManagersComponent implements OnInit, AfterViewInit {
+  @ViewChild('groupManagersGrid') private groupManagersGrid?: ExodoGridComponent;
+
   protected readonly v3Auth = inject(V3UnifiedAuthService);
   private readonly fb = inject(FormBuilder);
   private readonly adminService = inject(V3AdministrationService);
   private readonly catalogsService = inject(V3CatalogsService);
+  private readonly themeService = inject(CustomizerSettingsService);
   private readonly maskService = inject(LoadMaskService);
   private readonly messages = inject(MessagesService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+  private initLoadTimer: ReturnType<typeof setTimeout> | null = null;
+  private viewReady = false;
 
-  readonly groups = signal<GroupManagerRecord[]>([]);
+  readonly dataSource: DataSourceContract = { rows: [], dataRecords: null };
+  readonly proxy: Proxy = {
+    api: { read: `${environment.APIURL}/admin/group-managers` },
+  };
   readonly activeTeachers = signal<TeacherProfileRecord[]>([]);
   readonly schoolContext = signal<SchoolAcademicContextCatalogs | null>(null);
-  readonly loading = signal(false);
   readonly formModalOpen = signal(false);
   readonly editingGroup = signal<GroupManagerRecord | null>(null);
 
-  readonly canWrite = computed(() => {
-    const role = this.v3Auth.activeRole();
-    return (
-      role === 'SUPER_ADMIN' ||
-      role === 'SCHOOL_ADMIN' ||
-      role === 'RECTOR' ||
-      role === 'COORDINATOR'
-    );
-  });
+  readonly campusOptions = computed(() => this.toNamedOptions(this.schoolContext()?.campuses));
+  readonly shiftOptions = computed(() => this.toNamedOptions(this.schoolContext()?.shifts));
+  readonly gradeOptions = computed(() => this.toNamedOptions(this.schoolContext()?.grades));
+  readonly homeroomTeacherOptions = computed<SearchableSelectOption<number>[]>(() =>
+    this.activeTeachers().map((teacher) => ({
+      value: teacher.id,
+      label: `${teacher.fullName} (${teacher.documentNumber})`,
+    }))
+  );
 
-  readonly columns: V3GridColumn<GroupManagerRecord>[] = [
-    { key: 'campusName', label: 'Sede' },
-    { key: 'shiftName', label: 'Jornada' },
-    { key: 'gradeName', label: 'Grado' },
-    { key: 'groupCode', label: 'Grupo', align: 'center' },
+  private toNamedOptions(
+    items?: readonly { id: number; name: string }[]
+  ): SearchableSelectOption<number>[] {
+    return (items ?? []).map((item) => ({ value: item.id, label: item.name }));
+  }
+
+  readonly canWrite = computed(() =>
+    this.v3Auth.hasPermission('admin.group_managers.write'),
+  );
+
+  get gridTheme(): 'dark' | 'glacial' {
+    return this.themeService.isDark() ? 'dark' : 'glacial';
+  }
+
+  get groupManagerRows(): GroupManagerRecord[] {
+    return (this.groupManagersGrid?.rows as GroupManagerRecord[] | undefined) ?? [];
+  }
+
+  readonly columns: ColumnContract[] = [
+    { text: '#', width: '48px', align: 'center', sortable: false },
+    { text: 'Sede', dataIndex: 'campusName' },
+    { text: 'Jornada', dataIndex: 'shiftName' },
+    { text: 'Grado', dataIndex: 'gradeName' },
+    { text: 'Grupo', dataIndex: 'groupCode', align: 'center' },
+    { text: 'Director de Grupo', dataIndex: 'homeroomTeacherName' },
+    { text: 'Cupo', dataIndex: 'maxCapacity', align: 'center' },
+    { text: 'Estado', dataIndex: 'isActive', align: 'center' },
+    { text: 'Acciones', width: '140px', align: 'right', sortable: false },
+  ];
+
+  private readonly exportColumns: readonly ExodoExportColumn<GroupManagerRecord>[] = [
+    { header: 'Sede', value: (r) => r.campusName },
+    { header: 'Jornada', value: (r) => r.shiftName },
+    { header: 'Grado', value: (r) => r.gradeName },
+    { header: 'Grupo', value: (r) => r.groupCode },
     {
-      key: 'homeroomTeacherName',
-      label: 'Director de Grupo',
-      formatter: (r) => r.homeroomTeacherName || 'Sin asignar',
+      header: 'Director de Grupo',
+      value: (r) => r.homeroomTeacherName || 'Sin asignar',
     },
-    { key: 'maxCapacity', label: 'Cupo', align: 'center' },
-    { key: 'isActive', label: 'Estado', align: 'center', badge: true },
+    { header: 'Cupo', value: (r) => r.maxCapacity },
+    { header: 'Estado', value: (r) => (r.isActive ? 'Activo' : 'Inactivo') },
   ];
 
   readonly groupForm: FormGroup;
 
   constructor() {
+    this.destroyRef.onDestroy(() => {
+      if (this.initLoadTimer !== null) {
+        clearTimeout(this.initLoadTimer);
+        this.initLoadTimer = null;
+      }
+    });
+
     this.groupForm = this.fb.group({
       campusId: [null, [Validators.required]],
       shiftId: [null, [Validators.required]],
@@ -263,7 +384,7 @@ export class GroupManagersComponent implements OnInit {
 
     effect(() => {
       const year = this.v3Auth.academicYear();
-      if (this.v3Auth.isAuthenticated() && year) {
+      if (this.viewReady && this.v3Auth.isAuthenticated() && year) {
         this.loadGroupManagers(year);
       }
     });
@@ -278,14 +399,36 @@ export class GroupManagersComponent implements OnInit {
       .subscribe((res) => this.activeTeachers.set(res.items));
   }
 
-  loadGroupManagers(year = this.v3Auth.academicYear()): void {
-    this.loading.set(true);
-    this.adminService
-      .listGroupManagers(year)
-      .pipe(finalize(() => this.loading.set(false)))
-      .subscribe({
-        next: (rows) => this.groups.set(rows),
+  ngAfterViewInit(): void {
+    this.viewReady = true;
+    const year = this.v3Auth.academicYear();
+    this.groupManagersGrid?.onLoad({ academicYear: year, paginated: '1' }, false);
+    if (this.isBrowser) {
+      this.initLoadTimer = setTimeout(() => {
+        this.initLoadTimer = null;
+        if (year) {
+          this.loadGroupManagers(year);
+        }
       });
+    }
+  }
+
+  loadGroupManagers(year = this.v3Auth.academicYear()): void {
+    this.groupManagersGrid?.onLoad({ academicYear: year, paginated: '1' }, true);
+  }
+
+  exportCurrentPage(): void {
+    exportGridRowsToExcel(
+      this.groupManagerRows,
+      this.exportColumns,
+      `directores-grupo-${this.v3Auth.academicYear()}`,
+    );
+  }
+
+  onGridLoadError(): void {
+    this.messages.showError(
+      'No fue posible cargar el listado de directores de grupo.',
+    );
   }
 
   openCreateModal(): void {
@@ -405,7 +548,7 @@ export class GroupManagersComponent implements OnInit {
       .subscribe({
         next: (job) => {
           this.messages.showSuccess(
-            `Reporte encolado en BullMQ (Job #${job.jobId}). Estará disponible en S3 al finalizar.`,
+            `Reporte encolado (Job #${job.jobId}). Estará disponible al finalizar el procesamiento.`,
           );
         },
       });

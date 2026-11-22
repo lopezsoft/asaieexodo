@@ -54,37 +54,37 @@ import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.d
             <div class="trezo-card bg-white border-radius p-4 shadow-sm">
               <h6 class="fw-bold mb-3">Datos Personales del Docente</h6>
               <div class="row g-3">
-                <div class="col-md-4">
-                  <label class="form-label small fw-semibold">Número de Documento</label>
-                  <input type="text" class="form-control form-control-sm" [value]="profile()!.documentNumber" disabled />
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Número de Documento</label>
+                  <input type="text" class="form-control" [value]="profile()!.documentNumber" disabled />
                 </div>
-                <div class="col-md-4">
-                  <label class="form-label small fw-semibold">Primer Nombre *</label>
-                  <input type="text" class="form-control form-control-sm" [(ngModel)]="form.firstName" />
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Teléfono / Celular</label>
+                  <input type="text" class="form-control" [(ngModel)]="form.phone" />
                 </div>
-                <div class="col-md-4">
-                  <label class="form-label small fw-semibold">Segundo Nombre</label>
-                  <input type="text" class="form-control form-control-sm" [(ngModel)]="form.middleName" />
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Primer Nombre *</label>
+                  <input type="text" class="form-control" [(ngModel)]="form.firstName" />
                 </div>
-                <div class="col-md-4">
-                  <label class="form-label small fw-semibold">Primer Apellido *</label>
-                  <input type="text" class="form-control form-control-sm" [(ngModel)]="form.lastName" />
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Segundo Nombre</label>
+                  <input type="text" class="form-control" [(ngModel)]="form.middleName" />
                 </div>
-                <div class="col-md-4">
-                  <label class="form-label small fw-semibold">Segundo Apellido</label>
-                  <input type="text" class="form-control form-control-sm" [(ngModel)]="form.secondLastName" />
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Primer Apellido *</label>
+                  <input type="text" class="form-control" [(ngModel)]="form.lastName" />
                 </div>
-                <div class="col-md-4">
-                  <label class="form-label small fw-semibold">Teléfono / Celular</label>
-                  <input type="text" class="form-control form-control-sm" [(ngModel)]="form.phone" />
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Segundo Apellido</label>
+                  <input type="text" class="form-control" [(ngModel)]="form.secondLastName" />
                 </div>
-                <div class="col-md-6">
-                  <label class="form-label small fw-semibold">Correo Electrónico</label>
-                  <input type="email" class="form-control form-control-sm" [(ngModel)]="form.email" />
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Correo Electrónico</label>
+                  <input type="email" class="form-control" [(ngModel)]="form.email" />
                 </div>
-                <div class="col-md-6">
-                  <label class="form-label small fw-semibold">Dirección de Residencia</label>
-                  <input type="text" class="form-control form-control-sm" [(ngModel)]="form.address" />
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Dirección de Residencia</label>
+                  <input type="text" class="form-control" [(ngModel)]="form.address" />
                 </div>
               </div>
 
@@ -94,12 +94,12 @@ import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.d
                 </a>
                 <button
                   type="button"
-                  class="btn btn-sm btn-primary"
+                  class="btn btn-sm btn-primary d-inline-flex align-items-center gap-1"
                   [disabled]="!form.firstName.trim() || !form.lastName.trim()"
                   (click)="saveProfile()"
                 >
-                  <i class="material-symbols-outlined fs-6 align-middle me-1">save</i>
-                  Guardar Cambios
+                  <i class="material-symbols-outlined fs-6">save</i>
+                  <span>Guardar Cambios</span>
                 </button>
               </div>
             </div>
@@ -108,7 +108,7 @@ import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.d
           <div class="col-lg-4">
             <div class="trezo-card bg-white border-radius p-4 shadow-sm h-100 d-flex flex-column justify-content-between">
               <div>
-                <h6 class="fw-bold mb-2">Firma Digital Institucional (AWS S3)</h6>
+                <h6 class="fw-bold mb-2">Firma Digital Institucional</h6>
                 <p class="small text-muted">
                   Esta firma se incrusta automáticamente en boletines, observadores y actas oficiales de dirección de grupo.
                 </p>
@@ -124,12 +124,12 @@ import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.d
               </div>
               <button
                 type="button"
-                class="btn btn-sm btn-outline-primary w-100"
+                class="btn btn-sm btn-outline-primary w-100 d-inline-flex align-items-center justify-content-center gap-1"
                 (click)="signatureModalOpen.set(true)"
-                [appCustomTooltip]="'Subir imagen PNG/JPG de firma digital a AWS S3'"
+                [appCustomTooltip]="'Subir imagen PNG o JPG de firma digital'"
               >
-                <i class="material-symbols-outlined fs-6 align-middle me-1">cloud_upload</i>
-                Cargar / Cambiar Firma S3
+                <i class="material-symbols-outlined fs-6">cloud_upload</i>
+                <span>Cargar / Cambiar Firma</span>
               </button>
             </div>
           </div>
@@ -138,8 +138,8 @@ import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.d
 
       <app-v3-file-manager-modal
         [open]="signatureModalOpen()"
-        heading="Firma Digital del Docente (AWS S3)"
-        category="INSTITUTIONAL_SIGNATURES"
+        heading="Firma Digital del Docente"
+        category="GENERAL"
         (closed)="signatureModalOpen.set(false)"
         (fileUploaded)="onSignatureUploaded($event)"
       />

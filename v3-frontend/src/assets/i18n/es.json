@@ -273,7 +273,8 @@
       "campuses"      : "Sedes Educativas",
       "teachers"      : "Personal Docente",
       "staff"         : "Personal Administrativo",
-      "groupManagers" : "Directores de Grupo"
+      "groupManagers" : "Directores de Grupo",
+      "rolesPermissions": "Roles y Permisos"
     },
     "settings": {
       "title"      : "Configuraciones",

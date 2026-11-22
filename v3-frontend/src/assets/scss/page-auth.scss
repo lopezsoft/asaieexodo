@@ -12,10 +12,10 @@
   --auth-muted: #{$auth-text-muted-light};
   --auth-soft-accent: #{$auth-light-surface-soft};
   --auth-hero-gradient: linear-gradient(
-    140deg,
+    145deg,
     #{$auth-hero-bg-start} 0%,
-    #{$auth-hero-bg-mid} 52%,
-    #{$auth-hero-bg-end} 100%
+    #{$auth-hero-bg-mid} 65%,
+    #{$access-brand-blue} 100%
   );
   --auth-shadow-card: 0 24px 64px -20px #{rgba($auth-hero-bg-start, 0.14)},
     0 4px 18px -6px #{rgba($auth-hero-bg-start, 0.08)};
@@ -498,12 +498,8 @@
 
   &.is-active {
     color: var(--whiteColor);
-    background: linear-gradient(
-      135deg,
-      var(--primaryColor) 0%,
-      var(--secondaryColor) 100%
-    );
-    box-shadow: 0 6px 14px -6px #{rgba($auth-orb-cyan, 0.65)};
+    background-color: #{$access-brand-blue};
+    box-shadow: 0 4px 12px -6px #{rgba($auth-hero-bg-mid, 0.4)};
   }
 }
 
@@ -819,14 +815,10 @@
   font-size: 0.9rem;
   font-weight: 600;
   color: var(--whiteColor);
-  background: linear-gradient(
-    135deg,
-    var(--primaryColor) 0%,
-    var(--secondaryColor) 100%
-  );
-  box-shadow: 0 12px 26px -10px #{rgba($auth-orb-cyan, 0.75)};
+  background-color: #{$access-brand-blue};
+  box-shadow: 0 6px 16px -8px #{rgba($auth-hero-bg-mid, 0.38)};
   overflow: hidden;
-  transition: transform 0.2s ease, box-shadow 0.25s ease, opacity 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.25s ease, background-color 0.2s ease, opacity 0.2s ease;
 
   &::before {
     content: '';
@@ -838,7 +830,7 @@
     background: linear-gradient(
       90deg,
       transparent 0%,
-      #{rgba($auth-hero-text, 0.26)} 50%,
+      #{rgba($auth-hero-text, 0.12)} 50%,
       transparent 100%
     );
     transform: skewX(-22deg);
@@ -847,8 +839,9 @@
   }
 
   &:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 16px 32px -10px #{rgba($auth-orb-cyan, 0.9)};
+    background-color: #{$auth-hero-bg-mid};
+    transform: translateY(-1px);
+    box-shadow: 0 10px 20px -10px #{rgba($auth-hero-bg-mid, 0.45)};
 
     &::before {
       left: 140%;
@@ -937,12 +930,8 @@
   gap: 0.9rem;
   padding: 0.75rem 0.95rem;
   border-radius: 14px;
-  border: 1.5px solid #{rgba($auth-orb-cyan, 0.28)};
-  background: linear-gradient(
-    135deg,
-    #{rgba($auth-orb-cyan, 0.09)} 0%,
-    #{rgba($auth-hero-bg-mid, 0.04)} 100%
-  );
+  border: 1.5px solid #{rgba($auth-orb-cyan, 0.24)};
+  background-color: #{rgba($access-brand-blue, 0.045)};
   text-decoration: none;
   color: var(--auth-text);
   transition: transform 0.25s ease, border-color 0.25s ease,
@@ -951,7 +940,7 @@
   &:hover {
     transform: translateY(-2px);
     border-color: var(--secondaryColor);
-    box-shadow: 0 12px 24px -14px #{rgba($auth-orb-cyan, 0.6)};
+    box-shadow: 0 10px 20px -14px #{rgba($auth-hero-bg-mid, 0.35)};
 
     .cta-arrow {
       transform: translateX(4px);
@@ -966,11 +955,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(
-      135deg,
-      var(--primaryColor) 0%,
-      var(--secondaryColor) 100%
-    );
+    background-color: #{$access-brand-blue};
     color: var(--whiteColor);
 
     .material-symbols-outlined {
@@ -1054,11 +1039,7 @@
     color: var(--secondaryColor);
 
     .step-num {
-      background: linear-gradient(
-        135deg,
-        var(--primaryColor) 0%,
-        var(--secondaryColor) 100%
-      );
+      background-color: #{$access-brand-blue};
       color: var(--whiteColor);
     }
   }

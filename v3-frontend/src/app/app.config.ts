@@ -10,6 +10,7 @@ import { provideClientHydration } from '@angular/platform-browser';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideRouter } from '@angular/router';
 import { provideTransloco } from '@jsverse/transloco';
+import { EXODO_I18N } from 'exodolibs';
 import { BlockUIModule } from 'ng-block-ui';
 import { routes } from './app.routes';
 import { authInterceptor } from './interceptors/auth-interceptor';
@@ -37,5 +38,20 @@ export const appConfig: ApplicationConfig = {
       loader: TranslocoHttpLoader,
     }),
     { provide: DEFAULT_LANGUAGE, useValue: 'es' },
+    {
+      provide: EXODO_I18N,
+      useValue: {
+        first: 'Primera página',
+        previous: 'Página anterior',
+        page: 'Página',
+        of: 'de',
+        next: 'Página siguiente',
+        last: 'Última página',
+        refresh: 'Actualizar',
+        navigation: 'Navegación de paginación',
+        filterBy: 'Filtrar por',
+        infoTemplate: 'Mostrando {{from}} a {{to}} de {{total}} registros',
+      },
+    },
   ],
 };

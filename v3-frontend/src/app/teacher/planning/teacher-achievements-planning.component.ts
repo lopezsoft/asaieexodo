@@ -18,6 +18,10 @@ import {
   V3SettingsService,
 } from '../../services/v3-settings.service';
 import { V3UnifiedAuthService } from '../../services/v3-unified-auth.service';
+import {
+  SearchableSelectOption,
+  V3SearchableSelectComponent,
+} from '../../shared/components/v3-searchable-select/v3-searchable-select.component';
 import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.directive';
 
 type PlanningTab = 'achievements' | 'suggestions' | 'lessonPlans';
@@ -31,7 +35,7 @@ type PlanningTab = 'achievements' | 'suggestions' | 'lessonPlans';
 @Component({
   selector: 'app-teacher-achievements-planning',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, CustomTooltipDirective],
+  imports: [CommonModule, FormsModule, RouterLink, V3SearchableSelectComponent, CustomTooltipDirective],
   template: `
     <div class="container-fluid py-3">
       <div class="breadcrumb-card mb-25 d-md-flex align-items-center justify-content-between">
@@ -91,65 +95,71 @@ type PlanningTab = 'achievements' | 'suggestions' | 'lessonPlans';
               </button>
             </div>
 
-            <div class="row g-2 align-items-end mb-4 p-3 rounded bg-light border">
-              <div class="col-md-3">
-                <label class="form-label small fw-semibold">Curso (Grado / Asignatura) *</label>
-                <select class="form-select form-select-sm" [(ngModel)]="achCourseId">
-                  @for (c of courses(); track c.id) {
-                    <option [ngValue]="c.id">{{ c.gradeName }} · {{ c.subjectName }}</option>
-                  }
-                </select>
-              </div>
-              <div class="col-md-1">
-                <label class="form-label small fw-semibold">Per.</label>
-                <select class="form-select form-select-sm" [(ngModel)]="achForm.periodNumber">
-                  @for (p of [1, 2, 3, 4]; track p) {
-                    <option [ngValue]="p">P{{ p }}</option>
-                  }
-                </select>
-              </div>
-              <div class="col-md-2">
-                <label class="form-label small fw-semibold">Competencia</label>
-                <select class="form-select form-select-sm" [(ngModel)]="achForm.dimensionId">
-                  <option [ngValue]="null">General</option>
-                  @for (d of dimensions(); track d.id) {
-                    <option [ngValue]="d.id">{{ d.name }}</option>
-                  }
-                </select>
-              </div>
-              <div class="col-md-4">
-                <label class="form-label small fw-semibold">Texto Base del Descriptor *</label>
-                <input
-                  type="text"
-                  class="form-control form-control-sm"
-                  [(ngModel)]="achForm.description"
-                  placeholder="Ej. Reconoce y resuelve ecuaciones lineales..."
-                />
-              </div>
-              <div class="col-md-2 d-grid">
-                <button
-                  type="button"
-                  class="btn btn-sm btn-primary"
-                  [disabled]="!achCourseId || !achForm.description.trim()"
-                  (click)="saveAchievement()"
-                >
-                  {{ achForm.generateMultiScale ? 'Crear Multi-Escala' : 'Agregar' }}
-                </button>
-              </div>
-
-              @if (achForm.generateMultiScale && achForm.description.trim()) {
-                <div class="col-12 mt-2">
-                  <div class="small text-muted">
-                    <strong>Vista previa por escala nacional:</strong>
-                    @for (sc of nationalScales(); track sc.id) {
-                      <div class="mt-1">
-                        <span class="badge text-bg-secondary me-1">{{ sc.name }}</span>
-                        {{ buildScaleDescription(sc, achForm.description) }}
-                      </div>
-                    }
-                  </div>
+            <div class="v3-form-panel">
+              <div class="row g-3">
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Curso (Grado / Asignatura) *</label>
+                  <app-v3-searchable-select
+                    [(ngModel)]="achCourseId"
+                    [options]="courseOptions()"
+                    placeholder="Seleccione curso..."
+                    searchPlaceholder="Buscar curso..."
+                  />
                 </div>
-              }
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Periodo</label>
+                  <app-v3-searchable-select
+                    [(ngModel)]="achForm.periodNumber"
+                    [options]="periodOptions"
+                    placeholder="Per."
+                    searchPlaceholder="Buscar..."
+                  />
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Competencia</label>
+                  <app-v3-searchable-select
+                    [(ngModel)]="achForm.dimensionId"
+                    [options]="dimensionOptions()"
+                    [clearable]="true"
+                    placeholder="General"
+                    searchPlaceholder="Buscar competencia..."
+                  />
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Texto Base del Descriptor *</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    [(ngModel)]="achForm.description"
+                    placeholder="Ej. Reconoce y resuelve ecuaciones lineales..."
+                  />
+                </div>
+
+                @if (achForm.generateMultiScale && achForm.description.trim()) {
+                  <div class="col-12">
+                    <div class="small text-muted">
+                      <strong>Vista previa por escala nacional:</strong>
+                      @for (sc of nationalScales(); track sc.id) {
+                        <div class="mt-1">
+                          <span class="badge text-bg-secondary me-1">{{ sc.name }}</span>
+                          {{ buildScaleDescription(sc, achForm.description) }}
+                        </div>
+                      }
+                    </div>
+                  </div>
+                }
+
+                <div class="col-12 d-flex justify-content-end">
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-primary"
+                    [disabled]="!achCourseId || !achForm.description.trim()"
+                    (click)="saveAchievement()"
+                  >
+                    {{ achForm.generateMultiScale ? 'Crear Multi-Escala' : 'Agregar descriptor' }}
+                  </button>
+                </div>
+              </div>
             </div>
 
             <div class="table-responsive">
@@ -187,48 +197,54 @@ type PlanningTab = 'achievements' | 'suggestions' | 'lessonPlans';
           }
 
           @case ('suggestions') {
-            <div class="row g-2 align-items-end mb-4 p-3 rounded bg-light border">
-              <div class="col-md-3">
-                <label class="form-label small fw-semibold">Curso (Grado / Asignatura) *</label>
-                <select class="form-select form-select-sm" [(ngModel)]="sugForm.courseId">
-                  @for (c of courses(); track c.id) {
-                    <option [ngValue]="c.id">{{ c.gradeName }} · {{ c.subjectName }}</option>
-                  }
-                </select>
-              </div>
-              <div class="col-md-1">
-                <label class="form-label small fw-semibold">Per.</label>
-                <select class="form-select form-select-sm" [(ngModel)]="sugForm.periodNumber">
-                  @for (p of [1, 2, 3, 4]; track p) {
-                    <option [ngValue]="p">P{{ p }}</option>
-                  }
-                </select>
-              </div>
-              <div class="col-md-2">
-                <label class="form-label small fw-semibold">Categoría</label>
-                <select class="form-select form-select-sm" [(ngModel)]="sugForm.indicatorType">
-                  <option value="SUGGESTION">Sugerencia</option>
-                  <option value="OBSERVATION">Observación</option>
-                </select>
-              </div>
-              <div class="col-md-4">
-                <label class="form-label small fw-semibold">Texto de Sugerencia / Observación *</label>
-                <input
-                  type="text"
-                  class="form-control form-control-sm"
-                  [(ngModel)]="sugForm.description"
-                  placeholder="Ej. Dedicar mayor tiempo a lectura comprensiva en casa..."
-                />
-              </div>
-              <div class="col-md-2 d-grid">
-                <button
-                  type="button"
-                  class="btn btn-sm btn-primary"
-                  [disabled]="!sugForm.courseId || !sugForm.description.trim()"
-                  (click)="saveSuggestion()"
-                >
-                  Guardar
-                </button>
+            <div class="v3-form-panel">
+              <div class="row g-3">
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Curso (Grado / Asignatura) *</label>
+                  <app-v3-searchable-select
+                    [(ngModel)]="sugForm.courseId"
+                    [options]="courseOptions()"
+                    placeholder="Seleccione curso..."
+                    searchPlaceholder="Buscar curso..."
+                  />
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Periodo</label>
+                  <app-v3-searchable-select
+                    [(ngModel)]="sugForm.periodNumber"
+                    [options]="periodOptions"
+                    placeholder="Per."
+                    searchPlaceholder="Buscar..."
+                  />
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Categoría</label>
+                  <app-v3-searchable-select
+                    [(ngModel)]="sugForm.indicatorType"
+                    [options]="suggestionTypeOptions"
+                    placeholder="Categoría..."
+                    searchPlaceholder="Buscar categoría..."
+                  />
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Texto de Sugerencia / Observación *</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    [(ngModel)]="sugForm.description"
+                    placeholder="Ej. Dedicar mayor tiempo a lectura comprensiva en casa..."
+                  />
+                </div>
+                <div class="col-12 d-flex justify-content-end">
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-primary"
+                    [disabled]="!sugForm.courseId || !sugForm.description.trim()"
+                    (click)="saveSuggestion()"
+                  >
+                    Guardar sugerencia
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -271,40 +287,44 @@ type PlanningTab = 'achievements' | 'suggestions' | 'lessonPlans';
           }
 
           @case ('lessonPlans') {
-            <div class="row g-2 align-items-end mb-4 p-3 rounded bg-light border">
-              <div class="col-md-3">
-                <label class="form-label small fw-semibold">Curso *</label>
-                <select class="form-select form-select-sm" [(ngModel)]="planForm.courseAssignmentId">
-                  @for (c of courses(); track c.id) {
-                    <option [ngValue]="c.id">{{ c.gradeName }}-{{ c.groupCode }} · {{ c.subjectName }}</option>
-                  }
-                </select>
-              </div>
-              <div class="col-md-1">
-                <label class="form-label small fw-semibold">Per.</label>
-                <select class="form-select form-select-sm" [(ngModel)]="planForm.periodNumber">
-                  @for (p of [1, 2, 3, 4]; track p) {
-                    <option [ngValue]="p">P{{ p }}</option>
-                  }
-                </select>
-              </div>
-              <div class="col-md-3">
-                <label class="form-label small fw-semibold">Título Parcelador / Plan *</label>
-                <input type="text" class="form-control form-control-sm" [(ngModel)]="planForm.title" placeholder="Parcelador Periodo 1" />
-              </div>
-              <div class="col-md-3">
-                <label class="form-label small fw-semibold">Objetivo / Estándar</label>
-                <input type="text" class="form-control form-control-sm" [(ngModel)]="planForm.generalObjective" />
-              </div>
-              <div class="col-md-2 d-grid">
-                <button
-                  type="button"
-                  class="btn btn-sm btn-primary"
-                  [disabled]="!planForm.courseAssignmentId || !planForm.title.trim()"
-                  (click)="createLessonPlan()"
-                >
-                  Crear Plan
-                </button>
+            <div class="v3-form-panel">
+              <div class="row g-3">
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Curso *</label>
+                  <app-v3-searchable-select
+                    [(ngModel)]="planForm.courseAssignmentId"
+                    [options]="lessonPlanCourseOptions()"
+                    placeholder="Seleccione curso..."
+                    searchPlaceholder="Buscar curso..."
+                  />
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Periodo</label>
+                  <app-v3-searchable-select
+                    [(ngModel)]="planForm.periodNumber"
+                    [options]="periodOptions"
+                    placeholder="Per."
+                    searchPlaceholder="Buscar..."
+                  />
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Título Parcelador / Plan *</label>
+                  <input type="text" class="form-control" [(ngModel)]="planForm.title" placeholder="Parcelador Periodo 1" />
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Objetivo / Estándar</label>
+                  <input type="text" class="form-control" [(ngModel)]="planForm.generalObjective" />
+                </div>
+                <div class="col-12 d-flex justify-content-end">
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-primary"
+                    [disabled]="!planForm.courseAssignmentId || !planForm.title.trim()"
+                    (click)="createLessonPlan()"
+                  >
+                    Crear Plan
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -336,30 +356,37 @@ type PlanningTab = 'achievements' | 'suggestions' | 'lessonPlans';
                 </div>
 
                 <!-- Agregar unidad / semana del Plan Semanal (PlanSemanalView.js) -->
-                <div class="row g-2 mb-2">
-                  <div class="col-md-3">
-                    <input type="text" class="form-control form-control-sm" #topicIn placeholder="Tema / Semana..." />
-                  </div>
-                  <div class="col-md-3">
-                    <input type="text" class="form-control form-control-sm" #actIn placeholder="Actividades pedagógicas..." />
-                  </div>
-                  <div class="col-md-2">
-                    <input type="text" class="form-control form-control-sm" #evalIn placeholder="Evaluación / Indicador..." />
-                  </div>
-                  <div class="col-md-2">
-                    <input type="date" class="form-control form-control-sm" #dateIn />
-                  </div>
-                  <div class="col-md-1">
-                    <input type="number" min="1" max="40" value="2" class="form-control form-control-sm" #hrsIn [appCustomTooltip]="'Horas planeadas'" />
-                  </div>
-                  <div class="col-md-1 d-grid">
-                    <button
-                      type="button"
-                      class="btn btn-sm btn-outline-primary"
-                      (click)="addUnit(plan.id, topicIn.value, actIn.value, evalIn.value, dateIn.value, hrsIn.value); topicIn.value=''; actIn.value=''; evalIn.value=''"
-                    >
-                      +
-                    </button>
+                <div class="v3-form-panel mb-2">
+                  <div class="row g-3">
+                    <div class="col-12 col-md-6">
+                      <label class="form-label">Tema / Semana</label>
+                      <input type="text" class="form-control" #topicIn placeholder="Tema / Semana..." />
+                    </div>
+                    <div class="col-12 col-md-6">
+                      <label class="form-label">Actividades pedagógicas</label>
+                      <input type="text" class="form-control" #actIn placeholder="Actividades pedagógicas..." />
+                    </div>
+                    <div class="col-12 col-md-6">
+                      <label class="form-label">Evaluación / Indicador</label>
+                      <input type="text" class="form-control" #evalIn placeholder="Evaluación / Indicador..." />
+                    </div>
+                    <div class="col-12 col-md-6">
+                      <label class="form-label">Fecha programada</label>
+                      <input type="date" class="form-control" #dateIn />
+                    </div>
+                    <div class="col-12 col-md-6">
+                      <label class="form-label">Horas planeadas</label>
+                      <input type="number" min="1" max="40" value="2" class="form-control" #hrsIn [appCustomTooltip]="'Horas planeadas'" />
+                    </div>
+                    <div class="col-12 col-md-6 d-flex align-items-end justify-content-md-end">
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-primary"
+                        (click)="addUnit(plan.id, topicIn.value, actIn.value, evalIn.value, dateIn.value, hrsIn.value); topicIn.value=''; actIn.value=''; evalIn.value=''"
+                      >
+                        Agregar unidad
+                      </button>
+                    </div>
                   </div>
                 </div>
 
@@ -412,6 +439,27 @@ export class TeacherAchievementsPlanningComponent implements OnInit {
   readonly lessonPlans = signal<LessonPlanRow[]>([]);
   readonly nationalScales = signal<NationalGradingScaleItem[]>([]);
   readonly dimensions = signal<EvaluationDimensionRecord[]>([]);
+
+  readonly periodOptions: SearchableSelectOption<number>[] = [1, 2, 3, 4].map((p) => ({
+    value: p,
+    label: `P${p}`,
+  }));
+  readonly suggestionTypeOptions: SearchableSelectOption<string>[] = [
+    { value: 'SUGGESTION', label: 'Sugerencia' },
+    { value: 'OBSERVATION', label: 'Observación' },
+  ];
+  readonly courseOptions = computed<SearchableSelectOption<number>[]>(() =>
+    this.courses().map((c) => ({ value: c.id, label: `${c.gradeName} · ${c.subjectName}` }))
+  );
+  readonly lessonPlanCourseOptions = computed<SearchableSelectOption<number>[]>(() =>
+    this.courses().map((c) => ({
+      value: c.id,
+      label: `${c.gradeName}-${c.groupCode} · ${c.subjectName}`,
+    }))
+  );
+  readonly dimensionOptions = computed<SearchableSelectOption<number>[]>(() =>
+    this.dimensions().map((d) => ({ value: d.id, label: d.name }))
+  );
 
   readonly descriptorRows = computed(() =>
     this.achievements().filter(

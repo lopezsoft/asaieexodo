@@ -3,6 +3,7 @@ import {
   IsBoolean,
   IsDateString,
   IsEmail,
+  IsIn,
   IsInt,
   IsNotEmpty,
   IsOptional,
@@ -11,6 +12,15 @@ import {
   MaxLength,
   Min,
 } from 'class-validator';
+import { CommunityRole } from '../../../../iam/domain/enums/community-role.enum';
+
+const ASSIGNABLE_STAFF_ROLES = [
+  CommunityRole.SECRETARY,
+  CommunityRole.COORDINATOR,
+  CommunityRole.RECTOR,
+  CommunityRole.SCHOOL_ADMIN,
+  CommunityRole.MONITOR,
+] as const;
 
 export class UpdateSchoolProfileDto {
   @ApiPropertyOptional({ example: 45 })
@@ -435,6 +445,15 @@ export class SaveAdministrativeStaffDto {
   @IsInt()
   @Min(1)
   workplaceLocationId?: number | null;
+
+  @ApiPropertyOptional({
+    enum: ASSIGNABLE_STAFF_ROLES,
+    example: CommunityRole.SECRETARY,
+    description: 'Rol institucional en user_school_memberships (por defecto SECRETARY)',
+  })
+  @IsOptional()
+  @IsIn(ASSIGNABLE_STAFF_ROLES)
+  assignedRole?: (typeof ASSIGNABLE_STAFF_ROLES)[number];
 
   @ApiPropertyOptional({ example: true })
   @IsOptional()

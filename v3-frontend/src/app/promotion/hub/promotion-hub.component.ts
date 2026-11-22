@@ -1,7 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { V3UnifiedAuthService } from '../../services/v3-unified-auth.service';
+import {
+  RBAC_MODULES,
+  RBAC_PERMISSIONS,
+} from '../../shared/constants/rbac-permissions.constants';
 import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.directive';
 
 /**
@@ -29,7 +33,7 @@ import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.d
       </div>
 
       <div class="row g-4">
-        @for (card of cards; track card.route) {
+        @for (card of visibleCards(); track card.route) {
           <div class="col-md-6 col-xl-4">
             <a
               [routerLink]="card.route"
@@ -59,14 +63,16 @@ import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.d
 export class PromotionHubComponent {
   protected readonly v3Auth = inject(V3UnifiedAuthService);
 
-  readonly cards = [
+  private readonly allCards = [
     {
       title: 'Libro Final, Actas y Sábanas',
       description:
-        'Cálculo automático del libro final por áreas/asignaturas, edición de estado de promoción, actas, folios de graduación y reportes JasperReports.',
+        'Cálculo automático del libro final por áreas/asignaturas, edición de estado de promoción, actas, folios de graduación y reportes oficiales.',
       icon: 'auto_stories',
       route: '/promotion/final-book',
       accent: 'kpi-primary',
+      anyPermissions: [RBAC_PERMISSIONS.PROMOTION_FINAL_BOOK_VIEW],
+      moduleTag: RBAC_MODULES.ACADEMIC_GRADES as string | null,
     },
     {
       title: 'Promoción Anticipada',
@@ -75,6 +81,8 @@ export class PromotionHubComponent {
       icon: 'fast_forward',
       route: '/promotion/advance',
       accent: 'kpi-success',
+      anyPermissions: [RBAC_PERMISSIONS.PROMOTION_ADVANCE_EXECUTE],
+      moduleTag: RBAC_MODULES.ACADEMIC_GRADES as string | null,
     },
     {
       title: 'Matricular Estudiantes Antiguos',
@@ -83,6 +91,8 @@ export class PromotionHubComponent {
       icon: 'group_add',
       route: '/promotion/enroll-returning',
       accent: 'kpi-secondary',
+      anyPermissions: [RBAC_PERMISSIONS.PROMOTION_RETURNING_ENROLL],
+      moduleTag: RBAC_MODULES.ENROLLMENTS as string | null,
     },
     {
       title: 'Historial Académico y Certificados',
@@ -91,6 +101,12 @@ export class PromotionHubComponent {
       icon: 'workspace_premium',
       route: '/promotion/history',
       accent: 'kpi-purple',
+      anyPermissions: [
+        RBAC_PERMISSIONS.PROMOTION_FINAL_BOOK_VIEW,
+        RBAC_PERMISSIONS.PROMOTION_CERTIFICATE_HEADERS_WRITE,
+        RBAC_PERMISSIONS.REPORTS_CERTIFICATES_GENERATE,
+      ],
+      moduleTag: null as string | null,
     },
     {
       title: 'Cierre y Apertura de Año Lectivo',
@@ -99,6 +115,16 @@ export class PromotionHubComponent {
       icon: 'lock_clock',
       route: '/promotion/year-closing',
       accent: 'kpi-warning',
+      anyPermissions: [RBAC_PERMISSIONS.PROMOTION_YEAR_CLOSE],
+      moduleTag: RBAC_MODULES.ACADEMIC_GRADES as string | null,
     },
   ];
+
+  readonly visibleCards = computed(() =>
+    this.allCards.filter(
+      (c) =>
+        (!c.moduleTag || this.v3Auth.hasModule(c.moduleTag)) &&
+        this.v3Auth.hasAnyPermission(c.anyPermissions),
+    ),
+  );
 }

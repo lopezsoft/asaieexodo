@@ -431,6 +431,45 @@ CREATE TABLE IF NOT EXISTS user_school_memberships (
   UNIQUE (school_id, user_id, role)
 );
 
+-- Motor RBAC granular multi-tenant (Catalogo global + matriz por defecto + overrides por colegio y por usuario)
+CREATE TABLE IF NOT EXISTS permissions_catalog (
+  id SMALLINT PRIMARY KEY,
+  system_module_id SMALLINT REFERENCES system_modules(id) ON DELETE SET NULL,
+  is_sensitive BOOLEAN NOT NULL DEFAULT FALSE,
+  is_super_admin_only BOOLEAN NOT NULL DEFAULT FALSE,
+  code VARCHAR(80) NOT NULL UNIQUE,
+  module_group VARCHAR(30) NOT NULL,
+  name VARCHAR(140) NOT NULL,
+  description VARCHAR(300) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS role_default_permissions (
+  permission_id SMALLINT NOT NULL REFERENCES permissions_catalog(id) ON DELETE CASCADE,
+  role VARCHAR(30) NOT NULL CHECK (role IN ('SUPER_ADMIN','SCHOOL_ADMIN','RECTOR','COORDINATOR','SECRETARY','TEACHER','STUDENT','FAMILY','MONITOR')),
+  PRIMARY KEY (role, permission_id)
+);
+
+CREATE TABLE IF NOT EXISTS school_role_permissions (
+  school_id BIGINT NOT NULL REFERENCES schools(id) ON DELETE CASCADE,
+  updated_by_user_id BIGINT REFERENCES users(id) ON DELETE SET NULL,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  permission_id SMALLINT NOT NULL REFERENCES permissions_catalog(id) ON DELETE CASCADE,
+  role VARCHAR(30) NOT NULL CHECK (role IN ('SCHOOL_ADMIN','RECTOR','COORDINATOR','SECRETARY','TEACHER','STUDENT','FAMILY','MONITOR')),
+  effect VARCHAR(10) NOT NULL CHECK (effect IN ('ALLOW','DENY')),
+  PRIMARY KEY (school_id, role, permission_id)
+);
+
+CREATE TABLE IF NOT EXISTS user_permission_overrides (
+  school_id BIGINT NOT NULL REFERENCES schools(id) ON DELETE CASCADE,
+  user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  updated_by_user_id BIGINT REFERENCES users(id) ON DELETE SET NULL,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  permission_id SMALLINT NOT NULL REFERENCES permissions_catalog(id) ON DELETE CASCADE,
+  role VARCHAR(30) NOT NULL CHECK (role IN ('SCHOOL_ADMIN','RECTOR','COORDINATOR','SECRETARY','TEACHER','STUDENT','FAMILY','MONITOR')),
+  effect VARCHAR(10) NOT NULL CHECK (effect IN ('ALLOW','DENY')),
+  PRIMARY KEY (school_id, user_id, role, permission_id)
+);
+
 CREATE TABLE IF NOT EXISTS auth_sessions (
   id UUID DEFAULT gen_random_uuid(),
   school_id BIGINT NOT NULL REFERENCES schools(id) ON DELETE CASCADE,
@@ -1980,7 +2019,8 @@ DO $$
 DECLARE
   t_name TEXT;
   tenant_tables TEXT[] := ARRAY[
-    'school_modules', 'user_school_memberships', 'auth_sessions', 'migration_id_mappings',
+    'school_modules', 'user_school_memberships', 'school_role_permissions', 'user_permission_overrides',
+    'auth_sessions', 'migration_id_mappings',
     'cloud_files', 'audit_logs',
     'campuses', 'campus_study_methodologies', 'school_shifts', 'campus_shifts',
     'education_levels', 'campus_education_levels',
@@ -2028,6 +2068,7 @@ DECLARE
     'staff_appointment_types', 'administrative_career_types', 'workplace_locations',
     'work_time_allocations', 'funding_sources', 'evaluation_question_types',
     'election_candidacy_types', 'user_profiles_catalog', 'system_modules',
+    'permissions_catalog', 'role_default_permissions',
     'crm_channels', 'crm_ticket_categories'
   ];
 BEGIN

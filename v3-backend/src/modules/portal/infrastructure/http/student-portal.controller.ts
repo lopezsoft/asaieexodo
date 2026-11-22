@@ -12,34 +12,35 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ActiveTenantContext } from '../../../../shared/application/context/tenant-context.service';
 import {
   CurrentUser,
-  Roles,
+  RequireAnyPermission,
+  RequireModule,
+  RequirePermissions,
 } from '../../../../shared/infrastructure/http/decorators/security.decorators';
 import { PositiveBigIntPipe } from '../../../../shared/infrastructure/http/pipes/positive-bigint.pipe';
-import { CommunityRole } from '../../../iam/domain/enums/community-role.enum';
+import {
+  RBAC_MODULES,
+  RBAC_PERMISSIONS,
+} from '../../../../shared/infrastructure/rbac/rbac-permissions.constants';
 import { ManagePortalUseCase } from '../../application/use-cases/manage-portal.use-case';
 import {
   SubmitStudentActivityDto,
   SubmitStudentEvaluationDto,
 } from './dto/portal.dto';
 
-const STUDENT_PORTAL_ROLES = [
-  CommunityRole.STUDENT,
-  CommunityRole.FAMILY,
-  CommunityRole.SUPER_ADMIN,
-  CommunityRole.SCHOOL_ADMIN,
-  CommunityRole.RECTOR,
-  CommunityRole.COORDINATOR,
-  CommunityRole.TEACHER,
-] as const;
-
-@ApiTags('Student & Family Portal (Grades, Reports, Activities, Online Exams & Live Classes)')
+@ApiTags(
+  'Student & Family Portal (Grades, Reports, Activities, Online Exams & Live Classes)',
+)
 @ApiBearerAuth('jwt-auth')
 @Controller('student')
 export class StudentPortalController {
   constructor(private readonly portalUseCase: ManagePortalUseCase) {}
 
   @Get('overview')
-  @Roles(...STUDENT_PORTAL_ROLES)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.PORTAL_STUDENT_OWN,
+    RBAC_PERMISSIONS.PORTAL_TEACHER_SUPERVISE_READ,
+  )
   async getOverview(
     @CurrentUser() p: ActiveTenantContext,
     @Query('academicYear') academicYear?: string,
@@ -55,7 +56,11 @@ export class StudentPortalController {
   }
 
   @Get('grades')
-  @Roles(...STUDENT_PORTAL_ROLES)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.PORTAL_STUDENT_OWN,
+    RBAC_PERMISSIONS.PORTAL_TEACHER_SUPERVISE_READ,
+  )
   async getGrades(
     @CurrentUser() p: ActiveTenantContext,
     @Query('academicYear') academicYear?: string,
@@ -75,7 +80,11 @@ export class StudentPortalController {
   }
 
   @Get('activities')
-  @Roles(...STUDENT_PORTAL_ROLES)
+  @RequireModule(RBAC_MODULES.VIRTUAL_CLASSROOM)
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.PORTAL_STUDENT_OWN,
+    RBAC_PERMISSIONS.PORTAL_TEACHER_SUPERVISE_READ,
+  )
   async listActivities(
     @CurrentUser() p: ActiveTenantContext,
     @Query('academicYear') academicYear?: string,
@@ -91,7 +100,8 @@ export class StudentPortalController {
   }
 
   @Post('activities/:activityId/submit')
-  @Roles(CommunityRole.STUDENT, CommunityRole.FAMILY)
+  @RequireModule(RBAC_MODULES.VIRTUAL_CLASSROOM)
+  @RequirePermissions(RBAC_PERMISSIONS.PORTAL_STUDENT_OWN)
   @HttpCode(HttpStatus.OK)
   async submitActivity(
     @CurrentUser() p: ActiveTenantContext,
@@ -112,7 +122,11 @@ export class StudentPortalController {
   }
 
   @Get('evaluations')
-  @Roles(...STUDENT_PORTAL_ROLES)
+  @RequireModule(RBAC_MODULES.VIRTUAL_CLASSROOM)
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.PORTAL_STUDENT_OWN,
+    RBAC_PERMISSIONS.PORTAL_TEACHER_SUPERVISE_READ,
+  )
   async listEvaluations(
     @CurrentUser() p: ActiveTenantContext,
     @Query('academicYear') academicYear?: string,
@@ -128,7 +142,8 @@ export class StudentPortalController {
   }
 
   @Post('evaluations/:evaluationId/submit')
-  @Roles(CommunityRole.STUDENT)
+  @RequireModule(RBAC_MODULES.VIRTUAL_CLASSROOM)
+  @RequirePermissions(RBAC_PERMISSIONS.PORTAL_STUDENT_OWN)
   @HttpCode(HttpStatus.OK)
   async submitEvaluation(
     @CurrentUser() p: ActiveTenantContext,
@@ -149,7 +164,11 @@ export class StudentPortalController {
   }
 
   @Get('live-classes')
-  @Roles(...STUDENT_PORTAL_ROLES)
+  @RequireModule(RBAC_MODULES.VIRTUAL_CLASSROOM)
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.PORTAL_STUDENT_OWN,
+    RBAC_PERMISSIONS.PORTAL_TEACHER_SUPERVISE_READ,
+  )
   async listLiveClasses(
     @CurrentUser() p: ActiveTenantContext,
     @Query('academicYear') academicYear?: string,
@@ -165,7 +184,11 @@ export class StudentPortalController {
   }
 
   @Post('live-classes/:liveClassId/join')
-  @Roles(...STUDENT_PORTAL_ROLES)
+  @RequireModule(RBAC_MODULES.VIRTUAL_CLASSROOM)
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.PORTAL_STUDENT_OWN,
+    RBAC_PERMISSIONS.PORTAL_TEACHER_SUPERVISE_READ,
+  )
   @HttpCode(HttpStatus.OK)
   async joinLiveClass(
     @CurrentUser() p: ActiveTenantContext,

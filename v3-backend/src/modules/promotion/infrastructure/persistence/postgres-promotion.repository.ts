@@ -1210,15 +1210,12 @@ export class PostgresPromotionRepository extends PromotionRepositoryPort {
         certificate_settings: Record<string, unknown>;
         graduation_act_settings: Record<string, unknown>;
       }>(
-        `INSERT INTO academic_years (
-           school_id, year, certificate_settings, graduation_act_settings
-         )
-         VALUES ($1, $2, $3::jsonb, $4::jsonb)
-         ON CONFLICT (school_id, year) DO UPDATE SET
-           certificate_settings = EXCLUDED.certificate_settings,
-           graduation_act_settings = EXCLUDED.graduation_act_settings,
-           updated_at = NOW()
-         RETURNING year, is_closed, certificate_settings, graduation_act_settings`,
+        `UPDATE academic_years
+            SET certificate_settings = $3::jsonb,
+                graduation_act_settings = $4::jsonb,
+                updated_at = NOW()
+          WHERE school_id = $1 AND year = $2
+          RETURNING year, is_closed, certificate_settings, graduation_act_settings`,
         [
           schoolId.toString(),
           input.academicYear,
@@ -1226,6 +1223,12 @@ export class PostgresPromotionRepository extends PromotionRepositoryPort {
           JSON.stringify(input.graduationActSettings),
         ],
       );
+      if (res.rowCount === 0) {
+        throw new ResourceNotFoundException(
+          'AcademicYear',
+          String(input.academicYear),
+        );
+      }
       return {
         academicYear: Number(res.rows[0].year),
         isClosed: res.rows[0].is_closed,

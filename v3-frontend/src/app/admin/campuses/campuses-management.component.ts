@@ -1,8 +1,27 @@
-import { CommonModule } from '@angular/common';
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import {
+  AfterViewInit,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  OnInit,
+  PLATFORM_ID,
+  signal,
+  ViewChild,
+} from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import {
+  ColumnContract,
+  DataSourceContract,
+  ExodoGridComponent,
+  ExodolibsModule,
+  Proxy,
+} from 'exodolibs';
 import { finalize } from 'rxjs';
+import { environment } from '../../../environments/environment';
+import { CustomizerSettingsService } from '../../customizer-settings/customizer-settings.service';
 import { LoadMaskService } from '../../services/common/load-mask.service';
 import { MessagesService } from '../../services/messages.service';
 import {
@@ -20,13 +39,21 @@ import {
   V3CatalogsService,
 } from '../../services/v3-catalogs.service';
 import { V3UnifiedAuthService } from '../../services/v3-unified-auth.service';
-import {
-  V3DataGridComponent,
-  V3GridColumn,
-} from '../../shared/components/v3-data-grid/v3-data-grid.component';
 import { V3ModalDialogComponent } from '../../shared/components/v3-modal-dialog/v3-modal-dialog.component';
+import {
+  V3FormWizardComponent,
+  V3WizardStep,
+} from '../../shared/components/v3-form-wizard/v3-form-wizard.component';
+import {
+  SearchableSelectOption,
+  V3SearchableSelectComponent,
+} from '../../shared/components/v3-searchable-select/v3-searchable-select.component';
 import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.directive';
-import { markAllAsTouched } from '../../utils/form-validators';
+import {
+  ExodoExportColumn,
+  exportGridRowsToExcel,
+} from '../../shared/utils/exodo-grid-export.util';
+import { isControlInvalid, markAllAsTouched } from '../../utils/form-validators';
 
 /**
  * Sedes Educativas + Jornadas y Niveles por Sede
@@ -40,8 +67,10 @@ import { markAllAsTouched } from '../../utils/form-validators';
     FormsModule,
     ReactiveFormsModule,
     RouterLink,
-    V3DataGridComponent,
+    ExodolibsModule,
     V3ModalDialogComponent,
+    V3FormWizardComponent,
+    V3SearchableSelectComponent,
     CustomTooltipDirective,
   ],
   template: `
@@ -59,58 +88,112 @@ import { markAllAsTouched } from '../../utils/form-validators';
         </ol>
       </div>
 
-      <app-v3-data-grid
-        heading="Listado de Sedes Educativas"
-        subtitle="Cada sede puede vincular sus jornadas escolares y niveles educativos autorizados"
+      <exodo-grid
+        #campusesGrid
+        mode="remote"
+        caption="Listado de Sedes Educativas"
         [columns]="columns"
-        [rows]="campuses()"
-        [loading]="loading()"
-        exportFileName="sedes-educativas"
-        searchPlaceholder="Buscar por nombre, DANE o ciudad..."
-        (refreshRequested)="loadCampuses()"
+        [dataSource]="dataSource"
+        [proxy]="proxy"
+        [customBody]="true"
+        [allowSorting]="true"
+        [allowFiltering]="true"
+        [showPagination]="true"
+        [limit]="15"
+        [theme]="gridTheme"
+        placeholder="Buscar por nombre, DANE o ciudad..."
+        (loadError)="onGridLoadError()"
       >
-        @if (canWrite()) {
-          <button
-            grid-toolbar
-            type="button"
-            class="btn btn-sm btn-primary d-inline-flex align-items-center gap-1"
-            (click)="openCreateModal()"
-            [appCustomTooltip]="'Registrar nueva sede educativa'"
-          >
-            <i class="material-symbols-outlined fs-6">add</i>
-            <span>Nueva sede</span>
-          </button>
-        }
-
-        <ng-template #rowActions let-campus>
+        <div header class="v3-exodo-toolbar">
           <button
             type="button"
-            class="btn btn-sm btn-outline-info me-1"
-            (click)="openRelationsModal(campus)"
-            [appCustomTooltip]="'Configurar jornadas y niveles de esta sede'"
+            class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1"
+            (click)="campusesGrid.clearFilters()"
+            [appCustomTooltip]="'Limpiar filtros y ordenamiento'"
           >
-            <i class="material-symbols-outlined fs-6">tune</i>
+            <i class="material-symbols-outlined fs-6">filter_alt_off</i>
+            <span>Limpiar</span>
           </button>
+          @if (campusRows.length > 0) {
+            <button
+              type="button"
+              class="btn btn-sm btn-outline-success d-inline-flex align-items-center gap-1"
+              (click)="exportCurrentPage()"
+              [appCustomTooltip]="'Exportar página actual a Excel (.xlsx)'"
+            >
+              <i class="material-symbols-outlined fs-6">download</i>
+              <span>Excel</span>
+            </button>
+          }
           @if (canWrite()) {
             <button
               type="button"
-              class="btn btn-sm btn-outline-primary me-1"
-              (click)="openEditModal(campus)"
-              [appCustomTooltip]="'Editar sede'"
+              class="btn btn-sm btn-primary d-inline-flex align-items-center gap-1"
+              (click)="openCreateModal()"
+              [appCustomTooltip]="'Registrar nueva sede educativa'"
             >
-              <i class="material-symbols-outlined fs-6">edit</i>
-            </button>
-            <button
-              type="button"
-              class="btn btn-sm btn-outline-danger"
-              (click)="confirmDeleteCampus(campus)"
-              [appCustomTooltip]="'Eliminar sede'"
-            >
-              <i class="material-symbols-outlined fs-6">delete</i>
+              <i class="material-symbols-outlined fs-6">add</i>
+              <span>Nueva sede</span>
             </button>
           }
-        </ng-template>
-      </app-v3-data-grid>
+        </div>
+
+        @for (campus of campusRows; track campus.id) {
+          <tr>
+            <td class="text-center text-muted small">
+              {{ (campusesGrid.dataRecords?.from || 1) + $index }}
+            </td>
+            <td class="fw-medium">{{ campus.name }}</td>
+            <td>{{ campus.daneCode || '—' }}</td>
+            <td>{{ campus.cityName || '—' }}</td>
+            <td>{{ campus.zoneName || '—' }}</td>
+            <td class="text-center">
+              {{ campus.shiftsCount }} / {{ campus.levelsCount }}
+            </td>
+            <td class="text-center">{{ campus.isMainCampus ? 'Sí' : 'No' }}</td>
+            <td class="text-center">
+              <span
+                class="badge rounded-pill"
+                [ngClass]="
+                  campus.isActive
+                    ? 'bg-success-subtle text-success'
+                    : 'bg-secondary-subtle text-secondary'
+                "
+              >
+                {{ campus.isActive ? 'Activo' : 'Inactivo' }}
+              </span>
+            </td>
+            <td class="text-end text-nowrap">
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-info me-1"
+                (click)="openRelationsModal(campus)"
+                [appCustomTooltip]="'Configurar jornadas y niveles de esta sede'"
+              >
+                <i class="material-symbols-outlined fs-6">tune</i>
+              </button>
+              @if (canWrite()) {
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-primary me-1"
+                  (click)="openEditModal(campus)"
+                  [appCustomTooltip]="'Editar sede'"
+                >
+                  <i class="material-symbols-outlined fs-6">edit</i>
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-danger"
+                  (click)="confirmDeleteCampus(campus)"
+                  [appCustomTooltip]="'Eliminar sede'"
+                >
+                  <i class="material-symbols-outlined fs-6">delete</i>
+                </button>
+              }
+            </td>
+          </tr>
+        }
+      </exodo-grid>
     </div>
 
     <!-- Modal Crear / Editar Sede -->
@@ -121,96 +204,138 @@ import { markAllAsTouched } from '../../utils/form-validators';
       size="lg"
       (closed)="formModalOpen.set(false)"
     >
-      <form [formGroup]="campusForm" (ngSubmit)="saveCampus()">
-        <div class="row g-3">
-          <div class="col-md-6">
-            <label class="form-label">Nombre de la sede *</label>
-            <input type="text" class="form-control" formControlName="name" />
-          </div>
-          <div class="col-md-3">
-            <label class="form-label">Código DANE sede</label>
-            <input type="text" class="form-control" formControlName="daneCode" />
-          </div>
-          <div class="col-md-3">
-            <label class="form-label">Consecutivo</label>
-            <input type="text" class="form-control" formControlName="consecutiveCode" />
-          </div>
-
-          <div class="col-md-4">
-            <label class="form-label">País</label>
-            <select class="form-select" formControlName="countryId" (change)="onCountryChanged()">
-              @for (country of countries(); track country.id) {
-                <option [ngValue]="country.id">{{ country.name }}</option>
-              }
-            </select>
-          </div>
-          <div class="col-md-4">
-            <label class="form-label">Departamento</label>
-            <select class="form-select" formControlName="departmentId" (change)="onDepartmentChanged()">
-              <option [ngValue]="null">Seleccione...</option>
-              @for (dept of departments(); track dept.id) {
-                <option [ngValue]="dept.id">{{ dept.name }}</option>
-              }
-            </select>
-          </div>
-          <div class="col-md-4">
-            <label class="form-label">Municipio / Ciudad</label>
-            <select class="form-select" formControlName="cityId">
-              <option [ngValue]="null">Seleccione...</option>
-              @for (city of cities(); track city.id) {
-                <option [ngValue]="city.id">{{ city.name }}</option>
-              }
-            </select>
-          </div>
-
-          <div class="col-md-4">
-            <label class="form-label">Zona geográfica</label>
-            <select class="form-select" formControlName="zoneId">
-              @for (zone of catalogs()?.geographicalZones ?? []; track zone.id) {
-                <option [ngValue]="zone.id">{{ zone.name }}</option>
-              }
-            </select>
-          </div>
-          <div class="col-md-4">
-            <label class="form-label">Dirección</label>
-            <input type="text" class="form-control" formControlName="address" />
-          </div>
-          <div class="col-md-4">
-            <label class="form-label">Teléfonos</label>
-            <input type="text" class="form-control" formControlName="phones" />
-          </div>
-
-          <div class="col-md-6">
-            <label class="form-label">Correo electrónico</label>
-            <input type="email" class="form-control" formControlName="email" />
-          </div>
-          <div class="col-md-3 d-flex align-items-end">
-            <div class="form-check form-switch">
-              <input class="form-check-input" type="checkbox" id="campusMain" formControlName="isMainCampus" />
-              <label class="form-check-label" for="campusMain">Sede principal</label>
+      <form [formGroup]="campusForm" (ngSubmit)="onCampusFormSubmit()">
+        <app-v3-form-wizard
+          [steps]="campusWizardSteps()"
+          [(activeIndex)]="wizardStep"
+          [allowFreeNavigation]="editingCampus() !== null"
+          [showFooter]="false"
+          (nextRequested)="onCampusStepNext($event)"
+        >
+          @if (wizardStep() === 0) {
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label">Nombre de la sede *</label>
+                <input type="text" class="form-control" formControlName="name" />
+                @if (isControlInvalid(campusForm, 'name')) {
+                  <small class="v3-field-error">El nombre de la sede es obligatorio.</small>
+                }
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label">Código DANE sede</label>
+                <input type="text" class="form-control" formControlName="daneCode" />
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label">Consecutivo</label>
+                <input type="text" class="form-control" formControlName="consecutiveCode" />
+              </div>
+              <div class="col-12">
+                <label class="form-label">Zona geográfica</label>
+                <app-v3-searchable-select
+                  formControlName="zoneId"
+                  [options]="zoneOptions()"
+                  placeholder="Seleccione zona..."
+                  searchPlaceholder="Buscar zona..."
+                />
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="v3-form-switch-box">
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="campusMain" formControlName="isMainCampus" />
+                    <label class="form-check-label" for="campusMain">Sede principal</label>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="v3-form-switch-box">
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="campusActive" formControlName="isActive" />
+                    <label class="form-check-label" for="campusActive">Sede activa</label>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-          <div class="col-md-3 d-flex align-items-end">
-            <div class="form-check form-switch">
-              <input class="form-check-input" type="checkbox" id="campusActive" formControlName="isActive" />
-              <label class="form-check-label" for="campusActive">Sede activa</label>
+          } @else {
+            <div class="row g-3">
+              <div class="col-12 col-md-6">
+                <label class="form-label">País</label>
+                <app-v3-searchable-select
+                  formControlName="countryId"
+                  [options]="countryOptions()"
+                  placeholder="Seleccione país..."
+                  searchPlaceholder="Buscar país..."
+                  (selectionChange)="onCountryChanged()"
+                />
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label">Departamento</label>
+                <app-v3-searchable-select
+                  formControlName="departmentId"
+                  [options]="departmentOptions()"
+                  [clearable]="true"
+                  placeholder="Seleccione..."
+                  searchPlaceholder="Buscar departamento..."
+                  (selectionChange)="onDepartmentChanged()"
+                />
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label">Municipio / Ciudad</label>
+                <app-v3-searchable-select
+                  formControlName="cityId"
+                  [options]="cityOptions()"
+                  [clearable]="true"
+                  placeholder="Seleccione..."
+                  searchPlaceholder="Buscar municipio o ciudad..."
+                />
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label">Dirección</label>
+                <input type="text" class="form-control" formControlName="address" />
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label">Teléfonos</label>
+                <input type="text" class="form-control" formControlName="phones" />
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label">Correo electrónico</label>
+                <input type="email" class="form-control" formControlName="email" />
+              </div>
             </div>
-          </div>
-        </div>
+          }
+        </app-v3-form-wizard>
       </form>
 
-      <div modal-footer>
+      <div modal-footer class="v3-modal-footer-split">
         <button type="button" class="btn btn-sm btn-outline-secondary" (click)="formModalOpen.set(false)">
           Cancelar
         </button>
-        <button
-          type="button"
-          class="btn btn-sm btn-primary"
-          [disabled]="campusForm.invalid"
-          (click)="saveCampus()"
-        >
-          Guardar sede
-        </button>
+        <div class="v3-modal-footer-actions">
+          @if (wizardStep() > 0) {
+            <button type="button" class="btn btn-sm btn-outline-secondary" (click)="wizardStep.set(wizardStep() - 1)">
+              Anterior
+            </button>
+          }
+          @if (wizardStep() === 0) {
+            <button
+              type="button"
+              class="btn btn-sm"
+              [ngClass]="editingCampus() ? 'btn-outline-primary' : 'btn-primary'"
+              (click)="onCampusStepNext(0)"
+            >
+              Siguiente
+            </button>
+          }
+          @if (wizardStep() === 1 || editingCampus()) {
+            <button
+              type="button"
+              class="btn btn-sm btn-primary"
+              [disabled]="campusForm.invalid"
+              (click)="saveCampus()"
+            >
+              Guardar sede
+            </button>
+          }
+        </div>
       </div>
     </app-v3-modal-dialog>
 
@@ -226,16 +351,19 @@ import { markAllAsTouched } from '../../utils/form-validators';
         <div class="col-md-6">
           <h6 class="fw-semibold mb-2">Jornadas habilitadas</h6>
           @if (canWrite()) {
-            <div class="input-group input-group-sm mb-3">
-              <select class="form-select" [(ngModel)]="selectedShiftId">
-                <option [ngValue]="null">Seleccionar jornada...</option>
-                @for (shift of schoolContext()?.shifts ?? []; track shift.id) {
-                  <option [ngValue]="shift.id">{{ shift.name }}</option>
-                }
-              </select>
+            <div class="d-flex align-items-center gap-2 mb-3">
+              <app-v3-searchable-select
+                class="flex-grow-1"
+                size="sm"
+                [(ngModel)]="selectedShiftId"
+                [options]="shiftOptions()"
+                [clearable]="true"
+                placeholder="Seleccionar jornada..."
+                searchPlaceholder="Buscar jornada..."
+              />
               <button
                 type="button"
-                class="btn btn-primary"
+                class="btn btn-sm btn-primary flex-shrink-0"
                 [disabled]="!selectedShiftId"
                 (click)="addShiftToCampus()"
               >
@@ -267,16 +395,19 @@ import { markAllAsTouched } from '../../utils/form-validators';
         <div class="col-md-6">
           <h6 class="fw-semibold mb-2">Niveles educativos habilitados</h6>
           @if (canWrite()) {
-            <div class="input-group input-group-sm mb-3">
-              <select class="form-select" [(ngModel)]="selectedLevelId">
-                <option [ngValue]="null">Seleccionar nivel...</option>
-                @for (lvl of schoolContext()?.educationLevels ?? []; track lvl.id) {
-                  <option [ngValue]="lvl.id">{{ lvl.name }}</option>
-                }
-              </select>
+            <div class="d-flex align-items-center gap-2 mb-3">
+              <app-v3-searchable-select
+                class="flex-grow-1"
+                size="sm"
+                [(ngModel)]="selectedLevelId"
+                [options]="educationLevelOptions()"
+                [clearable]="true"
+                placeholder="Seleccionar nivel..."
+                searchPlaceholder="Buscar nivel educativo..."
+              />
               <button
                 type="button"
-                class="btn btn-primary"
+                class="btn btn-sm btn-primary flex-shrink-0"
                 [disabled]="!selectedLevelId"
                 (click)="addLevelToCampus()"
               >
@@ -314,24 +445,50 @@ import { markAllAsTouched } from '../../utils/form-validators';
     </app-v3-modal-dialog>
   `,
 })
-export class CampusesManagementComponent implements OnInit {
+export class CampusesManagementComponent implements OnInit, AfterViewInit {
+  @ViewChild('campusesGrid') private campusesGrid?: ExodoGridComponent;
+
   private readonly fb = inject(FormBuilder);
   private readonly adminService = inject(V3AdministrationService);
   private readonly catalogsService = inject(V3CatalogsService);
   private readonly v3Auth = inject(V3UnifiedAuthService);
+  private readonly themeService = inject(CustomizerSettingsService);
   private readonly maskService = inject(LoadMaskService);
   private readonly messages = inject(MessagesService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+  private initLoadTimer: ReturnType<typeof setTimeout> | null = null;
 
-  readonly campuses = signal<CampusRecord[]>([]);
-  readonly loading = signal(false);
+  readonly dataSource: DataSourceContract = { rows: [], dataRecords: null };
+  readonly proxy: Proxy = { api: { read: `${environment.APIURL}/admin/campuses` } };
   readonly catalogs = signal<GlobalCatalogsBundle | null>(null);
   readonly schoolContext = signal<SchoolAcademicContextCatalogs | null>(null);
   readonly countries = signal<CountryCatalogItem[]>([]);
   readonly departments = signal<DepartmentCatalogItem[]>([]);
   readonly cities = signal<CityCatalogItem[]>([]);
 
+  protected readonly isControlInvalid = isControlInvalid;
+
   readonly formModalOpen = signal(false);
   readonly editingCampus = signal<CampusRecord | null>(null);
+  readonly wizardStep = signal(0);
+
+  readonly campusWizardSteps = computed<readonly V3WizardStep[]>(() => [
+    {
+      id: 'identity',
+      title: 'Identificación y Estado',
+      subtitle: 'Nombre, códigos oficiales y estado de operación',
+      icon: 'location_city',
+      invalid: Boolean(this.campusForm?.get('name')?.invalid && this.campusForm?.get('name')?.touched),
+    },
+    {
+      id: 'location',
+      title: 'Ubicación y Contacto',
+      subtitle: 'Dirección física y canales de comunicación',
+      icon: 'pin_drop',
+      invalid: Boolean(this.campusForm?.get('email')?.invalid && this.campusForm?.get('email')?.touched),
+    },
+  ]);
 
   readonly relationsModalOpen = signal(false);
   readonly selectedCampus = signal<CampusRecord | null>(null);
@@ -340,34 +497,64 @@ export class CampusesManagementComponent implements OnInit {
   selectedShiftId: number | null = null;
   selectedLevelId: number | null = null;
 
-  readonly canWrite = computed(() => {
-    const role = this.v3Auth.activeRole();
-    return role === 'SUPER_ADMIN' || role === 'SCHOOL_ADMIN' || role === 'RECTOR';
-  });
+  readonly countryOptions = computed(() => this.toNamedOptions(this.countries()));
+  readonly departmentOptions = computed(() => this.toNamedOptions(this.departments()));
+  readonly cityOptions = computed(() => this.toNamedOptions(this.cities()));
+  readonly zoneOptions = computed(() => this.toNamedOptions(this.catalogs()?.geographicalZones));
+  readonly shiftOptions = computed(() => this.toNamedOptions(this.schoolContext()?.shifts));
+  readonly educationLevelOptions = computed(() =>
+    this.toNamedOptions(this.schoolContext()?.educationLevels)
+  );
 
-  readonly columns: V3GridColumn<CampusRecord>[] = [
-    { key: 'name', label: 'Sede' },
-    { key: 'daneCode', label: 'Código DANE' },
-    { key: 'cityName', label: 'Municipio' },
-    { key: 'zoneName', label: 'Zona' },
-    {
-      key: 'shiftsCount',
-      label: 'Jornadas / Niveles',
-      align: 'center',
-      formatter: (r) => `${r.shiftsCount} / ${r.levelsCount}`,
-    },
-    {
-      key: 'isMainCampus',
-      label: 'Principal',
-      align: 'center',
-      formatter: (r) => (r.isMainCampus ? 'Sí' : 'No'),
-    },
-    { key: 'isActive', label: 'Estado', align: 'center', badge: true },
+  private toNamedOptions(
+    items?: readonly { id: number; name: string }[]
+  ): SearchableSelectOption<number>[] {
+    return (items ?? []).map((item) => ({ value: item.id, label: item.name }));
+  }
+
+  readonly canWrite = computed(() =>
+    this.v3Auth.hasPermission('admin.campuses.write'),
+  );
+
+  get gridTheme(): 'dark' | 'glacial' {
+    return this.themeService.isDark() ? 'dark' : 'glacial';
+  }
+
+  get campusRows(): CampusRecord[] {
+    return (this.campusesGrid?.rows as CampusRecord[] | undefined) ?? [];
+  }
+
+  readonly columns: ColumnContract[] = [
+    { text: '#', width: '48px', align: 'center', sortable: false },
+    { text: 'Sede', dataIndex: 'name' },
+    { text: 'Código DANE', dataIndex: 'daneCode' },
+    { text: 'Municipio', dataIndex: 'cityName' },
+    { text: 'Zona', dataIndex: 'zoneName' },
+    { text: 'Jornadas / Niveles', dataIndex: 'shiftsCount', align: 'center' },
+    { text: 'Principal', dataIndex: 'isMainCampus', align: 'center' },
+    { text: 'Estado', dataIndex: 'isActive', align: 'center' },
+    { text: 'Acciones', width: '140px', align: 'right', sortable: false },
+  ];
+
+  private readonly exportColumns: readonly ExodoExportColumn<CampusRecord>[] = [
+    { header: 'Sede', value: (r) => r.name },
+    { header: 'Código DANE', value: (r) => r.daneCode ?? '' },
+    { header: 'Municipio', value: (r) => r.cityName ?? '' },
+    { header: 'Zona', value: (r) => r.zoneName ?? '' },
+    { header: 'Jornadas / Niveles', value: (r) => `${r.shiftsCount} / ${r.levelsCount}` },
+    { header: 'Principal', value: (r) => (r.isMainCampus ? 'Sí' : 'No') },
+    { header: 'Estado', value: (r) => (r.isActive ? 'Activo' : 'Inactivo') },
   ];
 
   readonly campusForm: FormGroup;
 
   constructor() {
+    this.destroyRef.onDestroy(() => {
+      if (this.initLoadTimer !== null) {
+        clearTimeout(this.initLoadTimer);
+        this.initLoadTimer = null;
+      }
+    });
     this.campusForm = this.fb.group({
       name: ['', [Validators.required, Validators.maxLength(200)]],
       daneCode: [''],
@@ -390,21 +577,37 @@ export class CampusesManagementComponent implements OnInit {
     this.catalogsService
       .getSchoolContext()
       .subscribe((ctx) => this.schoolContext.set(ctx));
-    this.loadCampuses();
+  }
+
+  ngAfterViewInit(): void {
+    this.campusesGrid?.onLoad({ paginated: '1' }, false);
+    if (this.isBrowser) {
+      this.initLoadTimer = setTimeout(() => {
+        this.initLoadTimer = null;
+        this.campusesGrid?.onLoad({ paginated: '1' }, true);
+      });
+    }
   }
 
   loadCampuses(): void {
-    this.loading.set(true);
-    this.adminService
-      .listCampuses()
-      .pipe(finalize(() => this.loading.set(false)))
-      .subscribe({
-        next: (rows) => this.campuses.set(rows),
-      });
+    this.campusesGrid?.rebuildGrid();
+  }
+
+  exportCurrentPage(): void {
+    exportGridRowsToExcel(
+      this.campusRows,
+      this.exportColumns,
+      'sedes-educativas',
+    );
+  }
+
+  onGridLoadError(): void {
+    this.messages.showError('No fue posible cargar el listado de sedes educativas.');
   }
 
   openCreateModal(): void {
     this.editingCampus.set(null);
+    this.wizardStep.set(0);
     this.campusForm.reset({
       name: '',
       daneCode: '',
@@ -426,6 +629,7 @@ export class CampusesManagementComponent implements OnInit {
 
   openEditModal(campus: CampusRecord): void {
     this.editingCampus.set(campus);
+    this.wizardStep.set(0);
     const countryId = campus.countryId ?? 45;
     this.campusForm.patchValue({
       name: campus.name,
@@ -462,6 +666,25 @@ export class CampusesManagementComponent implements OnInit {
     } else {
       this.cities.set([]);
     }
+  }
+
+  onCampusStepNext(stepIndex: number): void {
+    if (stepIndex === 0) {
+      const nameControl = this.campusForm.get('name');
+      if (nameControl?.invalid) {
+        nameControl.markAsTouched();
+        return;
+      }
+      this.wizardStep.set(1);
+    }
+  }
+
+  onCampusFormSubmit(): void {
+    if (this.wizardStep() === 0 && !this.editingCampus()) {
+      this.onCampusStepNext(0);
+      return;
+    }
+    this.saveCampus();
   }
 
   saveCampus(): void {

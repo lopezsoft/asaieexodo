@@ -34,42 +34,44 @@ import { V3ModalDialogComponent } from '../v3-modal-dialog/v3-modal-dialog.compo
     <app-v3-modal-dialog
       [open]="open"
       [heading]="heading"
-      [subtitle]="'Almacenamiento seguro en AWS S3 con aislamiento por colegio (RLS)'"
+      [subtitle]="'Almacenamiento seguro en la nube con aislamiento por institución'"
       icon="cloud_upload"
       size="lg"
       (closed)="closed.emit()"
     >
-      <div class="border rounded p-3 mb-4 bg-light">
-        <div class="row g-2 align-items-end">
-          <div class="col-md-5">
-            <label class="form-label small fw-semibold">Seleccionar archivo (PDF, imagen, Office)</label>
-            <input
-              type="file"
-              class="form-control form-control-sm"
-              (change)="onFileSelected($event)"
-            />
-          </div>
-          <div class="col-md-5">
-            <label class="form-label small fw-semibold">Descripción del documento</label>
-            <input
-              type="text"
-              class="form-control form-control-sm"
-              [(ngModel)]="description"
-              placeholder="Ej. Hoja de vida, acta o firma institucional"
-            />
-          </div>
-          <div class="col-md-2 d-grid">
-            <button
-              type="button"
-              class="btn btn-sm btn-primary"
-              [disabled]="!selectedFile || uploading()"
-              (click)="uploadFile()"
-            >
-              {{ uploading() ? 'Subiendo...' : 'Subir' }}
-            </button>
+      @if (canUpload) {
+        <div class="v3-form-panel">
+          <div class="row g-3">
+            <div class="col-12 col-md-6">
+              <label class="form-label">Seleccionar archivo (PDF, imagen, Office)</label>
+              <input
+                type="file"
+                class="form-control"
+                (change)="onFileSelected($event)"
+              />
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label">Descripción del documento</label>
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="description"
+                placeholder="Ej. Hoja de vida, acta o firma institucional"
+              />
+            </div>
+            <div class="col-12 d-flex justify-content-end">
+              <button
+                type="button"
+                class="btn btn-sm btn-primary"
+                [disabled]="!selectedFile || uploading()"
+                (click)="uploadFile()"
+              >
+                {{ uploading() ? 'Subiendo...' : 'Subir archivo' }}
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      }
 
       @if (loading()) {
         <div class="text-center py-4">
@@ -105,18 +107,20 @@ import { V3ModalDialogComponent } from '../v3-modal-dialog/v3-modal-dialog.compo
                       type="button"
                       class="btn btn-sm btn-outline-primary me-1"
                       (click)="downloadFile(file)"
-                      [appCustomTooltip]="'Descargar archivo desde S3'"
+                      [appCustomTooltip]="'Descargar archivo'"
                     >
                       <i class="material-symbols-outlined fs-6">download</i>
                     </button>
-                    <button
-                      type="button"
-                      class="btn btn-sm btn-outline-danger"
-                      (click)="deleteFile(file)"
-                      [appCustomTooltip]="'Eliminar archivo'"
-                    >
-                      <i class="material-symbols-outlined fs-6">delete</i>
-                    </button>
+                    @if (canDelete) {
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-danger"
+                        (click)="deleteFile(file)"
+                        [appCustomTooltip]="'Eliminar archivo'"
+                      >
+                        <i class="material-symbols-outlined fs-6">delete</i>
+                      </button>
+                    }
                   </td>
                 </tr>
               }
@@ -143,7 +147,9 @@ export class V3FileManagerModalComponent implements OnChanges {
 
   @Input() open = false;
   @Input() heading = 'Documentos Digitales';
-  @Input() category = 'INSTITUTIONAL_DOCUMENTS';
+  @Input() category = 'GENERAL';
+  @Input() canUpload = true;
+  @Input() canDelete = true;
   @Output() readonly closed = new EventEmitter<void>();
   @Output() readonly fileUploaded = new EventEmitter<CloudFileRecord>();
 

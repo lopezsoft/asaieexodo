@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { DomainException } from '../../../../shared/domain/exceptions/domain.exception';
 import { ResourceNotFoundException } from '../../../../shared/domain/exceptions/resource-not-found.exception';
 import { PostgresRlsService } from '../../../../shared/infrastructure/database/postgres-rls.service';
 import {
@@ -1237,18 +1238,49 @@ export class PostgresSettingsRepository implements SettingsRepositoryPort {
   async cleanupZeroGrades(
     schoolId: bigint,
     academicYear: number,
+    actorUserId?: bigint,
   ): Promise<{ deletedCount: number }> {
-    return this.db.withTenantTransaction(schoolId, async (client) => {
-      const res = await client.query(
-        `DELETE FROM academic_scores
-         WHERE academic_year = $1
-           AND final_score = 0
-           AND COALESCE(recovery_score, 0) = 0
-           AND COALESCE(lost_score, 0) = 0`,
-        [academicYear],
-      );
-      return { deletedCount: res.rowCount ?? 0 };
-    });
+    return this.db.withTenantTransaction(
+      schoolId,
+      async (client) => {
+        const yearRes = await client.query<{ is_closed: boolean }>(
+          `SELECT is_closed
+             FROM academic_years
+            WHERE school_id = $1 AND year = $2
+            LIMIT 1`,
+          [String(schoolId), academicYear],
+        );
+        if (yearRes.rows[0]?.is_closed) {
+          throw new DomainException(
+            'ACADEMIC_YEAR_CLOSED',
+            `El año lectivo ${academicYear} está cerrado; no está permitido eliminar notas en cero.`,
+          );
+        }
+
+        const res = await client.query(
+          `DELETE FROM academic_scores sc
+           WHERE sc.school_id = $1
+             AND sc.academic_year = $2
+             AND sc.final_score = 0
+             AND COALESCE(sc.recovery_score, 0) = 0
+             AND COALESCE(sc.lost_score, 0) = 0
+             AND NOT EXISTS (
+               SELECT 1
+                 FROM academic_periods ap
+                WHERE ap.school_id = sc.school_id
+                  AND ap.academic_year = sc.academic_year
+                  AND ap.period_number = sc.period_number
+                  AND ap.is_closed = TRUE
+             )`,
+          [String(schoolId), academicYear],
+        );
+        return { deletedCount: res.rowCount ?? 0 };
+      },
+      {
+        userId: actorUserId ?? null,
+        changeReason: `ADMIN_CLEANUP_ZERO_GRADES_${academicYear}`,
+      },
+    );
   }
 
   private mapAcademicYear(r: Record<string, unknown>): AcademicYearRecord {

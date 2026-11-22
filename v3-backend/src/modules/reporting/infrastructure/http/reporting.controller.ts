@@ -36,10 +36,14 @@ import {
 import { ResourceNotFoundException } from '../../../../shared/domain/exceptions/resource-not-found.exception';
 import {
   CurrentUser,
-  Roles,
+  RequireAnyPermission,
 } from '../../../../shared/infrastructure/http/decorators/security.decorators';
+import {
+  RBAC_PERMISSIONS,
+  resolveReportTemplatePermissions,
+} from '../../../../shared/infrastructure/rbac/rbac-permissions.constants';
+import { RbacPermissionsService } from '../../../../shared/infrastructure/rbac/rbac-permissions.service';
 import { INSTITUTIONAL_REPORT_CATALOG } from '../../../../shared/infrastructure/reporting/report-catalog.constants';
-import { CommunityRole } from '../../../iam/domain/enums/community-role.enum';
 import { ManageCloudFilesUseCase } from '../../../storage/application/use-cases/manage-cloud-files.use-case';
 import {
   JASPER_REPORTS_QUEUE,
@@ -55,14 +59,12 @@ const ALLOWED_REPORT_FORMATS: ReportOutputFormat[] = [
   'html',
 ];
 
-const REPORT_STAFF_ROLES: CommunityRole[] = [
-  CommunityRole.SUPER_ADMIN,
-  CommunityRole.SCHOOL_ADMIN,
-  CommunityRole.RECTOR,
-  CommunityRole.COORDINATOR,
-  CommunityRole.SECRETARY,
-  CommunityRole.TEACHER,
-];
+const ANY_REPORT_PERMISSION = [
+  RBAC_PERMISSIONS.REPORTS_ACADEMIC_GENERATE,
+  RBAC_PERMISSIONS.REPORTS_CERTIFICATES_GENERATE,
+  RBAC_PERMISSIONS.REPORTS_DIRECTORY_GENERATE,
+  RBAC_PERMISSIONS.REPORTS_TEACHER_GENERATE,
+] as const;
 
 export class EnqueueJasperReportRequestDto {
   @ApiProperty({
@@ -106,33 +108,50 @@ export class ReportingController {
     >,
     private readonly reportGenerator: ReportGeneratorPort,
     private readonly manageCloudFilesUseCase: ManageCloudFilesUseCase,
+    private readonly rbacPermissions: RbacPermissionsService,
   ) {}
 
   @Get('catalog')
-  @Roles(...REPORT_STAFF_ROLES)
+  @RequireAnyPermission(...ANY_REPORT_PERMISSION)
   @ApiOperation({
-    summary: 'Listar catálogo completo de reportes institucionales nativos (PDF/Excel/CSV)',
+    summary:
+      'Listar catálogo de reportes institucionales habilitados para los permisos del usuario activo',
     description:
-      'Retorna las 31 plantillas institucionales disponibles en el motor cloud-native (Gotenberg 8 HTML->PDF + ExcelJS).',
+      'Filtra las plantillas del motor cloud-native (Gotenberg 8 HTML->PDF + ExcelJS) según los permisos RBAC efectivos y módulos habilitados del colegio.',
   })
   @ApiResponse({
     status: 200,
-    description: 'Catálogo institucional de reportes retornado exitosamente.',
+    description: 'Catálogo institucional de reportes filtrado exitosamente.',
   })
-  getCatalog(): Record<string, unknown> {
+  async getCatalog(
+    @CurrentUser() principal: ActiveTenantContext,
+  ): Promise<Record<string, unknown>> {
+    const resolved = await this.rbacPermissions.resolveEffectiveAccess(
+      principal.schoolId,
+      principal.userId,
+      principal.activeRole,
+    );
+    const permSet = new Set(resolved.permissions);
+
+    const allowedItems = INSTITUTIONAL_REPORT_CATALOG.filter((item) => {
+      const requiredAny = resolveReportTemplatePermissions(item.templateName);
+      return requiredAny.some((perm) => permSet.has(perm));
+    });
+
     return {
       success: true,
-      total: INSTITUTIONAL_REPORT_CATALOG.length,
-      data: INSTITUTIONAL_REPORT_CATALOG,
+      total: allowedItems.length,
+      data: allowedItems,
     };
   }
 
   @Post('generate-direct')
-  @Roles(...REPORT_STAFF_ROLES)
+  @RequireAnyPermission(...ANY_REPORT_PERMISSION)
   @ApiOperation({
-    summary: 'Generar y descargar de inmediato un reporte oficial (PDF, XLSX, CSV, HTML, DOCX)',
+    summary:
+      'Generar y descargar de inmediato un reporte oficial (PDF, XLSX, CSV, HTML, DOCX)',
     description:
-      'Ejecuta el motor nativo cloud (Gotenberg 8 + ExcelJS) bajo RLS estricto del `schoolId` del JWT y retorna el flujo binario listo para descarga.',
+      'Valida el permiso RBAC específico de la plantilla y ejecuta el motor nativo cloud (Gotenberg 8 + ExcelJS) bajo RLS estricto del `schoolId` del JWT.',
   })
   @ApiResponse({
     status: 201,
@@ -143,6 +162,15 @@ export class ReportingController {
     @Body() dto: EnqueueJasperReportRequestDto,
     @Res({ passthrough: true }) reply: FastifyReply,
   ): Promise<StreamableFile> {
+    const requiredPerms = resolveReportTemplatePermissions(dto.templateName);
+    await this.rbacPermissions.assertAnyPermission(
+      principal.schoolId,
+      principal.userId,
+      principal.activeRole,
+      requiredPerms,
+      `No cuentas con permiso para generar la plantilla '${dto.templateName}'.`,
+    );
+
     const generated = await this.reportGenerator.generateFromTemplate({
       schoolId: principal.schoolId,
       requestedByUserId: principal.userId,
@@ -164,11 +192,12 @@ export class ReportingController {
   }
 
   @Post('enqueue')
-  @Roles(...REPORT_STAFF_ROLES)
+  @RequireAnyPermission(...ANY_REPORT_PERMISSION)
   @ApiOperation({
-    summary: 'Encolar generación asíncrona de reporte institucional (BullMQ -> S3)',
+    summary:
+      'Encolar generación asíncrona de reporte institucional (BullMQ -> S3)',
     description:
-      'Encola en BullMQ la generación del reporte institucional derivando `schoolId` y `requestedByUserId` exclusivamente desde el JWT verificado.',
+      'Valida el permiso RBAC de la plantilla y encola en BullMQ la generación derivando `schoolId` y `requestedByUserId` exclusivamente desde el JWT.',
   })
   @ApiResponse({
     status: 201,
@@ -178,6 +207,15 @@ export class ReportingController {
     @CurrentUser() principal: ActiveTenantContext,
     @Body() dto: EnqueueJasperReportRequestDto,
   ): Promise<Record<string, unknown>> {
+    const requiredPerms = resolveReportTemplatePermissions(dto.templateName);
+    await this.rbacPermissions.assertAnyPermission(
+      principal.schoolId,
+      principal.userId,
+      principal.activeRole,
+      requiredPerms,
+      `No cuentas con permiso para encolar la plantilla '${dto.templateName}'.`,
+    );
+
     const payload: JasperReportJobPayload = {
       schoolId: String(principal.schoolId),
       requestedByUserId: String(principal.userId),
@@ -202,10 +240,12 @@ export class ReportingController {
   }
 
   @Get('jobs/:jobId')
+  @RequireAnyPermission(...ANY_REPORT_PERMISSION)
   @ApiOperation({
-    summary: 'Consultar estado de reporte en BullMQ y obtener URL prefirmada S3',
+    summary:
+      'Consultar estado de reporte en BullMQ y obtener URL prefirmada S3',
     description:
-      'Valida estrictamente que el job pertenezca al `schoolId` del JWT autenticado. Cuando el estado es `completed`, genera una URL temporal prefirmada (GET) de descarga desde AWS S3.',
+      'Valida estrictamente que el job pertenezca al `schoolId` del JWT y al alcance RBAC del usuario autenticado.',
   })
   @ApiParam({ name: 'jobId', example: '1' })
   @ApiResponse({
@@ -221,6 +261,23 @@ export class ReportingController {
     // Ocultar existencia de jobs inexistentes o de otros colegios (prevencion IDOR/enumeracion)
     if (!job || String(job.data?.schoolId) !== String(principal.schoolId)) {
       throw new ResourceNotFoundException('ReportJob', jobId);
+    }
+
+    // Validar que el usuario tenga permiso para la plantilla solicitada o sea quien la encoló
+    if (String(job.data?.requestedByUserId) !== String(principal.userId)) {
+      const canReadInstitutional = await this.rbacPermissions.hasAnyPermission(
+        principal.schoolId,
+        principal.userId,
+        principal.activeRole,
+        [
+          RBAC_PERMISSIONS.REPORTS_ACADEMIC_GENERATE,
+          RBAC_PERMISSIONS.REPORTS_CERTIFICATES_GENERATE,
+          RBAC_PERMISSIONS.REPORTS_DIRECTORY_GENERATE,
+        ],
+      );
+      if (!canReadInstitutional) {
+        throw new ResourceNotFoundException('ReportJob', jobId);
+      }
     }
 
     const state = await job.getState();

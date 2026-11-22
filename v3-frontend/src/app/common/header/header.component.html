@@ -50,21 +50,23 @@
                 }
 
                 @if (v3Auth.isAuthenticated()) {
-                    <div class="d-flex align-items-center ms-2 ms-lg-3 gap-1">
-                        <label class="small text-muted d-none d-xl-inline mb-0" for="v3-global-year">
-                            Año:
-                        </label>
-                        <select
-                            id="v3-global-year"
-                            class="form-select form-select-sm v3-year-selector"
+                    <div
+                        class="v3-header-year-wrap d-flex align-items-center ms-1 ms-lg-2 gap-2"
+                        [appCustomTooltip]="'Cambiar año lectivo de trabajo'"
+                        tooltipPosition="bottom"
+                    >
+                        <span class="small text-muted d-none d-xl-inline fw-medium">Año:</span>
+                        <app-v3-searchable-select
+                            class="v3-header-year-select"
+                            inputId="v3-global-year"
+                            leadingIcon="calendar_month"
+                            placeholder="Año"
+                            searchPlaceholder="Buscar año..."
+                            emptyMessage="Sin años coincidentes"
+                            [options]="academicYearOptions()"
                             [ngModel]="v3Auth.academicYear()"
                             (ngModelChange)="onAcademicYearChange($event)"
-                            [appCustomTooltip]="'Cambiar año lectivo de trabajo'"
-                        >
-                            @for (yr of availableAcademicYears(); track yr) {
-                                <option [ngValue]="yr">{{ yr }}</option>
-                            }
-                        </select>
+                        />
                     </div>
                 }
             }

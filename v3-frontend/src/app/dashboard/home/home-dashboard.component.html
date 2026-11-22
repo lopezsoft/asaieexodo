@@ -23,26 +23,28 @@
           </span>
 
           @if (statistics(); as stats) {
-            <span
-              class="v3-hero-glass-pill"
-              [ngClass]="stats.schoolSummary.isActive ? 'is-success' : 'is-danger'"
-              [appCustomTooltip]="'Vigencia de la suscripción institucional'"
-            >
-              <i class="material-symbols-outlined" aria-hidden="true">verified</i>
-              <span>
-                @if (stats.schoolSummary.isActive) {
-                  Cuenta activa hasta {{ stats.schoolSummary.subscriptionLockDate }}
-                } @else {
-                  Cuenta inactiva
-                }
+            @if (stats.schoolSummary.subscriptionLockDate || !stats.schoolSummary.isActive) {
+              <span
+                class="v3-hero-glass-pill"
+                [ngClass]="stats.schoolSummary.isActive ? 'is-success' : 'is-danger'"
+                [appCustomTooltip]="'Vigencia de la suscripción institucional'"
+              >
+                <i class="material-symbols-outlined" aria-hidden="true">verified</i>
+                <span>
+                  @if (stats.schoolSummary.isActive) {
+                    Cuenta activa hasta {{ stats.schoolSummary.subscriptionLockDate }}
+                  } @else {
+                    Cuenta inactiva
+                  }
+                </span>
               </span>
-            </span>
+            }
           }
         </div>
       </div>
 
       <div class="v3-hero-actions">
-        @if (statistics(); as stats) {
+        @if (v3Auth.hasAnyPermission(['admin.school.view', 'admin.campuses.view', 'admin.teachers.view', 'admin.staff.view', 'admin.group_managers.view', 'iam.memberships.view', 'iam.rbac.manage'])) {
           <a
             routerLink="/admin"
             class="v3-hero-glass-btn is-primary"

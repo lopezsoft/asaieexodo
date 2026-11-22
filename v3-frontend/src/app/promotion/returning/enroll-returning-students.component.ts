@@ -15,6 +15,10 @@ import {
 } from '../../services/v3-administration.service';
 import { V3PromotionService } from '../../services/v3-promotion.service';
 import { V3UnifiedAuthService } from '../../services/v3-unified-auth.service';
+import {
+  SearchableSelectOption,
+  V3SearchableSelectComponent,
+} from '../../shared/components/v3-searchable-select/v3-searchable-select.component';
 
 /**
  * Matrícula masiva de estudiantes antiguos desde un año lectivo origen al destino
@@ -23,7 +27,7 @@ import { V3UnifiedAuthService } from '../../services/v3-unified-auth.service';
 @Component({
   selector: 'app-enroll-returning-students',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, V3SearchableSelectComponent],
   template: `
     <div class="container-fluid py-3">
       <div class="breadcrumb-card mb-25 d-md-flex align-items-center justify-content-between">
@@ -40,25 +44,26 @@ import { V3UnifiedAuthService } from '../../services/v3-unified-auth.service';
       </div>
 
       <div class="trezo-card bg-white border-radius p-4 shadow-sm mb-4">
-        <div class="row g-2 align-items-end">
-          <div class="col-md-2">
-            <label class="form-label small fw-semibold">Año Origen</label>
-            <input type="number" class="form-control form-control-sm" [(ngModel)]="fromYear" (ngModelChange)="loadData()" />
+        <div class="row g-3">
+          <div class="col-12 col-md-6">
+            <label class="form-label">Año Origen</label>
+            <input type="number" class="form-control" [(ngModel)]="fromYear" (ngModelChange)="loadData()" />
           </div>
-          <div class="col-md-2">
-            <label class="form-label small fw-semibold">Año Destino</label>
-            <input type="number" class="form-control form-control-sm" [(ngModel)]="toYear" (ngModelChange)="loadData()" />
+          <div class="col-12 col-md-6">
+            <label class="form-label">Año Destino</label>
+            <input type="number" class="form-control" [(ngModel)]="toYear" (ngModelChange)="loadData()" />
           </div>
-          <div class="col-md-5">
-            <label class="form-label small fw-semibold">Grupo Destino ({{ toYear }}) *</label>
-            <select class="form-select form-select-sm" [(ngModel)]="targetGroupId">
-              <option [ngValue]="0">Seleccione grupo destino...</option>
-              @for (g of targetGroups(); track g.id) {
-                <option [ngValue]="g.id">{{ g.gradeName }}-{{ g.groupCode }} ({{ g.campusName }} · {{ g.shiftName }})</option>
-              }
-            </select>
+          <div class="col-12 col-md-6">
+            <label class="form-label">Grupo Destino ({{ toYear }}) *</label>
+            <app-v3-searchable-select
+              [(ngModel)]="targetGroupId"
+              [options]="targetGroupOptions()"
+              [clearable]="true"
+              placeholder="Seleccione grupo destino..."
+              searchPlaceholder="Buscar grupo destino..."
+            />
           </div>
-          <div class="col-md-3 d-grid">
+          <div class="col-12 col-md-6 d-flex align-items-end justify-content-md-end">
             <button
               type="button"
               class="btn btn-sm btn-primary"
@@ -127,6 +132,13 @@ export class EnrollReturningStudentsComponent implements OnInit {
   readonly sourceEnrollments = signal<EnrollmentRecord[]>([]);
   readonly targetGroups = signal<GroupManagerRecord[]>([]);
   readonly selectedIds = signal<number[]>([]);
+
+  readonly targetGroupOptions = computed<SearchableSelectOption<number>[]>(() =>
+    this.targetGroups().map((g) => ({
+      value: g.id,
+      label: `${g.gradeName}-${g.groupCode} (${g.campusName} · ${g.shiftName})`,
+    }))
+  );
 
   ngOnInit(): void {
     this.fromYear = this.academicYear();

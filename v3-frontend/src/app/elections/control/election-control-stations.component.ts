@@ -15,6 +15,10 @@ import {
   V3ElectionsService,
 } from '../../services/v3-elections.service';
 import { V3UnifiedAuthService } from '../../services/v3-unified-auth.service';
+import {
+  SearchableSelectOption,
+  V3SearchableSelectComponent,
+} from '../../shared/components/v3-searchable-select/v3-searchable-select.component';
 import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.directive';
 
 /**
@@ -24,7 +28,7 @@ import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.d
 @Component({
   selector: 'app-election-control-stations',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, CustomTooltipDirective],
+  imports: [CommonModule, FormsModule, RouterLink, V3SearchableSelectComponent, CustomTooltipDirective],
   template: `
     <div class="container-fluid py-3">
       <div class="breadcrumb-card mb-25 d-md-flex align-items-center justify-content-between">
@@ -42,38 +46,42 @@ import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.d
 
       <div class="trezo-card bg-white border-radius p-4 shadow-sm mb-4">
         <h6 class="fw-semibold mb-3">Configurar Jornada Electoral</h6>
-        <div class="row g-2 align-items-end mb-3 p-3 rounded bg-light border">
-          <div class="col-md-3">
-            <label class="form-label small fw-semibold">Nombre de la jornada *</label>
-            <input type="text" class="form-control form-control-sm" [(ngModel)]="electionForm.electionName" placeholder="Elecciones Gobierno Escolar 2026" />
-          </div>
-          <div class="col-md-2">
-            <label class="form-label small fw-semibold">Fecha *</label>
-            <input type="date" class="form-control form-control-sm" [(ngModel)]="electionForm.electionDate" />
-          </div>
-          <div class="col-md-2">
-            <label class="form-label small fw-semibold">Hora inicio</label>
-            <input type="time" class="form-control form-control-sm" [(ngModel)]="electionForm.startTime" />
-          </div>
-          <div class="col-md-2">
-            <label class="form-label small fw-semibold">Hora cierre</label>
-            <input type="time" class="form-control form-control-sm" [(ngModel)]="electionForm.endTime" />
-          </div>
-          <div class="col-md-1">
-            <div class="form-check form-switch">
-              <input class="form-check-input" type="checkbox" id="elecActive" [(ngModel)]="electionForm.isActive" />
-              <label class="form-check-label small" for="elecActive">Activa</label>
+        <div class="v3-form-panel">
+          <div class="row g-3">
+            <div class="col-12 col-md-6">
+              <label class="form-label">Nombre de la jornada *</label>
+              <input type="text" class="form-control" [(ngModel)]="electionForm.electionName" placeholder="Elecciones Gobierno Escolar 2026" />
             </div>
-          </div>
-          <div class="col-md-2 d-grid">
-            <button
-              type="button"
-              class="btn btn-sm btn-primary"
-              [disabled]="!electionForm.electionName.trim() || !electionForm.electionDate"
-              (click)="saveElection()"
-            >
-              Guardar Jornada
-            </button>
+            <div class="col-12 col-md-6">
+              <label class="form-label">Fecha de jornada *</label>
+              <input type="date" class="form-control" [(ngModel)]="electionForm.electionDate" />
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label">Hora inicio</label>
+              <input type="time" class="form-control" [(ngModel)]="electionForm.startTime" />
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label">Hora cierre</label>
+              <input type="time" class="form-control" [(ngModel)]="electionForm.endTime" />
+            </div>
+            <div class="col-12 col-md-6">
+              <div class="v3-form-switch-box">
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" id="elecActive" [(ngModel)]="electionForm.isActive" />
+                  <label class="form-check-label" for="elecActive">Jornada electoral activa</label>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 col-md-6 d-flex align-items-end justify-content-md-end">
+              <button
+                type="button"
+                class="btn btn-sm btn-primary"
+                [disabled]="!electionForm.electionName.trim() || !electionForm.electionDate"
+                (click)="saveElection()"
+              >
+                Guardar Jornada
+              </button>
+            </div>
           </div>
         </div>
 
@@ -131,37 +139,40 @@ import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.d
       @if (selectedElectionId()) {
         <div class="trezo-card bg-white border-radius p-4 shadow-sm">
           <h6 class="fw-semibold mb-3">Mesas de Votación y Jurados</h6>
-          <div class="row g-2 align-items-end mb-4 p-3 rounded bg-light border">
-            <div class="col-md-2">
-              <label class="form-label small fw-semibold">No. Mesa *</label>
-              <input type="text" class="form-control form-control-sm" [(ngModel)]="stationForm.stationNumber" placeholder="M-01" />
-            </div>
-            <div class="col-md-3">
-              <label class="form-label small fw-semibold">Nombre de Mesa *</label>
-              <input type="text" class="form-control form-control-sm" [(ngModel)]="stationForm.stationName" placeholder="Mesa Bachillerato" />
-            </div>
-            <div class="col-md-3">
-              <label class="form-label small fw-semibold">Sede</label>
-              <select class="form-select form-select-sm" [(ngModel)]="stationForm.campusId">
-                <option [ngValue]="null">Todas las sedes</option>
-                @for (c of context()?.campuses ?? []; track c.id) {
-                  <option [ngValue]="c.id">{{ c.name }}</option>
-                }
-              </select>
-            </div>
-            <div class="col-md-2">
-              <label class="form-label small fw-semibold">Ubicación</label>
-              <input type="text" class="form-control form-control-sm" [(ngModel)]="stationForm.locationDescription" placeholder="Bloque A" />
-            </div>
-            <div class="col-md-2 d-grid">
-              <button
-                type="button"
-                class="btn btn-sm btn-primary"
-                [disabled]="!stationForm.stationNumber.trim() || !stationForm.stationName.trim()"
-                (click)="createStation()"
-              >
-                Agregar Mesa
-              </button>
+          <div class="v3-form-panel">
+            <div class="row g-3">
+              <div class="col-12 col-md-6">
+                <label class="form-label">No. Mesa *</label>
+                <input type="text" class="form-control" [(ngModel)]="stationForm.stationNumber" placeholder="M-01" />
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label">Nombre de Mesa *</label>
+                <input type="text" class="form-control" [(ngModel)]="stationForm.stationName" placeholder="Mesa Bachillerato" />
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label">Sede</label>
+                <app-v3-searchable-select
+                  [(ngModel)]="stationForm.campusId"
+                  [options]="campusOptions()"
+                  [clearable]="true"
+                  placeholder="Todas las sedes"
+                  searchPlaceholder="Buscar sede..."
+                />
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label">Ubicación</label>
+                <input type="text" class="form-control" [(ngModel)]="stationForm.locationDescription" placeholder="Bloque A" />
+              </div>
+              <div class="col-12 d-flex justify-content-end">
+                <button
+                  type="button"
+                  class="btn btn-sm btn-primary"
+                  [disabled]="!stationForm.stationNumber.trim() || !stationForm.stationName.trim()"
+                  (click)="createStation()"
+                >
+                  Agregar Mesa
+                </button>
+              </div>
             </div>
           </div>
 
@@ -228,6 +239,10 @@ export class ElectionControlStationsComponent implements OnInit {
   readonly selectedElectionId = signal<number | null>(null);
   readonly stations = signal<PollingStationRecord[]>([]);
   readonly context = signal<SchoolAcademicContextCatalogs | null>(null);
+
+  readonly campusOptions = computed<SearchableSelectOption<number>[]>(() =>
+    (this.context()?.campuses ?? []).map((c) => ({ value: c.id, label: c.name }))
+  );
 
   electionForm = {
     electionName: '',

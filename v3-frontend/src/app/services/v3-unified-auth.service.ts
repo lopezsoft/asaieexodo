@@ -77,6 +77,8 @@ export interface UnifiedAuthenticatedSession {
   readonly activeSchoolName: string;
   readonly activeRole: CommunityRole;
   readonly academicYear: number;
+  readonly permissions?: string[];
+  readonly enabledModules?: string[];
   readonly user: UnifiedCommunityUserProfile;
 }
 
@@ -179,6 +181,16 @@ export class V3UnifiedAuthService {
   readonly academicYear = computed(
     () => this.sessionSignal()?.academicYear ?? new Date().getFullYear(),
   );
+  readonly permissions = computed(
+    () => this.sessionSignal()?.permissions ?? [],
+  );
+  readonly enabledModules = computed(
+    () => this.sessionSignal()?.enabledModules ?? [],
+  );
+  private readonly permissionSet = computed(() => new Set(this.permissions()));
+  private readonly enabledModuleSet = computed(
+    () => new Set(this.enabledModules()),
+  );
   readonly user = computed(() => this.sessionSignal()?.user ?? null);
   readonly memberships = computed(
     () => this.sessionSignal()?.user?.memberships ?? [],
@@ -276,6 +288,7 @@ export class V3UnifiedAuthService {
           if (current) {
             this.persistSession({
               ...response.data,
+              academicYear: current.academicYear ?? response.data.academicYear,
               accessToken: current.accessToken,
             });
           }
@@ -472,6 +485,62 @@ export class V3UnifiedAuthService {
     return Boolean(active && roles.includes(active));
   }
 
+  hasPermission(permissionCode: string): boolean {
+    const active = this.activeRole();
+    if (!active) {
+      return false;
+    }
+    if (active === 'SUPER_ADMIN') {
+      return true;
+    }
+    return this.permissionSet().has(permissionCode);
+  }
+
+  hasAnyPermission(permissionCodes: readonly string[]): boolean {
+    if (permissionCodes.length === 0) {
+      return true;
+    }
+    const active = this.activeRole();
+    if (!active) {
+      return false;
+    }
+    if (active === 'SUPER_ADMIN') {
+      return true;
+    }
+    const perms = this.permissionSet();
+    return permissionCodes.some((code) => perms.has(code));
+  }
+
+  hasAllPermissions(permissionCodes: readonly string[]): boolean {
+    if (permissionCodes.length === 0) {
+      return true;
+    }
+    const active = this.activeRole();
+    if (!active) {
+      return false;
+    }
+    if (active === 'SUPER_ADMIN') {
+      return true;
+    }
+    const perms = this.permissionSet();
+    return permissionCodes.every((code) => perms.has(code));
+  }
+
+  hasModule(moduleTag: string): boolean {
+    const active = this.activeRole();
+    if (!active) {
+      return false;
+    }
+    if (active === 'SUPER_ADMIN') {
+      return true;
+    }
+    const mods = this.enabledModuleSet();
+    if (mods.size === 0) {
+      return true;
+    }
+    return mods.has(moduleTag);
+  }
+
   /**
    * Si el usuario tiene múltiples colegios o perfiles, lo lleva al Panel de Accesos;
    * si tiene un único perfil, lo dirige directamente a su módulo correspondiente.
@@ -498,32 +567,69 @@ export class V3UnifiedAuthService {
     if (!saved?.accessToken || !saved.user?.id) {
       return;
     }
-    if (this.isJwtExpired(saved.accessToken)) {
+
+    const jwtClaims = this.decodeJwtPayload(saved.accessToken);
+    if (!jwtClaims || this.isClaimsExpired(jwtClaims)) {
       this.debugService.warn(
         'V3UnifiedAuthService.hydrateSessionFromStorage',
-        'Sesión local expirada descartada al inicializar',
+        'Sesión local expirada o inválida descartada al inicializar',
       );
       this.storage.removeItem(STORAGE_SESSION_KEY);
       return;
     }
+
+    // Verificar integridad de claims firmados contra lo guardado en storage (anti-manipulación local)
+    if (
+      Number(jwtClaims.sub) !== Number(saved.user.id) ||
+      Number(jwtClaims.schoolId) !== Number(saved.activeSchoolId) ||
+      jwtClaims.activeRole !== saved.activeRole
+    ) {
+      this.debugService.warn(
+        'V3UnifiedAuthService.hydrateSessionFromStorage',
+        'Inconsistencia detectada entre claims del JWT y sesión almacenada; cerrando sesión local',
+      );
+      this.storage.removeItem(STORAGE_SESSION_KEY);
+      return;
+    }
+
     this.sessionSignal.set(saved);
+
+    // Sincronizar permisos efectivos RBAC si la sesión proviene de una versión previa
+    if (!Array.isArray(saved.permissions)) {
+      this.fetchAuthenticatedProfile()
+        .pipe(catchError(() => of(null)))
+        .subscribe();
+    }
   }
 
-  private isJwtExpired(token: string): boolean {
+  private decodeJwtPayload(token: string): {
+    sub?: number;
+    schoolId?: number;
+    activeRole?: CommunityRole;
+    exp?: number;
+  } | null {
     try {
       const parts = token.split('.');
       if (parts.length !== 3) {
-        return true;
+        return null;
       }
       const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
       const jsonPayload = atob(base64);
-      const parsed = JSON.parse(jsonPayload) as { exp?: number };
-      if (!parsed.exp) {
-        return false;
-      }
-      return Date.now() >= parsed.exp * 1000;
+      return JSON.parse(jsonPayload) as {
+        sub?: number;
+        schoolId?: number;
+        activeRole?: CommunityRole;
+        exp?: number;
+      };
     } catch {
-      return true;
+      return null;
     }
+  }
+
+  private isClaimsExpired(claims: { exp?: number }): boolean {
+    if (!claims.exp) {
+      return false;
+    }
+    return Date.now() >= claims.exp * 1000;
   }
 }

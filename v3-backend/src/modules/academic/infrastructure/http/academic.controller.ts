@@ -14,10 +14,14 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ActiveTenantContext } from '../../../../shared/application/context/tenant-context.service';
 import {
   CurrentUser,
-  Roles,
+  RequireModule,
+  RequirePermissions,
 } from '../../../../shared/infrastructure/http/decorators/security.decorators';
 import { PositiveBigIntPipe } from '../../../../shared/infrastructure/http/pipes/positive-bigint.pipe';
-import { CommunityRole } from '../../../iam/domain/enums/community-role.enum';
+import {
+  RBAC_MODULES,
+  RBAC_PERMISSIONS,
+} from '../../../../shared/infrastructure/rbac/rbac-permissions.constants';
 import { ManageAcademicUseCase } from '../../application/use-cases/manage-academic.use-case';
 import {
   AdminUpdateGradeScoreDto,
@@ -40,44 +44,26 @@ import {
   UpsertStudyPlanDto,
 } from './dto/academic.dto';
 
-const READ_ROLES = [
-  CommunityRole.SUPER_ADMIN,
-  CommunityRole.SCHOOL_ADMIN,
-  CommunityRole.RECTOR,
-  CommunityRole.COORDINATOR,
-  CommunityRole.SECRETARY,
-  CommunityRole.TEACHER,
-] as const;
-
-const WRITE_ROLES = [
-  CommunityRole.SUPER_ADMIN,
-  CommunityRole.SCHOOL_ADMIN,
-  CommunityRole.RECTOR,
-  CommunityRole.COORDINATOR,
-  CommunityRole.SECRETARY,
-] as const;
-
-const RECTOR_ROLES = [
-  CommunityRole.SUPER_ADMIN,
-  CommunityRole.SCHOOL_ADMIN,
-  CommunityRole.RECTOR,
-] as const;
-
 @ApiTags('Academic Management, Curriculum, Enrollments & Grades Control')
 @ApiBearerAuth('jwt-auth')
 @Controller('academic')
 export class AcademicController {
   constructor(private readonly academicUseCase: ManageAcademicUseCase) {}
 
-  // Áreas y asignaturas
+  // Áreas y asignaturas (Currículo)
   @Get('areas')
-  @Roles(...READ_ROLES)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequirePermissions(RBAC_PERMISSIONS.ACADEMIC_CURRICULUM_VIEW)
   async listAreas(@CurrentUser() p: ActiveTenantContext) {
-    return { success: true, data: await this.academicUseCase.listAreas(p.schoolId) };
+    return {
+      success: true,
+      data: await this.academicUseCase.listAreas(p.schoolId),
+    };
   }
 
   @Post('areas')
-  @Roles(...WRITE_ROLES)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequirePermissions(RBAC_PERMISSIONS.ACADEMIC_CURRICULUM_WRITE)
   @HttpCode(HttpStatus.CREATED)
   async createArea(
     @CurrentUser() p: ActiveTenantContext,
@@ -90,7 +76,8 @@ export class AcademicController {
   }
 
   @Patch('areas/:areaId')
-  @Roles(...WRITE_ROLES)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequirePermissions(RBAC_PERMISSIONS.ACADEMIC_CURRICULUM_WRITE)
   async updateArea(
     @CurrentUser() p: ActiveTenantContext,
     @Param('areaId', PositiveBigIntPipe) areaId: bigint,
@@ -98,12 +85,16 @@ export class AcademicController {
   ) {
     return {
       success: true,
-      data: await this.academicUseCase.saveArea(p.schoolId, { ...dto, id: areaId }),
+      data: await this.academicUseCase.saveArea(p.schoolId, {
+        ...dto,
+        id: areaId,
+      }),
     };
   }
 
   @Delete('areas/:areaId')
-  @Roles(...RECTOR_ROLES)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequirePermissions(RBAC_PERMISSIONS.ACADEMIC_CURRICULUM_DELETE)
   async deleteArea(
     @CurrentUser() p: ActiveTenantContext,
     @Param('areaId', PositiveBigIntPipe) areaId: bigint,
@@ -113,7 +104,8 @@ export class AcademicController {
   }
 
   @Get('subjects')
-  @Roles(...READ_ROLES)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequirePermissions(RBAC_PERMISSIONS.ACADEMIC_CURRICULUM_VIEW)
   async listSubjects(@CurrentUser() p: ActiveTenantContext) {
     return {
       success: true,
@@ -122,7 +114,8 @@ export class AcademicController {
   }
 
   @Post('subjects')
-  @Roles(...WRITE_ROLES)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequirePermissions(RBAC_PERMISSIONS.ACADEMIC_CURRICULUM_WRITE)
   @HttpCode(HttpStatus.CREATED)
   async createSubject(
     @CurrentUser() p: ActiveTenantContext,
@@ -135,7 +128,8 @@ export class AcademicController {
   }
 
   @Patch('subjects/:subjectId')
-  @Roles(...WRITE_ROLES)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequirePermissions(RBAC_PERMISSIONS.ACADEMIC_CURRICULUM_WRITE)
   async updateSubject(
     @CurrentUser() p: ActiveTenantContext,
     @Param('subjectId', PositiveBigIntPipe) subjectId: bigint,
@@ -151,7 +145,8 @@ export class AcademicController {
   }
 
   @Delete('subjects/:subjectId')
-  @Roles(...RECTOR_ROLES)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequirePermissions(RBAC_PERMISSIONS.ACADEMIC_CURRICULUM_DELETE)
   async deleteSubject(
     @CurrentUser() p: ActiveTenantContext,
     @Param('subjectId', PositiveBigIntPipe) subjectId: bigint,
@@ -162,7 +157,8 @@ export class AcademicController {
 
   // Plan de estudios y carga académica
   @Get('study-plans')
-  @Roles(...READ_ROLES)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequirePermissions(RBAC_PERMISSIONS.ACADEMIC_CURRICULUM_VIEW)
   async listStudyPlans(
     @CurrentUser() p: ActiveTenantContext,
     @Query('academicYear') academicYear?: string,
@@ -175,7 +171,8 @@ export class AcademicController {
   }
 
   @Post('study-plans')
-  @Roles(...WRITE_ROLES)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequirePermissions(RBAC_PERMISSIONS.ACADEMIC_CURRICULUM_WRITE)
   @HttpCode(HttpStatus.OK)
   async upsertStudyPlan(
     @CurrentUser() p: ActiveTenantContext,
@@ -188,7 +185,8 @@ export class AcademicController {
   }
 
   @Delete('study-plans/:planId')
-  @Roles(...WRITE_ROLES)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequirePermissions(RBAC_PERMISSIONS.ACADEMIC_CURRICULUM_WRITE)
   async deleteStudyPlan(
     @CurrentUser() p: ActiveTenantContext,
     @Param('planId', PositiveBigIntPipe) planId: bigint,
@@ -198,7 +196,8 @@ export class AcademicController {
   }
 
   @Get('course-assignments')
-  @Roles(...READ_ROLES)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequirePermissions(RBAC_PERMISSIONS.ACADEMIC_COURSE_ASSIGNMENTS_VIEW)
   async listCourseAssignments(
     @CurrentUser() p: ActiveTenantContext,
     @Query('academicYear') academicYear?: string,
@@ -211,7 +210,8 @@ export class AcademicController {
   }
 
   @Post('course-assignments')
-  @Roles(...WRITE_ROLES)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequirePermissions(RBAC_PERMISSIONS.ACADEMIC_COURSE_ASSIGNMENTS_WRITE)
   @HttpCode(HttpStatus.CREATED)
   async createCourseAssignment(
     @CurrentUser() p: ActiveTenantContext,
@@ -224,7 +224,8 @@ export class AcademicController {
   }
 
   @Patch('course-assignments/:assignmentId')
-  @Roles(...WRITE_ROLES)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequirePermissions(RBAC_PERMISSIONS.ACADEMIC_COURSE_ASSIGNMENTS_WRITE)
   async updateCourseAssignment(
     @CurrentUser() p: ActiveTenantContext,
     @Param('assignmentId', PositiveBigIntPipe) assignmentId: bigint,
@@ -240,7 +241,8 @@ export class AcademicController {
   }
 
   @Delete('course-assignments/:assignmentId')
-  @Roles(...WRITE_ROLES)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequirePermissions(RBAC_PERMISSIONS.ACADEMIC_COURSE_ASSIGNMENTS_WRITE)
   async deleteCourseAssignment(
     @CurrentUser() p: ActiveTenantContext,
     @Param('assignmentId', PositiveBigIntPipe) assignmentId: bigint,
@@ -250,9 +252,12 @@ export class AcademicController {
   }
 
   @Post('course-assignments/reassign-teacher')
-  @Roles(...RECTOR_ROLES, CommunityRole.COORDINATOR)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequirePermissions(RBAC_PERMISSIONS.ACADEMIC_COURSE_ASSIGNMENTS_REASSIGN)
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Reasignación masiva de carga académica de un docente a otro' })
+  @ApiOperation({
+    summary: 'Reasignación masiva de carga académica de un docente a otro',
+  })
   async reassignTeacherCourses(
     @CurrentUser() p: ActiveTenantContext,
     @Body() dto: ReassignTeacherCoursesDto,
@@ -265,7 +270,8 @@ export class AcademicController {
 
   // Estudiantes, familias y matrículas
   @Get('students')
-  @Roles(...READ_ROLES)
+  @RequireModule(RBAC_MODULES.ENROLLMENTS)
+  @RequirePermissions(RBAC_PERMISSIONS.ACADEMIC_ENROLLMENTS_VIEW)
   async listStudents(
     @CurrentUser() p: ActiveTenantContext,
     @Query('search') search?: string,
@@ -282,7 +288,8 @@ export class AcademicController {
   }
 
   @Post('students')
-  @Roles(...WRITE_ROLES)
+  @RequireModule(RBAC_MODULES.ENROLLMENTS)
+  @RequirePermissions(RBAC_PERMISSIONS.ACADEMIC_ENROLLMENTS_WRITE)
   @HttpCode(HttpStatus.CREATED)
   async createStudent(
     @CurrentUser() p: ActiveTenantContext,
@@ -295,7 +302,8 @@ export class AcademicController {
   }
 
   @Patch('students/:studentId')
-  @Roles(...WRITE_ROLES)
+  @RequireModule(RBAC_MODULES.ENROLLMENTS)
+  @RequirePermissions(RBAC_PERMISSIONS.ACADEMIC_ENROLLMENTS_WRITE)
   async updateStudent(
     @CurrentUser() p: ActiveTenantContext,
     @Param('studentId', PositiveBigIntPipe) studentId: bigint,
@@ -311,7 +319,8 @@ export class AcademicController {
   }
 
   @Delete('students/:studentId')
-  @Roles(...RECTOR_ROLES)
+  @RequireModule(RBAC_MODULES.ENROLLMENTS)
+  @RequirePermissions(RBAC_PERMISSIONS.ACADEMIC_ENROLLMENTS_DELETE)
   async deleteStudent(
     @CurrentUser() p: ActiveTenantContext,
     @Param('studentId', PositiveBigIntPipe) studentId: bigint,
@@ -321,7 +330,8 @@ export class AcademicController {
   }
 
   @Get('families')
-  @Roles(...READ_ROLES)
+  @RequireModule(RBAC_MODULES.ENROLLMENTS)
+  @RequirePermissions(RBAC_PERMISSIONS.ACADEMIC_ENROLLMENTS_VIEW)
   async listFamilies(
     @CurrentUser() p: ActiveTenantContext,
     @Query('search') search?: string,
@@ -333,7 +343,8 @@ export class AcademicController {
   }
 
   @Post('families')
-  @Roles(...WRITE_ROLES)
+  @RequireModule(RBAC_MODULES.ENROLLMENTS)
+  @RequirePermissions(RBAC_PERMISSIONS.ACADEMIC_ENROLLMENTS_WRITE)
   @HttpCode(HttpStatus.CREATED)
   async createFamily(
     @CurrentUser() p: ActiveTenantContext,
@@ -346,7 +357,8 @@ export class AcademicController {
   }
 
   @Get('students/:studentId/families')
-  @Roles(...READ_ROLES)
+  @RequireModule(RBAC_MODULES.ENROLLMENTS)
+  @RequirePermissions(RBAC_PERMISSIONS.ACADEMIC_ENROLLMENTS_VIEW)
   async listStudentFamilies(
     @CurrentUser() p: ActiveTenantContext,
     @Param('studentId', PositiveBigIntPipe) studentId: bigint,
@@ -361,7 +373,8 @@ export class AcademicController {
   }
 
   @Post('students/:studentId/families')
-  @Roles(...WRITE_ROLES)
+  @RequireModule(RBAC_MODULES.ENROLLMENTS)
+  @RequirePermissions(RBAC_PERMISSIONS.ACADEMIC_ENROLLMENTS_WRITE)
   @HttpCode(HttpStatus.CREATED)
   async linkStudentFamily(
     @CurrentUser() p: ActiveTenantContext,
@@ -379,7 +392,8 @@ export class AcademicController {
   }
 
   @Delete('students/:studentId/families/:linkId')
-  @Roles(...WRITE_ROLES)
+  @RequireModule(RBAC_MODULES.ENROLLMENTS)
+  @RequirePermissions(RBAC_PERMISSIONS.ACADEMIC_ENROLLMENTS_WRITE)
   async unlinkStudentFamily(
     @CurrentUser() p: ActiveTenantContext,
     @Param('studentId', PositiveBigIntPipe) studentId: bigint,
@@ -394,7 +408,8 @@ export class AcademicController {
   }
 
   @Get('enrollments')
-  @Roles(...READ_ROLES)
+  @RequireModule(RBAC_MODULES.ENROLLMENTS)
+  @RequirePermissions(RBAC_PERMISSIONS.ACADEMIC_ENROLLMENTS_VIEW)
   async listEnrollments(
     @CurrentUser() p: ActiveTenantContext,
     @Query('academicYear') academicYear?: string,
@@ -415,7 +430,8 @@ export class AcademicController {
   }
 
   @Post('enrollments')
-  @Roles(...WRITE_ROLES)
+  @RequireModule(RBAC_MODULES.ENROLLMENTS)
+  @RequirePermissions(RBAC_PERMISSIONS.ACADEMIC_ENROLLMENTS_WRITE)
   @HttpCode(HttpStatus.CREATED)
   async createEnrollment(
     @CurrentUser() p: ActiveTenantContext,
@@ -428,9 +444,13 @@ export class AcademicController {
   }
 
   @Post('enrollments/move')
-  @Roles(...WRITE_ROLES)
+  @RequireModule(RBAC_MODULES.ENROLLMENTS)
+  @RequirePermissions(RBAC_PERMISSIONS.ACADEMIC_ENROLLMENTS_MOVE)
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Mover estudiantes matriculados a otra sede, jornada, grado o grupo' })
+  @ApiOperation({
+    summary:
+      'Mover estudiantes matriculados a otra sede, jornada, grado o grupo',
+  })
   async moveEnrollments(
     @CurrentUser() p: ActiveTenantContext,
     @Body() dto: MoveEnrollmentsDto,
@@ -442,7 +462,8 @@ export class AcademicController {
   }
 
   @Get('enrollments/:enrollmentId/novelties')
-  @Roles(...READ_ROLES)
+  @RequireModule(RBAC_MODULES.ENROLLMENTS)
+  @RequirePermissions(RBAC_PERMISSIONS.ACADEMIC_ENROLLMENTS_VIEW)
   async listEnrollmentNovelties(
     @CurrentUser() p: ActiveTenantContext,
     @Param('enrollmentId', PositiveBigIntPipe) enrollmentId: bigint,
@@ -457,7 +478,8 @@ export class AcademicController {
   }
 
   @Post('enrollments/:enrollmentId/novelties')
-  @Roles(...WRITE_ROLES)
+  @RequireModule(RBAC_MODULES.ENROLLMENTS)
+  @RequirePermissions(RBAC_PERMISSIONS.ACADEMIC_ENROLLMENTS_WRITE)
   @HttpCode(HttpStatus.CREATED)
   async recordEnrollmentNovelty(
     @CurrentUser() p: ActiveTenantContext,
@@ -477,7 +499,8 @@ export class AcademicController {
 
   // Control de notas, transferencias, nivelaciones, cuadro de honor y mayúsculas de logros
   @Get('grades/reported-summary')
-  @Roles(...READ_ROLES)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequirePermissions(RBAC_PERMISSIONS.ACADEMIC_GRADES_VIEW)
   async listReportedSummary(
     @CurrentUser() p: ActiveTenantContext,
     @Query('academicYear') academicYear?: string,
@@ -494,7 +517,8 @@ export class AcademicController {
   }
 
   @Get('grades/by-enrollment/:enrollmentId')
-  @Roles(...READ_ROLES)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequirePermissions(RBAC_PERMISSIONS.ACADEMIC_GRADES_VIEW)
   async listEnrollmentGrades(
     @CurrentUser() p: ActiveTenantContext,
     @Param('enrollmentId', PositiveBigIntPipe) enrollmentId: bigint,
@@ -515,8 +539,11 @@ export class AcademicController {
   }
 
   @Patch('grades/:gradeId')
-  @Roles(...RECTOR_ROLES)
-  @ApiOperation({ summary: 'Edición administrativa directa de nota con registro de auditoría' })
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequirePermissions(RBAC_PERMISSIONS.ACADEMIC_GRADES_RECTOR_OVERRIDE)
+  @ApiOperation({
+    summary: 'Edición administrativa directa de nota con registro de auditoría',
+  })
   async adminUpdateGradeScore(
     @CurrentUser() p: ActiveTenantContext,
     @Param('gradeId', PositiveBigIntPipe) gradeId: bigint,
@@ -535,7 +562,8 @@ export class AcademicController {
   }
 
   @Post('grades/transfer')
-  @Roles(...RECTOR_ROLES, CommunityRole.COORDINATOR)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequirePermissions(RBAC_PERMISSIONS.ACADEMIC_GRADES_TRANSFER)
   @HttpCode(HttpStatus.OK)
   async transferGrades(
     @CurrentUser() p: ActiveTenantContext,
@@ -548,7 +576,8 @@ export class AcademicController {
   }
 
   @Get('recoveries')
-  @Roles(...READ_ROLES)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequirePermissions(RBAC_PERMISSIONS.ACADEMIC_RECOVERIES_VIEW)
   async listRecoveries(
     @CurrentUser() p: ActiveTenantContext,
     @Query('academicYear') academicYear?: string,
@@ -567,7 +596,8 @@ export class AcademicController {
   }
 
   @Post('recoveries')
-  @Roles(...WRITE_ROLES, CommunityRole.TEACHER)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequirePermissions(RBAC_PERMISSIONS.ACADEMIC_RECOVERIES_WRITE)
   @HttpCode(HttpStatus.CREATED)
   async saveRecovery(
     @CurrentUser() p: ActiveTenantContext,
@@ -584,7 +614,8 @@ export class AcademicController {
   }
 
   @Get('honor-roll')
-  @Roles(...READ_ROLES)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequirePermissions(RBAC_PERMISSIONS.ACADEMIC_HONOR_ROLL_VIEW)
   async listHonorRoll(
     @CurrentUser() p: ActiveTenantContext,
     @Query('academicYear') academicYear?: string,
@@ -614,9 +645,13 @@ export class AcademicController {
   }
 
   @Post('honor-roll/calculate')
-  @Roles(...WRITE_ROLES)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequirePermissions(RBAC_PERMISSIONS.ACADEMIC_HONOR_ROLL_CALCULATE)
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Calcular y persistir Cuadro de Honor y puestos por grupo/grado bajo SIEE' })
+  @ApiOperation({
+    summary:
+      'Calcular y persistir Cuadro de Honor y puestos por grupo/grado bajo SIEE',
+  })
   async calculateHonorRoll(
     @CurrentUser() p: ActiveTenantContext,
     @Body() dto: HonorRollRequestDto,
@@ -638,7 +673,8 @@ export class AcademicController {
   }
 
   @Get('consolidated')
-  @Roles(...READ_ROLES)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequirePermissions(RBAC_PERMISSIONS.ACADEMIC_CONSOLIDATED_VIEW)
   @ApiOperation({
     summary:
       'Generar consolidado/sábana SIEE por asignaturas, áreas o docente (periodo individual o todos los periodos)',
@@ -677,7 +713,8 @@ export class AcademicController {
   }
 
   @Post('consolidated/materialize-areas')
-  @Roles(...WRITE_ROLES)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequirePermissions(RBAC_PERMISSIONS.ACADEMIC_CONSOLIDATED_MATERIALIZE)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary:
@@ -698,7 +735,8 @@ export class AcademicController {
   }
 
   @Post('enrollments/renumber-folios')
-  @Roles(...RECTOR_ROLES, CommunityRole.SECRETARY)
+  @RequireModule(RBAC_MODULES.ENROLLMENTS)
+  @RequirePermissions(RBAC_PERMISSIONS.ACADEMIC_ENROLLMENTS_RENUMBER_FOLIOS)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary:
@@ -719,9 +757,13 @@ export class AcademicController {
   }
 
   @Post('achievements/uppercase')
-  @Roles(...RECTOR_ROLES, CommunityRole.COORDINATOR)
+  @RequireModule(RBAC_MODULES.ACADEMIC_GRADES)
+  @RequirePermissions(RBAC_PERMISSIONS.ACADEMIC_ACHIEVEMENTS_UPPERCASE)
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Convertir descripciones de logros e indicadores del año a MAYÚSCULAS' })
+  @ApiOperation({
+    summary:
+      'Convertir descripciones de logros e indicadores del año a MAYÚSCULAS',
+  })
   async uppercaseAchievements(
     @CurrentUser() p: ActiveTenantContext,
     @Body() dto: UppercaseAchievementsDto,

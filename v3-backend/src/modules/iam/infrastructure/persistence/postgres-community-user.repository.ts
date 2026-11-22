@@ -381,7 +381,19 @@ export class PostgresCommunityUserRepository
          AND m.is_active = TRUE
          AND m.status = 'ACTIVE'
          AND s.is_active = TRUE
-       ORDER BY m.is_default_school DESC, m.school_id ASC`,
+       ORDER BY m.is_default_school DESC,
+                CASE m.role
+                  WHEN 'SUPER_ADMIN' THEN 1
+                  WHEN 'SCHOOL_ADMIN' THEN 2
+                  WHEN 'RECTOR' THEN 3
+                  WHEN 'COORDINATOR' THEN 4
+                  WHEN 'SECRETARY' THEN 5
+                  WHEN 'TEACHER' THEN 6
+                  WHEN 'MONITOR' THEN 7
+                  WHEN 'FAMILY' THEN 8
+                  ELSE 9
+                END ASC,
+                m.school_id ASC`,
       [String(userId)],
     );
 

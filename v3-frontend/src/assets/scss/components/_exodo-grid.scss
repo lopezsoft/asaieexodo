@@ -1,0 +1,196 @@
+// =============================================================================
+// Armonización de exodolibs (<exodo-grid> y <exodo-pagination>) con el sistema
+// de diseño ASAIE ÉXODO V3 (cero hex hardcodeados: tokens de _variables.scss).
+// =============================================================================
+
+exodo-grid {
+  display: block;
+  --exodo-z-sticky: 2;
+  --exodo-z-loading: 4;
+
+  &.exodo-theme-glacial,
+  &.exodo-theme-light {
+    --exodo-font-family: inherit;
+    --exodo-primary: #{$access-brand-blue};
+    --exodo-on-primary: #{$auth-hero-text};
+    --exodo-surface: #{$shell-surface-light};
+    --exodo-text-color: #{$shell-text-primary-light};
+    --exodo-muted: #{$shell-text-muted-light};
+    --exodo-border: #{$shell-border-light};
+    --exodo-card-title: #{$auth-hero-bg-start};
+    --exodo-card-header-bg: #{$shell-surface-light};
+    --exodo-card-footer-bg: #{$shell-surface-light};
+    --exodo-grid-header-bg: #{$v3-surface-subtle-light};
+    --exodo-bg-alt: #{$v3-input-bg-subtle-light};
+    --exodo-bg-alt-hover: #{$auth-light-surface-soft};
+    --exodo-row-bg: #{$shell-surface-light};
+    --exodo-row-alt: #{$v3-surface-subtle-light};
+    --exodo-row-hover: #{rgba($access-brand-blue-hover, 0.06)};
+    --exodo-pagination-border: #{$shell-border-light};
+    --exodo-pagination-hover-bg: #{$auth-light-surface-soft};
+    --exodo-pagination-text: #{$shell-text-primary-light};
+    --exodo-pagination-info: #{$access-brand-blue};
+  }
+
+  &.exodo-theme-dark {
+    --exodo-font-family: inherit;
+    --exodo-primary: #{$access-brand-blue-dark};
+    --exodo-on-primary: #{$shell-canvas-bg-dark};
+    --exodo-surface: #{$shell-surface-dark};
+    --exodo-text-color: #{$shell-text-primary-dark};
+    --exodo-muted: #{$shell-text-muted-dark};
+    --exodo-border: #{$shell-border-dark};
+    --exodo-card-title: #{$shell-text-primary-dark};
+    --exodo-card-header-bg: #{$shell-surface-dark};
+    --exodo-card-footer-bg: #{$shell-surface-dark};
+    --exodo-grid-header-bg: #{$v3-surface-subtle-dark};
+    --exodo-bg-alt: #{$v3-surface-subtle-dark};
+    --exodo-bg-alt-hover: #{rgba($auth-orb-cyan, 0.14)};
+    --exodo-row-bg: #{$shell-surface-dark};
+    --exodo-row-alt: #{$v3-surface-subtle-dark};
+    --exodo-row-hover: #{rgba($auth-orb-cyan, 0.08)};
+    --exodo-pagination-border: #{$shell-border-dark};
+    --exodo-pagination-hover-bg: #{$v3-surface-subtle-dark};
+    --exodo-pagination-text: #{$shell-text-primary-dark};
+    --exodo-pagination-info: #{$access-brand-blue-dark};
+  }
+
+  .exodogrid-content-style {
+    .card-table {
+      position: relative;
+      z-index: 0;
+      isolation: isolate;
+      border: 1px solid var(--v3-surface-border, #{rgba($shell-backdrop-color, 0.06)});
+      border-radius: 16px;
+      background-color: var(--exodo-surface);
+      box-shadow: var(
+        --v3-surface-shadow,
+        0 2px 14px -4px #{rgba($shell-backdrop-color, 0.06)}
+      );
+      overflow: hidden;
+
+      .card-header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        padding: 1rem 1.25rem;
+        background-color: var(--exodo-card-header-bg);
+        border-bottom: 1px solid var(--exodo-border);
+
+        .card-title {
+          margin: 0;
+          font-size: 0.92rem;
+          font-weight: 700;
+          letter-spacing: 0.02em;
+          color: var(--exodo-card-title);
+        }
+      }
+
+      .card-body {
+        padding: 0.35rem 0.75rem 0.75rem;
+        overflow-x: auto;
+      }
+
+      .card-footer {
+        padding: 0.75rem 1.25rem;
+        background-color: var(--exodo-card-footer-bg);
+        border-top: 1px solid var(--exodo-border);
+      }
+    }
+
+    .grid-search {
+      flex: 1 1 240px;
+      max-width: 320px;
+      margin-left: auto;
+      border-radius: 10px;
+      overflow: hidden;
+
+      @media (max-width: 575.98px) {
+        flex: 1 1 100%;
+        max-width: none;
+        margin-left: 0;
+      }
+
+      input {
+        min-height: 38px;
+        height: 38px;
+        border-radius: 10px 0 0 10px;
+        padding: 0.35rem 0.75rem;
+
+        @media (max-width: 575.98px) {
+          font-size: 1rem;
+        }
+      }
+
+      .btn {
+        min-height: 38px;
+        height: 38px;
+        width: 42px;
+        padding: 0;
+        border-radius: 0 10px 10px 0;
+        background-color: var(--exodo-primary);
+        background-image: none;
+        border: 1px solid var(--exodo-primary);
+        color: var(--exodo-on-primary);
+        box-shadow: none !important;
+        transform: none !important;
+
+        i {
+          color: var(--exodo-on-primary);
+          font-size: 0.85rem;
+        }
+
+        &:hover:not(:disabled),
+        &:focus-visible {
+          background-color: #{$v3-hero-light-mid};
+          border-color: #{$v3-hero-light-mid};
+          color: #{$shell-surface-light};
+
+          i {
+            color: #{$shell-surface-light};
+          }
+        }
+      }
+    }
+
+    .exodogrid-table {
+      display: table;
+      width: 100%;
+      min-width: 100%;
+      border-collapse: collapse;
+
+      thead tr th:active {
+        background: var(--exodo-bg-alt-hover);
+      }
+
+      thead tr:first-child th {
+        font-size: 0.74rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        padding: 0.72rem 0.65rem;
+        white-space: nowrap;
+
+        &.sortable {
+          cursor: pointer;
+          user-select: none;
+        }
+      }
+
+      tbody td {
+        padding: 0.6rem 0.65rem;
+        vertical-align: middle;
+        font-size: 0.855rem;
+      }
+    }
+  }
+}
+
+.v3-exodo-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+}

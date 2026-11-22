@@ -18,6 +18,10 @@ import {
 } from '../../services/v3-promotion.service';
 import { V3UnifiedAuthService } from '../../services/v3-unified-auth.service';
 import { V3ModalDialogComponent } from '../../shared/components/v3-modal-dialog/v3-modal-dialog.component';
+import {
+  SearchableSelectOption,
+  V3SearchableSelectComponent,
+} from '../../shared/components/v3-searchable-select/v3-searchable-select.component';
 import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.directive';
 
 /**
@@ -33,6 +37,7 @@ import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.d
     RouterLink,
     CustomTooltipDirective,
     V3ModalDialogComponent,
+    V3SearchableSelectComponent,
   ],
   template: `
     <div class="container-fluid py-3">
@@ -50,21 +55,23 @@ import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.d
       </div>
 
       <div class="trezo-card bg-white border-radius p-4 shadow-sm mb-4">
-        <div class="row g-2 align-items-end">
-          <div class="col-md-3">
-            <label class="form-label small fw-semibold">Grupo (opcional)</label>
-            <select class="form-select form-select-sm" [(ngModel)]="filterGroupId" (ngModelChange)="loadRecords()">
-              <option [ngValue]="0">Todos los grupos</option>
-              @for (g of groups(); track g.id) {
-                <option [ngValue]="g.id">{{ g.gradeName }}-{{ g.groupCode }} ({{ g.campusName }})</option>
-              }
-            </select>
+        <div class="row g-3">
+          <div class="col-12 col-md-6">
+            <label class="form-label">Grupo (opcional)</label>
+            <app-v3-searchable-select
+              [(ngModel)]="filterGroupId"
+              [options]="groupFilterOptions()"
+              [clearable]="true"
+              placeholder="Todos los grupos"
+              searchPlaceholder="Buscar grupo o sede..."
+              (ngModelChange)="loadRecords()"
+            />
           </div>
-          <div class="col-md-2">
-            <label class="form-label small fw-semibold">Acta de Promoción</label>
-            <input type="text" class="form-control form-control-sm" [(ngModel)]="actNumber" placeholder="Ej. ACTA-2026-01" />
+          <div class="col-12 col-md-6">
+            <label class="form-label">Acta de Promoción</label>
+            <input type="text" class="form-control" [(ngModel)]="actNumber" placeholder="Ej. ACTA-2026-01" />
           </div>
-          <div class="col-md-7 d-flex flex-wrap gap-2 justify-content-md-end">
+          <div class="col-12 d-flex flex-wrap justify-content-end gap-2 pt-2 border-top">
             @if (canGenerate()) {
               <button
                 type="button"
@@ -161,11 +168,18 @@ import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.d
                     </span>
                   </td>
                   <td style="min-width: 210px;">
-                    <select class="form-select form-select-sm" [value]="rec.promotionStatusId" #statusSel>
-                      @for (st of statuses(); track st.id) {
-                        <option [value]="st.id" [selected]="st.id === rec.promotionStatusId">{{ st.description }}</option>
-                      }
-                    </select>
+                    @if (canEditCommission()) {
+                      <app-v3-searchable-select
+                        size="sm"
+                        [ngModel]="getRowStatusId(rec)"
+                        (ngModelChange)="setRowStatusId(rec.id, $event, rec.promotionStatusId)"
+                        [options]="promotionStatusOptions()"
+                        placeholder="Estado..."
+                        searchPlaceholder="Buscar estado..."
+                      />
+                    } @else {
+                      <span class="small fw-medium">{{ rec.promotionStatusDescription }}</span>
+                    }
                   </td>
                   <td class="text-center">
                     <div class="form-check form-switch d-inline-block">
@@ -173,27 +187,30 @@ import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.d
                         class="form-check-input"
                         type="checkbox"
                         [checked]="rec.isCommissionPromoted"
+                        [disabled]="!canEditCommission()"
                         #commChk
                         [appCustomTooltip]="'Promovido por Comisión de Evaluación y Promoción'"
                       />
                     </div>
                   </td>
                   <td style="min-width: 145px;">
-                    <input type="text" class="form-control form-control-sm mb-1" [value]="rec.actNumber || ''" placeholder="Acta" #actIn />
-                    <input type="text" class="form-control form-control-sm" [value]="rec.diplomaNumber || ''" placeholder="Diploma" #dipIn />
+                    <input type="text" class="form-control form-control-sm mb-1" [value]="rec.actNumber || ''" [disabled]="!canSaveRecord()" placeholder="Acta" #actIn />
+                    <input type="text" class="form-control form-control-sm" [value]="rec.diplomaNumber || ''" [disabled]="!canEditFolios()" placeholder="Diploma" #dipIn />
                   </td>
                   <td style="min-width: 190px;">
-                    <input type="text" class="form-control form-control-sm" [value]="rec.observations || ''" placeholder="Observación final..." #obsIn />
+                    <input type="text" class="form-control form-control-sm" [value]="rec.observations || ''" [disabled]="!canSaveRecord()" placeholder="Observación final..." #obsIn />
                   </td>
                   <td class="text-end">
-                    <button
-                      type="button"
-                      class="btn btn-sm btn-outline-primary"
-                      (click)="saveRecord(rec, statusSel.value, commChk.checked, actIn.value, dipIn.value, obsIn.value)"
-                      [appCustomTooltip]="'Guardar cambios de promoción'"
-                    >
-                      <i class="material-symbols-outlined fs-6">save</i>
-                    </button>
+                    @if (canSaveRecord()) {
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-primary"
+                        (click)="saveRecord(rec, getRowStatusId(rec), commChk.checked, actIn.value, dipIn.value, obsIn.value)"
+                        [appCustomTooltip]="'Guardar cambios de promoción'"
+                      >
+                        <i class="material-symbols-outlined fs-6">save</i>
+                      </button>
+                    }
                   </td>
                 </tr>
               } @empty {
@@ -306,7 +323,16 @@ export class FinalBookPromotionComponent implements OnInit {
 
   readonly academicYear = computed(() => this.auth.academicYear());
   readonly canGenerate = computed(() =>
-    this.auth.hasAnyRole(['SUPER_ADMIN', 'SCHOOL_ADMIN', 'RECTOR', 'COORDINATOR']),
+    this.auth.hasPermission('promotion.final_book.generate'),
+  );
+  readonly canEditCommission = computed(() =>
+    this.auth.hasPermission('promotion.records.commission_edit'),
+  );
+  readonly canEditFolios = computed(() =>
+    this.auth.hasPermission('promotion.records.folios_edit'),
+  );
+  readonly canSaveRecord = computed(
+    () => this.canEditCommission() || this.canEditFolios(),
   );
 
   readonly statuses = signal<PromotionStatusOption[]>([]);
@@ -315,8 +341,27 @@ export class FinalBookPromotionComponent implements OnInit {
   readonly sabanaModalOpen = signal(false);
   readonly finalSabana = signal<FinalSabanaReport | null>(null);
 
+  readonly groupFilterOptions = computed<SearchableSelectOption<number>[]>(() =>
+    this.groups().map((g) => ({
+      value: g.id,
+      label: `${g.gradeName}-${g.groupCode} (${g.campusName})`,
+    }))
+  );
+  readonly promotionStatusOptions = computed<SearchableSelectOption<number>[]>(() =>
+    this.statuses().map((st) => ({ value: st.id, label: st.description }))
+  );
+
+  private rowStatusIds: Record<number, number> = {};
   filterGroupId = 0;
   actNumber = '';
+
+  getRowStatusId(rec: PromotionRecordView): number {
+    return this.rowStatusIds[rec.id] ?? rec.promotionStatusId;
+  }
+
+  setRowStatusId(recordId: number, statusId: number | null, fallbackId: number): void {
+    this.rowStatusIds[recordId] = statusId ?? fallbackId;
+  }
 
   ngOnInit(): void {
     this.loadMask.show('Cargando libro final...');
@@ -337,6 +382,7 @@ export class FinalBookPromotionComponent implements OnInit {
   }
 
   loadRecords(): void {
+    this.rowStatusIds = {};
     this.promotionService
       .listRecords(this.academicYear(), this.filterGroupId || undefined)
       .subscribe((rows) => this.records.set(rows));
@@ -353,6 +399,7 @@ export class FinalBookPromotionComponent implements OnInit {
       .pipe(finalize(() => this.loadMask.hide()))
       .subscribe({
         next: ({ processedCount, records }) => {
+          this.rowStatusIds = {};
           this.records.set(records);
           this.messages.showSuccess(`Libro final generado para ${processedCount} matrícula(s).`);
         },
@@ -391,22 +438,29 @@ export class FinalBookPromotionComponent implements OnInit {
 
   saveRecord(
     rec: PromotionRecordView,
-    statusIdRaw: string,
+    statusId: number,
     isCommissionPromoted: boolean,
     actVal: string,
     dipVal: string,
     obsVal: string,
   ): void {
+    const payload: Record<string, unknown> = {
+      actNumber: actVal.trim() || null,
+      observations: obsVal.trim() || null,
+    };
+    if (this.canEditCommission()) {
+      payload['promotionStatusId'] = Number(statusId);
+      payload['isCommissionPromoted'] = isCommissionPromoted;
+    }
+    if (this.canEditFolios()) {
+      payload['diplomaNumber'] = dipVal.trim() || null;
+    }
+
     this.promotionService
-      .updateRecord(rec.id, {
-        promotionStatusId: Number(statusIdRaw),
-        isCommissionPromoted,
-        actNumber: actVal.trim() || null,
-        diplomaNumber: dipVal.trim() || null,
-        observations: obsVal.trim() || null,
-      })
+      .updateRecord(rec.id, payload)
       .subscribe({
         next: () => {
+          delete this.rowStatusIds[rec.id];
           this.messages.showSuccess(`Registro actualizado para ${rec.studentFullName}.`);
           this.loadRecords();
         },

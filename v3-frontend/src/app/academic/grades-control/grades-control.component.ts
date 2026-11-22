@@ -14,6 +14,10 @@ import {
   V3AcademicService,
 } from '../../services/v3-academic.service';
 import { V3UnifiedAuthService } from '../../services/v3-unified-auth.service';
+import {
+  SearchableSelectOption,
+  V3SearchableSelectComponent,
+} from '../../shared/components/v3-searchable-select/v3-searchable-select.component';
 import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.directive';
 
 type GradesControlTab = 'reported' | 'rectorEdit' | 'recoveries' | 'honorRoll';
@@ -26,7 +30,12 @@ type GradesControlTab = 'reported' | 'rectorEdit' | 'recoveries' | 'honorRoll';
 @Component({
   selector: 'app-grades-control',
   standalone: true,
-  imports: [CommonModule, FormsModule, CustomTooltipDirective],
+  imports: [
+    CommonModule,
+    FormsModule,
+    CustomTooltipDirective,
+    V3SearchableSelectComponent,
+  ],
   template: `
     <div class="container-fluid py-3">
       <div class="breadcrumb-card mb-25 d-md-flex align-items-center justify-content-between">
@@ -35,17 +44,16 @@ type GradesControlTab = 'reported' | 'rectorEdit' | 'recoveries' | 'honorRoll';
           <small class="text-muted">Año lectivo {{ academicYear() }} · Periodo {{ selectedPeriod() }}</small>
         </div>
         <div class="d-flex align-items-center gap-2">
-          <select
-            class="form-select form-select-sm"
-            style="width: auto;"
+          <app-v3-searchable-select
+            size="sm"
+            style="width: 150px;"
+            placeholder="Periodo"
+            searchPlaceholder="Buscar periodo..."
+            [options]="periodOptions"
             [ngModel]="selectedPeriod()"
             (ngModelChange)="onPeriodChange($event)"
             aria-label="Seleccionar periodo"
-          >
-            @for (p of [1, 2, 3, 4]; track p) {
-              <option [ngValue]="p">Periodo {{ p }}</option>
-            }
-          </select>
+          />
           @if (isRectorOrCoordinator()) {
             <button
               type="button"
@@ -133,12 +141,14 @@ type GradesControlTab = 'reported' | 'rectorEdit' | 'recoveries' | 'honorRoll';
             <div class="row g-2 align-items-end mb-4 p-3 rounded bg-light border">
               <div class="col-md-6">
                 <label class="form-label small fw-semibold">Seleccionar estudiante matriculado</label>
-                <select class="form-select form-select-sm" [(ngModel)]="selectedEnrollmentId" (ngModelChange)="loadEnrollmentGrades()">
-                  <option [ngValue]="0">Seleccione estudiante...</option>
-                  @for (e of enrollments(); track e.id) {
-                    <option [ngValue]="e.id">{{ e.gradeName }}-{{ e.groupCode }} · {{ e.studentFullName }} ({{ e.studentDocumentNumber }})</option>
-                  }
-                </select>
+                <app-v3-searchable-select
+                  size="sm"
+                  placeholder="Seleccione estudiante..."
+                  searchPlaceholder="Buscar por nombre, documento o grupo..."
+                  [options]="enrollmentOptions()"
+                  [(ngModel)]="selectedEnrollmentId"
+                  (ngModelChange)="loadEnrollmentGrades()"
+                />
               </div>
               <div class="col-md-6 text-md-end small text-muted">
                 Toda edición rectoral registra auditoría automática en base de datos.
@@ -209,32 +219,32 @@ type GradesControlTab = 'reported' | 'rectorEdit' | 'recoveries' | 'honorRoll';
               </table>
             </div>
 
-            @if (isRectorOrCoordinator()) {
-              <div class="p-3 rounded border border-info-subtle bg-light">
-                <h6 class="fw-semibold mb-2">Transferir Notas entre Cursos / Asignaciones</h6>
-                <div class="row g-2 align-items-end">
-                  <div class="col-md-4">
-                    <label class="form-label small fw-semibold">Curso origen</label>
-                    <select class="form-select form-select-sm" [(ngModel)]="transferForm.fromCourseAssignmentId">
-                      <option [ngValue]="0">Seleccione curso origen...</option>
-                      @for (c of assignments(); track c.id) {
-                        <option [ngValue]="c.id">{{ c.gradeName }}-{{ c.groupCode }} · {{ c.subjectName }} ({{ c.teacherName }})</option>
-                      }
-                    </select>
+            @if (canTransferGrades()) {
+              <div class="v3-form-panel v3-form-panel--info mb-0">
+                <h6 class="fw-semibold mb-3">Transferir Notas entre Cursos / Asignaciones</h6>
+                <div class="row g-3">
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Curso origen</label>
+                    <app-v3-searchable-select
+                      placeholder="Seleccione curso origen..."
+                      searchPlaceholder="Buscar curso, grupo o docente..."
+                      [options]="assignmentOptions()"
+                      [(ngModel)]="transferForm.fromCourseAssignmentId"
+                    />
                   </div>
-                  <div class="col-md-4">
-                    <label class="form-label small fw-semibold">Curso destino</label>
-                    <select class="form-select form-select-sm" [(ngModel)]="transferForm.toCourseAssignmentId">
-                      <option [ngValue]="0">Seleccione curso destino...</option>
-                      @for (c of assignments(); track c.id) {
-                        <option [ngValue]="c.id">{{ c.gradeName }}-{{ c.groupCode }} · {{ c.subjectName }} ({{ c.teacherName }})</option>
-                      }
-                    </select>
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Curso destino</label>
+                    <app-v3-searchable-select
+                      placeholder="Seleccione curso destino..."
+                      searchPlaceholder="Buscar curso, grupo o docente..."
+                      [options]="assignmentOptions()"
+                      [(ngModel)]="transferForm.toCourseAssignmentId"
+                    />
                   </div>
-                  <div class="col-md-4 d-grid">
+                  <div class="col-12 d-flex justify-content-end">
                     <button
                       type="button"
-                      class="btn btn-sm btn-info text-white fw-semibold"
+                      class="btn btn-sm btn-primary"
                       [disabled]="!selectedEnrollmentId || !transferForm.fromCourseAssignmentId || !transferForm.toCourseAssignmentId"
                       (click)="transferGrades()"
                     >
@@ -247,48 +257,52 @@ type GradesControlTab = 'reported' | 'rectorEdit' | 'recoveries' | 'honorRoll';
           }
 
           @case ('recoveries') {
-            <div class="row g-2 align-items-end mb-4 p-3 rounded bg-light border">
-              <div class="col-md-3">
-                <label class="form-label small fw-semibold">Estudiante *</label>
-                <select class="form-select form-select-sm" [(ngModel)]="recoveryForm.enrollmentId">
-                  <option [ngValue]="0">Seleccione...</option>
-                  @for (e of enrollments(); track e.id) {
-                    <option [ngValue]="e.id">{{ e.gradeName }}-{{ e.groupCode }} · {{ e.studentFullName }}</option>
-                  }
-                </select>
+            @if (canWriteRecoveries()) {
+              <div class="v3-form-panel">
+                <div class="row g-3">
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Estudiante *</label>
+                    <app-v3-searchable-select
+                      placeholder="Seleccione estudiante..."
+                      searchPlaceholder="Buscar por nombre, documento o grupo..."
+                      [options]="enrollmentOptions()"
+                      [(ngModel)]="recoveryForm.enrollmentId"
+                    />
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Asignatura / Curso *</label>
+                    <app-v3-searchable-select
+                      placeholder="Seleccione asignatura o curso..."
+                      searchPlaceholder="Buscar asignatura, grupo o docente..."
+                      [options]="assignmentOptions()"
+                      [(ngModel)]="recoveryForm.courseAssignmentId"
+                    />
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Nota anterior</label>
+                    <input type="number" step="0.1" class="form-control" [(ngModel)]="recoveryForm.previousScore" />
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Nota recuperación *</label>
+                    <input type="number" step="0.1" class="form-control" [(ngModel)]="recoveryForm.recoveryScore" />
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">No. Acta</label>
+                    <input type="text" class="form-control" [(ngModel)]="recoveryForm.actNumber" placeholder="ACT-01" />
+                  </div>
+                  <div class="col-12 col-md-6 d-flex align-items-end justify-content-md-end">
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-primary"
+                      [disabled]="!recoveryForm.enrollmentId || !recoveryForm.courseAssignmentId"
+                      (click)="saveRecovery()"
+                    >
+                      Registrar nivelación
+                    </button>
+                  </div>
+                </div>
               </div>
-              <div class="col-md-3">
-                <label class="form-label small fw-semibold">Asignatura / Curso *</label>
-                <select class="form-select form-select-sm" [(ngModel)]="recoveryForm.courseAssignmentId">
-                  <option [ngValue]="0">Seleccione...</option>
-                  @for (c of assignments(); track c.id) {
-                    <option [ngValue]="c.id">{{ c.gradeName }}-{{ c.groupCode }} · {{ c.subjectName }}</option>
-                  }
-                </select>
-              </div>
-              <div class="col-md-1">
-                <label class="form-label small fw-semibold">Ant.</label>
-                <input type="number" step="0.1" class="form-control form-control-sm" [(ngModel)]="recoveryForm.previousScore" />
-              </div>
-              <div class="col-md-1">
-                <label class="form-label small fw-semibold">Rec. *</label>
-                <input type="number" step="0.1" class="form-control form-control-sm" [(ngModel)]="recoveryForm.recoveryScore" />
-              </div>
-              <div class="col-md-2">
-                <label class="form-label small fw-semibold">No. Acta</label>
-                <input type="text" class="form-control form-control-sm" [(ngModel)]="recoveryForm.actNumber" placeholder="ACT-01" />
-              </div>
-              <div class="col-md-2 d-grid">
-                <button
-                  type="button"
-                  class="btn btn-sm btn-primary"
-                  [disabled]="!recoveryForm.enrollmentId || !recoveryForm.courseAssignmentId"
-                  (click)="saveRecovery()"
-                >
-                  Registrar
-                </button>
-              </div>
-            </div>
+            }
 
             <div class="table-responsive">
               <table class="table table-hover v3-grid-table mb-0">
@@ -329,10 +343,12 @@ type GradesControlTab = 'reported' | 'rectorEdit' | 'recoveries' | 'honorRoll';
               <p class="small text-muted mb-0">
                 Puestos por grupo y grado calculados con promedio ponderado sobre notas efectivas del periodo {{ selectedPeriod() }}.
               </p>
-              <button type="button" class="btn btn-sm btn-primary" (click)="recalculateHonorRoll()">
-                <i class="material-symbols-outlined fs-6 align-middle me-1">emoji_events</i>
-                Recalcular Cuadro de Honor
-              </button>
+              @if (canCalculateHonorRoll()) {
+                <button type="button" class="btn btn-sm btn-primary" (click)="recalculateHonorRoll()">
+                  <i class="material-symbols-outlined fs-6 align-middle me-1">emoji_events</i>
+                  Recalcular Cuadro de Honor
+                </button>
+              }
             </div>
             <div class="table-responsive">
               <table class="table table-hover v3-grid-table mb-0">
@@ -386,10 +402,19 @@ export class GradesControlComponent implements OnInit {
 
   readonly academicYear = computed(() => this.auth.academicYear());
   readonly isRector = computed(() =>
-    this.auth.hasAnyRole(['SUPER_ADMIN', 'SCHOOL_ADMIN', 'RECTOR']),
+    this.auth.hasPermission('academic.grades.rector_override'),
   );
   readonly isRectorOrCoordinator = computed(() =>
-    this.auth.hasAnyRole(['SUPER_ADMIN', 'SCHOOL_ADMIN', 'RECTOR', 'COORDINATOR']),
+    this.auth.hasPermission('academic.achievements.uppercase'),
+  );
+  readonly canTransferGrades = computed(() =>
+    this.auth.hasPermission('academic.grades.transfer'),
+  );
+  readonly canWriteRecoveries = computed(() =>
+    this.auth.hasPermission('academic.recoveries.write'),
+  );
+  readonly canCalculateHonorRoll = computed(() =>
+    this.auth.hasPermission('academic.honor_roll.calculate'),
   );
 
   readonly activeTab = signal<GradesControlTab>('reported');
@@ -401,6 +426,34 @@ export class GradesControlComponent implements OnInit {
   readonly enrollmentGrades = signal<EnrollmentGradeRow[]>([]);
   readonly recoveries = signal<PeriodRecoveryRecord[]>([]);
   readonly honorRoll = signal<HonorRollRecord[]>([]);
+
+  readonly periodOptions: readonly SearchableSelectOption<number>[] = [
+    { value: 1, label: 'Periodo 1' },
+    { value: 2, label: 'Periodo 2' },
+    { value: 3, label: 'Periodo 3' },
+    { value: 4, label: 'Periodo 4' },
+  ];
+
+  readonly enrollmentOptions = computed<SearchableSelectOption<number>[]>(() => [
+    { value: 0, label: 'Seleccione estudiante...' },
+    ...this.enrollments().map((e) => ({
+      value: e.id,
+      label: e.studentFullName,
+      badge: `${e.gradeName}-${e.groupCode}`,
+      subtitle: e.studentDocumentNumber,
+      keywords: `${e.studentDocumentNumber} ${e.gradeName} ${e.groupCode}`,
+    })),
+  ]);
+
+  readonly assignmentOptions = computed<SearchableSelectOption<number>[]>(() => [
+    { value: 0, label: 'Seleccione curso...' },
+    ...this.assignments().map((c) => ({
+      value: c.id,
+      label: `${c.gradeName}-${c.groupCode} · ${c.subjectName}`,
+      subtitle: c.teacherName,
+      keywords: `${c.teacherName} ${c.subjectName}`,
+    })),
+  ]);
 
   selectedEnrollmentId = 0;
   transferForm = { fromCourseAssignmentId: 0, toCourseAssignmentId: 0 };

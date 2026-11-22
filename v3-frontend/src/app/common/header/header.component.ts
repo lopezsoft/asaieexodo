@@ -3,6 +3,7 @@ import {
   Component,
   computed,
   DestroyRef,
+  effect,
   HostListener,
   Inject,
   inject,
@@ -16,7 +17,12 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { filter } from 'rxjs/operators';
 import { CustomizerSettingsService } from '../../customizer-settings/customizer-settings.service';
 import { LanguageService } from '../../services/common/language.service';
+import { V3CatalogsService } from '../../services/v3-catalogs.service';
 import { V3UnifiedAuthService } from '../../services/v3-unified-auth.service';
+import {
+  SearchableSelectOption,
+  V3SearchableSelectComponent,
+} from '../../shared/components/v3-searchable-select/v3-searchable-select.component';
 import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.directive';
 import { fallbackAvatarUrl } from '../../utils/utils';
 import { ToggleService } from './toggle.service';
@@ -31,6 +37,7 @@ import { ToggleService } from './toggle.service';
     TranslocoPipe,
     NgOptimizedImage,
     CustomTooltipDirective,
+    V3SearchableSelectComponent,
   ],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss',
@@ -38,9 +45,13 @@ import { ToggleService } from './toggle.service';
 export class HeaderComponent {
   public readonly langService = inject(LanguageService);
   public readonly v3Auth = inject(V3UnifiedAuthService);
+  private readonly catalogsService = inject(V3CatalogsService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly isAccessPanelView = signal(false);
+  private readonly schoolAcademicYears = signal<
+    ReadonlyArray<{ readonly year: number; readonly isClosed: boolean }>
+  >([]);
 
   isSidebarToggled = false;
   isToggled = false;
@@ -50,16 +61,45 @@ export class HeaderComponent {
   isFullscreen = false;
 
   protected readonly fallbackAvatarUrl = fallbackAvatarUrl();
-  protected readonly availableAcademicYears = computed(() => {
-    const current = new Date().getFullYear();
-    const active = this.v3Auth.academicYear();
-    const minYear = Math.min(current - 5, active);
-    const maxYear = Math.max(current + 1, active);
-    const years: number[] = [];
-    for (let y = maxYear; y >= minYear; y--) {
-      years.push(y);
+  protected readonly academicYearOptions = computed<
+    SearchableSelectOption<number>[]
+  >(() => {
+    const dbYears = this.schoolAcademicYears();
+    const activeYear = this.v3Auth.academicYear();
+
+    if (dbYears.length > 0) {
+      const yearMap = new Map<number, { year: number; isClosed: boolean }>();
+      for (const item of dbYears) {
+        yearMap.set(item.year, item);
+      }
+      if (!yearMap.has(activeYear)) {
+        yearMap.set(activeYear, { year: activeYear, isClosed: false });
+      }
+      return Array.from(yearMap.values())
+        .sort((a, b) => b.year - a.year)
+        .map((item) => ({
+          value: item.year,
+          label: String(item.year),
+          subtitle: item.isClosed ? 'Año cerrado' : 'Año activo',
+          keywords: item.isClosed
+            ? `${item.year} cerrado historico`
+            : `${item.year} activo vigente actual`,
+        }));
     }
-    return years;
+
+    const current = new Date().getFullYear();
+    const maxYear = Math.max(current, activeYear);
+    const minYear = Math.min(2011, activeYear);
+    const options: SearchableSelectOption<number>[] = [];
+    for (let y = maxYear; y >= minYear; y--) {
+      options.push({
+        value: y,
+        label: String(y),
+        subtitle: y === activeYear ? 'Año seleccionado' : 'Histórico',
+        keywords: `${y}`,
+      });
+    }
+    return options;
   });
 
   constructor(
@@ -96,6 +136,33 @@ export class HeaderComponent {
           this.toggleService.toggle();
         }
       });
+
+    effect((onCleanup) => {
+      const authenticated = this.v3Auth.isAuthenticated();
+      const schoolId = this.v3Auth.activeSchoolId();
+      const inAccessPanel = this.isAccessPanelView();
+      this.catalogsService.schoolContextVersion();
+
+      if (!authenticated || !schoolId) {
+        this.schoolAcademicYears.set([]);
+        return;
+      }
+
+      if (!isPlatformBrowser(this.platformId) || inAccessPanel) {
+        return;
+      }
+
+      const subscription = this.catalogsService.getSchoolContext().subscribe({
+        next: (context) => {
+          this.schoolAcademicYears.set(context.academicYears ?? []);
+        },
+        error: () => {
+          // Conserva el rango historico de respaldo si la consulta falla temporalmente.
+        },
+      });
+
+      onCleanup(() => subscription.unsubscribe());
+    });
   }
 
   toggle(): void {
@@ -159,7 +226,10 @@ export class HeaderComponent {
     this.isLanguageDropdownOpen = false;
   }
 
-  onAcademicYearChange(yearValue: string | number): void {
+  onAcademicYearChange(yearValue: string | number | null): void {
+    if (yearValue === null || yearValue === '') {
+      return;
+    }
     const parsedYear = Number(yearValue);
     if (!Number.isNaN(parsedYear)) {
       this.v3Auth.setWorkingAcademicYear(parsedYear);

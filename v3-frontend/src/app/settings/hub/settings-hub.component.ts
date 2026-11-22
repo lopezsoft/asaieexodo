@@ -1,7 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { V3UnifiedAuthService } from '../../services/v3-unified-auth.service';
+import {
+  RBAC_MODULES,
+  RBAC_PERMISSIONS,
+} from '../../shared/constants/rbac-permissions.constants';
 import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.directive';
 
 /**
@@ -29,7 +33,7 @@ import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.d
       </div>
 
       <div class="row g-4">
-        @for (card of cards; track card.route) {
+        @for (card of visibleCards(); track card.route) {
           <div class="col-md-6 col-xl-3">
             <a
               [routerLink]="card.route"
@@ -59,7 +63,7 @@ import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.d
 export class SettingsHubComponent {
   protected readonly v3Auth = inject(V3UnifiedAuthService);
 
-  readonly cards = [
+  private readonly allCards = [
     {
       title: 'Estructura Académica',
       description:
@@ -67,6 +71,8 @@ export class SettingsHubComponent {
       icon: 'account_tree',
       route: '/settings/structure',
       accent: 'kpi-primary',
+      anyPermissions: [RBAC_PERMISSIONS.SETTINGS_STRUCTURE_VIEW],
+      moduleTag: null as string | null,
     },
     {
       title: 'Evaluación y SIEE',
@@ -75,6 +81,12 @@ export class SettingsHubComponent {
       icon: 'rule',
       route: '/settings/evaluation',
       accent: 'kpi-secondary',
+      anyPermissions: [
+        RBAC_PERMISSIONS.SETTINGS_SIEE_VIEW,
+        RBAC_PERMISSIONS.SETTINGS_PERIODS_VIEW,
+        RBAC_PERMISSIONS.SETTINGS_DIMENSIONS_VIEW,
+      ],
+      moduleTag: null as string | null,
     },
     {
       title: 'Observador del Estudiante',
@@ -83,6 +95,8 @@ export class SettingsHubComponent {
       icon: 'assignment_ind',
       route: '/settings/observer',
       accent: 'kpi-success',
+      anyPermissions: [RBAC_PERMISSIONS.SETTINGS_OBSERVER_VIEW],
+      moduleTag: RBAC_MODULES.STUDENT_OBSERVER,
     },
     {
       title: 'Firmas, Boletines y Módulos',
@@ -91,6 +105,16 @@ export class SettingsHubComponent {
       icon: 'draw',
       route: '/settings/branding',
       accent: 'kpi-purple',
+      anyPermissions: [RBAC_PERMISSIONS.SETTINGS_BRANDING_VIEW],
+      moduleTag: null as string | null,
     },
   ];
+
+  readonly visibleCards = computed(() =>
+    this.allCards.filter(
+      (c) =>
+        (!c.moduleTag || this.v3Auth.hasModule(c.moduleTag)) &&
+        this.v3Auth.hasAnyPermission(c.anyPermissions),
+    ),
+  );
 }

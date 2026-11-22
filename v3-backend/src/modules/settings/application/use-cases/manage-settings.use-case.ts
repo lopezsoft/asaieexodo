@@ -274,7 +274,12 @@ export class ManageSettingsUseCase {
   cleanupZeroGrades(
     schoolId: bigint,
     academicYear: number,
+    actorUserId?: bigint,
   ): Promise<{ deletedCount: number }> {
-    return this.repository.cleanupZeroGrades(schoolId, academicYear);
+    return this.repository.cleanupZeroGrades(
+      schoolId,
+      academicYear,
+      actorUserId,
+    );
   }
 }

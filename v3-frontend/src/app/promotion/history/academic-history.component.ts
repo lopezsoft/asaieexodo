@@ -14,6 +14,10 @@ import {
   V3PromotionService,
 } from '../../services/v3-promotion.service';
 import { V3UnifiedAuthService } from '../../services/v3-unified-auth.service';
+import {
+  SearchableSelectOption,
+  V3SearchableSelectComponent,
+} from '../../shared/components/v3-searchable-select/v3-searchable-select.component';
 
 /**
  * Historial Académico Multianual y Encabezados de Certificados/Actas
@@ -22,7 +26,7 @@ import { V3UnifiedAuthService } from '../../services/v3-unified-auth.service';
 @Component({
   selector: 'app-academic-history',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, V3SearchableSelectComponent],
   template: `
     <div class="container-fluid py-3">
       <div class="breadcrumb-card mb-25 d-md-flex align-items-center justify-content-between">
@@ -42,16 +46,19 @@ import { V3UnifiedAuthService } from '../../services/v3-unified-auth.service';
         <div class="col-lg-8">
           <div class="trezo-card bg-white border-radius p-4 shadow-sm">
             <h6 class="fw-semibold mb-3">Consulta Histórica por Estudiante</h6>
-            <div class="row g-2 mb-4">
-              <div class="col-md-8">
-                <select class="form-select form-select-sm" [(ngModel)]="selectedStudentId" (ngModelChange)="loadHistory()">
-                  <option [ngValue]="0">Seleccione un estudiante...</option>
-                  @for (s of students(); track s.id) {
-                    <option [ngValue]="s.id">{{ s.documentNumber }} · {{ s.fullName }}</option>
-                  }
-                </select>
+            <div class="row g-3 align-items-end mb-4">
+              <div class="col-12 col-md-6">
+                <label class="form-label">Estudiante</label>
+                <app-v3-searchable-select
+                  [(ngModel)]="selectedStudentId"
+                  [options]="studentOptions()"
+                  [clearable]="true"
+                  placeholder="Seleccione un estudiante..."
+                  searchPlaceholder="Buscar por documento o nombre..."
+                  (ngModelChange)="loadHistory()"
+                />
               </div>
-              <div class="col-md-4 d-grid">
+              <div class="col-12 col-md-6 d-flex justify-content-md-end">
                 <button
                   type="button"
                   class="btn btn-sm btn-outline-primary"
@@ -128,11 +135,13 @@ import { V3UnifiedAuthService } from '../../services/v3-unified-auth.service';
               <label class="form-label small fw-semibold">Prefijo de Actas de Graduación / Promoción</label>
               <input type="text" class="form-control form-control-sm" [(ngModel)]="actPrefix" placeholder="ACTA-PROM-2026" />
             </div>
-            <div class="d-grid">
-              <button type="button" class="btn btn-sm btn-primary" (click)="saveHeaders()">
-                Guardar Encabezados
-              </button>
-            </div>
+            @if (canEditHeaders()) {
+              <div class="d-grid">
+                <button type="button" class="btn btn-sm btn-primary" (click)="saveHeaders()">
+                  Guardar Encabezados
+                </button>
+              </div>
+            }
           </div>
         </div>
       </div>
@@ -147,8 +156,18 @@ export class AcademicHistoryComponent implements OnInit {
   private readonly loadMask = inject(LoadMaskService);
 
   readonly academicYear = computed(() => this.auth.academicYear());
+  readonly canEditHeaders = computed(() =>
+    this.auth.hasPermission('promotion.certificate_headers.write'),
+  );
+  readonly canGenerateCertificate = computed(() =>
+    this.auth.hasPermission('reports.certificates.generate'),
+  );
   readonly students = signal<StudentProfileRecord[]>([]);
   readonly history = signal<StudentAcademicHistoryYear[]>([]);
+
+  readonly studentOptions = computed<SearchableSelectOption<number>[]>(() =>
+    this.students().map((s) => ({ value: s.id, label: `${s.documentNumber} · ${s.fullName}` }))
+  );
 
   selectedStudentId = 0;
   headerTitle = '';

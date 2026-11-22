@@ -11,6 +11,10 @@ import {
   V3PortalService,
 } from '../../services/v3-portal.service';
 import { V3UnifiedAuthService } from '../../services/v3-unified-auth.service';
+import {
+  SearchableSelectOption,
+  V3SearchableSelectComponent,
+} from '../../shared/components/v3-searchable-select/v3-searchable-select.component';
 import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.directive';
 
 interface GroupOption {
@@ -25,7 +29,7 @@ interface GroupOption {
 @Component({
   selector: 'app-teacher-tracking-format',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, CustomTooltipDirective],
+  imports: [CommonModule, FormsModule, RouterLink, V3SearchableSelectComponent, CustomTooltipDirective],
   template: `
     <div class="container-fluid py-3">
       <div class="breadcrumb-card mb-25 d-md-flex align-items-center justify-content-between">
@@ -42,31 +46,33 @@ interface GroupOption {
       </div>
 
       <div class="trezo-card bg-white border-radius p-4 shadow-sm mb-4">
-        <div class="row g-2 align-items-end">
-          <div class="col-md-5">
-            <label class="form-label small fw-semibold">Grupo *</label>
-            <select class="form-select form-select-sm" [(ngModel)]="selectedGroupId" (ngModelChange)="loadFormat()">
-              <option [ngValue]="0">Seleccione grupo...</option>
-              @for (g of groups(); track g.id) {
-                <option [ngValue]="g.id">{{ g.label }}</option>
-              }
-            </select>
+        <div class="row g-3 align-items-end">
+          <div class="col-12 col-md-6">
+            <label class="form-label">Grupo *</label>
+            <app-v3-searchable-select
+              [(ngModel)]="selectedGroupId"
+              [options]="groupSelectOptions()"
+              [clearable]="true"
+              placeholder="Seleccione grupo..."
+              searchPlaceholder="Buscar grupo..."
+              (selectionChange)="loadFormat()"
+            />
           </div>
-          <div class="col-md-4 d-flex flex-wrap gap-2">
+          <div class="col-12 col-md-6 d-flex flex-wrap justify-content-md-end align-items-center gap-2">
             <span class="badge text-bg-light border text-dark">Estudiantes: {{ rows().length }}</span>
             <span class="badge text-bg-success">Con Internet: {{ withInternetCount() }}</span>
             <span class="badge text-bg-primary">Plat. Virtual (PV): {{ withPvCount() }}</span>
             <span class="badge text-bg-warning">Guías Físicas (GF): {{ withGfCount() }}</span>
           </div>
-          <div class="col-md-3 d-grid">
+          <div class="col-12 d-flex justify-content-end pt-2 border-top">
             <button
               type="button"
-              class="btn btn-sm btn-primary"
+              class="btn btn-sm btn-primary d-inline-flex align-items-center gap-1"
               [disabled]="rows().length === 0"
               (click)="saveAll()"
             >
-              <i class="material-symbols-outlined fs-6 align-middle me-1">save</i>
-              Guardar Seguimiento
+              <i class="material-symbols-outlined fs-6">save</i>
+              <span>Guardar Seguimiento</span>
             </button>
           </div>
         </div>
@@ -151,6 +157,10 @@ export class TeacherTrackingFormatComponent implements OnInit {
   readonly academicYear = computed(() => this.auth.academicYear());
   readonly groups = signal<GroupOption[]>([]);
   readonly rows = signal<StudentTrackingFormatRow[]>([]);
+
+  readonly groupSelectOptions = computed<SearchableSelectOption<number>[]>(() =>
+    this.groups().map((g) => ({ value: g.id, label: g.label }))
+  );
 
   readonly withInternetCount = computed(() => this.rows().filter((r) => r.internet).length);
   readonly withPvCount = computed(() => this.rows().filter((r) => r.pv).length);

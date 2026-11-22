@@ -152,7 +152,8 @@
       "campuses": "Campuses",
       "teachers": "Teaching Staff",
       "staff": "Administrative Staff",
-      "groupManagers": "Homeroom Teachers"
+      "groupManagers": "Homeroom Teachers",
+      "rolesPermissions": "Roles & Permissions"
     },
     "settings": {
       "title": "Settings",

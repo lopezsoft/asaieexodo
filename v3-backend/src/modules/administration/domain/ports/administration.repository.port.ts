@@ -1,3 +1,6 @@
+import { GridQueryOptions } from '../../../../shared/infrastructure/http/pagination/laravel-paginator';
+import { CommunityRole } from '../../../iam/domain/enums/community-role.enum';
+
 export interface YearlyTotalPoint {
   readonly year: number;
   readonly total: number;
@@ -242,6 +245,7 @@ export interface SaveAdministrativeStaffInput {
   readonly careerTypeId?: number | null;
   readonly appointmentTypeId?: number | null;
   readonly workplaceLocationId?: number | null;
+  readonly assignedRole?: CommunityRole;
   readonly isActive?: boolean;
 }
 
@@ -303,6 +307,10 @@ export abstract class AdministrationRepositoryPort {
   ): Promise<SchoolProfileRecord>;
 
   abstract listCampuses(schoolId: bigint): Promise<CampusRecord[]>;
+  abstract listCampusesPaginated(
+    schoolId: bigint,
+    options: GridQueryOptions,
+  ): Promise<PaginatedRecords<CampusRecord>>;
   abstract createCampus(
     schoolId: bigint,
     input: SaveCampusInput,
@@ -346,7 +354,7 @@ export abstract class AdministrationRepositoryPort {
 
   abstract listTeachers(
     schoolId: bigint,
-    options: { search?: string; onlyActive?: boolean; limit: number; offset: number },
+    options: GridQueryOptions,
   ): Promise<PaginatedRecords<TeacherProfileRecord>>;
   abstract createTeacher(
     schoolId: bigint,
@@ -361,7 +369,7 @@ export abstract class AdministrationRepositoryPort {
 
   abstract listAdministrativeStaff(
     schoolId: bigint,
-    options: { search?: string; onlyActive?: boolean; limit: number; offset: number },
+    options: GridQueryOptions,
   ): Promise<PaginatedRecords<AdministrativeStaffRecord>>;
   abstract createAdministrativeStaff(
     schoolId: bigint,
@@ -381,6 +389,11 @@ export abstract class AdministrationRepositoryPort {
     schoolId: bigint,
     academicYear: number,
   ): Promise<GroupManagerRecord[]>;
+  abstract listGroupManagersPaginated(
+    schoolId: bigint,
+    academicYear: number,
+    options: GridQueryOptions,
+  ): Promise<PaginatedRecords<GroupManagerRecord>>;
   abstract upsertGroupManager(
     schoolId: bigint,
     input: UpsertGroupManagerInput,

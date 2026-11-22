@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Optional } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as crypto from 'node:crypto';
 import { MailSenderPort } from '../../../../shared/application/ports/mail-sender.port';
 import { SmartLoggerService } from '../../../../shared/infrastructure/logging/smart-logger.service';
+import { RbacPermissionsService } from '../../../../shared/infrastructure/rbac/rbac-permissions.service';
 import { CommunityRole } from '../../domain/enums/community-role.enum';
 import { PasswordHasherPort } from '../../domain/ports/password-hasher.port';
 import {
@@ -63,6 +64,7 @@ export class RegisterSchoolUseCase {
     private readonly mailSender: MailSenderPort,
     private readonly configService: ConfigService,
     private readonly logger: SmartLoggerService,
+    @Optional() private readonly rbacPermissions?: RbacPermissionsService,
   ) {}
 
   static buildStorageFolderSlug(name: string, randomSuffix?: string): string {
@@ -175,6 +177,14 @@ export class RegisterSchoolUseCase {
       },
     );
 
+    const rbac = this.rbacPermissions
+      ? await this.rbacPermissions.resolveEffectiveAccess(
+          result.schoolId,
+          result.user.id,
+          CommunityRole.SCHOOL_ADMIN,
+        )
+      : { permissions: [], enabledModules: [] };
+
     return {
       accessToken,
       sessionId: result.session.id,
@@ -182,6 +192,8 @@ export class RegisterSchoolUseCase {
       activeSchoolName: result.schoolName,
       activeRole: CommunityRole.SCHOOL_ADMIN,
       academicYear,
+      permissions: rbac.permissions,
+      enabledModules: rbac.enabledModules,
       user: result.user.toPublicProfile(),
       onboarding: {
         trialDays,

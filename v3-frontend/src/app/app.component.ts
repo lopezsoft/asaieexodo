@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import { CommonModule, ViewportScroller } from '@angular/common';
 import { RouterOutlet, Router, Event, NavigationEnd } from '@angular/router';
-import {BlockUIModule} from "ng-block-ui";
+import { BlockUIModule } from 'ng-block-ui';
+import { FormAutoFocusService } from './services/common/form-autofocus.service';
 
 @Component({
   selector: 'app-root',
@@ -20,8 +21,10 @@ export class AppComponent {
 
     constructor(
         private router: Router,
-        private viewportScroller: ViewportScroller
+        private viewportScroller: ViewportScroller,
+        private formAutoFocus: FormAutoFocusService
     ) {
+        this.formAutoFocus.init();
         this.router.events.subscribe((event: Event) => {
             if (event instanceof NavigationEnd) {
                 // Scroll to the top after each navigation end

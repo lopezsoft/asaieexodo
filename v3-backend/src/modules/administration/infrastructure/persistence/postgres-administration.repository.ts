@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { ResourceNotFoundException } from '../../../../shared/domain/exceptions/resource-not-found.exception';
 import { PostgresRlsService } from '../../../../shared/infrastructure/database/postgres-rls.service';
+import {
+  GridQueryOptions,
+  resolveSafeSqlColumn,
+} from '../../../../shared/infrastructure/http/pagination/laravel-paginator';
 import { IamCommunityProvisioningService } from '../../../iam/application/services/iam-community-provisioning.service';
 import { CommunityRole } from '../../../iam/domain/enums/community-role.enum';
 import {
@@ -21,6 +25,65 @@ import {
   UpdateSchoolProfileInput,
   UpsertGroupManagerInput,
 } from '../../domain/ports/administration.repository.port';
+
+const CAMPUS_FILTER_COLUMNS: Readonly<Record<string, string>> = {
+  name: 'cp.name',
+  daneCode: "COALESCE(cp.dane_code, '')",
+  cityName: "COALESCE(c.name, '')",
+  zoneName: "COALESCE(z.name, '')",
+  shiftsCount:
+    '((SELECT COUNT(*)::int FROM campus_shifts cs WHERE cs.campus_id = cp.id))::text',
+  levelsCount:
+    '((SELECT COUNT(*)::int FROM campus_education_levels cel WHERE cel.campus_id = cp.id))::text',
+  isMainCampus: "CASE WHEN cp.is_main_campus THEN 'Sí' ELSE 'No' END",
+  isActive: "CASE WHEN cp.is_active THEN 'Activo' ELSE 'Inactivo' END",
+};
+
+const CAMPUS_SORT_COLUMNS: Readonly<Record<string, string>> = {
+  ...CAMPUS_FILTER_COLUMNS,
+  shiftsCount:
+    '(SELECT COUNT(*)::int FROM campus_shifts cs WHERE cs.campus_id = cp.id)',
+  levelsCount:
+    '(SELECT COUNT(*)::int FROM campus_education_levels cel WHERE cel.campus_id = cp.id)',
+};
+
+const TEACHER_COLUMNS: Readonly<Record<string, string>> = {
+  documentNumber: 'tp.document_number',
+  fullName:
+    "TRIM(CONCAT_WS(' ', tp.first_name, tp.middle_name, tp.last_name, tp.second_last_name))",
+  email: "COALESCE(tp.email, '')",
+  phone: "COALESCE(tp.phone, '')",
+  teachingAreaName: "COALESCE(ta.name, '')",
+  payScaleName: "COALESCE(ps.name, '')",
+  isActive: "CASE WHEN tp.is_active THEN 'Activo' ELSE 'Inactivo' END",
+};
+
+const STAFF_COLUMNS: Readonly<Record<string, string>> = {
+  documentNumber: 's.document_number',
+  fullName:
+    "TRIM(CONCAT_WS(' ', s.first_name, s.middle_name, s.last_name, s.second_last_name))",
+  email: "COALESCE(s.email, '')",
+  phone: "COALESCE(s.phone, '')",
+  hierarchyLevelName: "COALESCE(hl.name, '')",
+  appointmentTypeName: "COALESCE(atp.name, '')",
+  isActive: "CASE WHEN s.is_active THEN 'Activo' ELSE 'Inactivo' END",
+};
+
+const GROUP_MANAGER_FILTER_COLUMNS: Readonly<Record<string, string>> = {
+  campusName: 'cp.name',
+  shiftName: 'ss.name',
+  gradeName: 'g.name',
+  groupCode: 'ag.group_code',
+  homeroomTeacherName:
+    "COALESCE(NULLIF(TRIM(CONCAT_WS(' ', tp.first_name, tp.middle_name, tp.last_name, tp.second_last_name)), ''), 'Sin asignar')",
+  maxCapacity: 'ag.max_capacity::text',
+  isActive: "CASE WHEN ag.is_active THEN 'Activo' ELSE 'Inactivo' END",
+};
+
+const GROUP_MANAGER_SORT_COLUMNS: Readonly<Record<string, string>> = {
+  ...GROUP_MANAGER_FILTER_COLUMNS,
+  maxCapacity: 'ag.max_capacity',
+};
 
 @Injectable()
 export class PostgresAdministrationRepository
@@ -260,6 +323,37 @@ export class PostgresAdministrationRepository
     });
   }
 
+  private appendGridFilterAndOrder(
+    clauses: string[],
+    params: unknown[],
+    options: Pick<
+      GridQueryOptions,
+      'filterField' | 'filterValue' | 'sortField' | 'sortDirection'
+    >,
+    filterAllowlist: Readonly<Record<string, string>>,
+    sortAllowlist: Readonly<Record<string, string>>,
+    defaultOrderBy: string,
+    tieBreakerColumn: string,
+  ): string {
+    if (options.filterValue) {
+      const filterExpr = resolveSafeSqlColumn(
+        options.filterField,
+        filterAllowlist,
+      );
+      if (filterExpr) {
+        params.push(`%${options.filterValue}%`);
+        clauses.push(`${filterExpr} ILIKE $${params.length}`);
+      }
+    }
+
+    const sortExpr = resolveSafeSqlColumn(options.sortField, sortAllowlist);
+    if (sortExpr) {
+      const dir = options.sortDirection === 'DESC' ? 'DESC' : 'ASC';
+      return `${sortExpr} ${dir}, ${tieBreakerColumn} ASC`;
+    }
+    return defaultOrderBy;
+  }
+
   async listCampuses(schoolId: bigint): Promise<CampusRecord[]> {
     return this.db.withTenantTransaction(schoolId, async (client) => {
       const res = await client.query<Record<string, unknown>>(
@@ -278,6 +372,73 @@ export class PostgresAdministrationRepository
       );
 
       return res.rows.map((r) => this.mapCampusRow(r));
+    });
+  }
+
+  async listCampusesPaginated(
+    schoolId: bigint,
+    options: GridQueryOptions,
+  ): Promise<PaginatedRecords<CampusRecord>> {
+    return this.db.withTenantTransaction(schoolId, async (client) => {
+      const clauses: string[] = [];
+      const params: unknown[] = [];
+
+      if (options.onlyActive) {
+        clauses.push(`cp.is_active = TRUE`);
+      }
+      if (options.search && options.search.length > 0) {
+        params.push(`%${options.search}%`);
+        clauses.push(
+          `(cp.name ILIKE $${params.length}
+            OR COALESCE(cp.dane_code, '') ILIKE $${params.length}
+            OR COALESCE(c.name, '') ILIKE $${params.length}
+            OR COALESCE(z.name, '') ILIKE $${params.length}
+            OR COALESCE(cp.address, '') ILIKE $${params.length}
+            OR COALESCE(cp.email, '') ILIKE $${params.length})`,
+        );
+      }
+
+      const orderBySql = this.appendGridFilterAndOrder(
+        clauses,
+        params,
+        options,
+        CAMPUS_FILTER_COLUMNS,
+        CAMPUS_SORT_COLUMNS,
+        'cp.is_main_campus DESC, cp.name ASC',
+        'cp.id',
+      );
+      const fromSql = `FROM campuses cp
+         LEFT JOIN cities c ON c.id = cp.city_id
+         LEFT JOIN departments d ON d.id = c.department_id
+         LEFT JOIN geographical_zones z ON z.id = cp.zone_id`;
+      const whereSql =
+        clauses.length > 0 ? `WHERE ${clauses.join(' AND ')}` : '';
+
+      const countRes = await client.query<{ total: string }>(
+        `SELECT COUNT(*)::text AS total ${fromSql} ${whereSql}`,
+        params,
+      );
+
+      const dataParams = [...params, options.limit, options.offset];
+      const rowsRes = await client.query<Record<string, unknown>>(
+        `SELECT cp.*,
+                c.name AS city_name,
+                c.department_id,
+                d.country_id,
+                z.name AS zone_name,
+                (SELECT COUNT(*)::int FROM campus_shifts cs WHERE cs.campus_id = cp.id) AS shifts_count,
+                (SELECT COUNT(*)::int FROM campus_education_levels cel WHERE cel.campus_id = cp.id) AS levels_count
+         ${fromSql}
+         ${whereSql}
+         ORDER BY ${orderBySql}
+         LIMIT $${dataParams.length - 1} OFFSET $${dataParams.length}`,
+        dataParams,
+      );
+
+      return {
+        items: rowsRes.rows.map((r) => this.mapCampusRow(r)),
+        total: Number(countRes.rows[0].total),
+      };
     });
   }
 
@@ -565,7 +726,7 @@ export class PostgresAdministrationRepository
 
   async listTeachers(
     schoolId: bigint,
-    options: { search?: string; onlyActive?: boolean; limit: number; offset: number },
+    options: GridQueryOptions,
   ): Promise<PaginatedRecords<TeacherProfileRecord>> {
     return this.db.withTenantTransaction(schoolId, async (client) => {
       const clauses: string[] = [];
@@ -580,13 +741,32 @@ export class PostgresAdministrationRepository
           `(tp.document_number ILIKE $${params.length}
             OR tp.first_name ILIKE $${params.length}
             OR tp.last_name ILIKE $${params.length}
-            OR COALESCE(tp.email, '') ILIKE $${params.length})`,
+            OR TRIM(CONCAT_WS(' ', tp.first_name, tp.middle_name, tp.last_name, tp.second_last_name)) ILIKE $${params.length}
+            OR COALESCE(tp.email, '') ILIKE $${params.length}
+            OR COALESCE(tp.phone, '') ILIKE $${params.length}
+            OR COALESCE(ta.name, '') ILIKE $${params.length}
+            OR COALESCE(ps.name, '') ILIKE $${params.length})`,
         );
       }
 
-      const whereSql = clauses.length > 0 ? `WHERE ${clauses.join(' AND ')}` : '';
+      const orderBySql = this.appendGridFilterAndOrder(
+        clauses,
+        params,
+        options,
+        TEACHER_COLUMNS,
+        TEACHER_COLUMNS,
+        'tp.last_name ASC, tp.first_name ASC',
+        'tp.id',
+      );
+      const fromSql = `FROM teacher_profiles tp
+         LEFT JOIN document_types dt ON dt.id = tp.document_type_id
+         LEFT JOIN academic_degrees_catalog ad ON ad.id = tp.academic_degree_id
+         LEFT JOIN teacher_pay_scales ps ON ps.id = tp.pay_scale_id
+         LEFT JOIN teaching_areas ta ON ta.id = tp.teaching_area_id`;
+      const whereSql =
+        clauses.length > 0 ? `WHERE ${clauses.join(' AND ')}` : '';
       const countRes = await client.query<{ total: string }>(
-        `SELECT COUNT(*)::text AS total FROM teacher_profiles tp ${whereSql}`,
+        `SELECT COUNT(*)::text AS total ${fromSql} ${whereSql}`,
         params,
       );
 
@@ -597,13 +777,9 @@ export class PostgresAdministrationRepository
                 ad.name AS academic_degree_name,
                 ps.name AS pay_scale_name,
                 ta.name AS teaching_area_name
-         FROM teacher_profiles tp
-         LEFT JOIN document_types dt ON dt.id = tp.document_type_id
-         LEFT JOIN academic_degrees_catalog ad ON ad.id = tp.academic_degree_id
-         LEFT JOIN teacher_pay_scales ps ON ps.id = tp.pay_scale_id
-         LEFT JOIN teaching_areas ta ON ta.id = tp.teaching_area_id
+         ${fromSql}
          ${whereSql}
-         ORDER BY tp.last_name ASC, tp.first_name ASC
+         ORDER BY ${orderBySql}
          LIMIT $${dataParams.length - 1} OFFSET $${dataParams.length}`,
         dataParams,
       );
@@ -699,7 +875,7 @@ export class PostgresAdministrationRepository
     input: SaveTeacherInput,
   ): Promise<TeacherProfileRecord> {
     return this.db.withTenantTransaction(schoolId, async (client) => {
-      const res = await client.query<{ id: string }>(
+      const res = await client.query<{ id: string; user_id: string | null }>(
         `UPDATE teacher_profiles
          SET document_type_id = COALESCE($2, document_type_id),
              document_number = $3,
@@ -722,7 +898,7 @@ export class PostgresAdministrationRepository
              signature_url = COALESCE($20, signature_url),
              is_active = COALESCE($21, is_active)
          WHERE id = $1
-         RETURNING id`,
+         RETURNING id, user_id`,
         [
           String(teacherId),
           input.documentTypeId ?? null,
@@ -752,25 +928,64 @@ export class PostgresAdministrationRepository
         throw new ResourceNotFoundException('TeacherProfile', teacherId);
       }
 
+      const linkedUserId = res.rows[0].user_id;
+      if (linkedUserId && input.isActive !== undefined) {
+        await client.query(
+          `UPDATE user_school_memberships
+              SET is_active = $3,
+                  status = CASE WHEN $3 THEN 'ACTIVE' ELSE 'SUSPENDED' END,
+                  updated_at = NOW()
+            WHERE school_id = $1 AND user_id = $2 AND role = 'TEACHER'`,
+          [String(schoolId), linkedUserId, input.isActive],
+        );
+        if (!input.isActive) {
+          await client.query(
+            `UPDATE auth_sessions
+                SET is_revoked = TRUE,
+                    revoked_at = NOW(),
+                    revocation_reason = 'TEACHER_DEACTIVATED'
+              WHERE school_id = $1 AND user_id = $2 AND is_revoked = FALSE`,
+            [String(schoolId), linkedUserId],
+          );
+        }
+      }
+
       return this.fetchTeacherById(client, String(teacherId));
     });
   }
 
   async deleteTeacher(schoolId: bigint, teacherId: bigint): Promise<void> {
     await this.db.withTenantTransaction(schoolId, async (client) => {
-      const res = await client.query(
-        `DELETE FROM teacher_profiles WHERE id = $1`,
+      const res = await client.query<{ user_id: string | null }>(
+        `DELETE FROM teacher_profiles WHERE id = $1 RETURNING user_id`,
         [String(teacherId)],
       );
       if (res.rowCount === 0) {
         throw new ResourceNotFoundException('TeacherProfile', teacherId);
+      }
+      const linkedUserId = res.rows[0].user_id;
+      if (linkedUserId) {
+        await client.query(
+          `UPDATE user_school_memberships
+              SET is_active = FALSE, status = 'SUSPENDED', updated_at = NOW()
+            WHERE school_id = $1 AND user_id = $2 AND role = 'TEACHER'`,
+          [String(schoolId), linkedUserId],
+        );
+        await client.query(
+          `UPDATE auth_sessions
+              SET is_revoked = TRUE,
+                  revoked_at = NOW(),
+                  revocation_reason = 'TEACHER_DELETED'
+            WHERE school_id = $1 AND user_id = $2 AND is_revoked = FALSE`,
+          [String(schoolId), linkedUserId],
+        );
       }
     });
   }
 
   async listAdministrativeStaff(
     schoolId: bigint,
-    options: { search?: string; onlyActive?: boolean; limit: number; offset: number },
+    options: GridQueryOptions,
   ): Promise<PaginatedRecords<AdministrativeStaffRecord>> {
     return this.db.withTenantTransaction(schoolId, async (client) => {
       const clauses: string[] = [];
@@ -785,13 +1000,32 @@ export class PostgresAdministrationRepository
           `(s.document_number ILIKE $${params.length}
             OR s.first_name ILIKE $${params.length}
             OR s.last_name ILIKE $${params.length}
-            OR COALESCE(s.email, '') ILIKE $${params.length})`,
+            OR TRIM(CONCAT_WS(' ', s.first_name, s.middle_name, s.last_name, s.second_last_name)) ILIKE $${params.length}
+            OR COALESCE(s.email, '') ILIKE $${params.length}
+            OR COALESCE(s.phone, '') ILIKE $${params.length}
+            OR COALESCE(hl.name, '') ILIKE $${params.length}
+            OR COALESCE(atp.name, '') ILIKE $${params.length})`,
         );
       }
 
-      const whereSql = clauses.length > 0 ? `WHERE ${clauses.join(' AND ')}` : '';
+      const orderBySql = this.appendGridFilterAndOrder(
+        clauses,
+        params,
+        options,
+        STAFF_COLUMNS,
+        STAFF_COLUMNS,
+        's.last_name ASC, s.first_name ASC',
+        's.id',
+      );
+      const fromSql = `FROM administrative_staff s
+         LEFT JOIN document_types dt ON dt.id = s.document_type_id
+         LEFT JOIN hierarchy_levels hl ON hl.id = s.hierarchy_level_id
+         LEFT JOIN administrative_career_types ct ON ct.id = s.career_type_id
+         LEFT JOIN staff_appointment_types atp ON atp.id = s.appointment_type_id`;
+      const whereSql =
+        clauses.length > 0 ? `WHERE ${clauses.join(' AND ')}` : '';
       const countRes = await client.query<{ total: string }>(
-        `SELECT COUNT(*)::text AS total FROM administrative_staff s ${whereSql}`,
+        `SELECT COUNT(*)::text AS total ${fromSql} ${whereSql}`,
         params,
       );
 
@@ -802,13 +1036,9 @@ export class PostgresAdministrationRepository
                 hl.name AS hierarchy_level_name,
                 ct.name AS career_type_name,
                 atp.name AS appointment_type_name
-         FROM administrative_staff s
-         LEFT JOIN document_types dt ON dt.id = s.document_type_id
-         LEFT JOIN hierarchy_levels hl ON hl.id = s.hierarchy_level_id
-         LEFT JOIN administrative_career_types ct ON ct.id = s.career_type_id
-         LEFT JOIN staff_appointment_types atp ON atp.id = s.appointment_type_id
+         ${fromSql}
          ${whereSql}
-         ORDER BY s.last_name ASC, s.first_name ASC
+         ORDER BY ${orderBySql}
          LIMIT $${dataParams.length - 1} OFFSET $${dataParams.length}`,
         dataParams,
       );
@@ -825,11 +1055,17 @@ export class PostgresAdministrationRepository
     input: SaveAdministrativeStaffInput,
   ): Promise<AdministrativeStaffRecord> {
     return this.db.withTenantTransaction(schoolId, async (client) => {
-      // Aprovisionamiento automático IAM (`users` con scrypt + membresía SECRETARY)
+      // Aprovisionamiento automático IAM (`users` con scrypt + membresía seleccionada o SECRETARY por defecto)
       // Paridad segura del trigger legacy `administrativos_after_insert`
+      const staffRole =
+        input.assignedRole &&
+        input.assignedRole !== CommunityRole.SUPER_ADMIN
+          ? input.assignedRole
+          : CommunityRole.SECRETARY;
+
       const userId = await this.iamProvisioning.provisionCommunityUser(client, {
         schoolId,
-        role: CommunityRole.SECRETARY,
+        role: staffRole,
         documentTypeId: input.documentTypeId ?? 1,
         documentNumber: input.documentNumber,
         firstName: input.firstName,
@@ -882,7 +1118,7 @@ export class PostgresAdministrationRepository
     input: SaveAdministrativeStaffInput,
   ): Promise<AdministrativeStaffRecord> {
     return this.db.withTenantTransaction(schoolId, async (client) => {
-      const res = await client.query<{ id: string }>(
+      const res = await client.query<{ id: string; user_id: string | null }>(
         `UPDATE administrative_staff
          SET document_type_id = COALESCE($2, document_type_id),
              document_number = $3,
@@ -900,7 +1136,7 @@ export class PostgresAdministrationRepository
              workplace_location_id = $15,
              is_active = COALESCE($16, is_active)
          WHERE id = $1
-         RETURNING id`,
+         RETURNING id, user_id`,
         [
           String(staffId),
           input.documentTypeId ?? null,
@@ -925,6 +1161,47 @@ export class PostgresAdministrationRepository
         throw new ResourceNotFoundException('AdministrativeStaff', staffId);
       }
 
+      const linkedUserId = res.rows[0].user_id;
+      if (linkedUserId) {
+        if (
+          input.assignedRole &&
+          input.assignedRole !== CommunityRole.SUPER_ADMIN
+        ) {
+          await client.query(
+            `INSERT INTO user_school_memberships (
+               user_id, school_id, role, status, is_active, updated_at
+             )
+             VALUES ($1, $2, $3, 'ACTIVE', TRUE, NOW())
+             ON CONFLICT (user_id, school_id, role)
+             DO UPDATE SET status = 'ACTIVE', is_active = TRUE, updated_at = NOW()`,
+            [linkedUserId, String(schoolId), input.assignedRole],
+          );
+        }
+
+        if (input.isActive !== undefined) {
+          await client.query(
+            `UPDATE user_school_memberships
+                SET is_active = $3,
+                    status = CASE WHEN $3 THEN 'ACTIVE' ELSE 'SUSPENDED' END,
+                    updated_at = NOW()
+              WHERE school_id = $1
+                AND user_id = $2
+                AND role IN ('SECRETARY', 'COORDINATOR', 'RECTOR', 'SCHOOL_ADMIN', 'MONITOR')`,
+            [String(schoolId), linkedUserId, input.isActive],
+          );
+          if (!input.isActive) {
+            await client.query(
+              `UPDATE auth_sessions
+                  SET is_revoked = TRUE,
+                      revoked_at = NOW(),
+                      revocation_reason = 'STAFF_DEACTIVATED'
+                WHERE school_id = $1 AND user_id = $2 AND is_revoked = FALSE`,
+              [String(schoolId), linkedUserId],
+            );
+          }
+        }
+      }
+
       return this.fetchStaffById(client, String(staffId));
     });
   }
@@ -934,12 +1211,31 @@ export class PostgresAdministrationRepository
     staffId: bigint,
   ): Promise<void> {
     await this.db.withTenantTransaction(schoolId, async (client) => {
-      const res = await client.query(
-        `DELETE FROM administrative_staff WHERE id = $1`,
+      const res = await client.query<{ user_id: string | null }>(
+        `DELETE FROM administrative_staff WHERE id = $1 RETURNING user_id`,
         [String(staffId)],
       );
       if (res.rowCount === 0) {
         throw new ResourceNotFoundException('AdministrativeStaff', staffId);
+      }
+      const linkedUserId = res.rows[0].user_id;
+      if (linkedUserId) {
+        await client.query(
+          `UPDATE user_school_memberships
+              SET is_active = FALSE, status = 'SUSPENDED', updated_at = NOW()
+            WHERE school_id = $1
+              AND user_id = $2
+              AND role IN ('SECRETARY', 'COORDINATOR', 'RECTOR', 'SCHOOL_ADMIN', 'MONITOR')`,
+          [String(schoolId), linkedUserId],
+        );
+        await client.query(
+          `UPDATE auth_sessions
+              SET is_revoked = TRUE,
+                  revoked_at = NOW(),
+                  revocation_reason = 'STAFF_DELETED'
+            WHERE school_id = $1 AND user_id = $2 AND is_revoked = FALSE`,
+          [String(schoolId), linkedUserId],
+        );
       }
     });
   }
@@ -967,6 +1263,72 @@ export class PostgresAdministrationRepository
       );
 
       return res.rows.map((r) => this.mapGroupManagerRow(r));
+    });
+  }
+
+  async listGroupManagersPaginated(
+    schoolId: bigint,
+    academicYear: number,
+    options: GridQueryOptions,
+  ): Promise<PaginatedRecords<GroupManagerRecord>> {
+    return this.db.withTenantTransaction(schoolId, async (client) => {
+      const clauses: string[] = [`ag.academic_year = $1`];
+      const params: unknown[] = [academicYear];
+
+      if (options.onlyActive) {
+        clauses.push(`ag.is_active = TRUE`);
+      }
+      if (options.search && options.search.length > 0) {
+        params.push(`%${options.search}%`);
+        clauses.push(
+          `(cp.name ILIKE $${params.length}
+            OR ss.name ILIKE $${params.length}
+            OR g.name ILIKE $${params.length}
+            OR ag.group_code ILIKE $${params.length}
+            OR TRIM(CONCAT_WS(' ', tp.first_name, tp.middle_name, tp.last_name, tp.second_last_name)) ILIKE $${params.length})`,
+        );
+      }
+
+      const orderBySql = this.appendGridFilterAndOrder(
+        clauses,
+        params,
+        options,
+        GROUP_MANAGER_FILTER_COLUMNS,
+        GROUP_MANAGER_SORT_COLUMNS,
+        'cp.name ASC, ss.shift_code ASC, g.display_order ASC, ag.group_code ASC',
+        'ag.id',
+      );
+      const fromSql = `FROM academic_groups ag
+         INNER JOIN campuses cp ON cp.school_id = ag.school_id AND cp.id = ag.campus_id
+         INNER JOIN school_shifts ss ON ss.school_id = ag.school_id AND ss.id = ag.shift_id
+         INNER JOIN grades g ON g.school_id = ag.school_id AND g.id = ag.grade_id
+         LEFT JOIN teacher_profiles tp ON tp.school_id = ag.school_id AND tp.id = ag.homeroom_teacher_id`;
+      const whereSql = `WHERE ${clauses.join(' AND ')}`;
+
+      const countRes = await client.query<{ total: string }>(
+        `SELECT COUNT(*)::text AS total ${fromSql} ${whereSql}`,
+        params,
+      );
+
+      const dataParams = [...params, options.limit, options.offset];
+      const rowsRes = await client.query<Record<string, unknown>>(
+        `SELECT ag.*,
+                cp.name AS campus_name,
+                ss.name AS shift_name,
+                g.grade_code,
+                g.name AS grade_name,
+                TRIM(CONCAT_WS(' ', tp.first_name, tp.middle_name, tp.last_name, tp.second_last_name)) AS homeroom_teacher_name
+         ${fromSql}
+         ${whereSql}
+         ORDER BY ${orderBySql}
+         LIMIT $${dataParams.length - 1} OFFSET $${dataParams.length}`,
+        dataParams,
+      );
+
+      return {
+        items: rowsRes.rows.map((r) => this.mapGroupManagerRow(r)),
+        total: Number(countRes.rows[0].total),
+      };
     });
   }
 

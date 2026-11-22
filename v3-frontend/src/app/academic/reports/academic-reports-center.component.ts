@@ -19,6 +19,10 @@ import {
 } from '../../services/v3-catalogs.service';
 import { V3UnifiedAuthService } from '../../services/v3-unified-auth.service';
 import { V3ModalDialogComponent } from '../../shared/components/v3-modal-dialog/v3-modal-dialog.component';
+import {
+  SearchableSelectOption,
+  V3SearchableSelectComponent,
+} from '../../shared/components/v3-searchable-select/v3-searchable-select.component';
 import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.directive';
 
 interface ReportTemplateDefinition {
@@ -52,6 +56,7 @@ interface QueuedReportItem {
     RouterLink,
     CustomTooltipDirective,
     V3ModalDialogComponent,
+    V3SearchableSelectComponent,
   ],
   template: `
     <div class="container-fluid py-3">
@@ -102,50 +107,50 @@ interface QueuedReportItem {
           </div>
         </div>
         <div class="row g-3">
-          <div class="col-md-3">
-            <label class="form-label small fw-semibold">Sede</label>
-            <select class="form-select form-select-sm" [(ngModel)]="params.campusId">
-              <option [ngValue]="0">Todas las sedes</option>
-              @for (c of context()?.campuses ?? []; track c.id) {
-                <option [ngValue]="c.id">{{ c.name }}</option>
-              }
-            </select>
+          <div class="col-12 col-md-6">
+            <label class="form-label">Sede</label>
+            <app-v3-searchable-select
+              placeholder="Todas las sedes"
+              searchPlaceholder="Buscar sede..."
+              [options]="campusOptions()"
+              [(ngModel)]="params.campusId"
+            />
           </div>
-          <div class="col-md-3">
-            <label class="form-label small fw-semibold">Grupo</label>
-            <select class="form-select form-select-sm" [(ngModel)]="params.groupId">
-              <option [ngValue]="0">Todos los grupos</option>
-              @for (g of groups(); track g.id) {
-                <option [ngValue]="g.id">{{ g.gradeName }}-{{ g.groupCode }} ({{ g.campusName }})</option>
-              }
-            </select>
+          <div class="col-12 col-md-6">
+            <label class="form-label">Grupo</label>
+            <app-v3-searchable-select
+              placeholder="Todos los grupos"
+              searchPlaceholder="Buscar grupo o sede..."
+              [options]="groupOptions()"
+              [(ngModel)]="params.groupId"
+            />
           </div>
-          <div class="col-md-2">
-            <label class="form-label small fw-semibold">Periodo</label>
-            <select class="form-select form-select-sm" [(ngModel)]="params.periodNumber">
-              @for (p of [1, 2, 3, 4]; track p) {
-                <option [ngValue]="p">Periodo {{ p }}</option>
-              }
-            </select>
+          <div class="col-12 col-md-6">
+            <label class="form-label">Periodo</label>
+            <app-v3-searchable-select
+              placeholder="Periodo"
+              searchPlaceholder="Buscar periodo..."
+              [options]="periodOptions"
+              [(ngModel)]="params.periodNumber"
+            />
           </div>
-          <div class="col-md-2">
-            <label class="form-label small fw-semibold">Formato salida</label>
-            <select class="form-select form-select-sm" [(ngModel)]="params.outputFormat">
-              <option value="pdf">PDF (Oficial)</option>
-              <option value="xlsx">Excel (.xlsx)</option>
-              <option value="csv">CSV (.csv)</option>
-              <option value="docx">Word (.docx)</option>
-            </select>
+          <div class="col-12 col-md-6">
+            <label class="form-label">Formato de salida</label>
+            <app-v3-searchable-select
+              placeholder="Formato"
+              searchPlaceholder="Buscar formato..."
+              [options]="outputFormatOptions"
+              [(ngModel)]="params.outputFormat"
+            />
           </div>
-          <div class="col-md-2">
-            <label class="form-label small fw-semibold">Categoría</label>
-            <select class="form-select form-select-sm" [(ngModel)]="selectedCategory">
-              <option value="all">Todas (17)</option>
-              <option value="boletines">Boletines</option>
-              <option value="consolidados">Consolidados / Estad.</option>
-              <option value="matriculas">Matrículas y Listas</option>
-              <option value="certificados">Constancias / Carnés</option>
-            </select>
+          <div class="col-12 col-md-6">
+            <label class="form-label">Categoría</label>
+            <app-v3-searchable-select
+              placeholder="Categoría"
+              searchPlaceholder="Buscar categoría..."
+              [options]="categoryOptions"
+              [(ngModel)]="selectedCategory"
+            />
           </div>
         </div>
       </div>
@@ -353,6 +358,48 @@ export class AcademicReportsCenterComponent implements OnInit {
   readonly consolidatedMode = signal<'subjects' | 'areas'>('subjects');
   readonly consolidatedReport = signal<ConsolidatedReportView | null>(null);
 
+  readonly campusOptions = computed<SearchableSelectOption<number>[]>(() => [
+    { value: 0, label: 'Todas las sedes' },
+    ...(this.context()?.campuses ?? []).map((c) => ({
+      value: c.id,
+      label: c.name,
+    })),
+  ]);
+
+  readonly groupOptions = computed<SearchableSelectOption<number>[]>(() => [
+    { value: 0, label: 'Todos los grupos' },
+    ...this.groups().map((g) => ({
+      value: g.id,
+      label: `${g.gradeName}-${g.groupCode}`,
+      subtitle: g.campusName,
+      keywords: g.campusName,
+    })),
+  ]);
+
+  readonly periodOptions: readonly SearchableSelectOption<number>[] = [
+    { value: 1, label: 'Periodo 1' },
+    { value: 2, label: 'Periodo 2' },
+    { value: 3, label: 'Periodo 3' },
+    { value: 4, label: 'Periodo 4' },
+  ];
+
+  readonly outputFormatOptions: readonly SearchableSelectOption<
+    'pdf' | 'xlsx' | 'csv' | 'docx'
+  >[] = [
+    { value: 'pdf', label: 'PDF (Oficial)' },
+    { value: 'xlsx', label: 'Excel (.xlsx)' },
+    { value: 'csv', label: 'CSV (.csv)' },
+    { value: 'docx', label: 'Word (.docx)' },
+  ];
+
+  readonly categoryOptions: readonly SearchableSelectOption<string>[] = [
+    { value: 'all', label: 'Todas (17)' },
+    { value: 'boletines', label: 'Boletines' },
+    { value: 'consolidados', label: 'Consolidados / Estad.' },
+    { value: 'matriculas', label: 'Matrículas y Listas' },
+    { value: 'certificados', label: 'Constancias / Carnés' },
+  ];
+
   selectedCategory = 'all';
   params = {
     campusId: 0,
@@ -382,10 +429,32 @@ export class AcademicReportsCenterComponent implements OnInit {
   ];
 
   filteredTemplates(): ReportTemplateDefinition[] {
+    const allowed = this.templates.filter((t) => this.isTemplateAllowed(t));
     if (this.selectedCategory === 'all') {
-      return this.templates;
+      return allowed;
     }
-    return this.templates.filter((t) => t.category === this.selectedCategory);
+    return allowed.filter((t) => t.category === this.selectedCategory);
+  }
+
+  private isTemplateAllowed(tpl: ReportTemplateDefinition): boolean {
+    if (tpl.category === 'certificados') {
+      return this.auth.hasPermission('reports.certificates.generate');
+    }
+    if (tpl.category === 'matriculas') {
+      return this.auth.hasAnyPermission([
+        'reports.directory.generate',
+        ...(tpl.templateName === 'listas_asistencia' ||
+        tpl.templateName === 'listas_con_carga'
+          ? ['reports.teacher.generate']
+          : []),
+      ]);
+    }
+    return this.auth.hasAnyPermission([
+      'reports.academic.generate',
+      ...(tpl.templateName === 'preinformes_periodo'
+        ? ['reports.teacher.generate']
+        : []),
+    ]);
   }
 
   ngOnInit(): void {

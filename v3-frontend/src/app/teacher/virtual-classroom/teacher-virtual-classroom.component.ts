@@ -18,6 +18,10 @@ import {
 import { V3UnifiedAuthService } from '../../services/v3-unified-auth.service';
 import { V3FileManagerModalComponent } from '../../shared/components/v3-file-manager-modal/v3-file-manager-modal.component';
 import { V3ModalDialogComponent } from '../../shared/components/v3-modal-dialog/v3-modal-dialog.component';
+import {
+  SearchableSelectOption,
+  V3SearchableSelectComponent,
+} from '../../shared/components/v3-searchable-select/v3-searchable-select.component';
 import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.directive';
 
 type LmsTab = 'activities' | 'evaluations' | 'liveClasses';
@@ -39,23 +43,24 @@ type LmsTab = 'activities' | 'evaluations' | 'liveClasses';
     CustomTooltipDirective,
     V3ModalDialogComponent,
     V3FileManagerModalComponent,
+    V3SearchableSelectComponent,
   ],
   template: `
     <div class="container-fluid py-3">
       <div class="breadcrumb-card mb-25 d-md-flex align-items-center justify-content-between">
         <div>
-          <h5 class="mb-0 fw-bold">Aula Virtual Docente (LMS, Material S3 y Clases en Vivo)</h5>
+          <h5 class="mb-0 fw-bold">Aula Virtual Docente (LMS, Material y Clases en Vivo)</h5>
           <small class="text-muted">Año lectivo {{ academicYear() }}</small>
         </div>
         <div class="d-flex align-items-center gap-2">
           <button
             type="button"
-            class="btn btn-sm btn-outline-primary"
+            class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1"
             (click)="resourcesModalOpen.set(true)"
-            [appCustomTooltip]="'Subir y gestionar guías, PDFs y material educativo en AWS S3'"
+            [appCustomTooltip]="'Subir y gestionar guías, PDFs y material educativo'"
           >
-            <i class="material-symbols-outlined fs-6 align-middle me-1">cloud_upload</i>
-            Material Educativo S3
+            <i class="material-symbols-outlined fs-6">cloud_upload</i>
+            <span>Material Educativo</span>
           </button>
           <ol class="breadcrumb list-unstyled mt-0 mb-0 p-0">
             <li class="breadcrumb-item d-inline-block position-relative">
@@ -87,51 +92,60 @@ type LmsTab = 'activities' | 'evaluations' | 'liveClasses';
       <div class="trezo-card bg-white border-radius p-4 shadow-sm">
         @switch (activeTab()) {
           @case ('activities') {
-            <div class="row g-2 align-items-end mb-4 p-3 rounded bg-light border">
-              <div class="col-md-3">
-                <label class="form-label small fw-semibold">Curso *</label>
-                <select class="form-select form-select-sm" [(ngModel)]="actForm.courseAssignmentId">
-                  @for (c of courses(); track c.id) {
-                    <option [ngValue]="c.id">{{ c.gradeName }}-{{ c.groupCode }} · {{ c.subjectName }}</option>
-                  }
-                </select>
-              </div>
-              <div class="col-md-1">
-                <label class="form-label small fw-semibold">Per.</label>
-                <select class="form-select form-select-sm" [(ngModel)]="actForm.periodNumber">
-                  @for (p of [1, 2, 3, 4]; track p) {
-                    <option [ngValue]="p">P{{ p }}</option>
-                  }
-                </select>
-              </div>
-              <div class="col-md-3">
-                <label class="form-label small fw-semibold">Título *</label>
-                <input type="text" class="form-control form-control-sm" [(ngModel)]="actForm.title" placeholder="Taller de profundización..." />
-              </div>
-              <div class="col-md-3">
-                <label class="form-label small fw-semibold">Fecha Límite</label>
-                <input type="datetime-local" class="form-control form-control-sm" [(ngModel)]="actForm.dueDate" />
-              </div>
-              <div class="col-md-2 d-grid">
-                <button
-                  type="button"
-                  class="btn btn-sm btn-primary"
-                  [disabled]="!actForm.courseAssignmentId || !actForm.title.trim() || !actForm.instructions.trim()"
-                  (click)="createActivity()"
-                >
-                  Publicar
-                </button>
-              </div>
-              <div class="col-md-7">
-                <label class="form-label small fw-semibold">Instrucciones *</label>
-                <input type="text" class="form-control form-control-sm" [(ngModel)]="actForm.instructions" placeholder="Resuelve los ejercicios 1 al 10..." />
-              </div>
-              <div class="col-md-5">
-                <label class="form-label small fw-semibold">URL Recurso / Guía S3</label>
-                <div class="input-group input-group-sm">
-                  <input type="text" class="form-control" [(ngModel)]="actForm.resourceUrl" placeholder="https://... o subir desde S3" />
-                  <button type="button" class="btn btn-outline-secondary" (click)="resourcesModalOpen.set(true)" [appCustomTooltip]="'Adjuntar archivo desde AWS S3'">
-                    S3
+            <div class="v3-form-panel">
+              <div class="row g-3">
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Curso *</label>
+                  <app-v3-searchable-select
+                    [(ngModel)]="actForm.courseAssignmentId"
+                    [options]="courseSelectOptions()"
+                    placeholder="Seleccione curso..."
+                    searchPlaceholder="Buscar curso..."
+                  />
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Periodo</label>
+                  <app-v3-searchable-select
+                    [(ngModel)]="actForm.periodNumber"
+                    [options]="periodOptions"
+                    placeholder="Per."
+                    searchPlaceholder="Buscar..."
+                  />
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Título de la actividad *</label>
+                  <input type="text" class="form-control" [(ngModel)]="actForm.title" placeholder="Taller de profundización..." />
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Fecha Límite</label>
+                  <input type="datetime-local" class="form-control" [(ngModel)]="actForm.dueDate" />
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Instrucciones *</label>
+                  <input type="text" class="form-control" [(ngModel)]="actForm.instructions" placeholder="Resuelve los ejercicios 1 al 10..." />
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label">URL Recurso o Guía Digital</label>
+                  <div class="d-flex align-items-center gap-2">
+                    <input type="text" class="form-control flex-grow-1" [(ngModel)]="actForm.resourceUrl" placeholder="https://... o adjuntar archivo" />
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-secondary flex-shrink-0"
+                      (click)="resourcesModalOpen.set(true)"
+                      [appCustomTooltip]="'Adjuntar archivo del repositorio documental'"
+                    >
+                      Archivo
+                    </button>
+                  </div>
+                </div>
+                <div class="col-12 d-flex justify-content-end">
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-primary"
+                    [disabled]="!actForm.courseAssignmentId || !actForm.title.trim() || !actForm.instructions.trim()"
+                    (click)="createActivity()"
+                  >
+                    Publicar actividad
                   </button>
                 </div>
               </div>
@@ -187,44 +201,48 @@ type LmsTab = 'activities' | 'evaluations' | 'liveClasses';
           }
 
           @case ('evaluations') {
-            <div class="row g-2 align-items-end mb-4 p-3 rounded bg-light border">
-              <div class="col-md-3">
-                <label class="form-label small fw-semibold">Curso *</label>
-                <select class="form-select form-select-sm" [(ngModel)]="evalForm.courseAssignmentId">
-                  @for (c of courses(); track c.id) {
-                    <option [ngValue]="c.id">{{ c.gradeName }}-{{ c.groupCode }} · {{ c.subjectName }}</option>
-                  }
-                </select>
-              </div>
-              <div class="col-md-1">
-                <label class="form-label small fw-semibold">Per.</label>
-                <select class="form-select form-select-sm" [(ngModel)]="evalForm.periodNumber">
-                  @for (p of [1, 2, 3, 4]; track p) {
-                    <option [ngValue]="p">P{{ p }}</option>
-                  }
-                </select>
-              </div>
-              <div class="col-md-3">
-                <label class="form-label small fw-semibold">Título Evaluación *</label>
-                <input type="text" class="form-control form-control-sm" [(ngModel)]="evalForm.title" placeholder="Parcial Periodo 1" />
-              </div>
-              <div class="col-md-2">
-                <label class="form-label small fw-semibold">Duración (min)</label>
-                <input type="number" min="5" max="240" class="form-control form-control-sm" [(ngModel)]="evalForm.durationMinutes" />
-              </div>
-              <div class="col-md-1">
-                <label class="form-label small fw-semibold">Int.</label>
-                <input type="number" min="1" max="5" class="form-control form-control-sm" [(ngModel)]="evalForm.maxAttempts" />
-              </div>
-              <div class="col-md-2 d-grid">
-                <button
-                  type="button"
-                  class="btn btn-sm btn-primary"
-                  [disabled]="!evalForm.courseAssignmentId || !evalForm.title.trim()"
-                  (click)="createEvaluation()"
-                >
-                  Crear Examen
-                </button>
+            <div class="v3-form-panel">
+              <div class="row g-3">
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Curso *</label>
+                  <app-v3-searchable-select
+                    [(ngModel)]="evalForm.courseAssignmentId"
+                    [options]="courseSelectOptions()"
+                    placeholder="Seleccione curso..."
+                    searchPlaceholder="Buscar curso..."
+                  />
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Periodo</label>
+                  <app-v3-searchable-select
+                    [(ngModel)]="evalForm.periodNumber"
+                    [options]="periodOptions"
+                    placeholder="Per."
+                    searchPlaceholder="Buscar..."
+                  />
+                </div>
+                <div class="col-12">
+                  <label class="form-label">Título de la Evaluación *</label>
+                  <input type="text" class="form-control" [(ngModel)]="evalForm.title" placeholder="Parcial Periodo 1" />
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Duración (minutos)</label>
+                  <input type="number" min="5" max="240" class="form-control" [(ngModel)]="evalForm.durationMinutes" />
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Máximo de intentos</label>
+                  <input type="number" min="1" max="5" class="form-control" [(ngModel)]="evalForm.maxAttempts" />
+                </div>
+                <div class="col-12 d-flex justify-content-end">
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-primary"
+                    [disabled]="!evalForm.courseAssignmentId || !evalForm.title.trim()"
+                    (click)="createEvaluation()"
+                  >
+                    Crear Examen
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -246,36 +264,44 @@ type LmsTab = 'activities' | 'evaluations' | 'liveClasses';
                   </div>
                 </div>
 
-                <div class="row g-2 align-items-end p-2 rounded bg-light mb-2">
-                  <div class="col-md-2">
-                    <select class="form-select form-select-sm" #qType>
-                      <option value="2">Única Respuesta</option>
-                      <option value="3">Múltiple Respuesta</option>
-                      <option value="4">Verdadero / Falso</option>
-                      <option value="1">Pregunta Abierta</option>
-                    </select>
-                  </div>
-                  <div class="col-md-3">
-                    <input type="text" class="form-control form-control-sm" #qText placeholder="Enunciado de la pregunta..." />
-                  </div>
-                  <div class="col-md-2">
-                    <input type="text" class="form-control form-control-sm" #optA placeholder="Opción A (Correcta)" />
-                  </div>
-                  <div class="col-md-2">
-                    <input type="text" class="form-control form-control-sm" #optB placeholder="Opción B" />
-                  </div>
-                  <div class="col-md-2">
-                    <input type="text" class="form-control form-control-sm" #optC placeholder="Opción C (Opcional)" />
-                  </div>
-                  <div class="col-md-1 d-grid">
-                    <button
-                      type="button"
-                      class="btn btn-sm btn-outline-primary"
-                      (click)="addQuickQuestion(ev.id, qType.value, qText.value, optA.value, optB.value, optC.value); qText.value=''; optA.value=''; optB.value=''; optC.value=''"
-                      [appCustomTooltip]="'Agregar pregunta a la evaluación'"
-                    >
-                      +
-                    </button>
+                <div class="v3-form-panel mb-2">
+                  <div class="row g-3">
+                    <div class="col-12 col-md-6">
+                      <label class="form-label">Tipo de pregunta</label>
+                      <app-v3-searchable-select
+                        [ngModel]="getQuickQuestionType(ev.id)"
+                        (ngModelChange)="quickQuestionTypes[ev.id] = $event ?? '2'"
+                        [options]="questionTypeOptions"
+                        placeholder="Tipo..."
+                        searchPlaceholder="Buscar tipo..."
+                      />
+                    </div>
+                    <div class="col-12 col-md-6">
+                      <label class="form-label">Enunciado de la pregunta</label>
+                      <input type="text" class="form-control" #qText placeholder="Enunciado de la pregunta..." />
+                    </div>
+                    <div class="col-12 col-md-6">
+                      <label class="form-label">Opción A (Correcta)</label>
+                      <input type="text" class="form-control" #optA placeholder="Opción A (Correcta)" />
+                    </div>
+                    <div class="col-12 col-md-6">
+                      <label class="form-label">Opción B</label>
+                      <input type="text" class="form-control" #optB placeholder="Opción B" />
+                    </div>
+                    <div class="col-12 col-md-6">
+                      <label class="form-label">Opción C (Opcional)</label>
+                      <input type="text" class="form-control" #optC placeholder="Opción C (Opcional)" />
+                    </div>
+                    <div class="col-12 col-md-6 d-flex align-items-end justify-content-md-end">
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-primary"
+                        (click)="addQuickQuestion(ev.id, getQuickQuestionType(ev.id), qText.value, optA.value, optB.value, optC.value); qText.value=''; optA.value=''; optB.value=''; optC.value=''"
+                        [appCustomTooltip]="'Agregar pregunta a la evaluación'"
+                      >
+                        Agregar pregunta
+                      </button>
+                    </div>
                   </div>
                 </div>
 
@@ -308,36 +334,39 @@ type LmsTab = 'activities' | 'evaluations' | 'liveClasses';
           }
 
           @case ('liveClasses') {
-            <div class="row g-2 align-items-end mb-4 p-3 rounded bg-light border">
-              <div class="col-md-3">
-                <label class="form-label small fw-semibold">Curso *</label>
-                <select class="form-select form-select-sm" [(ngModel)]="liveForm.courseAssignmentId">
-                  @for (c of courses(); track c.id) {
-                    <option [ngValue]="c.id">{{ c.gradeName }}-{{ c.groupCode }} · {{ c.subjectName }}</option>
-                  }
-                </select>
-              </div>
-              <div class="col-md-3">
-                <label class="form-label small fw-semibold">Título de la Clase *</label>
-                <input type="text" class="form-control form-control-sm" [(ngModel)]="liveForm.title" placeholder="Sesión sincrónica de repaso" />
-              </div>
-              <div class="col-md-3">
-                <label class="form-label small fw-semibold">URL de Reunión (Meet/Zoom/Jitsi) *</label>
-                <input type="url" class="form-control form-control-sm" [(ngModel)]="liveForm.meetingUrl" placeholder="https://meet.google.com/..." />
-              </div>
-              <div class="col-md-2">
-                <label class="form-label small fw-semibold">Fecha/Hora *</label>
-                <input type="datetime-local" class="form-control form-control-sm" [(ngModel)]="liveForm.scheduledStart" />
-              </div>
-              <div class="col-md-1 d-grid">
-                <button
-                  type="button"
-                  class="btn btn-sm btn-primary"
-                  [disabled]="!liveForm.courseAssignmentId || !liveForm.title.trim() || !liveForm.meetingUrl.trim()"
-                  (click)="createLiveClass()"
-                >
-                  Crear
-                </button>
+            <div class="v3-form-panel">
+              <div class="row g-3">
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Curso *</label>
+                  <app-v3-searchable-select
+                    [(ngModel)]="liveForm.courseAssignmentId"
+                    [options]="courseSelectOptions()"
+                    placeholder="Seleccione curso..."
+                    searchPlaceholder="Buscar curso..."
+                  />
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Título de la Clase *</label>
+                  <input type="text" class="form-control" [(ngModel)]="liveForm.title" placeholder="Sesión sincrónica de repaso" />
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label">URL de Reunión (Meet/Zoom/Jitsi) *</label>
+                  <input type="url" class="form-control" [(ngModel)]="liveForm.meetingUrl" placeholder="https://meet.google.com/..." />
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Fecha y Hora *</label>
+                  <input type="datetime-local" class="form-control" [(ngModel)]="liveForm.scheduledStart" />
+                </div>
+                <div class="col-12 d-flex justify-content-end">
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-primary"
+                    [disabled]="!liveForm.courseAssignmentId || !liveForm.title.trim() || !liveForm.meetingUrl.trim()"
+                    (click)="createLiveClass()"
+                  >
+                    Crear clase en vivo
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -456,11 +485,13 @@ type LmsTab = 'activities' | 'evaluations' | 'liveClasses';
         </div>
       </app-v3-modal-dialog>
 
-      <!-- Biblioteca de Material Educativo AWS S3 -->
+      <!-- Biblioteca de Material Educativo -->
       <app-v3-file-manager-modal
         [open]="resourcesModalOpen()"
-        heading="Material Educativo y Guías (AWS S3)"
-        category="EDUCATIONAL_RESOURCES"
+        heading="Material Educativo y Guías"
+        category="VIRTUAL_ACTIVITIES"
+        [canUpload]="canWriteResources()"
+        [canDelete]="canWriteResources()"
         (closed)="resourcesModalOpen.set(false)"
         (fileUploaded)="onResourceUploaded($event)"
       />
@@ -474,6 +505,12 @@ export class TeacherVirtualClassroomComponent implements OnInit {
   private readonly loadMask = inject(LoadMaskService);
 
   readonly academicYear = computed(() => this.auth.academicYear());
+  readonly canWriteResources = computed(() =>
+    this.auth.hasAnyPermission([
+      'portal.teacher.own',
+      'storage.academic_resources.write',
+    ]),
+  );
   readonly activeTab = signal<LmsTab>('activities');
   readonly courses = signal<TeacherCourseSummary[]>([]);
   readonly activities = signal<VirtualActivityRow[]>([]);
@@ -487,6 +524,28 @@ export class TeacherVirtualClassroomComponent implements OnInit {
   readonly selectedEvalTitle = signal('');
   readonly attempts = signal<EvaluationAttemptRow[]>([]);
   readonly resourcesModalOpen = signal(false);
+
+  readonly periodOptions: SearchableSelectOption<number>[] = [1, 2, 3, 4].map((p) => ({
+    value: p,
+    label: `P${p}`,
+  }));
+  readonly questionTypeOptions: SearchableSelectOption<string>[] = [
+    { value: '2', label: 'Única Respuesta' },
+    { value: '3', label: 'Múltiple Respuesta' },
+    { value: '4', label: 'Verdadero / Falso' },
+    { value: '1', label: 'Pregunta Abierta' },
+  ];
+  readonly courseSelectOptions = computed<SearchableSelectOption<number>[]>(() =>
+    this.courses().map((c) => ({
+      value: c.id,
+      label: `${c.gradeName}-${c.groupCode} · ${c.subjectName}`,
+    }))
+  );
+  readonly quickQuestionTypes: Record<number, string> = {};
+
+  getQuickQuestionType(evaluationId: number): string {
+    return this.quickQuestionTypes[evaluationId] ?? '2';
+  }
 
   actForm = {
     courseAssignmentId: 0,

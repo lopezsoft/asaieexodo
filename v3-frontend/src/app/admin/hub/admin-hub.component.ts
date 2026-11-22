@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { V3UnifiedAuthService } from '../../services/v3-unified-auth.service';
+import { RBAC_PERMISSIONS } from '../../shared/constants/rbac-permissions.constants';
 import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.directive';
 
 interface AdminModuleCard {
@@ -10,6 +11,7 @@ interface AdminModuleCard {
   readonly icon: string;
   readonly route: string;
   readonly accentClass: string;
+  readonly anyPermissions: readonly string[];
 }
 
 /**
@@ -42,7 +44,7 @@ interface AdminModuleCard {
       </div>
 
       <div class="row g-4">
-        @for (card of moduleCards; track card.route) {
+        @for (card of visibleModuleCards(); track card.route) {
           <div class="col-md-6 col-xl-4">
             <a
               [routerLink]="card.route"
@@ -74,7 +76,7 @@ interface AdminModuleCard {
 export class AdminHubComponent {
   protected readonly v3Auth = inject(V3UnifiedAuthService);
 
-  readonly moduleCards: readonly AdminModuleCard[] = [
+  private readonly allModuleCards: readonly AdminModuleCard[] = [
     {
       title: 'Datos del Plantel',
       description:
@@ -82,6 +84,7 @@ export class AdminHubComponent {
       icon: 'domain',
       route: '/admin/school',
       accentClass: 'kpi-primary',
+      anyPermissions: [RBAC_PERMISSIONS.ADMIN_SCHOOL_VIEW],
     },
     {
       title: 'Sedes Educativas',
@@ -90,6 +93,7 @@ export class AdminHubComponent {
       icon: 'location_city',
       route: '/admin/campuses',
       accentClass: 'kpi-secondary',
+      anyPermissions: [RBAC_PERMISSIONS.ADMIN_CAMPUSES_VIEW],
     },
     {
       title: 'Personal Docente',
@@ -98,6 +102,7 @@ export class AdminHubComponent {
       icon: 'school',
       route: '/admin/teachers',
       accentClass: 'kpi-success',
+      anyPermissions: [RBAC_PERMISSIONS.ADMIN_TEACHERS_VIEW],
     },
     {
       title: 'Personal Administrativo',
@@ -106,6 +111,7 @@ export class AdminHubComponent {
       icon: 'badge',
       route: '/admin/staff',
       accentClass: 'kpi-purple',
+      anyPermissions: [RBAC_PERMISSIONS.ADMIN_STAFF_VIEW],
     },
     {
       title: 'Directores de Grupo',
@@ -114,6 +120,25 @@ export class AdminHubComponent {
       icon: 'groups',
       route: '/admin/group-managers',
       accentClass: 'kpi-warning',
+      anyPermissions: [RBAC_PERMISSIONS.ADMIN_GROUP_MANAGERS_VIEW],
+    },
+    {
+      title: 'Usuarios, Roles y Permisos',
+      description:
+        'Administración granular de accesos por rol (Rector, Coordinador, Secretaría, Docente), matriz RBAC y excepciones puntuales.',
+      icon: 'admin_panel_settings',
+      route: '/admin/roles-permissions',
+      accentClass: 'kpi-primary',
+      anyPermissions: [
+        RBAC_PERMISSIONS.IAM_MEMBERSHIPS_VIEW,
+        RBAC_PERMISSIONS.IAM_RBAC_MANAGE,
+      ],
     },
   ];
+
+  readonly visibleModuleCards = computed(() =>
+    this.allModuleCards.filter((card) =>
+      this.v3Auth.hasAnyPermission(card.anyPermissions),
+    ),
+  );
 }

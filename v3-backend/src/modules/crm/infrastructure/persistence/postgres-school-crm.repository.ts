@@ -495,7 +495,7 @@ export class PostgresSchoolCrmRepository implements ISchoolCrmRepositoryPort {
           AND r.user_id = $2
          WHERE a.school_id = $1
            AND (a.expires_at IS NULL OR a.expires_at > NOW())
-           AND ($3 = ANY(a.target_roles) OR a.author_user_id = $2 OR $3 IN ('SUPER_ADMIN','SCHOOL_ADMIN','RECTOR','COORDINATOR'))
+           AND ($3 = ANY(a.target_roles) OR a.author_user_id = $2 OR $3 IN ('SUPER_ADMIN','SCHOOL_ADMIN','RECTOR','COORDINATOR','SECRETARY'))
          ORDER BY a.published_at DESC
          LIMIT $4 OFFSET $5`,
         [

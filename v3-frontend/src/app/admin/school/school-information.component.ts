@@ -18,6 +18,14 @@ import {
 } from '../../services/v3-catalogs.service';
 import { V3UnifiedAuthService } from '../../services/v3-unified-auth.service';
 import { V3FileManagerModalComponent } from '../../shared/components/v3-file-manager-modal/v3-file-manager-modal.component';
+import {
+  V3FormWizardComponent,
+  V3WizardStep,
+} from '../../shared/components/v3-form-wizard/v3-form-wizard.component';
+import {
+  SearchableSelectOption,
+  V3SearchableSelectComponent,
+} from '../../shared/components/v3-searchable-select/v3-searchable-select.component';
 import { CustomTooltipDirective } from '../../shared/directives/custom-tooltip.directive';
 import { isControlInvalid, markAllAsTouched } from '../../utils/form-validators';
 
@@ -33,6 +41,8 @@ import { isControlInvalid, markAllAsTouched } from '../../utils/form-validators'
     RouterLink,
     CustomTooltipDirective,
     V3FileManagerModalComponent,
+    V3FormWizardComponent,
+    V3SearchableSelectComponent,
   ],
   template: `
     <div class="container-fluid py-3">
@@ -64,176 +74,171 @@ import { isControlInvalid, markAllAsTouched } from '../../utils/form-validators'
               type="button"
               class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1"
               (click)="openDocumentsModal.set(true)"
-              [appCustomTooltip]="'Gestionar escudos, logos y documentos institucionales en S3'"
+              [appCustomTooltip]="'Gestionar escudos, logos y documentos institucionales'"
             >
               <i class="material-symbols-outlined fs-6">cloud_upload</i>
-              <span>Logos y Documentos S3</span>
+              <span>Logos y Documentos</span>
             </button>
           </div>
         </div>
 
         <form [formGroup]="schoolForm" (ngSubmit)="saveSchool()">
-          <h6 class="text-primary fw-semibold mb-3">Identificación institucional</h6>
-          <div class="row g-3 mb-4">
-            <div class="col-md-6">
-              <label class="form-label">Nombre oficial del plantel *</label>
-              <input type="text" class="form-control" formControlName="name" />
-              @if (isControlInvalid(schoolForm, 'name')) {
-                <small class="text-danger">El nombre institucional es obligatorio.</small>
-              }
-            </div>
-            <div class="col-md-3">
-              <label class="form-label">Nombre corto</label>
-              <input type="text" class="form-control" formControlName="shortName" />
-            </div>
-            <div class="col-md-3">
-              <label class="form-label">Código DANE</label>
-              <input type="text" class="form-control" formControlName="daneCode" />
-            </div>
-
-            <div class="col-md-3">
-              <label class="form-label">NIT / Identificación Tributaria</label>
-              <input type="text" class="form-control" formControlName="taxId" />
-            </div>
-            <div class="col-md-3">
-              <label class="form-label">Calendario académico</label>
-              <select class="form-select" formControlName="calendarId">
-                <option [ngValue]="null">Seleccione...</option>
-                @for (item of catalogs()?.academicCalendars ?? []; track item.id) {
-                  <option [ngValue]="item.id">{{ item.name }}</option>
-                }
-              </select>
-            </div>
-            <div class="col-md-3">
-              <label class="form-label">Sector</label>
-              <select class="form-select" formControlName="sectorId">
-                <option [ngValue]="null">Seleccione...</option>
-                @for (item of catalogs()?.schoolSectors ?? []; track item.id) {
-                  <option [ngValue]="item.id">{{ item.name }}</option>
-                }
-              </select>
-            </div>
-            <div class="col-md-3">
-              <label class="form-label">Tipo de establecimiento</label>
-              <select class="form-select" formControlName="institutionTypeId">
-                <option [ngValue]="null">Seleccione...</option>
-                @for (item of catalogs()?.institutionTypes ?? []; track item.id) {
-                  <option [ngValue]="item.id">{{ item.name }}</option>
-                }
-              </select>
-            </div>
-          </div>
-
-          <h6 class="text-primary fw-semibold mb-3">Ubicación y contacto</h6>
-          <div class="row g-3 mb-4">
-            <div class="col-md-4">
-              <label class="form-label">País</label>
-              <select
-                class="form-select"
-                formControlName="countryId"
-                (change)="onCountryChanged()"
-              >
-                @for (country of countries(); track country.id) {
-                  <option [ngValue]="country.id">{{ country.name }}</option>
-                }
-              </select>
-            </div>
-            <div class="col-md-4">
-              <label class="form-label">Departamento</label>
-              <select
-                class="form-select"
-                formControlName="departmentId"
-                (change)="onDepartmentChanged()"
-              >
-                <option [ngValue]="null">Seleccione...</option>
-                @for (dept of departments(); track dept.id) {
-                  <option [ngValue]="dept.id">{{ dept.name }}</option>
-                }
-              </select>
-            </div>
-            <div class="col-md-4">
-              <label class="form-label">Municipio / Ciudad</label>
-              <select class="form-select" formControlName="cityId">
-                <option [ngValue]="null">Seleccione...</option>
-                @for (city of cities(); track city.id) {
-                  <option [ngValue]="city.id">{{ city.name }}</option>
-                }
-              </select>
-            </div>
-
-            <div class="col-md-4">
-              <label class="form-label">Dirección</label>
-              <input type="text" class="form-control" formControlName="address" />
-            </div>
-            <div class="col-md-4">
-              <label class="form-label">Barrio / Vereda</label>
-              <input type="text" class="form-control" formControlName="suburb" />
-            </div>
-            <div class="col-md-4">
-              <label class="form-label">Teléfonos</label>
-              <input type="text" class="form-control" formControlName="phones" />
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label">Correo institucional</label>
-              <input type="email" class="form-control" formControlName="email" />
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Sitio web</label>
-              <input type="text" class="form-control" formControlName="website" placeholder="https://..." />
-            </div>
-          </div>
-
-          <h6 class="text-primary fw-semibold mb-3">Directivos y encabezados oficiales</h6>
-          <div class="row g-3 mb-4">
-            <div class="col-md-4">
-              <label class="form-label">Rector(a) / Director(a)</label>
-              <input type="text" class="form-control" formControlName="directorName" />
-            </div>
-            <div class="col-md-2">
-              <label class="form-label">Documento rector</label>
-              <input type="text" class="form-control" formControlName="directorDocument" />
-            </div>
-            <div class="col-md-4">
-              <label class="form-label">Secretario(a) académico(a)</label>
-              <input type="text" class="form-control" formControlName="secretaryName" />
-            </div>
-            <div class="col-md-2">
-              <label class="form-label">Documento secretaría</label>
-              <input type="text" class="form-control" formControlName="secretaryDocument" />
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label">Línea 1 de encabezado de informes</label>
-              <input type="text" class="form-control" formControlName="headerLine1" />
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Línea 2 de encabezado de informes</label>
-              <input type="text" class="form-control" formControlName="headerLine2" />
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Resolución de aprobación</label>
-              <textarea rows="2" class="form-control" formControlName="resolutionText"></textarea>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Pie de página institucional</label>
-              <textarea rows="2" class="form-control" formControlName="footerText"></textarea>
-            </div>
-          </div>
-
-          <div class="d-flex justify-content-end gap-2 pt-3 border-top">
-            <a routerLink="/admin" class="btn btn-outline-secondary">Volver</a>
-            @if (canEditSchool()) {
-              <button
-                type="submit"
-                class="btn btn-primary d-inline-flex align-items-center gap-1"
-                [disabled]="schoolForm.invalid"
-              >
-                <i class="material-symbols-outlined fs-6">save</i>
-                <span>Guardar cambios</span>
-              </button>
+          <app-v3-form-wizard
+            [steps]="wizardSteps()"
+            [(activeIndex)]="wizardStep"
+            [allowFreeNavigation]="true"
+            [allowSaveAnyStep]="canEditSchool()"
+            [showFooter]="true"
+            cancelRoute="/admin"
+            cancelLabel="Volver"
+            submitLabel="Guardar cambios"
+            submitIcon="save"
+            [submitDisabled]="schoolForm.invalid || !canEditSchool()"
+            (submitted)="saveSchool()"
+          >
+            @if (wizardStep() === 0) {
+              <div class="row g-3">
+                <div class="col-12">
+                  <label class="form-label">Nombre oficial del plantel *</label>
+                  <input type="text" class="form-control" formControlName="name" />
+                  @if (isControlInvalid(schoolForm, 'name')) {
+                    <small class="v3-field-error">El nombre institucional es obligatorio.</small>
+                  }
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Nombre corto</label>
+                  <input type="text" class="form-control" formControlName="shortName" />
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Código DANE</label>
+                  <input type="text" class="form-control" formControlName="daneCode" />
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label">NIT / Identificación Tributaria</label>
+                  <input type="text" class="form-control" formControlName="taxId" />
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Calendario académico</label>
+                  <app-v3-searchable-select
+                    formControlName="calendarId"
+                    [options]="academicCalendarOptions()"
+                    [clearable]="true"
+                    placeholder="Seleccione..."
+                    searchPlaceholder="Buscar calendario..."
+                  />
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Sector</label>
+                  <app-v3-searchable-select
+                    formControlName="sectorId"
+                    [options]="schoolSectorOptions()"
+                    [clearable]="true"
+                    placeholder="Seleccione..."
+                    searchPlaceholder="Buscar sector..."
+                  />
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Tipo de establecimiento</label>
+                  <app-v3-searchable-select
+                    formControlName="institutionTypeId"
+                    [options]="institutionTypeOptions()"
+                    [clearable]="true"
+                    placeholder="Seleccione..."
+                    searchPlaceholder="Buscar tipo..."
+                  />
+                </div>
+              </div>
+            } @else if (wizardStep() === 1) {
+              <div class="row g-3">
+                <div class="col-12 col-md-6">
+                  <label class="form-label">País</label>
+                  <app-v3-searchable-select
+                    formControlName="countryId"
+                    [options]="countryOptions()"
+                    placeholder="Seleccione país..."
+                    searchPlaceholder="Buscar país..."
+                    (selectionChange)="onCountryChanged()"
+                  />
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Departamento</label>
+                  <app-v3-searchable-select
+                    formControlName="departmentId"
+                    [options]="departmentOptions()"
+                    [clearable]="true"
+                    placeholder="Seleccione..."
+                    searchPlaceholder="Buscar departamento..."
+                    (selectionChange)="onDepartmentChanged()"
+                  />
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Municipio / Ciudad</label>
+                  <app-v3-searchable-select
+                    formControlName="cityId"
+                    [options]="cityOptions()"
+                    [clearable]="true"
+                    placeholder="Seleccione..."
+                    searchPlaceholder="Buscar municipio o ciudad..."
+                  />
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Dirección</label>
+                  <input type="text" class="form-control" formControlName="address" />
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Barrio / Vereda</label>
+                  <input type="text" class="form-control" formControlName="suburb" />
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Teléfonos</label>
+                  <input type="text" class="form-control" formControlName="phones" />
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Correo institucional</label>
+                  <input type="email" class="form-control" formControlName="email" />
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Sitio web</label>
+                  <input type="text" class="form-control" formControlName="website" placeholder="https://..." />
+                </div>
+              </div>
+            } @else {
+              <div class="row g-3">
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Rector(a) / Director(a)</label>
+                  <input type="text" class="form-control" formControlName="directorName" />
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Documento rector</label>
+                  <input type="text" class="form-control" formControlName="directorDocument" />
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Secretario(a) académico(a)</label>
+                  <input type="text" class="form-control" formControlName="secretaryName" />
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Documento secretaría</label>
+                  <input type="text" class="form-control" formControlName="secretaryDocument" />
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Línea 1 de encabezado de informes</label>
+                  <input type="text" class="form-control" formControlName="headerLine1" />
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Línea 2 de encabezado de informes</label>
+                  <input type="text" class="form-control" formControlName="headerLine2" />
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Resolución de aprobación</label>
+                  <textarea rows="3" class="form-control" formControlName="resolutionText"></textarea>
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Pie de página institucional</label>
+                  <textarea rows="3" class="form-control" formControlName="footerText"></textarea>
+                </div>
+              </div>
             }
-          </div>
+          </app-v3-form-wizard>
         </form>
       </div>
     </div>
@@ -242,6 +247,8 @@ import { isControlInvalid, markAllAsTouched } from '../../utils/form-validators'
       [open]="openDocumentsModal()"
       heading="Logos, Escudos y Documentos del Plantel"
       category="INSTITUTIONAL_LOGOS"
+      [canUpload]="canManageBrandingFiles()"
+      [canDelete]="canManageBrandingFiles()"
       (closed)="openDocumentsModal.set(false)"
     />
   `,
@@ -262,11 +269,54 @@ export class SchoolInformationComponent implements OnInit {
   readonly departments = signal<DepartmentCatalogItem[]>([]);
   readonly cities = signal<CityCatalogItem[]>([]);
   readonly openDocumentsModal = signal(false);
+  readonly wizardStep = signal(0);
 
-  readonly canEditSchool = computed(() => {
-    const role = this.v3Auth.activeRole();
-    return role === 'SUPER_ADMIN' || role === 'SCHOOL_ADMIN' || role === 'RECTOR';
-  });
+  readonly wizardSteps = computed<readonly V3WizardStep[]>(() => [
+    {
+      id: 'identity',
+      title: 'Identificación',
+      subtitle: 'Datos oficiales, DANE, NIT y clasificación',
+      icon: 'school',
+      invalid: Boolean(this.schoolForm.get('name')?.invalid && this.schoolForm.get('name')?.touched),
+    },
+    {
+      id: 'location',
+      title: 'Ubicación y Contacto',
+      subtitle: 'Sede principal, dirección y canales oficiales',
+      icon: 'location_on',
+      invalid: Boolean(this.schoolForm.get('email')?.invalid && this.schoolForm.get('email')?.touched),
+    },
+    {
+      id: 'directives',
+      title: 'Directivos y Reportes',
+      subtitle: 'Firmas directivas y encabezados de actas y boletines',
+      icon: 'verified_user',
+    },
+  ]);
+
+  readonly academicCalendarOptions = computed(() =>
+    this.toNamedOptions(this.catalogs()?.academicCalendars)
+  );
+  readonly schoolSectorOptions = computed(() => this.toNamedOptions(this.catalogs()?.schoolSectors));
+  readonly institutionTypeOptions = computed(() =>
+    this.toNamedOptions(this.catalogs()?.institutionTypes)
+  );
+  readonly countryOptions = computed(() => this.toNamedOptions(this.countries()));
+  readonly departmentOptions = computed(() => this.toNamedOptions(this.departments()));
+  readonly cityOptions = computed(() => this.toNamedOptions(this.cities()));
+
+  private toNamedOptions(
+    items?: readonly { id: number; name: string }[]
+  ): SearchableSelectOption<number>[] {
+    return (items ?? []).map((item) => ({ value: item.id, label: item.name }));
+  }
+
+  readonly canEditSchool = computed(() =>
+    this.v3Auth.hasPermission('admin.school.write'),
+  );
+  readonly canManageBrandingFiles = computed(() =>
+    this.v3Auth.hasPermission('storage.institutional_branding.write'),
+  );
 
   readonly schoolForm: FormGroup;
 

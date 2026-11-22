@@ -20,9 +20,17 @@ import {
 import { ActiveTenantContext } from '../../../../shared/application/context/tenant-context.service';
 import {
   CurrentUser,
+  RequireAnyPermission,
+  RequireModule,
+  RequirePermissions,
   Roles,
 } from '../../../../shared/infrastructure/http/decorators/security.decorators';
 import { PositiveBigIntPipe } from '../../../../shared/infrastructure/http/pipes/positive-bigint.pipe';
+import {
+  RBAC_MODULES,
+  RBAC_PERMISSIONS,
+} from '../../../../shared/infrastructure/rbac/rbac-permissions.constants';
+import { RbacPermissionsService } from '../../../../shared/infrastructure/rbac/rbac-permissions.service';
 import { CommunityRole } from '../../../iam/domain/enums/community-role.enum';
 import { ManageSettingsUseCase } from '../../application/use-cases/manage-settings.use-case';
 import {
@@ -44,37 +52,32 @@ import {
   UpsertGradingRuleDto,
 } from './dto/settings.dto';
 
-const READ_ROLES = [
-  CommunityRole.SUPER_ADMIN,
-  CommunityRole.SCHOOL_ADMIN,
-  CommunityRole.RECTOR,
-  CommunityRole.COORDINATOR,
-  CommunityRole.SECRETARY,
-  CommunityRole.TEACHER,
+const STRUCTURE_LOOKUP_PERMISSIONS = [
+  RBAC_PERMISSIONS.SETTINGS_STRUCTURE_VIEW,
+  RBAC_PERMISSIONS.ACADEMIC_ENROLLMENTS_VIEW,
+  RBAC_PERMISSIONS.ACADEMIC_CURRICULUM_VIEW,
+  RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
 ] as const;
 
-const WRITE_ROLES = [
-  CommunityRole.SUPER_ADMIN,
-  CommunityRole.SCHOOL_ADMIN,
-  CommunityRole.RECTOR,
-  CommunityRole.COORDINATOR,
-] as const;
-
-const STRICT_ADMIN_ROLES = [
-  CommunityRole.SUPER_ADMIN,
-  CommunityRole.SCHOOL_ADMIN,
-  CommunityRole.RECTOR,
+const SIEE_LOOKUP_PERMISSIONS = [
+  RBAC_PERMISSIONS.SETTINGS_SIEE_VIEW,
+  RBAC_PERMISSIONS.ACADEMIC_GRADES_VIEW,
+  RBAC_PERMISSIONS.PROMOTION_FINAL_BOOK_VIEW,
+  RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
 ] as const;
 
 @ApiTags('Institutional Settings & Academic Configuration')
 @ApiBearerAuth('jwt-auth')
 @Controller('settings')
 export class SettingsController {
-  constructor(private readonly settingsUseCase: ManageSettingsUseCase) {}
+  constructor(
+    private readonly settingsUseCase: ManageSettingsUseCase,
+    private readonly rbacPermissions: RbacPermissionsService,
+  ) {}
 
   // Años lectivos y configuración de boletines/certificados
   @Get('academic-years')
-  @Roles(...READ_ROLES)
+  @RequireAnyPermission(...STRUCTURE_LOOKUP_PERMISSIONS)
   @ApiOperation({ summary: 'Listar años lectivos configurados del colegio' })
   async listAcademicYears(@CurrentUser() principal: ActiveTenantContext) {
     return {
@@ -84,9 +87,11 @@ export class SettingsController {
   }
 
   @Post('academic-years')
-  @Roles(...STRICT_ADMIN_ROLES)
+  @RequirePermissions(RBAC_PERMISSIONS.SETTINGS_STRUCTURE_WRITE)
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Crear o actualizar año lectivo y ajustes de boletines' })
+  @ApiOperation({
+    summary: 'Crear o actualizar año lectivo y ajustes de boletines',
+  })
   async upsertAcademicYear(
     @CurrentUser() principal: ActiveTenantContext,
     @Body() dto: UpsertAcademicYearDto,
@@ -100,11 +105,13 @@ export class SettingsController {
     };
   }
 
-  // Reglas generales de evaluación y promoción
+  // Reglas generales de evaluación y promoción (SIEE)
   @Get('grading-rules')
-  @Roles(...READ_ROLES)
+  @RequireAnyPermission(...SIEE_LOOKUP_PERMISSIONS)
   @ApiQuery({ name: 'academicYear', required: false })
-  @ApiOperation({ summary: 'Listar reglas generales de evaluación por grupo de grados' })
+  @ApiOperation({
+    summary: 'Listar reglas generales de evaluación por grupo de grados',
+  })
   async listGradingRules(
     @CurrentUser() principal: ActiveTenantContext,
     @Query('academicYear') academicYear?: string,
@@ -123,7 +130,7 @@ export class SettingsController {
   }
 
   @Post('grading-rules')
-  @Roles(...STRICT_ADMIN_ROLES)
+  @RequirePermissions(RBAC_PERMISSIONS.SETTINGS_SIEE_WRITE)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Crear o actualizar regla de evaluación y promoción' })
   async upsertGradingRule(
@@ -140,7 +147,7 @@ export class SettingsController {
   }
 
   @Delete('grading-rules/:ruleId')
-  @Roles(...STRICT_ADMIN_ROLES)
+  @RequirePermissions(RBAC_PERMISSIONS.SETTINGS_SIEE_WRITE)
   async deleteGradingRule(
     @CurrentUser() principal: ActiveTenantContext,
     @Param('ruleId', PositiveBigIntPipe) ruleId: bigint,
@@ -151,7 +158,7 @@ export class SettingsController {
 
   // Jornadas
   @Get('shifts')
-  @Roles(...READ_ROLES)
+  @RequireAnyPermission(...STRUCTURE_LOOKUP_PERMISSIONS)
   async listShifts(@CurrentUser() principal: ActiveTenantContext) {
     return {
       success: true,
@@ -160,7 +167,7 @@ export class SettingsController {
   }
 
   @Post('shifts')
-  @Roles(...STRICT_ADMIN_ROLES)
+  @RequirePermissions(RBAC_PERMISSIONS.SETTINGS_STRUCTURE_WRITE)
   @HttpCode(HttpStatus.CREATED)
   async createShift(
     @CurrentUser() principal: ActiveTenantContext,
@@ -173,7 +180,7 @@ export class SettingsController {
   }
 
   @Patch('shifts/:shiftId')
-  @Roles(...STRICT_ADMIN_ROLES)
+  @RequirePermissions(RBAC_PERMISSIONS.SETTINGS_STRUCTURE_WRITE)
   async updateShift(
     @CurrentUser() principal: ActiveTenantContext,
     @Param('shiftId', PositiveBigIntPipe) shiftId: bigint,
@@ -189,7 +196,7 @@ export class SettingsController {
   }
 
   @Delete('shifts/:shiftId')
-  @Roles(...STRICT_ADMIN_ROLES)
+  @RequirePermissions(RBAC_PERMISSIONS.SETTINGS_STRUCTURE_WRITE)
   async deleteShift(
     @CurrentUser() principal: ActiveTenantContext,
     @Param('shiftId', PositiveBigIntPipe) shiftId: bigint,
@@ -200,7 +207,7 @@ export class SettingsController {
 
   // Niveles educativos
   @Get('education-levels')
-  @Roles(...READ_ROLES)
+  @RequireAnyPermission(...STRUCTURE_LOOKUP_PERMISSIONS)
   async listEducationLevels(@CurrentUser() principal: ActiveTenantContext) {
     return {
       success: true,
@@ -209,7 +216,7 @@ export class SettingsController {
   }
 
   @Post('education-levels')
-  @Roles(...STRICT_ADMIN_ROLES)
+  @RequirePermissions(RBAC_PERMISSIONS.SETTINGS_STRUCTURE_WRITE)
   @HttpCode(HttpStatus.CREATED)
   async createEducationLevel(
     @CurrentUser() principal: ActiveTenantContext,
@@ -225,7 +232,7 @@ export class SettingsController {
   }
 
   @Patch('education-levels/:levelId')
-  @Roles(...STRICT_ADMIN_ROLES)
+  @RequirePermissions(RBAC_PERMISSIONS.SETTINGS_STRUCTURE_WRITE)
   async updateEducationLevel(
     @CurrentUser() principal: ActiveTenantContext,
     @Param('levelId', PositiveBigIntPipe) levelId: bigint,
@@ -241,7 +248,7 @@ export class SettingsController {
   }
 
   @Delete('education-levels/:levelId')
-  @Roles(...STRICT_ADMIN_ROLES)
+  @RequirePermissions(RBAC_PERMISSIONS.SETTINGS_STRUCTURE_WRITE)
   async deleteEducationLevel(
     @CurrentUser() principal: ActiveTenantContext,
     @Param('levelId', PositiveBigIntPipe) levelId: bigint,
@@ -255,7 +262,7 @@ export class SettingsController {
 
   // Grupos de grados
   @Get('grade-groups')
-  @Roles(...READ_ROLES)
+  @RequireAnyPermission(...STRUCTURE_LOOKUP_PERMISSIONS)
   async listGradeGroups(@CurrentUser() principal: ActiveTenantContext) {
     return {
       success: true,
@@ -264,7 +271,7 @@ export class SettingsController {
   }
 
   @Post('grade-groups')
-  @Roles(...STRICT_ADMIN_ROLES)
+  @RequirePermissions(RBAC_PERMISSIONS.SETTINGS_STRUCTURE_WRITE)
   @HttpCode(HttpStatus.CREATED)
   async createGradeGroup(
     @CurrentUser() principal: ActiveTenantContext,
@@ -277,7 +284,7 @@ export class SettingsController {
   }
 
   @Patch('grade-groups/:groupId')
-  @Roles(...STRICT_ADMIN_ROLES)
+  @RequirePermissions(RBAC_PERMISSIONS.SETTINGS_STRUCTURE_WRITE)
   async updateGradeGroup(
     @CurrentUser() principal: ActiveTenantContext,
     @Param('groupId', PositiveBigIntPipe) groupId: bigint,
@@ -293,7 +300,7 @@ export class SettingsController {
   }
 
   @Delete('grade-groups/:groupId')
-  @Roles(...STRICT_ADMIN_ROLES)
+  @RequirePermissions(RBAC_PERMISSIONS.SETTINGS_STRUCTURE_WRITE)
   async deleteGradeGroup(
     @CurrentUser() principal: ActiveTenantContext,
     @Param('groupId', PositiveBigIntPipe) groupId: bigint,
@@ -304,7 +311,7 @@ export class SettingsController {
 
   // Grados académicos
   @Get('grades')
-  @Roles(...READ_ROLES)
+  @RequireAnyPermission(...STRUCTURE_LOOKUP_PERMISSIONS)
   async listGrades(@CurrentUser() principal: ActiveTenantContext) {
     return {
       success: true,
@@ -313,7 +320,7 @@ export class SettingsController {
   }
 
   @Post('grades')
-  @Roles(...STRICT_ADMIN_ROLES)
+  @RequirePermissions(RBAC_PERMISSIONS.SETTINGS_STRUCTURE_WRITE)
   @HttpCode(HttpStatus.CREATED)
   async createGrade(
     @CurrentUser() principal: ActiveTenantContext,
@@ -326,7 +333,7 @@ export class SettingsController {
   }
 
   @Patch('grades/:gradeId')
-  @Roles(...STRICT_ADMIN_ROLES)
+  @RequirePermissions(RBAC_PERMISSIONS.SETTINGS_STRUCTURE_WRITE)
   async updateGrade(
     @CurrentUser() principal: ActiveTenantContext,
     @Param('gradeId', PositiveBigIntPipe) gradeId: bigint,
@@ -342,7 +349,7 @@ export class SettingsController {
   }
 
   @Delete('grades/:gradeId')
-  @Roles(...STRICT_ADMIN_ROLES)
+  @RequirePermissions(RBAC_PERMISSIONS.SETTINGS_STRUCTURE_WRITE)
   async deleteGrade(
     @CurrentUser() principal: ActiveTenantContext,
     @Param('gradeId', PositiveBigIntPipe) gradeId: bigint,
@@ -353,7 +360,11 @@ export class SettingsController {
 
   // Periodos académicos
   @Get('periods')
-  @Roles(...READ_ROLES)
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.SETTINGS_PERIODS_VIEW,
+    RBAC_PERMISSIONS.ACADEMIC_GRADES_VIEW,
+    RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
+  )
   @ApiQuery({ name: 'academicYear', required: false })
   async listPeriods(
     @CurrentUser() principal: ActiveTenantContext,
@@ -370,7 +381,7 @@ export class SettingsController {
   }
 
   @Post('periods')
-  @Roles(...WRITE_ROLES)
+  @RequirePermissions(RBAC_PERMISSIONS.SETTINGS_PERIODS_WRITE)
   @HttpCode(HttpStatus.CREATED)
   async createPeriod(
     @CurrentUser() principal: ActiveTenantContext,
@@ -383,7 +394,7 @@ export class SettingsController {
   }
 
   @Patch('periods/:periodId')
-  @Roles(...WRITE_ROLES)
+  @RequirePermissions(RBAC_PERMISSIONS.SETTINGS_PERIODS_WRITE)
   async updatePeriod(
     @CurrentUser() principal: ActiveTenantContext,
     @Param('periodId', PositiveBigIntPipe) periodId: bigint,
@@ -399,7 +410,7 @@ export class SettingsController {
   }
 
   @Delete('periods/:periodId')
-  @Roles(...STRICT_ADMIN_ROLES)
+  @RequirePermissions(RBAC_PERMISSIONS.SETTINGS_PERIODS_DELETE)
   async deletePeriod(
     @CurrentUser() principal: ActiveTenantContext,
     @Param('periodId', PositiveBigIntPipe) periodId: bigint,
@@ -410,7 +421,7 @@ export class SettingsController {
 
   // Escala nacional y escalas de desempeño institucionales
   @Get('national-scales')
-  @Roles(...READ_ROLES)
+  @RequireAnyPermission(...SIEE_LOOKUP_PERMISSIONS)
   async listNationalScales(@CurrentUser() principal: ActiveTenantContext) {
     return {
       success: true,
@@ -419,7 +430,7 @@ export class SettingsController {
   }
 
   @Get('grading-scales')
-  @Roles(...READ_ROLES)
+  @RequireAnyPermission(...SIEE_LOOKUP_PERMISSIONS)
   @ApiQuery({ name: 'academicYear', required: false })
   async listGradingScales(
     @CurrentUser() principal: ActiveTenantContext,
@@ -439,7 +450,7 @@ export class SettingsController {
   }
 
   @Post('grading-scales')
-  @Roles(...STRICT_ADMIN_ROLES)
+  @RequirePermissions(RBAC_PERMISSIONS.SETTINGS_SIEE_WRITE)
   @HttpCode(HttpStatus.CREATED)
   async createGradingScale(
     @CurrentUser() principal: ActiveTenantContext,
@@ -455,7 +466,7 @@ export class SettingsController {
   }
 
   @Patch('grading-scales/:scaleId')
-  @Roles(...STRICT_ADMIN_ROLES)
+  @RequirePermissions(RBAC_PERMISSIONS.SETTINGS_SIEE_WRITE)
   async updateGradingScale(
     @CurrentUser() principal: ActiveTenantContext,
     @Param('scaleId', PositiveBigIntPipe) scaleId: bigint,
@@ -471,7 +482,7 @@ export class SettingsController {
   }
 
   @Delete('grading-scales/:scaleId')
-  @Roles(...STRICT_ADMIN_ROLES)
+  @RequirePermissions(RBAC_PERMISSIONS.SETTINGS_SIEE_WRITE)
   async deleteGradingScale(
     @CurrentUser() principal: ActiveTenantContext,
     @Param('scaleId', PositiveBigIntPipe) scaleId: bigint,
@@ -482,7 +493,11 @@ export class SettingsController {
 
   // Competencias / dimensiones y columnas #1..#30
   @Get('dimensions')
-  @Roles(...READ_ROLES)
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.SETTINGS_DIMENSIONS_VIEW,
+    RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
+    RBAC_PERMISSIONS.PORTAL_TEACHER_SUPERVISE_READ,
+  )
   @ApiQuery({ name: 'academicYear', required: false })
   async listDimensions(
     @CurrentUser() principal: ActiveTenantContext,
@@ -502,7 +517,7 @@ export class SettingsController {
   }
 
   @Post('dimensions')
-  @Roles(...WRITE_ROLES)
+  @RequirePermissions(RBAC_PERMISSIONS.SETTINGS_DIMENSIONS_WRITE)
   @HttpCode(HttpStatus.CREATED)
   async createDimension(
     @CurrentUser() principal: ActiveTenantContext,
@@ -518,7 +533,7 @@ export class SettingsController {
   }
 
   @Patch('dimensions/:dimensionId')
-  @Roles(...WRITE_ROLES)
+  @RequirePermissions(RBAC_PERMISSIONS.SETTINGS_DIMENSIONS_WRITE)
   async updateDimension(
     @CurrentUser() principal: ActiveTenantContext,
     @Param('dimensionId', PositiveBigIntPipe) dimensionId: bigint,
@@ -534,7 +549,7 @@ export class SettingsController {
   }
 
   @Delete('dimensions/:dimensionId')
-  @Roles(...STRICT_ADMIN_ROLES)
+  @RequirePermissions(RBAC_PERMISSIONS.SETTINGS_DIMENSIONS_DELETE)
   async deleteDimension(
     @CurrentUser() principal: ActiveTenantContext,
     @Param('dimensionId', PositiveBigIntPipe) dimensionId: bigint,
@@ -547,7 +562,7 @@ export class SettingsController {
   }
 
   @Post('dimensions/:dimensionId/columns')
-  @Roles(...WRITE_ROLES)
+  @RequirePermissions(RBAC_PERMISSIONS.SETTINGS_DIMENSIONS_WRITE)
   @HttpCode(HttpStatus.CREATED)
   async saveDimensionColumn(
     @CurrentUser() principal: ActiveTenantContext,
@@ -565,7 +580,7 @@ export class SettingsController {
   }
 
   @Delete('dimensions/:dimensionId/columns/:columnId')
-  @Roles(...WRITE_ROLES)
+  @RequirePermissions(RBAC_PERMISSIONS.SETTINGS_DIMENSIONS_WRITE)
   async deleteDimensionColumn(
     @CurrentUser() principal: ActiveTenantContext,
     @Param('dimensionId', PositiveBigIntPipe) dimensionId: bigint,
@@ -581,7 +596,13 @@ export class SettingsController {
 
   // Observador (plantillas, aspectos/secciones y criterios)
   @Get('observer/templates')
-  @Roles(...READ_ROLES)
+  @RequireModule(RBAC_MODULES.STUDENT_OBSERVER)
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.SETTINGS_OBSERVER_VIEW,
+    RBAC_PERMISSIONS.PORTAL_TEACHER_OWN,
+    RBAC_PERMISSIONS.PORTAL_TEACHER_SUPERVISE_READ,
+    RBAC_PERMISSIONS.PORTAL_TEACHER_OBSERVER_WRITE,
+  )
   async listObserverTemplates(@CurrentUser() principal: ActiveTenantContext) {
     return {
       success: true,
@@ -592,7 +613,8 @@ export class SettingsController {
   }
 
   @Post('observer/templates')
-  @Roles(...WRITE_ROLES)
+  @RequireModule(RBAC_MODULES.STUDENT_OBSERVER)
+  @RequirePermissions(RBAC_PERMISSIONS.SETTINGS_OBSERVER_WRITE)
   @HttpCode(HttpStatus.CREATED)
   async createObserverTemplate(
     @CurrentUser() principal: ActiveTenantContext,
@@ -608,7 +630,8 @@ export class SettingsController {
   }
 
   @Patch('observer/templates/:templateId')
-  @Roles(...WRITE_ROLES)
+  @RequireModule(RBAC_MODULES.STUDENT_OBSERVER)
+  @RequirePermissions(RBAC_PERMISSIONS.SETTINGS_OBSERVER_WRITE)
   async updateObserverTemplate(
     @CurrentUser() principal: ActiveTenantContext,
     @Param('templateId', PositiveBigIntPipe) templateId: bigint,
@@ -624,7 +647,8 @@ export class SettingsController {
   }
 
   @Delete('observer/templates/:templateId')
-  @Roles(...STRICT_ADMIN_ROLES)
+  @RequireModule(RBAC_MODULES.STUDENT_OBSERVER)
+  @RequirePermissions(RBAC_PERMISSIONS.SETTINGS_OBSERVER_DELETE)
   async deleteObserverTemplate(
     @CurrentUser() principal: ActiveTenantContext,
     @Param('templateId', PositiveBigIntPipe) templateId: bigint,
@@ -637,7 +661,8 @@ export class SettingsController {
   }
 
   @Post('observer/templates/:templateId/sections')
-  @Roles(...WRITE_ROLES)
+  @RequireModule(RBAC_MODULES.STUDENT_OBSERVER)
+  @RequirePermissions(RBAC_PERMISSIONS.SETTINGS_OBSERVER_WRITE)
   @HttpCode(HttpStatus.CREATED)
   async createObserverSection(
     @CurrentUser() principal: ActiveTenantContext,
@@ -655,7 +680,8 @@ export class SettingsController {
   }
 
   @Delete('observer/sections/:sectionId')
-  @Roles(...WRITE_ROLES)
+  @RequireModule(RBAC_MODULES.STUDENT_OBSERVER)
+  @RequirePermissions(RBAC_PERMISSIONS.SETTINGS_OBSERVER_WRITE)
   async deleteObserverSection(
     @CurrentUser() principal: ActiveTenantContext,
     @Param('sectionId', PositiveBigIntPipe) sectionId: bigint,
@@ -668,7 +694,8 @@ export class SettingsController {
   }
 
   @Post('observer/sections/:sectionId/criteria')
-  @Roles(...WRITE_ROLES)
+  @RequireModule(RBAC_MODULES.STUDENT_OBSERVER)
+  @RequirePermissions(RBAC_PERMISSIONS.SETTINGS_OBSERVER_WRITE)
   @HttpCode(HttpStatus.CREATED)
   async createObserverCriteria(
     @CurrentUser() principal: ActiveTenantContext,
@@ -686,7 +713,8 @@ export class SettingsController {
   }
 
   @Delete('observer/criteria/:criteriaId')
-  @Roles(...WRITE_ROLES)
+  @RequireModule(RBAC_MODULES.STUDENT_OBSERVER)
+  @RequirePermissions(RBAC_PERMISSIONS.SETTINGS_OBSERVER_WRITE)
   async deleteObserverCriteria(
     @CurrentUser() principal: ActiveTenantContext,
     @Param('criteriaId', PositiveBigIntPipe) criteriaId: bigint,
@@ -700,7 +728,7 @@ export class SettingsController {
 
   // Firmas, encabezados, carnés, módulos extra y limpieza de notas en cero
   @Get('branding')
-  @Roles(...READ_ROLES)
+  @RequirePermissions(RBAC_PERMISSIONS.SETTINGS_BRANDING_VIEW)
   async getBrandingSettings(@CurrentUser() principal: ActiveTenantContext) {
     return {
       success: true,
@@ -709,7 +737,7 @@ export class SettingsController {
   }
 
   @Patch('branding')
-  @Roles(...STRICT_ADMIN_ROLES)
+  @RequirePermissions(RBAC_PERMISSIONS.SETTINGS_BRANDING_WRITE)
   async updateBrandingSettings(
     @CurrentUser() principal: ActiveTenantContext,
     @Body() dto: UpdateBrandingSettingsDto,
@@ -724,7 +752,12 @@ export class SettingsController {
   }
 
   @Get('modules')
-  @Roles(...READ_ROLES)
+  @RequireAnyPermission(
+    RBAC_PERMISSIONS.SETTINGS_BRANDING_VIEW,
+    RBAC_PERMISSIONS.SETTINGS_STRUCTURE_VIEW,
+    RBAC_PERMISSIONS.IAM_RBAC_MANAGE,
+    RBAC_PERMISSIONS.SETTINGS_MODULES_MANAGE,
+  )
   async listSchoolModules(@CurrentUser() principal: ActiveTenantContext) {
     return {
       success: true,
@@ -733,28 +766,31 @@ export class SettingsController {
   }
 
   @Patch('modules/:systemModuleId')
-  @Roles(...STRICT_ADMIN_ROLES)
+  @Roles(CommunityRole.SUPER_ADMIN)
+  @RequirePermissions(RBAC_PERMISSIONS.SETTINGS_MODULES_MANAGE)
   async toggleSchoolModule(
     @CurrentUser() principal: ActiveTenantContext,
     @Param('systemModuleId', ParseIntPipe) systemModuleId: number,
     @Body() dto: ToggleSchoolModuleDto,
   ) {
+    const updated = await this.settingsUseCase.toggleSchoolModule(
+      principal.schoolId,
+      systemModuleId,
+      dto.isActive,
+    );
+    this.rbacPermissions.invalidateSchoolCache(principal.schoolId);
     return {
       success: true,
-      data: await this.settingsUseCase.toggleSchoolModule(
-        principal.schoolId,
-        systemModuleId,
-        dto.isActive,
-      ),
+      data: updated,
     };
   }
 
   @Post('cleanup-zero-grades')
-  @Roles(...STRICT_ADMIN_ROLES)
+  @RequirePermissions(RBAC_PERMISSIONS.SETTINGS_CLEANUP_ZERO_GRADES_EXECUTE)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary:
-      'Eliminar notas en cero no bloqueadas del año lectivo (equivalente a Eliminar Notas en Cero)',
+      'Eliminar notas en cero no bloqueadas de periodos abiertos del año lectivo',
   })
   async cleanupZeroGrades(
     @CurrentUser() principal: ActiveTenantContext,
@@ -765,6 +801,7 @@ export class SettingsController {
       data: await this.settingsUseCase.cleanupZeroGrades(
         principal.schoolId,
         dto.academicYear,
+        principal.userId,
       ),
     };
   }

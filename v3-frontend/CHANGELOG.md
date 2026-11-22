@@ -3,6 +3,25 @@
 Todos los cambios notables de **v3-frontend** (Angular 20+ para toda la Comunidad Educativa) se documentan en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [3.13.0] - 2026-11-21
+
+### Añadido
+- **Shell Ejecutivo Tipo Canva y Drawer Móvil *Mobile-First* (`_asaie-shell.scss`, `SidebarComponent`, `HeaderComponent`, `FooterComponent`):**
+  - Navegación lateral compacta (`94px`) en escritorio adaptada a la paleta clara y oscura de ASAIE ÉXODO con emblema superior elevado, ítem activo celeste suave, etiquetas cortas de 1 palabra (`railTranslatedName`) sin barra gris intrusiva y panel secundario deslizante (`.rail-flyout-panel`) con cierre por *backdrop*, tecla `Escape` o navegación.
+  - Transformación automática en drawer *mobile-first* (`< 1200px`) con filas táctiles amplias, etiquetas completas, cabecera con botón cerrar y navegación `arrow_back` en submenús; unificación de **Cabina de Votación** dentro de Elecciones sin duplicados.
+  - Cabecera agrupada con cápsula `.v3-header-utility-pill`, chip de rol `.user-role-chip` y chevron animado; pie de página con píldora `.footer-version-pill` (`Versión {{ appVersion }}`).
+- **Primitivas Ejecutivas, Panel de Accesos y Dashboard (`/access-panel`, `/dashboard`, `_v3-enterprise.scss`):**
+  - Nuevas primitivas `.v3-hero-banner` (con variante `--compact` y onda SVG `currentColor`), fila métrica de 4 tarjetas `.v3-kpi-metric-card`, contenedores suaves `.v3-section-tint` y mejoras en `V3DataGridComponent` / `V3ModalDialogComponent`.
+  - Rediseño del Panel de Accesos con banner ejecutivo, resumen de instituciones/accesos/fecha, buscador redondeado tipo pill insensible a tildes y grilla de tarjetas en 3 columnas agrupadas por institución.
+- **Sistema Global *Mobile-First* de Formularios, Inputs, Archivos y Botones:**
+  - Modernización global de inputs, selects, `input[type='file']`, switches, badges y botones dentro de `.main-content-body` y `.v3-modal-dialog` (altura mínima `44px`, prevención de zoom en iOS, barra `.v3-form-actions` apilada en móvil).
+  - Modernización de `FooterFormComponent`, `ProfileComponent` y `ProfileChangeComponent` con dropzone interactivo *drag-and-drop*, medidor en vivo de fortaleza de contraseña, alternadores de visibilidad y validación inline.
+- **Skill del Workspace (`.agents/skills/asaie-ui-ux-standards/`):** creación de guía y referencias reutilizables para UI/UX institucional, `[appCustomTooltip]` y `V3SearchableSelectComponent`.
+
+### Corregido
+- **Tooltips Institucionales (`[appCustomTooltip]`):** renombrados los tokens a `$asaie-tooltip-*` en `_variables.scss` para eliminar la colisión `!default` con `$tooltip-*` de Bootstrap 5.3 que pintaba el tooltip en negro sólido, incorporando acabado *frosted*, ajuste de `offset` y alineación dinámica de flecha (`--asaie-tooltip-arrow-pos`).
+- Validación integral ejecutada antes del commit: `npm run typecheck` (`0` errores), `npm run check:native-title` (`0` violaciones), `0` colores hex hardcodeados en componentes/parciales y `npm run build` (`--configuration production`) aprobado con `0` errores.
+
 ## [3.12.0] - 2026-11-21
 
 ### Añadido

@@ -3,6 +3,21 @@
 Todos los cambios notables de **v3-backend** (NestJS 11 + Fastify 5 + PostgreSQL 17 Unificado con RLS) se documentan en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [3.19.0] - 2026-11-22
+
+### Añadido
+- **Motor RBAC Granular Multi-Tenant (`RbacModule`, `RbacPermissionsService`, `PermissionsGuard`):**
+  - Catálogo maestro de **82 permisos atómicos** (`permissions_catalog`, `role_default_permissions`, `school_role_permissions`, `user_permission_overrides`) con resolución jerárquica `Base MEN → Rol Colegio → Excepción Usuario`, acoplamiento automático a módulos licenciados (`system_modules`/`school_modules`), caché O(1) con invalidación por colegio y migración idempotente `20261121_add_rbac_tables.sql`.
+  - Consola API completa en `RbacController` (`/api/v1/rbac/catalog`, `roles-matrix`, `users/:userId/overrides`, `memberships`) incluyendo resumen cuantitativo por audiencia (`GET /api/v1/rbac/memberships/summary`) y paginación remota en dos fases (`listSchoolMembershipsPaginated`, `RbacMembershipsQueryDto`) optimizada para instituciones de 3.000+ usuarios (`DIRECTIVES`, `TEACHERS`, `STUDENTS`, `FAMILIES`, `EXCEPTIONS`, `ALL`).
+  - Pruebas unitarias e integración contra PostgreSQL 17 RLS en `rbac-permissions.spec.ts` (**8/8 PASS**).
+- **Paginación Remota Contrato Laravel Paginator (`ExodoGridQueryDto`, `buildLaravelPaginatorResponse`):**
+  - Soporte nativo para `<exodo-grid mode="remote">` (`dataRecords`) en `AdministrationController` (`campuses`, `teachers`, `staff`, `group-managers`) y `RbacController`, con validación estricta de columnas (`resolveSafeSqlColumn`) y pruebas unitarias en `laravel-paginator.spec.ts`.
+- **Historial Real de Años Lectivos y Plantillas Transaccionales HTML:**
+  - Consulta dinámica de años lectivos reales por establecimiento (`GET /api/v1/settings/academic-years`) y plantillas corporativas de correo HTML (`AsaieEmailTemplateBuilder` + `NodemailerSmtpAdapter`).
+
+### Corregido
+- **Mapeo ETL de Roles (`etl-sanitizer.helper.ts`):** corregido mapeo de `profile_id = 8` hacia `CommunityRole.SCHOOL_ADMIN` en lugar de caer en `STUDENT`.
+
 ## [3.18.0] - 2026-11-21
 
 ### Añadido

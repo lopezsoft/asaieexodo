@@ -3,6 +3,22 @@
 Todos los cambios notables de **v3-frontend** (Angular 20+ para toda la Comunidad Educativa) se documentan en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [3.14.0] - 2026-11-22
+
+### Añadido
+- **Consola *Directivo-First* de Usuarios, Roles y Permisos (`/admin/roles-permissions`, `RolesPermissionsManagementComponent`, `V3RbacService`):**
+  - Priorización por defecto del Equipo Directivo (*Rectoría / Dirección*, *Secretaría Académica*, *Coordinadores*) mediante 4 tarjetas KPI con conteos SQL reales (`getMembershipsSummary`), franja de segmentación rápida de comunidad (`Equipo Directivo`, `Docentes`, `Estudiantes`, `Acudientes y Monitores`, `Con excepciones`, `Toda la comunidad`) y grilla remota paginada `<exodo-grid mode="remote">`.
+  - Modal a 2 columnas para asignar roles con buscador remoto en servidor (`debounceTime(280)`), navegador Master-Detail por módulo para *Permisos por Rol* y *Excepciones por Usuario*, diccionario escolar en español natural sin tecnicismos ni códigos internos (`rbac-human-copy.constants.ts`), píldoras de estado efectivo (`.v3-perm-status`) y controles segmentados modernos (`.v3-perm-segment`).
+  - Integración de `PermissionGuard` y directiva estructural `*appHasPermission` sobre menús y rutas institucionales.
+- **Migración Integral a `exodolibs` (`<exodo-grid>`), Selectores Buscables y Formularios a 2 Columnas / Wizards:**
+  - Adopción de `<exodo-grid mode="remote">` con contrato nativo Laravel Paginator (`_exodo-grid.scss` y exportación Excel vía `exodo-grid-export.util.ts`) reemplazando `V3DataGridComponent`.
+  - Sustitución del **100%** de los elementos `<select>` nativos por `V3SearchableSelectComponent` (con portal en `document.body`, posicionamiento fijo anti-recorte y guardrail estático `npm run check:native-select`) y carga dinámica de todos los años lectivos reales del colegio.
+  - Estandarización de todos los formularios a máximo 2 columnas (`col-12 col-md-6`), incorporación de `V3FormWizardComponent` en 7 formularios extensos (*Plantel*, *Sedes*, *Docentes*, *Administrativos*, *Matrículas*, *SIEE* y *Observador Modelo 5*), botones sólidos sobrios con espaciado uniforme y autofoco automático en el primer campo (`FormAutoFocusService` / `form-autofocus.util.ts`).
+
+### Corregido
+- **Jerarquía `z-index` de `<exodo-grid>` frente al menú lateral y cabecera:** aislamiento de contexto en `.card-table` (`--exodo-z-sticky: 2`, `--exodo-z-loading: 4`) por debajo de `.header-area` (`100`) y `.rail-flyout-panel` / `.sidebar-area` (`190–215`) para evitar solapamientos al desplazarse en tablas largas.
+- Validación completa aprobada antes del release: `npx jest src/modules/rbac/rbac-permissions.spec.ts` (**8/8 PASS**), `npm run typecheck` (`0` errores), `npm run check:native-title` (`0` atributos nativos `title`), `npm run check:native-select` (`0` `<select>` nativos) y `ng build --configuration production` (`0` errores).
+
 ## [3.13.0] - 2026-11-21
 
 ### Añadido
